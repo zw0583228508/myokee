@@ -205,6 +205,17 @@ async def run_cmd_stdout(*args) -> tuple[int, str]:
     out, _ = await p.communicate()
     return p.returncode, out.decode(errors="replace")
 
+async def _validate_mp4(path: Path) -> bool:
+    """Check that an MP4 file has a valid moov atom by probing with ffprobe."""
+    if not path.exists() or path.stat().st_size < 1024:
+        return False
+    rc, _ = await run_cmd(
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries", "stream=codec_name",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        str(path))
+    return rc == 0
+
 
 # ---------------------------------------------------------------------------
 # PIPELINE — Phase 1: separate + transcribe → awaiting_review
@@ -402,8 +413,17 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
     )
     if rc != 0:
         print(f"[prererender] WARN: background pre-render failed: {err[-300:]}")
+        if out.exists():
+            out.unlink()
+            print("[prererender] Removed corrupt/partial bg_prerender.mp4")
     else:
-        print(f"[prererender] Background ready → {out.name} (360p, ultrafast)")
+        ok = await _validate_mp4(out)
+        if not ok:
+            print("[prererender] WARN: bg_prerender.mp4 failed validation (moov atom missing?), removing")
+            if out.exists():
+                out.unlink()
+        else:
+            print(f"[prererender] Background ready → {out.name} (360p, ultrafast)")
 
 
 # ---------------------------------------------------------------------------
@@ -466,6 +486,12 @@ async def render_job(job_id: str):
                 update_job(job_id, progress=int(75 + min(slept / wait_secs, 0.9) * 5))
 
         use_prerender = bg_prerender.exists()
+        if use_prerender:
+            valid = await _validate_mp4(bg_prerender)
+            if not valid:
+                print(f"[render] bg_prerender.mp4 is corrupt (moov atom missing?), falling back to full render")
+                bg_prerender.unlink(missing_ok=True)
+                use_prerender = False
 
         # Render with live progress tracking via asyncio background task
         render_done = asyncio.Event()
