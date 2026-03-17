@@ -157,7 +157,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col relative">
 
       {/* ── Payment Banners ─────────────────────────────────────── */}
       {paymentBanner === "success" && (
