@@ -48,8 +48,7 @@ app = modal.App("karaoke-processor", image=image)
     },
     min_containers=1,
     max_containers=1,
-    allow_concurrent_inputs=100,
-    container_idle_timeout=300,
+    scaledown_window=300,
     timeout=600,
     secrets=[
         modal.Secret.from_dict({
@@ -58,6 +57,7 @@ app = modal.App("karaoke-processor", image=image)
         })
     ],
 )
+@modal.concurrent(max_inputs=100)
 @modal.asgi_app()
 def fastapi_app():
     import sys
