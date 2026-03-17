@@ -15,7 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 
-type ChargeState = "pending" | "free" | "charged" | "insufficient";
+type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
 export default function JobDetails() {
   const { id } = useParams<{ id: string }>();
@@ -118,62 +118,83 @@ export default function JobDetails() {
     }
   }, [currentTime, lyricsData?.words]);
 
-  const attemptCharge = (jobId: string, durationSeconds: number) => {
+  const checkAccess = async (jobId: string): Promise<boolean> => {
+    try {
+      const res = await fetch(apiUrl(`/api/jobs/${jobId}/access`), authFetchOptions());
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (data.access && data.creditsCharged != null) {
+        setChargeState(data.creditsCharged === 0 ? "free" : "charged");
+        setCreditsCharged(data.creditsCharged ?? 0);
+        return true;
+      }
+    } catch {}
+    return false;
+  };
+
+  const attemptCharge = async (jobId: string, durationSeconds: number) => {
     chargeTriggeredRef.current = true;
     setChargeState("pending");
 
-    fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ durationSeconds }),
-    }))
-      .then(res => {
-        if (!res.ok && res.status !== 200) {
-          console.error(`[Charge] HTTP ${res.status} for job ${jobId}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (data.error) {
-          console.error(`[Charge] API error: ${data.error}`);
-          chargeTriggeredRef.current = false;
-          toast({ title: "שגיאה בחיוב", description: "נסה שוב בעוד כמה שניות", variant: "destructive" });
-          return;
-        }
-        if (data.alreadyCharged) {
-          setChargeState(data.creditsCharged === 0 ? "free" : "charged");
-          setCreditsCharged(data.creditsCharged);
-          return;
-        }
-        if (data.success === false) {
-          setChargeState("insufficient");
-          chargeTriggeredRef.current = false;
-          return;
-        }
-        if (data.creditsCharged === 0) {
-          setChargeState("free");
-          toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
-        } else {
-          setChargeState("charged");
-          setCreditsCharged(data.creditsCharged);
-          toast({
-            title: `נוצלו ${data.creditsCharged} קרדיטים`,
-            description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
-          });
-          queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-        }
-      })
-      .catch((err) => {
-        console.error(`[Charge] Network error:`, err);
+    const alreadyPaid = await checkAccess(jobId);
+    if (alreadyPaid) return;
+
+    try {
+      const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ durationSeconds }),
+      }));
+      const data = await res.json();
+
+      if (data.error) {
+        console.error(`[Charge] API error: ${data.error}`);
         chargeTriggeredRef.current = false;
-        toast({ title: "שגיאת רשת", description: "לא הצלחנו לחייג לשרת, נסה שוב", variant: "destructive" });
-      });
+        setChargeState("error");
+        toast({ title: "שגיאה בחיוב", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
+        return;
+      }
+      if (data.alreadyCharged) {
+        setChargeState(data.creditsCharged === 0 ? "free" : "charged");
+        setCreditsCharged(data.creditsCharged);
+        return;
+      }
+      if (data.success === false) {
+        setChargeState("insufficient");
+        chargeTriggeredRef.current = false;
+        return;
+      }
+      if (data.creditsCharged === 0) {
+        setChargeState("free");
+        toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
+      } else {
+        setChargeState("charged");
+        setCreditsCharged(data.creditsCharged);
+        toast({
+          title: `נוצלו ${data.creditsCharged} קרדיטים`,
+          description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
+        });
+        queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      }
+    } catch (err) {
+      console.error(`[Charge] Network error:`, err);
+      chargeTriggeredRef.current = false;
+      setChargeState("error");
+      toast({ title: "שגיאת רשת", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
+    }
   };
 
   useEffect(() => {
     if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
     const durationSeconds = (job as any).duration_seconds;
-    if (!durationSeconds || durationSeconds <= 0) return;
+    if (!durationSeconds || durationSeconds <= 0) {
+      checkAccess(id).then(paid => {
+        if (!paid) {
+          setChargeState("free");
+        }
+      });
+      return;
+    }
     attemptCharge(id, durationSeconds);
   }, [job?.status, (job as any)?.duration_seconds, id]);
 
