@@ -129,14 +129,50 @@ export class Storage {
     const creditsNeeded = Math.max(0, Math.ceil((durationSeconds - FREE_SECONDS) / 60));
 
     if (creditsNeeded === 0) {
-      await query(`UPDATE job_ownership SET duration_seconds=$1, credits_charged=0, charged_at=NOW() WHERE job_id=$2`, [durationSeconds, jobId]);
+      const claimed = await query(
+        `UPDATE job_ownership SET duration_seconds=$1, credits_charged=0, charged_at=NOW()
+         WHERE job_id=$2 AND credits_charged IS NULL RETURNING credits_charged`,
+        [durationSeconds, jobId]
+      );
+      if (claimed.rows.length === 0) {
+        const already = await query(`SELECT credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
+        const balance = await this.getCredits(userId);
+        return { success: true, creditsCharged: already.rows[0]?.credits_charged ?? 0, newBalance: balance, alreadyCharged: true };
+      }
       const balance = await this.getCredits(userId);
       return { success: true, creditsCharged: 0, newBalance: balance, alreadyCharged: false };
     }
 
+    const lockResult = await query(
+      `UPDATE job_ownership SET duration_seconds=$1, credits_charged=-1
+       WHERE job_id=$2 AND credits_charged IS NULL RETURNING job_id`,
+      [durationSeconds, jobId]
+    );
+    if (lockResult.rows.length === 0) {
+      const already = await query(`SELECT credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
+      const charged = already.rows[0]?.credits_charged;
+      if (charged != null && charged === -1) {
+        await new Promise(r => setTimeout(r, 2000));
+        const retry = await query(`SELECT credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
+        const retryCharged = retry.rows[0]?.credits_charged ?? 0;
+        const balance = await this.getCredits(userId);
+        return { success: true, creditsCharged: retryCharged === -1 ? 0 : retryCharged, newBalance: balance, alreadyCharged: true };
+      }
+      const balance = await this.getCredits(userId);
+      return { success: true, creditsCharged: charged ?? 0, newBalance: balance, alreadyCharged: true };
+    }
+
     const result = await this.deductCredits(userId, creditsNeeded);
     if (result.success) {
-      await query(`UPDATE job_ownership SET duration_seconds=$1, credits_charged=$2, charged_at=NOW() WHERE job_id=$3`, [durationSeconds, creditsNeeded, jobId]);
+      await query(
+        `UPDATE job_ownership SET credits_charged=$1, charged_at=NOW() WHERE job_id=$2`,
+        [creditsNeeded, jobId]
+      );
+    } else {
+      await query(
+        `UPDATE job_ownership SET credits_charged=NULL WHERE job_id=$1 AND credits_charged=-1`,
+        [jobId]
+      );
     }
     return { success: result.success, creditsCharged: creditsNeeded, newBalance: result.newBalance, alreadyCharged: false };
   }

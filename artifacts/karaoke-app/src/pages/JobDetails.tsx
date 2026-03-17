@@ -30,6 +30,7 @@ export default function JobDetails() {
   const [currentTime, setCurrentTime] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const chargeTriggeredRef = useRef(false);
+  const chargingInProgressRef = useRef(false);
   const prevStatusRef = useRef<string>("");
   const [chargeState, setChargeState] = useState<ChargeState>("pending");
   const [creditsCharged, setCreditsCharged] = useState(0);
@@ -133,11 +134,13 @@ export default function JobDetails() {
   };
 
   const attemptCharge = async (jobId: string, durationSeconds: number) => {
+    if (chargingInProgressRef.current) return;
+    chargingInProgressRef.current = true;
     chargeTriggeredRef.current = true;
     setChargeState("pending");
 
     const alreadyPaid = await checkAccess(jobId);
-    if (alreadyPaid) return;
+    if (alreadyPaid) { chargingInProgressRef.current = false; return; }
 
     try {
       const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
@@ -150,6 +153,7 @@ export default function JobDetails() {
       if (data.error) {
         console.error(`[Charge] API error: ${data.error}`);
         chargeTriggeredRef.current = false;
+        chargingInProgressRef.current = false;
         setChargeState("error");
         toast({ title: "שגיאה בחיוב", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
         return;
@@ -157,11 +161,13 @@ export default function JobDetails() {
       if (data.alreadyCharged) {
         setChargeState(data.creditsCharged === 0 ? "free" : "charged");
         setCreditsCharged(data.creditsCharged);
+        chargingInProgressRef.current = false;
         return;
       }
       if (data.success === false) {
         setChargeState("insufficient");
         chargeTriggeredRef.current = false;
+        chargingInProgressRef.current = false;
         return;
       }
       if (data.creditsCharged === 0) {
@@ -176,9 +182,11 @@ export default function JobDetails() {
         });
         queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       }
+      chargingInProgressRef.current = false;
     } catch (err) {
       console.error(`[Charge] Network error:`, err);
       chargeTriggeredRef.current = false;
+      chargingInProgressRef.current = false;
       setChargeState("error");
       toast({ title: "שגיאת רשת", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
     }
