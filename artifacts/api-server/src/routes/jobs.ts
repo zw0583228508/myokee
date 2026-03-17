@@ -51,6 +51,7 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
   const { durationSeconds } = req.body;
 
   if (typeof durationSeconds !== "number" || durationSeconds <= 0) {
+    console.error(`[Charge] Bad durationSeconds: ${JSON.stringify(durationSeconds)} (type: ${typeof durationSeconds}) for job ${jobId}`);
     return res.status(400).json({ error: "durationSeconds required" });
   }
 
@@ -59,13 +60,22 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
     if (!owner) {
       await storage.claimJob(jobId, user.id);
     } else if (owner !== user.id) {
+      console.error(`[Charge] User ${user.id} tried to charge job ${jobId} owned by ${owner}`);
       return res.status(403).json({ error: "Not your job" });
     }
 
     const result = await storage.chargeJob(jobId, user.id, durationSeconds);
+    if (!result.success) {
+      const balance = await storage.getCredits(user.id);
+      const FREE_SECONDS = 40;
+      const creditsNeeded = Math.max(0, Math.ceil((durationSeconds - FREE_SECONDS) / 60));
+      console.error(`[Charge] INSUFFICIENT: user=${user.id} balance=${balance} needed=${creditsNeeded} duration=${durationSeconds}s job=${jobId}`);
+    } else {
+      console.log(`[Charge] OK: user=${user.id} charged=${result.creditsCharged} newBalance=${result.newBalance} job=${jobId}`);
+    }
     res.json(result);
   } catch (err) {
-    console.error("Charge job error:", err);
+    console.error("[Charge] Error:", err);
     res.status(500).json({ error: "Internal error" });
   }
 });

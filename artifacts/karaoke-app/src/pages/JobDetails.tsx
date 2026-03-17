@@ -118,14 +118,11 @@ export default function JobDetails() {
     }
   }, [currentTime, lyricsData?.words]);
 
-  // Charge credits once when job transitions to "done"
-  useEffect(() => {
-    if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
-    const durationSeconds = (job as any).duration_seconds;
-    if (!durationSeconds) return; // Wait until duration is available
+  const attemptCharge = (jobId: string, durationSeconds: number) => {
     chargeTriggeredRef.current = true;
+    setChargeState("pending");
 
-    fetch(apiUrl(`/api/jobs/${id}/charge`), authFetchOptions({
+    fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ durationSeconds }),
@@ -139,11 +136,7 @@ export default function JobDetails() {
         }
         if (!data.success) {
           setChargeState("insufficient");
-          toast({
-            title: "אין מספיק קרדיטים",
-            description: "נדרשים קרדיטים להורדת השיר. קנה קרדיטים להמשיך.",
-            variant: "destructive",
-          });
+          chargeTriggeredRef.current = false;
           return;
         }
         if (data.creditsCharged === 0) {
@@ -156,13 +149,20 @@ export default function JobDetails() {
             title: `נוצלו ${data.creditsCharged} קרדיטים`,
             description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
           });
-          // Refresh user credits in auth state
           queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         }
       })
       .catch(() => {
-        chargeTriggeredRef.current = false; // Allow retry
+        chargeTriggeredRef.current = false;
       });
+  };
+
+  // Charge credits once when job transitions to "done"
+  useEffect(() => {
+    if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
+    const durationSeconds = (job as any).duration_seconds;
+    if (!durationSeconds) return;
+    attemptCharge(id, durationSeconds);
   }, [job?.status, (job as any)?.duration_seconds, id]);
 
   const handleLyricsConfirmed = () => {
@@ -305,9 +305,17 @@ export default function JobDetails() {
               <h3 className="font-semibold text-destructive mb-1">אין מספיק קרדיטים</h3>
               <p className="text-sm text-muted-foreground">השיר עובד בהצלחה! כדי להוריד, נדרש לרכוש קרדיטים. חזור לדף הראשי וקנה חבילה.</p>
             </div>
-            <Button variant="gradient" className="ml-auto shrink-0" onClick={() => navigate("/")}>
-              קנה קרדיטים
-            </Button>
+            <div className="flex gap-2 ml-auto shrink-0">
+              <Button variant="outline" onClick={() => {
+                const dur = (job as any)?.duration_seconds;
+                if (id && dur) attemptCharge(id, dur);
+              }}>
+                נסה שוב
+              </Button>
+              <Button variant="gradient" onClick={() => navigate("/")}>
+                קנה קרדיטים
+              </Button>
+            </div>
           </div>
         </Card>
       )}
