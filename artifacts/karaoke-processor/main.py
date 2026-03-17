@@ -58,6 +58,7 @@ jobs: dict[str, dict] = {}
 # Job IDs marked for cancellation (deleted while still processing).
 # Background tasks check this set and exit silently when they see their ID here.
 _cancelled_jobs: set[str] = set()
+_prerender_events: dict[str, asyncio.Event] = {}
 # One semaphore for the ENTIRE inference pipeline (Demucs + Whisper).
 # Both models are large (htdemucs ~3 GB + Whisper large-v3 ~1.5 GB int8).
 # Running them for two jobs simultaneously would push peak RAM to their SUM,
@@ -206,15 +207,27 @@ async def run_cmd_stdout(*args) -> tuple[int, str]:
     return p.returncode, out.decode(errors="replace")
 
 async def _validate_mp4(path: Path) -> bool:
-    """Check that an MP4 file has a valid moov atom by probing with ffprobe."""
+    """Check that an MP4 file has valid video+audio streams and can be read."""
     if not path.exists() or path.stat().st_size < 1024:
         return False
-    rc, _ = await run_cmd(
+    rc_v, _ = await run_cmd(
         "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries", "stream=codec_name,duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        str(path))
+    if rc_v != 0:
+        return False
+    rc_a, _ = await run_cmd(
+        "ffprobe", "-v", "error", "-select_streams", "a:0",
         "-show_entries", "stream=codec_name",
         "-of", "default=noprint_wrappers=1:nokey=1",
         str(path))
-    return rc == 0
+    if rc_a != 0:
+        return False
+    rc_frame, _ = await run_cmd(
+        "ffmpeg", "-v", "error", "-i", str(path),
+        "-frames:v", "1", "-f", "null", "-")
+    return rc_frame == 0
 
 
 # ---------------------------------------------------------------------------
@@ -294,6 +307,7 @@ async def process_job(job_id: str, input_path: Path, filename: str,
 
             # ── Start FFmpeg background pre-render RIGHT AFTER Demucs ─────────
             # FFmpeg is NOT PyTorch — safe to run while Whisper uses CTranslate2.
+            _prerender_events[job_id] = asyncio.Event()
             asyncio.ensure_future(
                 _prererender_bg(job_id, no_vocals_p, audio_dur)
             )
@@ -366,64 +380,65 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
     - waveform at 640×40 (was 1280×80) — same visual, half the work
     Final render upscales from 360p → 720p in one fast scale step.
     """
-    # Exit immediately if the job was cancelled while we were waiting.
-    if job_id in _cancelled_jobs:
-        return
-    jdir = JOBS_DIR / job_id  # Do NOT recreate — job must already exist
-    if not jdir.exists():
-        return
-    out  = jdir / "bg_prerender.mp4"
-    if out.exists():
-        return   # already done (restart case)
-
-    FPS = 25
-    # Half-resolution pre-render: 640×360 instead of 1280×720
-    # Aurora geq is computed on tiny 128×72 source → no change needed there.
-    # Waveform at 640×40 (half width), overlaid at y=320 in the 360p frame.
-    aurora = (
-        f"color=s=128x72:r={FPS}:d={duration}:c=0x06061A[tiny];"
-        "[tiny]geq="
-        "r='60*sin(6.2832*X/128+6.2832*T/14)*sin(6.2832*Y/72+6.2832*T/10)"
-        "+40*sin(6.2832*(X+Y)/160+6.2832*T/18)+30':"
-        "g='25*sin(6.2832*X/96-6.2832*T/16)*cos(6.2832*Y/72+6.2832*T/12)+10':"
-        "b='160*sin(6.2832*Y/72+6.2832*T/10)+70*sin(6.2832*X/128-6.2832*T/13)+90'"
-        "[tiny_aurora];"
-        "[tiny_aurora]scale=640:360:flags=bilinear[aurora];"
-        "[aurora]gblur=sigma=4[bg_blurred];"
-        f"[1:a]showwaves=s=640x40:mode=cline:rate={FPS}:"
-        "colors=0x9333EAFF|0x3B82F6FF:scale=sqrt[wv];"
-        "[bg_blurred][wv]overlay=0:320[out]"
-    )
-
-    # Use `nice -n 10` so Whisper (running concurrently) isn't starved for CPU.
-    import shutil as _shutil
-    nice_cmd = ["nice", "-n", "10"] if _shutil.which("nice") else []
-    rc, err = await run_cmd(
-        *nice_cmd,
-        "ffmpeg", "-y",
-        "-threads", "0",
-        "-f", "lavfi", "-i", f"color=s=640x360:r={FPS}:d={duration}:c=black",
-        "-i", str(no_vocals),
-        "-filter_complex", aurora,
-        "-map", "[out]", "-map", "1:a",
-        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
-        "-c:a", "aac", "-b:a", "128k",
-        "-r", str(FPS), "-pix_fmt", "yuv420p",
-        "-shortest", str(out),
-    )
-    if rc != 0:
-        print(f"[prererender] WARN: background pre-render failed: {err[-300:]}")
+    event = _prerender_events.get(job_id)
+    try:
+        if job_id in _cancelled_jobs:
+            return
+        jdir = JOBS_DIR / job_id
+        if not jdir.exists():
+            return
+        out  = jdir / "bg_prerender.mp4"
         if out.exists():
-            out.unlink()
-            print("[prererender] Removed corrupt/partial bg_prerender.mp4")
-    else:
-        ok = await _validate_mp4(out)
-        if not ok:
-            print("[prererender] WARN: bg_prerender.mp4 failed validation (moov atom missing?), removing")
+            return
+
+        FPS = 25
+        aurora = (
+            f"color=s=128x72:r={FPS}:d={duration}:c=0x06061A[tiny];"
+            "[tiny]geq="
+            "r='60*sin(6.2832*X/128+6.2832*T/14)*sin(6.2832*Y/72+6.2832*T/10)"
+            "+40*sin(6.2832*(X+Y)/160+6.2832*T/18)+30':"
+            "g='25*sin(6.2832*X/96-6.2832*T/16)*cos(6.2832*Y/72+6.2832*T/12)+10':"
+            "b='160*sin(6.2832*Y/72+6.2832*T/10)+70*sin(6.2832*X/128-6.2832*T/13)+90'"
+            "[tiny_aurora];"
+            "[tiny_aurora]scale=640:360:flags=bilinear[aurora];"
+            "[aurora]gblur=sigma=4[bg_blurred];"
+            f"[1:a]showwaves=s=640x40:mode=cline:rate={FPS}:"
+            "colors=0x9333EAFF|0x3B82F6FF:scale=sqrt[wv];"
+            "[bg_blurred][wv]overlay=0:320[out]"
+        )
+
+        import shutil as _shutil
+        nice_cmd = ["nice", "-n", "10"] if _shutil.which("nice") else []
+        rc, err = await run_cmd(
+            *nice_cmd,
+            "ffmpeg", "-y",
+            "-threads", "0",
+            "-f", "lavfi", "-i", f"color=s=640x360:r={FPS}:d={duration}:c=black",
+            "-i", str(no_vocals),
+            "-filter_complex", aurora,
+            "-map", "[out]", "-map", "1:a",
+            "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
+            "-c:a", "aac", "-b:a", "128k",
+            "-r", str(FPS), "-pix_fmt", "yuv420p",
+            "-shortest", str(out),
+        )
+        if rc != 0:
+            print(f"[prererender] WARN: background pre-render failed: {err[-300:]}")
             if out.exists():
                 out.unlink()
+                print("[prererender] Removed corrupt/partial bg_prerender.mp4")
         else:
-            print(f"[prererender] Background ready → {out.name} (360p, ultrafast)")
+            ok = await _validate_mp4(out)
+            if not ok:
+                print("[prererender] WARN: bg_prerender.mp4 failed validation (moov atom missing?), removing")
+                if out.exists():
+                    out.unlink()
+            else:
+                print(f"[prererender] Background ready → {out.name} (360p, ultrafast)")
+    finally:
+        if event:
+            event.set()
+        _prerender_events.pop(job_id, None)
 
 
 # ---------------------------------------------------------------------------
@@ -473,12 +488,18 @@ async def render_job(job_id: str):
 
         # ── Check for pre-rendered background ──────────────────────────────
         # Background rendering started automatically when the user entered
-        # the review phase. Wait up to 60 s for it to finish (it's usually
-        # already done after the user spends time reading the transcript).
+        # the review phase. Wait for the prerender task to actually finish
+        # (not just for the file to appear) to avoid reading incomplete files.
         bg_prerender = jdir / "bg_prerender.mp4"
-        if not bg_prerender.exists():
-            update_job(job_id, progress=75,
-                       status="rendering")   # still waiting for bg
+        prerender_event = _prerender_events.get(job_id)
+        if prerender_event and not prerender_event.is_set():
+            update_job(job_id, progress=75, status="rendering")
+            try:
+                await asyncio.wait_for(prerender_event.wait(), timeout=180)
+            except asyncio.TimeoutError:
+                print(f"[render] Pre-render timed out after 180s, falling back")
+        elif not bg_prerender.exists():
+            update_job(job_id, progress=75, status="rendering")
             wait_secs, slept = 120, 0
             while not bg_prerender.exists() and slept < wait_secs:
                 await asyncio.sleep(2)
@@ -514,6 +535,12 @@ async def render_job(job_id: str):
                 rc, err = await _render_video_fast(
                     bg_prerender, ass_p, video_p,
                     avatar_p if has_avatar else None)
+                if rc != 0:
+                    print(f"[render] Fast render failed ({err[-200:]}), falling back to full render")
+                    bg_prerender.unlink(missing_ok=True)
+                    rc, err = await _render_video(
+                        no_vocals_p, ass_p, video_p, duration,
+                        avatar_p if has_avatar else None)
             else:
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
@@ -1536,6 +1563,7 @@ async def delete_job(jid: str):
     # background task (Demucs / Whisper / render) can detect it and exit
     # cleanly instead of crashing on a missing path.
     _cancelled_jobs.add(jid)
+    _prerender_events.pop(jid, None)
     jobs.pop(jid)
     d = JOBS_DIR / jid
     if d.exists():
