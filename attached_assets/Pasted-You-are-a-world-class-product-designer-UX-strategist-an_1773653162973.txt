@@ -1,0 +1,153 @@
+You are a world-class product designer, UX strategist, and startup marketing writer.
+
+Your task is to **analyze, redesign, and rewrite the entire website of an AI product called MYOUKEE**.
+
+MYOUKEE is an AI karaoke platform that allows users to turn **any song into karaoke automatically**.
+
+The system:
+• separates vocals from music using AI
+• transcribes lyrics automatically
+• synchronizes lyrics to the song
+• allows users to sing in real time
+• scores their performance
+• creates shareable karaoke videos
+
+Users can upload a file or paste a YouTube link.
+
+The first **40 seconds are free**.
+
+Your job is to **improve the website in all aspects**:
+• structure
+• hierarchy
+• clarity
+• marketing copy
+• UX flow
+• section order
+• readability
+• emotional impact
+
+The website must feel like a **premium AI startup product** comparable to Suno, ElevenLabs, or Midjourney.
+
+---
+
+Rewrite the website with a **clear and logical structure**:
+
+1. HERO SECTION
+   Create a powerful headline explaining the core value.
+
+Focus on the key message:
+“Turn any song into karaoke with AI”.
+
+Add a short, exciting subheadline explaining the experience.
+
+Include feature highlights such as:
+• real-time singing
+• global leaderboard
+• karaoke battles
+• party mode
+• support for 100+ languages
+
+Add two CTA buttons:
+Primary: “Create Karaoke Now”
+Secondary: “View Leaderboard”
+
+Add supporting text:
+“First 40 seconds free – no credit card required.”
+
+---
+
+2. PRODUCT VALUE SECTION
+   Explain clearly what MYOUKEE does in simple language.
+
+Highlight the unique advantage:
+“No karaoke library required. Any song works.”
+
+Explain that users can upload a file or paste a YouTube link.
+
+---
+
+3. HOW IT WORKS
+   Create a simple three-step process.
+
+Step 1 – Upload a song
+Step 2 – AI processes the audio
+Step 3 – Sing, compete, and share
+
+Use very short descriptions.
+
+---
+
+4. CORE FEATURES
+   Create a clean feature grid with short descriptions.
+
+Features include:
+• real-time pitch detection
+• global leaderboard
+• battle mode (challenge friends)
+• party mode for karaoke events
+• automatic viral clip generation
+• MP4 karaoke video export
+
+Keep each description short and engaging.
+
+---
+
+5. AI TECHNOLOGY
+   Explain the AI stack in simple language.
+
+Demucs AI – separates vocals from music
+Whisper AI – transcribes and synchronizes lyrics
+
+Mention that MYOUKEE supports **100+ languages**.
+
+---
+
+6. SOCIAL EXPERIENCE
+   Explain the competitive and social aspects of the platform.
+
+Include:
+• leaderboards
+• friend challenges
+• weekly karaoke challenges
+• performance ratings and stars
+
+Make this section exciting and gamified.
+
+---
+
+7. WHY MYOUKEE
+   Explain what makes the platform unique.
+
+• No karaoke database required
+• Works with any song
+• Real-time singing analysis
+• AI-generated karaoke videos
+• Built for sharing and competition
+
+---
+
+8. FINAL CALL TO ACTION
+   Create a strong closing section encouraging users to start singing.
+
+Example headline:
+“Ready to turn your favorite song into karaoke?”
+
+CTA button:
+“Create Karaoke Now”
+
+Supporting text:
+“Upload a song or paste a YouTube link. First 40 seconds free.”
+
+---
+
+Design and writing guidelines:
+
+• Use clear visual hierarchy
+• Use large headings and short paragraphs
+• Avoid repetition
+• Keep the tone modern and exciting
+• Write like a premium AI startup product
+• Make the page easy to scan and visually structured
+• Focus on user excitement and conversion
+
+The final result should feel like a **high-end AI product landing page**.

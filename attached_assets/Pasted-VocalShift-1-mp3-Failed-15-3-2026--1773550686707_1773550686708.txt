@@ -1,0 +1,14 @@
+VocalShift
+
+גוגל
+
+פייסבוק
+חזרה לסטודיו
+תודה לך ר'בה בני פרידמן (1).mp3
+Failed
+•
+15.3.2026, 6:55:50
+העיבוד נכשל
+משהו השתבש בזמן עיבוד הטראק. אנא נסה שוב.
+
+פרטי שגיאה: FFmpeg render: ine), yuvj420p(pc, bt470bg/unknown/unknown), 1280x720 [SAR 96:96 DAR 16:9], 25 fps, 25 tbr, 25 tbn Stream mapping: Stream #1:0 (pcm_s16le) -> showwaves:default Stream #2:0 (mjpeg) -> scale:default ass:default -> Stream #0:0 (libx264) Stream #1:0 -> #0:1 (pcm_s16le (native) -> aac (native)) Press [q] to stop, [?] for help [Parsed_ass_10 @ 0x7f30c40142c0] libass API version: 0x1703000 [Parsed_ass_10 @ 0x7f30c40142c0] libass source: tarball: 0.17.3 [Parsed_ass_10 @ 0x7f30c40142c0] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 10.2.0 (COMPLEX) [Parsed_ass_10 @ 0x7f30c40142c0] Loading font file '/home/runner/workspace/artifacts/karaoke-processor/fonts/NotoSansHebrew.ttf' [Parsed_ass_10 @ 0x7f30c40142c0] Loading font file '/home/runner/workspace/artifacts/karaoke-processor/fonts/NotoSans.ttf' [Parsed_ass_10 @ 0x7f30c40142c0] Using font provider fontconfig [Parsed_ass_10 @ 0x7f30c40142c0] Added subtitle file: '/tmp/karaoke_jobs/a1d25a8a-6b50-4fbe-bc6b-8c441d760105/karaoke.ass' (4 styles, 189 events) [swscaler @ 0x7f30c49f9700] deprecated pixel format used, make sure you did set range correctly [Parsed_zoompan_7 @ 0x7f30c4031f00] [Eval @ 0x7f30d3ffc090] Undefined constant or missing '(' in 't*1.8)' [Parsed_zoompan_7 @ 0x7f30c4031f00] Failed to configure output pad on Parsed_zoompan_7 [fc#0 @ 0x271f7f00] Error reinitializing filters! [fc#0 @ 0x271f7f00] Task finished with error code: -22 (Invalid argument) [fc#0 @ 0x271f7f00] Terminating thread with return code -22 (Invalid argument) [vost#0:0/libx264 @ 0x2729f640] Could not open encoder before EOF [vost#0:0/libx264 @ 0x2729f640] Task finished with error code: -22 (Invalid argument) [vost#0:0/libx264 @ 0x2729f640] Terminating thread with return code -22 (Invalid argument) [out#0/mp4 @ 0x271fe640] Nothing was written into output file, because at least one of its streams received no packets. frame= 0 fps=0.0 q=0.0 Lsize= 0KiB time=N/A bitrate=N/A speed=N/A [aac @ 0x2720cbc0] Qavg: 559.881 Conversion failed!

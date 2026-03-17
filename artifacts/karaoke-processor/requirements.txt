@@ -1,0 +1,16 @@
+fastapi==0.135.1
+uvicorn[standard]==0.41.0
+python-multipart
+demucs==4.0.1
+faster-whisper==1.2.1
+ffmpeg-python==0.2.0
+httpx==0.28.1
+numpy==2.4.3
+pillow==12.1.1
+pydantic==2.12.5
+rembg==2.0.72
+scipy==1.17.1
+soundfile
+torch==2.3.0
+torchaudio==2.3.0
+yt-dlp

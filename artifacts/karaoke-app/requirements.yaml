@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For stunning page transitions, micro-interactions, and pipeline animations"
+  "react-dropzone": "For a professional drag-and-drop file upload experience"
+  "clsx": "For constructing conditional className strings"
+  "tailwind-merge": "For merging Tailwind CSS classes without style conflicts"
+  "date-fns": "For formatting job creation and completion timestamps beautifully"
+
+images:
+  - path: "artifacts/karaoke-app/public/images/hero-glow.png"
+    description: "Abstract, deep dark background with vibrant glowing purple and blue neon light leaks, cinematic music vibe, blurry ambient lights"
+    aspect_ratio: "16:9"
+  - path: "artifacts/karaoke-app/public/images/music-wave.png"
+    description: "Sleek, futuristic 3D audio waveform in glowing cyan and magenta on a pure black background"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated hooks from @workspace/api-client-react where possible.
+  - Adding custom fetch wrapper for multipart/form-data file uploads since it's not explicitly in the generated client.
+  - Implementing TanStack Query polling for job status checks.

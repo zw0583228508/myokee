@@ -1,0 +1,103 @@
+PRIVACY POLICY
+Last updated: [Insert Date]
+
+MYOUKEE (“we”, “our”, or “the Platform”) respects your privacy and is committed to protecting your personal information.
+
+This Privacy Policy explains how we collect, use, and protect your information when you use the MYOUKEE application or website.
+
+---
+
+1. INFORMATION WE COLLECT
+
+When using the Platform, we may collect the following types of information:
+
+• Account information (such as username or email address)
+• Uploaded audio or video files
+• Generated karaoke content
+• Usage data and interaction with the Platform
+• Device and technical information (such as browser type, operating system, and IP address)
+
+---
+
+2. HOW WE USE INFORMATION
+
+We use the collected information to:
+
+• provide and operate the Platform
+• process uploaded content and generate karaoke outputs
+• improve system performance and user experience
+• maintain security and prevent misuse
+• communicate service updates if necessary
+
+---
+
+3. USER CONTENT
+
+Audio files, videos, and other content uploaded by users are processed automatically by the Platform for the purpose of generating karaoke content.
+
+The Platform does not claim ownership of user-uploaded content.
+
+---
+
+4. DATA STORAGE
+
+User data may be stored on secure servers or third-party cloud infrastructure used to operate the Platform.
+
+We take reasonable technical and organizational measures to protect user data from unauthorized access or misuse.
+
+---
+
+5. SHARING OF INFORMATION
+
+We do not sell personal data to third parties.
+
+Information may be shared only when necessary to:
+
+• operate the Platform infrastructure
+• comply with legal obligations
+• respond to lawful requests from authorities
+• enforce our Terms of Use
+
+---
+
+6. THIRD-PARTY SERVICES
+
+The Platform may rely on third-party infrastructure providers such as cloud hosting, analytics tools, or processing services.
+
+These services may process data in accordance with their own privacy policies.
+
+---
+
+7. DATA RETENTION
+
+Uploaded content and generated files may be stored temporarily for processing purposes.
+
+The Platform may delete or remove stored files after processing or after a certain period of time.
+
+---
+
+8. SECURITY
+
+We implement reasonable security measures to protect user data. However, no system can guarantee complete security.
+
+Users are responsible for protecting their own accounts and login credentials.
+
+---
+
+9. CHILDREN
+
+The Platform is not intended for use by children under the age of 13 without parental consent.
+
+---
+
+10. CHANGES TO THIS POLICY
+
+We may update this Privacy Policy from time to time. Updates will be posted on this page.
+
+---
+
+11. CONTACT
+
+For privacy-related questions, please contact:
+
+[Insert contact email]

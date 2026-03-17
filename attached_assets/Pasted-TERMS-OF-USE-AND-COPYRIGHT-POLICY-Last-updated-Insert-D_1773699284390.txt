@@ -1,0 +1,186 @@
+TERMS OF USE AND COPYRIGHT POLICY
+Last updated: [Insert Date]
+
+Welcome to MYOUKEE (the “Platform”).
+
+These Terms of Use govern your access to and use of the MYOUKEE application, website, and related services. By accessing or using the Platform, uploading content, generating karaoke material, or using any feature of the Platform, you agree to be bound by these Terms.
+
+If you do not agree to these Terms, you must not use the Platform.
+
+---
+
+1. PLATFORM DESCRIPTION
+
+MYOUKEE is an automated technology platform that allows users to upload audio or video files and generate karaoke versions using artificial intelligence technologies including, but not limited to:
+
+• vocal separation
+• lyric transcription
+• lyric synchronization
+• karaoke rendering
+• video generation
+• animated visuals
+
+The Platform does not provide music files or copyrighted songs.
+
+All content processed by the Platform is provided directly by users.
+
+---
+
+2. USER CONTENT
+
+Users may upload audio or video content for the purpose of generating karaoke versions.
+
+By uploading any content to the Platform, you represent and warrant that:
+
+• you own the content, OR
+• you have obtained all necessary permissions, licenses, or legal rights to use the content.
+
+You agree not to upload any material that infringes copyright, trademark, or other intellectual property rights.
+
+---
+
+3. ACCEPTABLE CONTENT
+
+Users should upload only content that falls into one of the following categories:
+
+• original recordings created by the user
+• royalty-free music
+• public domain recordings
+• content for which the user has a valid license or legal permission
+• content the user legally owns
+
+The Platform strongly discourages uploading copyrighted songs without proper authorization.
+
+---
+
+4. NO COPYRIGHT VERIFICATION
+
+The Platform does not verify ownership of uploaded materials.
+
+MYOUKEE operates solely as an automated technical processing service.
+
+The Platform does not monitor, review, or pre-screen user uploads for copyright ownership.
+
+All responsibility for uploaded materials remains solely with the user.
+
+---
+
+5. USER RESPONSIBILITY
+
+You acknowledge and agree that you are solely responsible for:
+
+• any audio or video you upload
+• any karaoke generated from such content
+• any distribution or sharing of generated content
+• ensuring your use complies with applicable copyright laws.
+
+---
+
+6. COPYRIGHT COMPLIANCE
+
+Users must not upload content that:
+
+• violates copyright laws
+• violates intellectual property rights
+• is illegally distributed
+• is owned by third parties without permission.
+
+If you are unsure whether you have the legal right to use specific audio content, you must not upload it.
+
+---
+
+7. PLATFORM ROLE
+
+MYOUKEE provides only automated processing tools.
+
+The Platform:
+
+• does not supply copyrighted music
+• does not host a licensed music catalog
+• does not grant rights to copyrighted songs
+• does not claim ownership over user-uploaded content.
+
+---
+
+8. INDEMNIFICATION
+
+By using the Platform, you agree to indemnify, defend, and hold harmless MYOUKEE, its owners, operators, developers, employees, partners, and affiliates from and against any claims, damages, liabilities, losses, legal fees, or expenses arising from:
+
+• content you upload
+• alleged copyright infringement
+• violations of intellectual property rights
+• misuse of the Platform
+• violations of applicable law.
+
+---
+
+9. LIMITATION OF LIABILITY
+
+The Platform is provided on an “as-is” and “as-available” basis.
+
+To the maximum extent permitted by law, MYOUKEE and its operators shall not be liable for:
+
+• copyright infringement claims resulting from user content
+• losses or damages arising from user misuse
+• interruption of service
+• loss of data or content
+• indirect or consequential damages.
+
+---
+
+10. COMMERCIAL USE
+
+Content generated using the Platform may not be used for commercial purposes unless the user holds all required rights, licenses, or permissions.
+
+The Platform does not grant any copyright license for uploaded content.
+
+---
+
+11. COPYRIGHT COMPLAINTS
+
+If you believe that any content generated or processed through the Platform infringes your copyright, you may submit a copyright complaint.
+
+Upon receiving a valid notice, the Platform may:
+
+• remove the content
+• disable access to the material
+• suspend or terminate the user account.
+
+---
+
+12. CONTENT REMOVAL
+
+MYOUKEE reserves the right to remove or disable access to any content that may violate:
+
+• copyright laws
+• intellectual property rights
+• applicable regulations
+• these Terms of Use.
+
+---
+
+13. ACCOUNT SUSPENSION
+
+Users who repeatedly upload infringing content may have their accounts:
+
+• restricted
+• suspended
+• permanently terminated.
+
+---
+
+14. ACCEPTANCE OF TERMS
+
+By using the Platform, uploading content, or generating karaoke materials, you confirm that:
+
+• you have read and understood these Terms
+• you agree to comply with all applicable laws
+• you accept full responsibility for the content you upload.
+
+---
+
+USER CONFIRMATION
+
+Before uploading any song, the user must confirm:
+
+“I confirm that I have the legal right to use this audio and that it does not violate copyright or intellectual property rights. I agree to the Terms of Use.”

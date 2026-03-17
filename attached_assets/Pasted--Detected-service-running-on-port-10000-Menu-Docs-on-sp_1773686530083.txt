@@ -1,0 +1,55 @@
+==> Detected service running on port 10000
+Menu
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running 'node artifacts/api-server/dist/index.cjs'
+[static] Web app dist not found at /opt/render/project/src/artifacts/karaoke-app/dist/public — skipping static serve
+(node:56) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+[migrate] Tables ensured.
+Server listening on port 10000
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://myokee.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+[auth] Google profile received for: windot100@gmail.com
+[auth] User upserted: google:116877679810910595593
+[auth] req.login error: Error: ENOENT: no such file or directory, open '/opt/render/project/src/artifacts/api-server/dist/table.sql'
+    at async open (node:internal/fs/promises:636:25)
+    at async Object.readFile (node:internal/fs/promises:1235:14)
+    at async n._rawEnsureSessionStoreTable (/opt/render/project/src/artifacts/api-server/dist/index.cjs:65:31480) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/opt/render/project/src/artifacts/api-server/dist/table.sql'
+}
+[auth] Issued JWT for: google:116877679810910595593
+[error] 500 — ENOENT: no such file or directory, open '/opt/render/project/src/artifacts/api-server/dist/table.sql' Error: ENOENT: no such file or directory, open '/opt/render/project/src/artifacts/api-server/dist/table.sql'
+    at async open (node:internal/fs/promises:636:25)
+    at async Object.readFile (node:internal/fs/promises:1235:14)
+    at async n._rawEnsureSessionStoreTable (/opt/render/project/src/artifacts/api-server/dist/index.cjs:65:31480)
+Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:700:11)
+    at Q.set.Q.header (/opt/render/project/src/artifacts/api-server/dist/index.cjs:41:6746)
+    at Q.send (/opt/render/project/src/artifacts/api-server/dist/index.cjs:41:3202)
+    at Q.json (/opt/render/project/src/artifacts/api-server/dist/index.cjs:41:4047)
+    at /opt/render/project/src/artifacts/api-server/dist/index.cjs:147:2892
+    at Nr.handleError (/opt/render/project/src/artifacts/api-server/dist/index.cjs:31:25350)
+    at x (/opt/render/project/src/artifacts/api-server/dist/index.cjs:31:30656)
+    at /opt/render/project/src/artifacts/api-server/dist/index.cjs:31:30278
+    at s5 (/opt/render/project/src/artifacts/api-server/dist/index.cjs:31:32269)
+    at Immediate.y (/opt/render/project/src/artifacts/api-server/dist/index.cjs:31:30211)
+(node:56) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance

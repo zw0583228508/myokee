@@ -1,0 +1,29 @@
+[build]
+  base    = "artifacts/karaoke-app"
+  command = "cd ../.. && pnpm --filter @workspace/karaoke-app run build"
+  publish = "dist/public"
+
+[build.environment]
+  BASE_PATH = "/"
+  NODE_VERSION = "20"
+  VITE_API_URL = "https://myokee.onrender.com"
+
+# OAuth routes need a real browser redirect (not a proxy)
+[[redirects]]
+  from   = "/api/auth/*"
+  to     = "https://myokee.onrender.com/api/auth/:splat"
+  status = 301
+  force  = true
+
+# Forward all other /api/* calls to the Render backend via proxy
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://myokee.onrender.com/api/:splat"
+  status = 200
+  force  = true
+
+# SPA fallback — must come last
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

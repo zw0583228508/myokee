@@ -1,0 +1,133 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Karaoke AI API specification
+servers:
+  - url: /api/processor
+    description: Karaoke processor service (proxied through Node.js API)
+tags:
+  - name: jobs
+    description: Karaoke processing jobs
+paths:
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+  /jobs/{jobId}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job status
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Job not found
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResponse"
+
+components:
+  schemas:
+    JobStatus:
+      type: string
+      enum:
+        - pending
+        - queued
+        - separating
+        - transcribing
+        - rendering
+        - done
+        - error
+    WordTimestamp:
+      type: object
+      properties:
+        word:
+          type: string
+        start:
+          type: number
+        end:
+          type: number
+        probability:
+          type: number
+      required:
+        - word
+        - start
+        - end
+        - probability
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/JobStatus"
+        progress:
+          type: number
+          description: Progress 0-100
+        filename:
+          type: string
+        error:
+          type: string
+          nullable: true
+        words:
+          type: array
+          items:
+            $ref: "#/components/schemas/WordTimestamp"
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - status
+        - progress
+        - filename
+        - created_at
+        - updated_at
+    DeleteResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required:
+        - ok

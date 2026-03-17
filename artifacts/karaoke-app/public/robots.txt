@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /job/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /job/
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /job/
+Crawl-delay: 2
+
+Sitemap: https://myoukee.com/sitemap.xml
