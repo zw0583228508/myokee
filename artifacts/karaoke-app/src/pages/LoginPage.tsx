@@ -1,8 +1,8 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { Mic2, Mail, Lock, User, Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Mic2, Mail, Lock, User, Loader2, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEmailLogin, useEmailRegister, consumeAuthErrorFromUrl } from "@/hooks/use-auth";
+import { useEmailLogin, useEmailRegister, useForgotPassword, useResetPassword, consumeAuthErrorFromUrl } from "@/hooks/use-auth";
 import { useLang, type SupportedLang } from "@/contexts/LanguageContext";
 import {
   DropdownMenu,
@@ -23,24 +23,39 @@ function GoogleIcon() {
   );
 }
 
+type PageMode = "login" | "register" | "forgot" | "reset" | "reset-success";
+
 export default function LoginPage() {
   const queryClient = useQueryClient();
   const { t, lang, setLang, allLangs } = useLang();
   const emailLogin = useEmailLogin();
   const emailRegister = useEmailRegister();
+  const forgotPassword = useForgotPassword();
+  const resetPassword = useResetPassword();
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<PageMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     const authError = consumeAuthErrorFromUrl();
     if (authError) {
       setError(`Google login failed: ${authError}`);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("reset_token");
+    if (token) {
+      setResetToken(token);
+      setMode("reset");
+      window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
 
@@ -56,8 +71,6 @@ export default function LoginPage() {
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );
     if (!popup) return;
-
-    const tokenBefore = localStorage.getItem("myoukee_auth_token");
 
     const onMessage = (e: MessageEvent) => {
       if (e.source !== popup) return;
@@ -113,7 +126,360 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!email) {
+      setError(t.login.emailLabel + " required");
+      return;
+    }
+    setLoading(true);
+    try {
+      await forgotPassword.mutateAsync({ email, lang });
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to send reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!password || !confirmPw) {
+      setError(t.login.newPassword + " required");
+      return;
+    }
+    if (password.length < 6) {
+      setError(t.login.passwordMinLength);
+      return;
+    }
+    if (password !== confirmPw) {
+      setError(t.login.passwordsNoMatch);
+      return;
+    }
+    if (!resetToken) {
+      setError(t.login.resetLinkExpired);
+      return;
+    }
+    setLoading(true);
+    try {
+      await resetPassword.mutateAsync({ token: resetToken, password });
+      setMode("reset-success");
+    } catch (err: any) {
+      setError(err.message || t.login.resetLinkExpired);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const goToLogin = () => {
+    setMode("login");
+    setError(null);
+    setResetSent(false);
+    setPassword("");
+    setConfirmPw("");
+  };
+
   const isRtl = t.dir === "rtl";
+
+  const renderContent = () => {
+    if (mode === "reset-success") {
+      return (
+        <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-center">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-green-400" />
+            </div>
+          </div>
+          <h3 className="text-lg font-bold text-white mb-2">{t.login.resetSuccess}</h3>
+          <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc.replace(
+            t.login.resetEmailSentDesc, 
+            mode === "reset-success" ? t.login.resetSuccess : t.login.resetEmailSentDesc
+          )}</p>
+          <Button
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+            }}
+            className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+          >
+            {t.login.loginButton}
+          </Button>
+        </div>
+      );
+    }
+
+    if (mode === "forgot") {
+      if (resetSent) {
+        return (
+          <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                <Mail className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">{t.login.resetEmailSent}</h3>
+            <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc}</p>
+            <button
+              onClick={goToLogin}
+              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              {t.login.backToLogin}
+            </button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+          <button
+            onClick={goToLogin}
+            className={`flex items-center gap-1 text-sm text-white/40 hover:text-white/70 transition-colors mb-6 ${isRtl ? 'flex-row-reverse' : ''}`}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t.login.backToLogin}
+          </button>
+
+          <h3 className="text-lg font-bold text-white mb-2">{t.login.forgotPassword}</h3>
+          <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc}</p>
+
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleForgotSubmit} className="space-y-4">
+            <div className="relative">
+              <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.login.emailLabel}
+                required
+                dir="ltr"
+                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                t.login.sendResetLink
+              )}
+            </Button>
+          </form>
+        </div>
+      );
+    }
+
+    if (mode === "reset") {
+      return (
+        <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+          <h3 className="text-lg font-bold text-white mb-2">{t.login.resetPassword}</h3>
+          <p className="text-sm text-white/50 mb-6">{t.login.passwordMinLength}</p>
+
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleResetSubmit} className="space-y-4">
+            <div className="relative">
+              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t.login.newPassword}
+                required
+                dir="ltr"
+                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                placeholder={t.login.confirmPassword}
+                required
+                dir="ltr"
+                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                t.login.resetPassword
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-5 text-center">
+            <button
+              onClick={goToLogin}
+              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              {t.login.backToLogin}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+        <Button
+          size="lg"
+          className="w-full gap-3 bg-white text-gray-900 hover:bg-gray-100 font-semibold h-12 text-base rounded-xl shadow-md"
+          onClick={handleGoogleLogin}
+        >
+          <GoogleIcon />
+          {t.login.googleButton}
+        </Button>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-sm text-white/30 font-medium">{t.login.orDivider}</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
+          {mode === "register" && (
+            <div className="relative">
+              <User className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder={t.login.displayNameLabel}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
+              />
+            </div>
+          )}
+
+          <div className="relative">
+            <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t.login.emailLabel}
+              required
+              dir="ltr"
+              className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+            />
+          </div>
+
+          <div className="relative">
+            <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t.login.passwordLabel}
+              required
+              dir="ltr"
+              className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className={`absolute top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+
+          {mode === "login" && (
+            <div className={`flex ${isRtl ? 'justify-start' : 'justify-end'}`}>
+              <button
+                type="button"
+                onClick={() => { setMode("forgot"); setError(null); }}
+                className="text-xs text-white/40 hover:text-primary transition-colors"
+              >
+                {t.login.forgotPassword}
+              </button>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : mode === "login" ? (
+              t.login.loginButton
+            ) : (
+              t.login.registerButton
+            )}
+          </Button>
+        </form>
+
+        <div className="mt-5 text-center">
+          {mode === "login" ? (
+            <p className="text-sm text-white/40">
+              {t.login.noAccount}{" "}
+              <button
+                onClick={() => { setMode("register"); setError(null); }}
+                className="text-primary hover:text-primary/80 font-medium transition-colors"
+              >
+                {t.login.registerButton}
+              </button>
+            </p>
+          ) : (
+            <p className="text-sm text-white/40">
+              {t.login.hasAccount}{" "}
+              <button
+                onClick={() => { setMode("login"); setError(null); }}
+                className="text-primary hover:text-primary/80 font-medium transition-colors"
+              >
+                {t.login.loginButton}
+              </button>
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 grid place-items-center overflow-auto" dir={t.dir}>
@@ -161,128 +527,25 @@ export default function LoginPage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">MY</span>
               <span className="text-white">OUKEE</span>
             </h1>
-            <h2 className="text-xl sm:text-2xl font-display font-bold mt-4 text-white">
-              {t.login.welcome}
-            </h2>
-            <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
-              {t.login.subtitle}
-            </p>
-          </div>
-
-          <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
-            <Button
-              size="lg"
-              className="w-full gap-3 bg-white text-gray-900 hover:bg-gray-100 font-semibold h-12 text-base rounded-xl shadow-md"
-              onClick={handleGoogleLogin}
-            >
-              <GoogleIcon />
-              {t.login.googleButton}
-            </Button>
-
-            <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-sm text-white/30 font-medium">{t.login.orDivider}</span>
-              <div className="flex-1 h-px bg-white/10" />
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
-              </div>
+            {(mode === "login" || mode === "register") && (
+              <>
+                <h2 className="text-xl sm:text-2xl font-display font-bold mt-4 text-white">
+                  {t.login.welcome}
+                </h2>
+                <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
+                  {t.login.subtitle}
+                </p>
+              </>
             )}
-
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
-              {mode === "register" && (
-                <div className="relative">
-                  <User className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder={t.login.displayNameLabel}
-                    className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
-                  />
-                </div>
-              )}
-
-              <div className="relative">
-                <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t.login.emailLabel}
-                  required
-                  dir="ltr"
-                  className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
-                />
-              </div>
-
-              <div className="relative">
-                <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t.login.passwordLabel}
-                  required
-                  dir="ltr"
-                  className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : mode === "login" ? (
-                  t.login.loginButton
-                ) : (
-                  t.login.registerButton
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-5 text-center">
-              {mode === "login" ? (
-                <p className="text-sm text-white/40">
-                  {t.login.noAccount}{" "}
-                  <button
-                    onClick={() => { setMode("register"); setError(null); }}
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
-                  >
-                    {t.login.registerButton}
-                  </button>
-                </p>
-              ) : (
-                <p className="text-sm text-white/40">
-                  {t.login.hasAccount}{" "}
-                  <button
-                    onClick={() => { setMode("login"); setError(null); }}
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
-                  >
-                    {t.login.loginButton}
-                  </button>
-                </p>
-              )}
-            </div>
           </div>
 
-          <p className="text-xs text-center text-white/25 mt-6 max-w-xs mx-auto">
-            {t.login.terms}
-          </p>
+          {renderContent()}
+
+          {(mode === "login" || mode === "register") && (
+            <p className="text-xs text-center text-white/25 mt-6 max-w-xs mx-auto">
+              {t.login.terms}
+            </p>
+          )}
       </div>
     </div>
   );

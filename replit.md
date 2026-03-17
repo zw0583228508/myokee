@@ -55,9 +55,11 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Authentication**:
     - Google OAuth (popup flow with localStorage fallback + redirect fallback)
     - Email/Password (bcrypt)
+    - Password Reset via email (Brevo SMTP, 1-hour token expiry, atomic token consumption)
     - JWT tokens used for cross-origin auth (30-day expiry)
     - Callback HTML stores JWT in localStorage AND sends via postMessage for robustness
     - Auth errors from Google OAuth are surfaced on LoginPage via URL params
+- **Email Service**: Brevo SMTP (smtp-relay.brevo.com:587), env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM_EMAIL, SMTP_FROM_NAME
 - **Other**:
     - FFmpeg (for video generation and processing)
     - Google Fonts (for Noto Sans Hebrew and other fonts)

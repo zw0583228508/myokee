@@ -62,6 +62,21 @@ export async function runMigrations(): Promise<void> {
         CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
       );
       CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+
+      -- Password support
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+
+      -- Password reset tokens
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id            SERIAL PRIMARY KEY,
+        user_id       TEXT NOT NULL REFERENCES users(id),
+        token         TEXT NOT NULL UNIQUE,
+        expires_at    TIMESTAMPTZ NOT NULL,
+        used          BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens (token);
+      CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens (user_id);
     `);
     console.log("[migrate] Tables ensured.");
   } finally {

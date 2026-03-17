@@ -220,6 +220,61 @@ export class Storage {
     return res.rows[0]?.password_hash ?? null;
   }
 
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await query(
+      `UPDATE users SET password_hash = $1 WHERE id = $2`,
+      [passwordHash, userId]
+    );
+  }
+
+  async createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    await query(
+      `UPDATE password_reset_tokens SET used = TRUE WHERE user_id = $1 AND used = FALSE`,
+      [userId]
+    );
+    await query(
+      `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
+      [userId, token, expiresAt]
+    );
+  }
+
+  async getPasswordResetToken(token: string): Promise<{ userId: string; expiresAt: Date; used: boolean } | null> {
+    const res = await query(
+      `SELECT user_id, expires_at, used FROM password_reset_tokens WHERE token = $1`,
+      [token]
+    );
+    if (res.rows.length === 0) return null;
+    return {
+      userId: res.rows[0].user_id,
+      expiresAt: new Date(res.rows[0].expires_at),
+      used: res.rows[0].used,
+    };
+  }
+
+  async markResetTokenUsed(token: string): Promise<void> {
+    await query(
+      `UPDATE password_reset_tokens SET used = TRUE WHERE token = $1`,
+      [token]
+    );
+  }
+
+  async consumeResetToken(token: string): Promise<{ userId: string } | null> {
+    const res = await query(
+      `UPDATE password_reset_tokens SET used = TRUE WHERE token = $1 AND used = FALSE AND expires_at > NOW() RETURNING user_id`,
+      [token]
+    );
+    if (res.rows.length === 0) return null;
+    return { userId: res.rows[0].user_id };
+  }
+
+  async findUserByEmail(email: string): Promise<User | null> {
+    const emailId = `email:${email}`;
+    const byId = await this.getUser(emailId);
+    if (byId) return byId;
+    const byEmail = await this.getUserByEmail(email);
+    return byEmail;
+  }
+
   async getReferralStats(userId: string): Promise<{ referralCode: string; referralCount: number; creditsEarned: number }> {
     const code = await this.ensureReferralCode(userId);
     const stats = await query(

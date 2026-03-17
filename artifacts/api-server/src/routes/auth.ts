@@ -3,8 +3,10 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { storage } from "../storage";
 import { signToken } from "../jwt";
+import { sendPasswordResetEmail } from "../emailService";
 
 const router = Router();
 
@@ -252,6 +254,83 @@ router.post("/auth/login", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("[auth] Login error:", err.message);
     return res.status(500).json({ error: "Login failed" });
+  }
+});
+
+// Forgot password — send reset email
+router.post("/auth/forgot-password", async (req: Request, res: Response) => {
+  const { email, lang } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const user = await storage.findUserByEmail(email);
+    if (!user) {
+      return res.json({ sent: true });
+    }
+
+    if (user.id.startsWith("google:")) {
+      return res.json({ sent: true });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await storage.createPasswordResetToken(user.id, token, expiresAt);
+
+    const resetUrl = `${FRONTEND_URL}/?reset_token=${token}`;
+    await sendPasswordResetEmail(email, resetUrl, lang || "en");
+
+    console.log(`[auth] Password reset email sent to: ${email}`);
+    return res.json({ sent: true });
+  } catch (err: any) {
+    console.error("[auth] Forgot password error:", err.message);
+    return res.status(500).json({ error: "Failed to process request" });
+  }
+});
+
+// Reset password — validate token and update password
+router.post("/auth/reset-password", async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: "Token and password are required" });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    const consumed = await storage.consumeResetToken(token);
+    if (!consumed) {
+      return res.status(400).json({ error: "Invalid or expired reset link" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await storage.updatePasswordHash(consumed.userId, passwordHash);
+
+    const jwtToken = signToken(consumed.userId);
+    const user = await storage.getUser(consumed.userId);
+
+    console.log(`[auth] Password reset completed for: ${consumed.userId}`);
+    return res.json({
+      success: true,
+      token: jwtToken,
+      user: user ? {
+        id: user.id,
+        provider: "email",
+        displayName: user.display_name,
+        email: user.email,
+        picture: user.picture,
+        credits: user.credits ?? 0,
+      } : null,
+    });
+  } catch (err: any) {
+    console.error("[auth] Reset password error:", err.message);
+    return res.status(500).json({ error: "Failed to reset password" });
   }
 });
 

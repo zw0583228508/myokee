@@ -102,6 +102,47 @@ export function useEmailRegister() {
   });
 }
 
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: async ({ email, lang }: { email: string; lang?: string }) => {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, lang }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to send reset email");
+      }
+      return res.json();
+    },
+  });
+}
+
+export function useResetPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ token, password }: { token: string; password: string }) => {
+      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to reset password");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.token) {
+        setAuthToken(data.token);
+      }
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+}
+
 /** Call this on app init to pick up auth_token from URL (redirect fallback) */
 export function consumeAuthTokenFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
