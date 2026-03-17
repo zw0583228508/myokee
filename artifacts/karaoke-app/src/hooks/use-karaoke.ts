@@ -1,10 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useGetJob, useListJobs, useDeleteJob, getGetJobQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useGetJob, useDeleteJob, getGetJobQueryKey } from "@workspace/api-client-react";
 import type { Job, WordTimestamp } from "@workspace/api-client-react/src/generated/api.schemas";
 import { apiUrl, authFetchOptions, getAuthToken } from "@/lib/api";
 
 export function useKaraokeJobs() {
-  return useListJobs();
+  return useQuery({
+    queryKey: ['/api/jobs/mine'],
+    queryFn: async () => {
+      const res = await fetch(apiUrl('/api/jobs/mine'), authFetchOptions());
+      if (!res.ok) {
+        if (res.status === 401) return [];
+        throw new Error("Failed to fetch jobs");
+      }
+      return res.json() as Promise<Job[]>;
+    },
+  });
 }
 
 export function useKaraokeJob(jobId: string) {
@@ -56,7 +66,7 @@ export function useConfirmLyrics(jobId: string) {
         status: updatedJob.status ?? 'rendering',
       }));
       queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(jobId) });
-      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
     },
   });
 }
@@ -184,7 +194,7 @@ export function useCreateJob() {
       return job;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
     },
   });
 }
@@ -245,7 +255,7 @@ export function useCreateJobFromYouTube() {
       return job;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
     },
   });
 }
@@ -263,7 +273,7 @@ export function useRetryJob(jobId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(jobId) });
-      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
     },
   });
 }
@@ -277,7 +287,7 @@ export function useRemoveJob() {
       return mutation.mutateAsync({ jobId });
     },
     onSuccess: (_, jobId) => {
-      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
       queryClient.removeQueries({ queryKey: getGetJobQueryKey(jobId) });
     },
   });

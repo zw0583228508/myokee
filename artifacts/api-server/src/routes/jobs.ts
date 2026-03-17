@@ -23,6 +23,32 @@ router.get("/processor-config", async (req: Request, res: Response) => {
   res.json({ processorUrl, maxDurationSecs });
 });
 
+// GET /api/jobs/mine — returns only the current user's jobs (filtered from processor)
+router.get("/jobs/mine", async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  const user = req.user as any;
+  try {
+    const jobIds = await storage.getUserJobIds(user.id);
+    if (jobIds.length === 0) {
+      return res.json([]);
+    }
+    const jobIdSet = new Set(jobIds);
+    const processorUrl = process.env.PROCESSOR_URL ?? "http://localhost:8000";
+    const resp = await fetch(`${processorUrl}/processor/jobs`);
+    if (!resp.ok) {
+      return res.status(502).json({ error: "Processor unavailable" });
+    }
+    const allJobs: any[] = await resp.json();
+    const myJobs = allJobs.filter((j: any) => jobIdSet.has(j.id));
+    res.json(myJobs);
+  } catch (err) {
+    console.error("Error fetching user jobs:", err);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
 // POST /api/jobs/:id/claim — called by frontend right after job is created
 router.post("/jobs/:id/claim", async (req: Request, res: Response) => {
   if (!req.user) {

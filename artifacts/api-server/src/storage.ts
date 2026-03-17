@@ -113,6 +113,11 @@ export class Storage {
     return res.rows[0]?.user_id ?? null;
   }
 
+  async getUserJobIds(userId: string): Promise<string[]> {
+    const res = await query(`SELECT job_id FROM job_ownership WHERE user_id = $1`, [userId]);
+    return res.rows.map((r: any) => r.job_id);
+  }
+
   async getJobAccess(jobId: string): Promise<{ user_id: string; credits_charged: number | null } | null> {
     const res = await query(`SELECT user_id, credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
     return res.rows[0] ?? null;
