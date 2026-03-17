@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-const SW_VERSION = "v3";
+const SW_VERSION = "v4";
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {

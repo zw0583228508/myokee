@@ -1,4 +1,4 @@
-const CACHE_NAME = "myoukee-v3";
+const CACHE_NAME = "myoukee-v4";
 const PRECACHE_URLS = [
   "/favicon.svg",
   "/favicon-192.png",
