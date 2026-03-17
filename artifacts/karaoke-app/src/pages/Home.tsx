@@ -54,34 +54,62 @@ export default function Home() {
     const paypalOrderId = params.get("paypal_order_id") || params.get("token") || sessionStorage.getItem("paypal_order_id");
 
     if (payment === "success" && sessionId) {
-      fulfillPayment.mutate(sessionId, {
-        onSuccess: (data) => {
-          setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
-          queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-        },
-        onError: (err) => {
-          console.error("[Payment] Stripe fulfillment error:", err);
-          setPaymentBanner("error");
-        },
-      });
+      const attemptFulfill = (attempt = 0) => {
+        fulfillPayment.mutate(sessionId, {
+          onSuccess: (data) => {
+            setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+            queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+            sessionStorage.removeItem("pending_stripe_session");
+          },
+          onError: (err) => {
+            console.error(`[Payment] Stripe fulfillment error (attempt ${attempt + 1}):`, err);
+            if (attempt < 2) {
+              setTimeout(() => attemptFulfill(attempt + 1), 2000 * (attempt + 1));
+            } else {
+              sessionStorage.setItem("pending_stripe_session", sessionId);
+              setPaymentBanner("error");
+            }
+          },
+        });
+      };
+      attemptFulfill();
       window.history.replaceState({}, "", window.location.pathname);
     } else if ((payment === "paypal_success" || !payment) && paypalOrderId) {
       sessionStorage.removeItem("paypal_order_id");
-      fulfillPayPal.mutate(paypalOrderId, {
-        onSuccess: (data) => {
-          setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
-          queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-        },
-        onError: (err) => {
-          console.error("[Payment] PayPal capture error:", err);
-          sessionStorage.setItem("paypal_order_id", paypalOrderId);
-          setPaymentBanner("error");
-        },
-      });
+      const attemptCapture = (attempt = 0) => {
+        fulfillPayPal.mutate(paypalOrderId, {
+          onSuccess: (data) => {
+            setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+            queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+          },
+          onError: (err) => {
+            console.error(`[Payment] PayPal capture error (attempt ${attempt + 1}):`, err);
+            if (attempt < 2) {
+              setTimeout(() => attemptCapture(attempt + 1), 2000 * (attempt + 1));
+            } else {
+              sessionStorage.setItem("paypal_order_id", paypalOrderId);
+              setPaymentBanner("error");
+            }
+          },
+        });
+      };
+      attemptCapture();
       window.history.replaceState({}, "", window.location.pathname);
     } else if (payment === "cancelled") {
       setPaymentBanner("cancelled");
       window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    const pendingStripe = sessionStorage.getItem("pending_stripe_session");
+    if (pendingStripe && !sessionId && payment !== "success") {
+      fulfillPayment.mutate(pendingStripe, {
+        onSuccess: (data) => {
+          setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+          queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+          sessionStorage.removeItem("pending_stripe_session");
+        },
+        onError: () => {},
+      });
     }
   }, []);
 

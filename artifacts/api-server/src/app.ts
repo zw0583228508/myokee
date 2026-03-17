@@ -169,6 +169,11 @@ if (isProd) {
   );
 }
 
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }), (req: any, _res, next) => {
+  req.rawBody = req.body;
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -92,6 +92,28 @@ export async function createPayPalOrder(params: CreateOrderParams): Promise<{ id
   return { id: order.id, approvalUrl: approvalLink.href };
 }
 
+export async function getPayPalOrderDetails(orderId: string): Promise<{
+  id: string;
+  status: string;
+  customId: string | null;
+  payerEmail: string | null;
+}> {
+  const token = await getAccessToken();
+  const res = await fetch(`${BASE_URL}/v2/checkout/orders/${orderId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`PayPal get order failed (${res.status}): ${text}`);
+  }
+  const detail: any = await res.json();
+  const customId = detail.purchase_units?.[0]?.custom_id
+    ?? detail.purchase_units?.[0]?.payments?.captures?.[0]?.custom_id
+    ?? null;
+  const payerEmail = detail.payer?.email_address ?? null;
+  return { id: detail.id, status: detail.status, customId, payerEmail };
+}
+
 export async function capturePayPalOrder(orderId: string): Promise<{
   id: string;
   status: string;
@@ -99,6 +121,24 @@ export async function capturePayPalOrder(orderId: string): Promise<{
   payerEmail: string | null;
 }> {
   const token = await getAccessToken();
+
+  const checkRes = await fetch(`${BASE_URL}/v2/checkout/orders/${orderId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (checkRes.ok) {
+    const checkData: any = await checkRes.json();
+    console.log(`[PayPal] Order ${orderId} current status: ${checkData.status}`);
+    if (checkData.status === "COMPLETED") {
+      const customId = checkData.purchase_units?.[0]?.payments?.captures?.[0]?.custom_id
+        ?? checkData.purchase_units?.[0]?.custom_id ?? null;
+      const payerEmail = checkData.payer?.email_address ?? null;
+      return { id: checkData.id, status: "COMPLETED", customId, payerEmail };
+    }
+    if (checkData.status !== "APPROVED") {
+      console.error(`[PayPal] Order ${orderId} is in status ${checkData.status}, cannot capture`);
+      throw new Error(`PayPal order status is ${checkData.status} — buyer may not have approved the payment yet`);
+    }
+  }
 
   const res = await fetch(`${BASE_URL}/v2/checkout/orders/${orderId}/capture`, {
     method: "POST",
@@ -119,7 +159,7 @@ export async function capturePayPalOrder(orderId: string): Promise<{
         const detail: any = await detailRes.json();
         const customId = detail.purchase_units?.[0]?.payments?.captures?.[0]?.custom_id ?? null;
         const payerEmail = detail.payer?.email_address ?? null;
-        return { id: detail.id, status: detail.status, customId, payerEmail };
+        return { id: detail.id, status: detail.status === "COMPLETED" ? "COMPLETED" : detail.status, customId, payerEmail };
       }
     }
     throw new Error(`PayPal capture failed (${res.status}): ${text}`);

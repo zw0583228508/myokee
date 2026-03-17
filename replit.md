@@ -22,7 +22,7 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Data Layer**: PostgreSQL database managed with Drizzle ORM.
 - **API Codegen**: Orval is used to generate API clients and Zod schemas from an OpenAPI specification, ensuring type safety and consistency.
 - **Referral Program**: Implemented with unique referral codes and a credit-based reward system, leveraging DB transactions for atomicity.
-- **Payment System**: Credit-based system with one-time payments supported via Stripe and PayPal integrations. Includes features like payment recovery and atomic fulfillment.
+- **Payment System**: Credit-based system with one-time payments supported via Stripe and PayPal integrations. Includes features like payment recovery, atomic fulfillment, retry logic (3 attempts with backoff), and Stripe webhook support for automatic credit fulfillment.
 - **Vocal Sync**: Advanced audio processing to ensure precise synchronization of recorded vocals with instrumental tracks, including trim/pad logic for alignment.
 - **Vocal FX**: Baked-in vocal effects (reverb, delay) applied during recording.
 

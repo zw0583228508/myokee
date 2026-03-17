@@ -116,7 +116,7 @@ export default function LoginPage() {
   const isRtl = t.dir === "rtl";
 
   return (
-    <div className="min-h-screen flex flex-col relative" dir={t.dir}>
+    <div className="fixed inset-0 grid place-items-center overflow-auto" dir={t.dir}>
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
         <img
           src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"
@@ -127,7 +127,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/8" />
       </div>
 
-      <div className="absolute top-4 right-4 z-50" dir="ltr">
+      <div className="fixed top-4 right-4 z-50" dir="ltr">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/10 transition-colors border border-white/10 bg-white/5 backdrop-blur-sm">
@@ -150,8 +150,7 @@ export default function LoginPage() {
         </DropdownMenu>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-md">
+      <div className="w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
@@ -284,7 +283,6 @@ export default function LoginPage() {
           <p className="text-xs text-center text-white/25 mt-6 max-w-xs mx-auto">
             {t.login.terms}
           </p>
-        </div>
       </div>
     </div>
   );

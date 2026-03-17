@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { createPayPalOrder, capturePayPalOrder } from "../paypalClient";
+import { createPayPalOrder, capturePayPalOrder, getPayPalOrderDetails } from "../paypalClient";
 import { storage } from "../storage";
 import { query } from "../db";
 import { pool } from "../db";
@@ -221,6 +221,50 @@ router.get("/paypal/recover", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("[PayPal] Recovery error:", err.message);
     return res.json({ recovered: 0 });
+  }
+});
+
+router.get("/paypal/status/:orderId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
+  const user = req.user as any;
+  const orderId = req.params.orderId as string;
+
+  try {
+    const pending = await query(
+      "SELECT user_id, credits, status FROM pending_paypal_orders WHERE order_id = $1",
+      [orderId]
+    );
+
+    if (pending.rows.length > 0 && pending.rows[0].user_id !== user.id) {
+      return res.status(403).json({ error: "Order does not belong to this user" });
+    }
+
+    const fulfilled = await query(
+      "SELECT credits_added FROM fulfilled_sessions WHERE session_id = $1",
+      [`paypal_${orderId}`]
+    );
+
+    let paypalStatus = null;
+    if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
+      try {
+        const details = await getPayPalOrderDetails(orderId);
+        paypalStatus = details.status;
+      } catch (e: any) {
+        paypalStatus = `error: ${e.message}`;
+      }
+    }
+
+    return res.json({
+      orderId,
+      dbStatus: pending.rows[0]?.status ?? "not_found",
+      dbCredits: pending.rows[0]?.credits ?? 0,
+      fulfilled: fulfilled.rows.length > 0,
+      fulfilledCredits: fulfilled.rows[0]?.credits_added ?? 0,
+      paypalStatus,
+    });
+  } catch (err: any) {
+    console.error("[PayPal] Status check error:", err.message);
+    return res.status(500).json({ error: err.message });
   }
 });
 
