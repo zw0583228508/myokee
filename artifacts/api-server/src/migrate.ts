@@ -31,6 +31,13 @@ export async function runMigrations(): Promise<void> {
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS fulfilled_sessions (
+        session_id     TEXT PRIMARY KEY,
+        user_id        TEXT NOT NULL REFERENCES users(id),
+        credits_added  INTEGER NOT NULL,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
       CREATE TABLE IF NOT EXISTS pending_paypal_orders (
         order_id       TEXT PRIMARY KEY,
         user_id        TEXT NOT NULL REFERENCES users(id),

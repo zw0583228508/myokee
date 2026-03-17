@@ -12,15 +12,21 @@ export class WebhookHandlers {
     const userId = session.metadata?.userId;
     const creditsToAdd = parseInt(session.metadata?.credits ?? "0", 10);
 
-    console.log(`[Stripe Webhook] checkout.session.completed: session=${sessionId}, userId=${userId}, credits=${creditsToAdd}, payment_status=${session.payment_status}`);
+    console.log(`[CreditFulfill] checkout.session.completed: session=${sessionId}, userId=${userId}, credits=${creditsToAdd}, payment_status=${session.payment_status}`);
 
     if (session.payment_status !== "paid") {
-      console.log(`[Stripe Webhook] Session ${sessionId} not paid yet (status=${session.payment_status}), skipping`);
+      console.log(`[CreditFulfill] Session ${sessionId} not paid yet (status=${session.payment_status}), skipping`);
       return { success: false, creditsAdded: 0 };
     }
 
-    if (!userId || !creditsToAdd) {
-      console.error(`[Stripe Webhook] Missing metadata: userId=${userId}, credits=${creditsToAdd}`);
+    if (!userId || !Number.isInteger(creditsToAdd) || creditsToAdd <= 0) {
+      console.error(`[CreditFulfill] Missing or invalid metadata: userId=${userId}, credits=${creditsToAdd}`);
+      return { success: false, creditsAdded: 0 };
+    }
+
+    const userExists = await query("SELECT id FROM users WHERE id = $1", [userId]);
+    if (userExists.rows.length === 0) {
+      console.error(`[CreditFulfill] User ${userId} not found in database — cannot add credits`);
       return { success: false, creditsAdded: 0 };
     }
 
@@ -29,7 +35,7 @@ export class WebhookHandlers {
       [sessionId]
     );
     if (existing.rows.length > 0) {
-      console.log(`[Stripe Webhook] Session ${sessionId} already fulfilled`);
+      console.log(`[CreditFulfill] Session ${sessionId} already fulfilled with ${existing.rows[0].credits_added} credits`);
       return { success: true, creditsAdded: existing.rows[0].credits_added };
     }
 
@@ -42,22 +48,28 @@ export class WebhookHandlers {
       );
       if (idempotency.rowCount === 0) {
         await client.query("ROLLBACK");
+        console.log(`[CreditFulfill] Session ${sessionId} was fulfilled by concurrent request`);
         return { success: true, creditsAdded: creditsToAdd };
       }
-      await client.query(
-        "UPDATE users SET credits = credits + $1 WHERE id = $2",
+      const updateResult = await client.query(
+        "UPDATE users SET credits = credits + $1 WHERE id = $2 RETURNING credits",
         [creditsToAdd, userId]
       );
+      if (updateResult.rowCount === 0) {
+        await client.query("ROLLBACK");
+        console.error(`[CreditFulfill] Failed to update credits for user ${userId} — user row not found during UPDATE`);
+        return { success: false, creditsAdded: 0 };
+      }
       await client.query("COMMIT");
-    } catch (err) {
+      console.log(`[CreditFulfill] Fulfilled session ${sessionId}: +${creditsToAdd} credits for user ${userId}, new balance: ${updateResult.rows[0].credits}`);
+    } catch (err: any) {
       await client.query("ROLLBACK");
+      console.error(`[CreditFulfill] Transaction error for session ${sessionId}:`, err.message, err.stack);
       throw err;
     } finally {
       client.release();
     }
 
-    const newCredits = await storage.getCredits(userId);
-    console.log(`[Stripe Webhook] Fulfilled session ${sessionId}: +${creditsToAdd} credits for user ${userId}, new balance: ${newCredits}`);
     return { success: true, creditsAdded: creditsToAdd };
   }
 }

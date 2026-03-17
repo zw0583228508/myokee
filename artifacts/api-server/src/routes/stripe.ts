@@ -134,31 +134,46 @@ router.post("/credits/fulfill", async (req: Request, res: Response) => {
   const user = req.user as any;
   const { sessionId } = req.body;
 
+  console.log(`[Fulfill] Called: sessionId=${sessionId}, userId=${user.id}`);
+
   if (!sessionId) return res.status(400).json({ error: "sessionId required" });
 
   try {
     const existing = await query(
-      "SELECT credits_added FROM fulfilled_sessions WHERE session_id = $1",
+      "SELECT credits_added, user_id FROM fulfilled_sessions WHERE session_id = $1",
       [sessionId]
     );
     if (existing.rows.length > 0) {
+      if (existing.rows[0].user_id !== user.id) {
+        console.warn(`[Fulfill] Session ${sessionId} belongs to ${existing.rows[0].user_id}, not ${user.id}`);
+        return res.status(403).json({ error: "Session does not belong to this user" });
+      }
       const credits = await storage.getCredits(user.id);
+      console.log(`[Fulfill] Already fulfilled: sessionId=${sessionId}, credits=${credits}`);
       return res.json({ success: true, alreadyFulfilled: true, credits });
     }
 
+    console.log(`[Fulfill] Verifying session with Stripe: ${sessionId}`);
     const session = await stripeService.verifySession(sessionId);
+    console.log(`[Fulfill] Stripe session: payment_status=${session.payment_status}, metadata=${JSON.stringify(session.metadata)}`);
 
     if (session.payment_status !== "paid") {
+      console.warn(`[Fulfill] Session ${sessionId} not paid: status=${session.payment_status}`);
       return res.status(402).json({ error: "Payment not completed" });
     }
 
     if (session.metadata?.userId !== user.id) {
+      console.warn(`[Fulfill] Session ${sessionId} userId mismatch: metadata=${session.metadata?.userId}, request=${user.id}`);
       return res.status(403).json({ error: "Session does not belong to this user" });
     }
 
     const creditsToAdd = parseInt(session.metadata?.credits ?? "0", 10);
-    if (!creditsToAdd) return res.status(400).json({ error: "No credits in session metadata" });
+    if (!Number.isInteger(creditsToAdd) || creditsToAdd <= 0) {
+      console.warn(`[Fulfill] Session ${sessionId} has invalid credits in metadata: ${session.metadata?.credits}`);
+      return res.status(400).json({ error: "No credits in session metadata" });
+    }
 
+    console.log(`[Fulfill] Processing: sessionId=${sessionId}, creditsToAdd=${creditsToAdd}`);
     const result = await WebhookHandlers.processCheckoutCompleted({
       id: sessionId,
       payment_status: session.payment_status,
@@ -166,13 +181,15 @@ router.post("/credits/fulfill", async (req: Request, res: Response) => {
     });
 
     if (!result.success) {
+      console.error(`[Fulfill] processCheckoutCompleted failed for session ${sessionId}`);
       return res.status(500).json({ error: "Failed to add credits" });
     }
 
     const credits = await storage.getCredits(user.id);
+    console.log(`[Fulfill] Success: sessionId=${sessionId}, creditsAdded=${result.creditsAdded}, newBalance=${credits}`);
     return res.json({ success: true, alreadyFulfilled: false, creditsAdded: result.creditsAdded, credits });
   } catch (err: any) {
-    console.error("Fulfill error:", err.message);
+    console.error(`[Fulfill] Error for session ${sessionId}:`, err.message, err.stack);
     return res.status(500).json({ error: "Failed to fulfill payment" });
   }
 });
@@ -187,27 +204,33 @@ router.post("/stripe/webhook", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Webhook verification not configured" });
     }
 
-    const stripe = (await import("stripe")).default;
-    const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-02-25.clover" as any });
-    const event = stripeClient.webhooks.constructEvent(
-      (req as any).rawBody || req.body,
-      sig,
-      webhookSecret
-    );
+    const Stripe = (await import("stripe")).default;
+    const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-02-25.clover" as any });
+
+    const rawBody = (req as any).rawBody || req.body;
+    if (!rawBody) {
+      console.error("[Stripe Webhook] No raw body available for signature verification");
+      return res.status(400).json({ error: "Missing request body" });
+    }
+
+    const event = stripeClient.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    console.log(`[Stripe Webhook] Event received: type=${event.type}, id=${event.id}`);
 
     if (event?.type === "checkout.session.completed") {
       const session = event.data.object as any;
-      await WebhookHandlers.processCheckoutCompleted({
+      console.log(`[Stripe Webhook] Processing checkout: session=${session.id}, status=${session.payment_status}, metadata=${JSON.stringify(session.metadata)}`);
+      const result = await WebhookHandlers.processCheckoutCompleted({
         id: session.id,
         payment_status: session.payment_status,
         metadata: session.metadata ?? {},
         customer: session.customer,
       });
+      console.log(`[Stripe Webhook] Result: success=${result.success}, creditsAdded=${result.creditsAdded}`);
     }
 
     return res.json({ received: true });
   } catch (err: any) {
-    console.error("[Stripe Webhook] Error:", err.message);
+    console.error("[Stripe Webhook] Error:", err.message, err.stack);
     return res.status(400).json({ error: err.message });
   }
 });
