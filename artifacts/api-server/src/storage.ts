@@ -191,6 +191,35 @@ export class Storage {
     }
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    const res = await query(`SELECT * FROM users WHERE email = $1`, [email]);
+    return res.rows[0] ?? null;
+  }
+
+  async createEmailUser(user: {
+    email: string;
+    display_name: string;
+    password_hash: string;
+  }): Promise<User> {
+    const id = `email:${user.email}`;
+    const res = await query(
+      `INSERT INTO users (id, email, display_name, password_hash)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (id) DO NOTHING
+       RETURNING *`,
+      [id, user.email, user.display_name, user.password_hash]
+    );
+    if (res.rows.length === 0) {
+      throw new Error("User with this email already exists");
+    }
+    return res.rows[0];
+  }
+
+  async getUserPasswordHash(userId: string): Promise<string | null> {
+    const res = await query(`SELECT password_hash FROM users WHERE id = $1`, [userId]);
+    return res.rows[0]?.password_hash ?? null;
+  }
+
   async getReferralStats(userId: string): Promise<{ referralCode: string; referralCount: number; creditsEarned: number }> {
     const code = await this.ensureReferralCode(userId);
     const stats = await query(

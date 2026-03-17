@@ -5,6 +5,7 @@ import { Loader2, Zap, Star, AlertCircle, CreditCard } from "lucide-react";
 import { usePackages, usePurchase, usePayPalPurchase } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginModal } from "./LoginModal";
+import { useLang } from "@/contexts/LanguageContext";
 
 interface Props {
   open: boolean;
@@ -22,6 +23,7 @@ function PayPalIcon({ className }: { className?: string }) {
 }
 
 export function PricingModal({ open, onOpenChange }: Props) {
+  const { t } = useLang();
   const { data: authData } = useAuth();
   const user = authData?.user ?? null;
   const { data: packages, isLoading: loadingPackages } = usePackages();
@@ -48,7 +50,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
       },
       onError: (err: any) => {
         setBuyingId(null);
-        const msg = err?.message ?? "שגיאה ביצירת סשן תשלום. נסה שוב.";
+        const msg = err?.message ?? t.pricing.error;
         setError(msg);
       },
     });
@@ -57,23 +59,23 @@ export function PricingModal({ open, onOpenChange }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl bg-card border-white/10">
+        <DialogContent className="sm:max-w-2xl bg-card border-white/10" dir={t.dir}>
           <div className="text-center mb-6">
             <DialogTitle className="text-2xl font-display font-bold mb-2">
-              רכישת קרדיטים
+              {t.pricing.title}
             </DialogTitle>
             <p className="text-muted-foreground text-sm">
-              1 קרדיט = 1 דקת שיר. תשלום חד-פעמי, ללא מנוי.
+              {t.pricing.subtitle}
             </p>
             {user && (
               user.credits > 0 ? (
                 <p className="text-sm mt-2 font-medium">
-                  יתרה נוכחית:{" "}
-                  <span className="text-primary">{user.credits} קרדיטים</span>
+                  {t.pricing.currentBalance}{" "}
+                  <span className="text-primary">{user.credits} {t.pricing.credits}</span>
                 </p>
               ) : (
                 <p className="text-sm mt-2 text-muted-foreground">
-                  יש לך <span className="text-green-400 font-semibold">40 שניות חינם</span> לכל שיר — כרטיסי אשראי דרושים רק לשירים ארוכים יותר.
+                  {t.pricing.freeNote}
                 </p>
               )
             )}
@@ -96,7 +98,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
               }`}
             >
               <CreditCard className="w-4 h-4" />
-              כרטיס אשראי
+              {t.pricing.creditCard}
             </button>
             <button
               onClick={() => setPaymentMethod("paypal")}
@@ -118,7 +120,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
           ) : !packages || packages.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Zap className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p>חבילות לא זמינות כרגע.</p>
+              <p>{t.pricing.unavailable}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -140,14 +142,14 @@ export function PricingModal({ open, onOpenChange }: Props) {
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold whitespace-nowrap">
                           <Star className="w-3 h-3 fill-current" />
-                          הכי פופולרי
+                          {t.pricing.mostPopular}
                         </span>
                       </div>
                     )}
 
                     <p className="text-lg font-bold font-display mt-2">{pkg.name}</p>
                     <p className="text-3xl font-black text-primary my-2">{pkg.credits}</p>
-                    <p className="text-xs text-muted-foreground mb-1">קרדיטים</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t.pricing.credits}</p>
                     {pkg.description && (
                       <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
                         {pkg.description}
@@ -165,7 +167,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
                       {isBuying ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        "קנה עכשיו"
+                        t.pricing.buyNow
                       )}
                     </Button>
                   </div>
@@ -176,8 +178,8 @@ export function PricingModal({ open, onOpenChange }: Props) {
 
           <p className="text-xs text-center text-muted-foreground mt-4">
             {paymentMethod === "paypal"
-              ? "תשלום מאובטח דרך PayPal. קרדיטים לא פגים."
-              : "תשלום מאובטח דרך Stripe. קרדיטים לא פגים."}
+              ? t.pricing.securePaypal
+              : t.pricing.secureStripe}
           </p>
         </DialogContent>
       </Dialog>

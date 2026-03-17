@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import type { Request, Response, NextFunction } from "express";
+import bcrypt from "bcryptjs";
 import { storage } from "../storage";
 import { signToken } from "../jwt";
 
@@ -68,10 +69,11 @@ router.get("/auth/me", async (req: Request, res: Response) => {
   if (user) {
     const fresh = await storage.getUser(user.id).catch(() => null);
     const u = fresh ?? user;
+    const provider = u.id?.startsWith("email:") ? "email" : "google";
     res.json({
       user: {
         id: u.id,
-        provider: "google",
+        provider,
         displayName: u.display_name,
         email: u.email,
         picture: u.picture,
@@ -139,6 +141,106 @@ router.get(
     )(req, res, next);
   }
 );
+
+// ---------------------------------------------------------------------------
+// Email + Password Auth
+// ---------------------------------------------------------------------------
+router.post("/auth/register", async (req: Request, res: Response) => {
+  const { email, password, displayName } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: "Invalid email address" });
+  }
+
+  try {
+    const existingUser = await storage.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({ error: "User with this email already exists" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await storage.createEmailUser({
+      email,
+      display_name: displayName || email.split("@")[0],
+      password_hash: passwordHash,
+    });
+
+    const token = signToken(user.id);
+    console.log("[auth] Email registration for:", email);
+
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        provider: "email",
+        displayName: user.display_name,
+        email: user.email,
+        picture: null,
+        credits: user.credits ?? 0,
+      },
+    });
+  } catch (err: any) {
+    console.error("[auth] Register error:", err.message);
+    if (err.message?.includes("already exists")) {
+      return res.status(409).json({ error: "User with this email already exists" });
+    }
+    return res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+router.post("/auth/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  try {
+    const userId = `email:${email}`;
+    const user = await storage.getUser(userId);
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const passwordHash = await storage.getUserPasswordHash(userId);
+    if (!passwordHash) {
+      return res.status(401).json({ error: "This account uses Google login. Please sign in with Google." });
+    }
+
+    const valid = await bcrypt.compare(password, passwordHash);
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const token = signToken(user.id);
+    console.log("[auth] Email login for:", email);
+
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        provider: "email",
+        displayName: user.display_name,
+        email: user.email,
+        picture: user.picture,
+        credits: user.credits ?? 0,
+      },
+    });
+  } catch (err: any) {
+    console.error("[auth] Login error:", err.message);
+    return res.status(500).json({ error: "Login failed" });
+  }
+});
 
 // Logout
 router.post("/auth/logout", (req: Request, res: Response) => {

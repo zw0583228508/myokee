@@ -8,11 +8,13 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ConsentGate } from "@/components/karaoke/ConsentModal";
 import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
 import { apiUrl, authFetchOptions } from "@/lib/api";
+import { Mic2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import JobDetails from "@/pages/JobDetails";
 import History from "@/pages/History";
 import Leaderboard from "@/pages/Leaderboard";
+import LoginPage from "@/pages/LoginPage";
 
 import Upload from "@/pages/Upload";
 import Privacy from "@/pages/Privacy";
@@ -44,9 +46,27 @@ function useAutoApplyReferral() {
 
 function Router() {
   useAutoApplyReferral();
+  const { data: authData, isLoading } = useAuth();
+  const user = authData?.user ?? null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 animate-pulse">
+            <Mic2 className="h-7 w-7 text-white" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Skip-to-content link — accessibility (WCAG 2.1 AA) */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[300] bg-primary text-white px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-white"
@@ -54,7 +74,6 @@ function Router() {
         דלג לתוכן הראשי
       </a>
 
-      {/* Global ambient background */}
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
         <img
           src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"

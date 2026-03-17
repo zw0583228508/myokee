@@ -3,7 +3,7 @@ import { AUTH_TOKEN_KEY, authFetchOptions, clearAuthToken, setAuthToken } from "
 
 export interface AuthUser {
   id: string;
-  provider: "google";
+  provider: "google" | "email";
   displayName: string;
   email: string | null;
   picture: string | null;
@@ -52,6 +52,54 @@ export function useLoginWithGoogle() {
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );
   };
+}
+
+export function useEmailLogin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Login failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.token) {
+        setAuthToken(data.token);
+      }
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+}
+
+export function useEmailRegister() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ email, password, displayName }: { email: string; password: string; displayName?: string }) => {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, displayName }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Registration failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.token) {
+        setAuthToken(data.token);
+      }
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
 }
 
 /** Call this on app init to pick up auth_token from URL (redirect fallback) */
