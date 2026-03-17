@@ -467,10 +467,11 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
 
         import shutil as _shutil
         nice_cmd = ["nice", "-n", "10"] if _shutil.which("nice") else []
-        rc, err = await run_cmd(
+
+        prerender_cmd = [
             *nice_cmd,
             "ffmpeg", "-y",
-            "-threads", "0",
+            "-threads", "2",
             "-f", "lavfi", "-i", f"color=s=640x360:r={FPS}:d={duration}:c=black",
             "-i", str(no_vocals),
             "-filter_complex", aurora,
@@ -478,15 +479,17 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
             *_vcodec_args_fast(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
             "-shortest", str(out),
-        )
+        ]
+        rc, err = await run_cmd(*prerender_cmd)
         if rc != 0 and HAS_NVENC and _is_nvenc_error(err):
             print("[prererender] NVENC failed — retrying prerender with CPU libx264")
             HAS_NVENC = False
-            rc, err = await run_cmd(
+            prerender_cmd_cpu = [
                 *nice_cmd,
                 "ffmpeg", "-y",
-                "-threads", "0",
+                "-threads", "2",
                 "-f", "lavfi", "-i", f"color=s=640x360:r={FPS}:d={duration}:c=black",
                 "-i", str(no_vocals),
                 "-filter_complex", aurora,
@@ -494,8 +497,10 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
                 *_vcodec_args_fast(),
                 "-c:a", "aac", "-b:a", "128k",
                 "-r", str(FPS), "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
                 "-shortest", str(out),
-            )
+            ]
+            rc, err = await run_cmd(*prerender_cmd_cpu)
         if rc != 0:
             print(f"[prererender] WARN: background pre-render failed: {_extract_ffmpeg_error(err)}")
             if out.exists():
@@ -1072,6 +1077,7 @@ async def _render_video_fast(bg: Path, ass: Path,
             *_vcodec_args(),
             "-c:a", "copy",
             "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
             "-shortest", str(out),
         )
     else:
@@ -1091,6 +1097,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 *_vcodec_args(),
                 "-c:a", "copy",
                 "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
                 str(out),
             )
         else:
@@ -1103,6 +1110,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 *_vcodec_args(),
                 "-c:a", "copy",
                 "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
                 str(out),
             )
 
@@ -1199,6 +1207,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             *_vcodec_args(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
             "-shortest", str(out),
         )
     else:
@@ -1214,6 +1223,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             *_vcodec_args(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
             "-shortest", str(out),
         )
 
