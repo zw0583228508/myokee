@@ -156,7 +156,7 @@ export default function Home() {
 
       {/* ── Sticky Tabs ─────────────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-background/80 backdrop-blur-2xl border-b border-white/8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-stretch gap-0 overflow-x-auto scrollbar-none" dir={dir}>
             {TABS.map(({ id, label, icon: Icon, href }: any) => {
               const isActive = activeTab === id;
@@ -247,7 +247,7 @@ export default function Home() {
           2. PRODUCT VALUE STRIP
       ══════════════════════════════════════════════════════════ */}
       <section className="relative py-10 sm:py-16 border-y border-white/5 bg-white/[0.01]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl" dir={dir}>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/8 rounded-3xl overflow-hidden border border-white/8">
             {[
               { icon: Music, title: t.home.valueStrip.title1, desc: t.home.valueStrip.desc1, color: "text-violet-400" },
@@ -278,7 +278,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl" dir={dir}>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-10 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent font-medium mb-4">
               <Play className="w-3 h-3" />{t.home.howItWorks.badge}
@@ -336,7 +336,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/20 to-background/70" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl" dir={dir}>
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-10 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium mb-4">
               <Sparkles className="w-3 h-3" />{t.home.features.badge}
@@ -463,7 +463,7 @@ export default function Home() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/5 blur-[120px]" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl" dir={dir}>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-8 sm:mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400 font-medium mb-4">
               <Sparkles className="w-3 h-3" />{t.home.aiTech.badge}
@@ -548,7 +548,7 @@ export default function Home() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] rounded-full bg-amber-500/5 blur-[120px]" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl" dir={dir}>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-8 sm:mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-medium mb-4">
               {t.home.compete.badge}
@@ -600,7 +600,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl" dir={dir}>
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-8 sm:mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400 font-medium mb-4">
               <Sparkles className="w-3 h-3" />{t.home.why.badge}
@@ -634,7 +634,7 @@ export default function Home() {
           8. FOOTER / SUPPORT
       ══════════════════════════════════════════════════════════ */}
       <footer className="relative py-12 border-t border-white/8 bg-white/[0.01]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl" dir={dir}>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">

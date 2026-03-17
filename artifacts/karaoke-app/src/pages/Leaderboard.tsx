@@ -50,7 +50,7 @@ export default function Leaderboard() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 max-w-2xl flex items-center justify-between mb-5 gap-4">
+      <div className="w-full max-w-2xl mx-auto px-4 flex items-center justify-between mb-5 gap-4">
         <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/8">
           {(["global", "me"] as const).map(tabKey => (
             <button
@@ -73,7 +73,7 @@ export default function Leaderboard() {
         </button>
       </div>
 
-      <div className="container mx-auto px-4 max-w-2xl flex-1 pb-20">
+      <div className="w-full max-w-2xl mx-auto px-4 flex-1 pb-20">
         {isLoading ? (
           <div className="flex items-center justify-center py-24 gap-3 text-white/30">
             <Loader2 className="w-5 h-5 animate-spin" />

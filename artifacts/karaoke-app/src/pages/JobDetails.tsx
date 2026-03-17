@@ -180,7 +180,7 @@ export default function JobDetails() {
 
   if (error || !job) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="w-full max-w-7xl mx-auto px-4 py-20 text-center">
         <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-6" />
         <h2 className="text-3xl font-display font-bold mb-4">העבודה לא נמצאה</h2>
         <p className="text-muted-foreground mb-8">הטראק שאתה מחפש לא קיים או נמחק.</p>
@@ -210,7 +210,7 @@ export default function JobDetails() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
       </div>
-    <div className="container mx-auto px-4 py-4 sm:py-8 max-w-6xl">
+    <div className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-8">
       <div className="mb-8">
         <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" /> חזרה לסטודיו

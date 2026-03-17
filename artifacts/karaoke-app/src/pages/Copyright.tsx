@@ -73,7 +73,7 @@ export default function Copyright() {
   const sections = content[lang] ?? content["en"]!;
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl" dir={t.dir}>
+    <div className="w-full max-w-3xl mx-auto px-4 py-12" dir={t.dir}>
       <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white mb-8 transition-colors">
         <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
         {t.nav.createKaraoke}

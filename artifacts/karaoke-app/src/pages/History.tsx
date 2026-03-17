@@ -26,7 +26,7 @@ export default function History() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent from-40% via-background/70 to-background" />
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-14 sm:px-6 lg:px-8">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-14 sm:px-6 lg:px-8">
 
         <div className="mb-12">
           <Link href="/">

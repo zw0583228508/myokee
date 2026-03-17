@@ -10,7 +10,7 @@ export default function Referral() {
 
   if (!authData?.user) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center" dir={t.dir}>
+      <div className="w-full max-w-7xl mx-auto px-4 py-20 text-center" dir={t.dir}>
         <h2 className="text-2xl font-display font-bold mb-4">
           {t.referral.loginRequired}
         </h2>
@@ -22,7 +22,7 @@ export default function Referral() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-lg" dir={t.dir}>
+    <div className="w-full max-w-lg mx-auto px-4 py-8" dir={t.dir}>
       <Link
         href="/"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors mb-6"

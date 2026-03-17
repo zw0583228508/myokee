@@ -41,7 +41,7 @@ export function Navbar() {
         className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/50 backdrop-blur-2xl"
         role="banner"
       >
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 group transition-all duration-300" aria-label="MYOUKEE - דף הבית">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-105 transition-all" aria-hidden="true">
               <Mic2 className="h-5 w-5 text-white" />
@@ -196,7 +196,7 @@ export function Navbar() {
         {/* Mobile slide-down menu */}
         {mobileOpen && (
           <div className="md:hidden border-t border-white/8 bg-background/95 backdrop-blur-2xl">
-            <nav className="container mx-auto px-4 py-3 flex flex-col gap-1">
+            <nav className="w-full max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
               {[
                 { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
                 { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },

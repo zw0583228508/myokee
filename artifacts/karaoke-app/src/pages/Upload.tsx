@@ -18,7 +18,7 @@ export default function Upload() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] rounded-full bg-primary/8 blur-[120px]" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium mb-3 sm:mb-5">
             <UploadIcon className="w-3 h-3" aria-hidden="true" />
