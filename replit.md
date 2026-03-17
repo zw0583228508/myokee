@@ -13,7 +13,8 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **PWA Support**: Full Progressive Web App functionality for offline access and native app-like experience.
 - **Internationalization**: Full i18n support for 14 languages with auto-detection, covering all key UI elements and legal pages.
 - **Visuals**: Increased background image opacity for a richer feel, cinematic karaoke video style with animated aurora/plasma gradients, and specific lyric layout for readability and aesthetic.
-- **Responsiveness**: Optimized layouts for various screen sizes using `sm:`, `md:`, `lg:` breakpoints.
+- **Responsiveness**: Optimized layouts for various screen sizes using `sm:`, `md:`, `lg:` breakpoints. Mobile-specific fixes include: non-blocking Google Fonts via `<link>` tags (not CSS `@import`), `-webkit-backdrop-filter` prefixes with `@supports not` fallbacks, 44px minimum touch targets, 16px input font (prevents iOS auto-zoom), `ErrorBoundary` component wrapping the app, branded loading screen with retry button for JS boot failures, and `overflow-x-hidden` instead of `overflow-x: clip` for broader browser support.
+- **Service Worker**: Cache version `myoukee-v2` with network-first strategy for HTML navigation, cache-first for static assets, and a branded offline fallback page. Build targets set to Chrome 87+/Safari 14+/Firefox 78+ for maximum mobile browser compatibility.
 - **Login Experience**: Full-page login screen with Google OAuth and email/password options, including a language picker and RTL-aware layout. A mandatory Terms of Service / Privacy Policy / Copyright checkbox must be checked before any login method (Google or email/password) is enabled. Both LoginPage.tsx and LoginModal.tsx enforce this gate.
 
 ### Technical Implementations

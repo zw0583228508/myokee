@@ -298,13 +298,50 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Outfit:wght@300..900&family=Noto+Sans+Hebrew:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+      #app-loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        inset: 0;
+        background: hsl(240 10% 4%);
+        color: #a78bfa;
+        font-family: system-ui, -apple-system, sans-serif;
+        z-index: 99999;
+        transition: opacity 0.3s ease;
+      }
+      #app-loader.hide { opacity: 0; pointer-events: none; }
+      #app-loader svg { width: 48px; height: 48px; animation: spin 1.2s linear infinite; margin-bottom: 16px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      #app-loader p { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 8px; }
+      #app-loader .retry { display: none; margin-top: 16px; padding: 10px 24px; border-radius: 12px; background: #7c3aed; color: white; border: none; font-size: 14px; cursor: pointer; }
+    </style>
+    <script>
+      setTimeout(function() {
+        var loader = document.getElementById('app-loader');
+        if (loader && !loader.classList.contains('hide')) {
+          var retry = loader.querySelector('.retry');
+          if (retry) retry.style.display = 'block';
+          var msg = loader.querySelector('p');
+          if (msg) msg.textContent = 'Taking longer than expected...';
+        }
+      }, 8000);
+    </script>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MGRKPGB7"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <div id="app-loader">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+      <span style="font-size:20px;font-weight:700;letter-spacing:2px">MYOUKEE</span>
+      <p>Loading...</p>
+      <button class="retry" onclick="location.reload()">Retry</button>
+    </div>
     <div id="root"></div>
     <div id="seo-content" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
       <h1>MYOUKEE — AI Karaoke Generator | יוצר קריוקי בינה מלאכותית</h1>

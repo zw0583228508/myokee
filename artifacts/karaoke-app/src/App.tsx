@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/layout/Navbar";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ConsentGate } from "@/components/karaoke/ConsentModal";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { Mic2 } from "lucide-react";
@@ -107,19 +108,29 @@ function Router() {
 consumeAuthTokenFromUrl();
 
 function App() {
+  useEffect(() => {
+    const loader = document.getElementById('app-loader');
+    if (loader) {
+      loader.classList.add('hide');
+      setTimeout(() => loader.remove(), 400);
+    }
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ConsentGate>
-              <Router />
-            </ConsentGate>
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <ConsentGate>
+                <Router />
+              </ConsentGate>
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
