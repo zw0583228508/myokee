@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mic2 } from "lucide-react";
+import { Mic2, AlertCircle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLang } from "@/contexts/LanguageContext";
 
 function GoogleIcon() {
   return (
@@ -22,8 +24,15 @@ interface Props {
 
 export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
   const queryClient = useQueryClient();
+  const { t } = useLang();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGoogleLogin = () => {
+    if (!agreedToTerms) {
+      setError(t.login.mustAgreeError);
+      return;
+    }
     const apiBase = import.meta.env.VITE_API_URL ?? "";
     const width = 500;
     const height = 650;
@@ -66,7 +75,7 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-white/10 text-center">
+      <DialogContent className="sm:max-w-md bg-card border-white/10 text-center" dir={t.dir}>
         <div className="flex flex-col items-center gap-6 py-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
             <Mic2 className="h-8 w-8 text-white" />
@@ -74,15 +83,22 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
 
           <DialogTitle className="text-2xl font-display font-bold">
             {reason === "paywall"
-              ? "כדי לקנות קרדיטים, יש להתחבר"
-              : "ברוכים הבאים ל-MYOUKEE"}
+              ? t.login.paywallTitle
+              : t.login.welcome}
           </DialogTitle>
 
           <p className="text-muted-foreground text-sm max-w-xs">
             {reason === "paywall"
-              ? "התחברו עם גוגל כדי לרכוש קרדיטים ולפתוח את הקריוקי המלא."
-              : "התחברו עם גוגל כדי להתחיל ליצור קריוקי. 40 השניות הראשונות בכל שיר הן חינם!"}
+              ? t.login.paywallSubtitle
+              : t.login.subtitle}
           </p>
+
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 w-full" dir="auto">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
           <Button
             size="lg"
@@ -90,12 +106,25 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
             onClick={handleGoogleLogin}
           >
             <GoogleIcon />
-            המשך עם Google
+            {t.login.googleButton}
           </Button>
 
-          <p className="text-xs text-muted-foreground">
-            בהתחברות, אתם מסכימים לתנאי השירות ומדיניות הפרטיות.
-          </p>
+          <label className="flex items-start gap-3 max-w-xs cursor-pointer select-none group text-start">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 accent-[hsl(var(--primary))] cursor-pointer"
+            />
+            <span className="text-xs text-muted-foreground group-hover:text-white/60 transition-colors leading-relaxed">
+              {t.login.agreeToTerms}{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.termsLink}</a>
+              {" · "}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.privacyLink}</a>
+              {" · "}
+              <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.copyrightLink}</a>
+            </span>
+          </label>
         </div>
       </DialogContent>
     </Dialog>

@@ -14,7 +14,7 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Internationalization**: Full i18n support for 14 languages with auto-detection, covering all key UI elements and legal pages.
 - **Visuals**: Increased background image opacity for a richer feel, cinematic karaoke video style with animated aurora/plasma gradients, and specific lyric layout for readability and aesthetic.
 - **Responsiveness**: Optimized layouts for various screen sizes using `sm:`, `md:`, `lg:` breakpoints.
-- **Login Experience**: Full-page login screen with Google OAuth and email/password options, including a language picker and RTL-aware layout.
+- **Login Experience**: Full-page login screen with Google OAuth and email/password options, including a language picker and RTL-aware layout. A mandatory Terms of Service / Privacy Policy / Copyright checkbox must be checked before any login method (Google or email/password) is enabled. Both LoginPage.tsx and LoginModal.tsx enforce this gate.
 
 ### Technical Implementations
 - **Monorepo Structure**: Managed with pnpm workspaces for `karaoke-app` (React frontend), `api-server` (Node.js Express), and `karaoke-processor` (Python FastAPI).

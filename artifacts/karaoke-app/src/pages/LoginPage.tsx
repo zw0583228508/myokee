@@ -43,6 +43,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
     const authError = consumeAuthErrorFromUrl();
@@ -60,6 +61,10 @@ export default function LoginPage() {
   }, []);
 
   const handleGoogleLogin = () => {
+    if (!agreedToTerms) {
+      setError(t.login.mustAgreeError);
+      return;
+    }
     const apiBase = import.meta.env.VITE_API_URL ?? "";
     const width = 500;
     const height = 650;
@@ -101,6 +106,11 @@ export default function LoginPage() {
   const handleEmailSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!agreedToTerms) {
+      setError(t.login.mustAgreeError);
+      return;
+    }
 
     if (!email || !password) {
       setError(t.login.emailLabel + " & " + t.login.passwordLabel + " required");
@@ -542,9 +552,22 @@ export default function LoginPage() {
           {renderContent()}
 
           {(mode === "login" || mode === "register") && (
-            <p className="text-xs text-center text-white/25 mt-6 max-w-xs mx-auto">
-              {t.login.terms}
-            </p>
+            <label className="flex items-start gap-3 mt-6 max-w-xs mx-auto cursor-pointer select-none group">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 accent-[hsl(var(--primary))] cursor-pointer"
+              />
+              <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors leading-relaxed">
+                {t.login.agreeToTerms}{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.termsLink}</a>
+                {" · "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.privacyLink}</a>
+                {" · "}
+                <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.copyrightLink}</a>
+              </span>
+            </label>
           )}
       </div>
     </div>

@@ -104,6 +104,8 @@ export interface Translations {
     resetSuccess: string;
     resetLinkExpired: string;
     backToLogin: string;
+    agreeToTerms: string;
+    mustAgreeError: string;
   };
   pricing: {
     title: string;
@@ -287,6 +289,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "הסיסמה שונתה בהצלחה!",
         resetLinkExpired: "קישור האיפוס פג תוקף או לא תקין",
         backToLogin: "חזרה להתחברות",
+        agreeToTerms: "אני מסכים/ה לתנאי השימוש, מדיניות הפרטיות וזכויות היוצרים",
+        mustAgreeError: "יש לאשר את התנאים כדי להמשיך",
       },
     pricing: {
         title: "רכישת קרדיטים",
@@ -496,6 +500,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "Password changed successfully!",
         resetLinkExpired: "Reset link is expired or invalid",
         backToLogin: "Back to login",
+        agreeToTerms: "I agree to the Terms of Service, Privacy Policy and Copyright",
+        mustAgreeError: "You must agree to the terms to continue",
       },
     pricing: {
         title: "Buy Credits",
@@ -705,6 +711,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "تم تغيير كلمة المرور بنجاح!",
         resetLinkExpired: "رابط إعادة التعيين منتهي الصلاحية أو غير صالح",
         backToLogin: "العودة لتسجيل الدخول",
+        agreeToTerms: "أوافق على شروط الخدمة وسياسة الخصوصية وحقوق النشر",
+        mustAgreeError: "يجب الموافقة على الشروط للمتابعة",
       },
     pricing: {
         title: "شراء رصيد",
@@ -914,6 +922,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "Пароль успешно изменён!",
         resetLinkExpired: "Ссылка для сброса истекла или недействительна",
         backToLogin: "Вернуться к входу",
+        agreeToTerms: "Я согласен с Условиями использования, Политикой конфиденциальности и Авторскими правами",
+        mustAgreeError: "Необходимо принять условия для продолжения",
       },
     pricing: {
         title: "Купить кредиты",
@@ -1123,6 +1133,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "¡Contraseña cambiada con éxito!",
         resetLinkExpired: "El enlace ha expirado o no es válido",
         backToLogin: "Volver al inicio de sesión",
+        agreeToTerms: "Acepto los Términos de Servicio, Política de Privacidad y Derechos de Autor",
+        mustAgreeError: "Debes aceptar los términos para continuar",
       },
     pricing: {
         title: "Comprar créditos",
@@ -1332,6 +1344,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "Mot de passe modifié avec succès !",
         resetLinkExpired: "Le lien de réinitialisation a expiré ou est invalide",
         backToLogin: "Retour à la connexion",
+        agreeToTerms: "J'accepte les Conditions d'utilisation, la Politique de confidentialité et les Droits d'auteur",
+        mustAgreeError: "Vous devez accepter les conditions pour continuer",
       },
     pricing: {
         title: "Acheter des crédits",
@@ -1541,6 +1555,8 @@ const LANGS: Record<SupportedLang, Translations> = {
         resetSuccess: "Passwort erfolgreich geändert!",
         resetLinkExpired: "Der Link ist abgelaufen oder ungültig",
         backToLogin: "Zurück zur Anmeldung",
+        agreeToTerms: "Ich stimme den Nutzungsbedingungen, der Datenschutzrichtlinie und dem Urheberrecht zu",
+        mustAgreeError: "Sie müssen die Bedingungen akzeptieren, um fortzufahren",
       },
     pricing: {
         title: "Credits kaufen",
@@ -1750,6 +1766,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "パスワードが正常に変更されました！",
       resetLinkExpired: "リセットリンクが期限切れまたは無効です",
       backToLogin: "ログインに戻る",
+        agreeToTerms: "利用規約、プライバシーポリシー、著作権に同意します",
+        mustAgreeError: "続行するには規約に同意する必要があります",
     },
     pricing: {
       title: "クレジット購入",
@@ -1960,6 +1978,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "密码修改成功！",
       resetLinkExpired: "重置链接已过期或无效",
       backToLogin: "返回登录",
+        agreeToTerms: "我同意服务条款、隐私政策和版权声明",
+        mustAgreeError: "您必须同意条款才能继续",
     },
     pricing: {
       title: "购买积分",
@@ -2170,6 +2190,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "비밀번호가 성공적으로 변경되었습니다!",
       resetLinkExpired: "재설정 링크가 만료되었거나 유효하지 않습니다",
       backToLogin: "로그인으로 돌아가기",
+        agreeToTerms: "서비스 이용약관, 개인정보 처리방침 및 저작권에 동의합니다",
+        mustAgreeError: "계속하려면 약관에 동의해야 합니다",
     },
     pricing: {
       title: "크레딧 구매",
@@ -2380,6 +2402,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "เปลี่ยนรหัสผ่านสำเร็จ!",
       resetLinkExpired: "ลิงก์รีเซ็ตหมดอายุหรือไม่ถูกต้อง",
       backToLogin: "กลับไปเข้าสู่ระบบ",
+        agreeToTerms: "ฉันยอมรับข้อกำหนดการใช้งาน นโยบายความเป็นส่วนตัว และลิขสิทธิ์",
+        mustAgreeError: "คุณต้องยอมรับข้อกำหนดเพื่อดำเนินการต่อ",
     },
     pricing: {
       title: "ซื้อเครดิต",
@@ -2590,6 +2614,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "Đổi mật khẩu thành công!",
       resetLinkExpired: "Liên kết đặt lại đã hết hạn hoặc không hợp lệ",
       backToLogin: "Quay lại đăng nhập",
+        agreeToTerms: "Tôi đồng ý với Điều khoản dịch vụ, Chính sách bảo mật và Bản quyền",
+        mustAgreeError: "Bạn phải đồng ý với các điều khoản để tiếp tục",
     },
     pricing: {
       title: "Mua tín dụng",
@@ -2800,6 +2826,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "Matagumpay na nabago ang password!",
       resetLinkExpired: "Expired o hindi valid ang reset link",
       backToLogin: "Bumalik sa login",
+        agreeToTerms: "Sumasang-ayon ako sa Mga Tuntunin ng Serbisyo, Patakaran sa Privacy at Copyright",
+        mustAgreeError: "Kailangan mong sumang-ayon sa mga tuntunin para magpatuloy",
     },
     pricing: {
       title: "Bumili ng Credits",
@@ -3009,6 +3037,8 @@ const LANGS: Record<SupportedLang, Translations> = {
       resetSuccess: "Kata sandi berhasil diubah!",
       resetLinkExpired: "Tautan reset telah kedaluwarsa atau tidak valid",
       backToLogin: "Kembali ke login",
+        agreeToTerms: "Saya setuju dengan Ketentuan Layanan, Kebijakan Privasi dan Hak Cipta",
+        mustAgreeError: "Anda harus menyetujui ketentuan untuk melanjutkan",
     },
     pricing: {
       title: "Beli Kredit",
