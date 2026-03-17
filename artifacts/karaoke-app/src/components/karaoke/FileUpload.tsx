@@ -38,9 +38,6 @@ async function uploadAvatarToJob(jobId: string, avatarFile: File | string) {
 
 const LANGUAGE_OPTIONS = [
   { value: "auto",       label: "זיהוי אוטומטי",     flag: "🌐" },
-  { value: "sacred_he",  label: "לשון הקודש / פיוטים", flag: "🕍" },
-  { value: "yi",         label: "יידיש",              flag: "🪡" },
-  { value: "he",         label: "עברית",              flag: "🇮🇱" },
   { value: "en",         label: "English",            flag: "🇺🇸" },
   { value: "ja",         label: "日本語",              flag: "🇯🇵" },
   { value: "zh",         label: "中文",                flag: "🇨🇳" },
