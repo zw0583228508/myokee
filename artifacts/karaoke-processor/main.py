@@ -80,6 +80,64 @@ DEMUCS_DEVICE  = os.environ.get("DEMUCS_DEVICE",  "cpu")
 WHISPER_DEVICE = os.environ.get("WHISPER_DEVICE", "cpu")
 WHISPER_BEAM  = 8    # high accuracy + ~20% faster than beam=10
 
+HAS_NVENC = False
+
+def _detect_nvenc():
+    """Check if NVIDIA NVENC hardware encoder is available (H100/A100/etc)."""
+    global HAS_NVENC
+    import subprocess as _sp
+    try:
+        if not (DEMUCS_DEVICE.startswith("cuda") or WHISPER_DEVICE.startswith("cuda")):
+            print("[startup] No CUDA devices configured — skipping NVENC detection")
+            return
+        r = _sp.run(
+            ["ffmpeg", "-hide_banner", "-f", "lavfi", "-i",
+             "color=s=64x64:d=0.1:c=black",
+             "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr",
+             "-cq", "28", "-b:v", "0",
+             "-pix_fmt", "yuv420p", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=15)
+        if r.returncode == 0:
+            HAS_NVENC = True
+            print("[startup] ✓ NVENC hardware encoder detected — FFmpeg will use GPU encoding")
+        else:
+            print("[startup] NVENC not available — using CPU libx264 encoding")
+    except Exception as e:
+        print(f"[startup] NVENC detection failed ({e}) — using CPU libx264 encoding")
+
+_detect_nvenc()
+
+def _vcodec_args() -> list[str]:
+    """Return FFmpeg video codec args: NVENC (GPU) when available, else libx264."""
+    if HAS_NVENC:
+        return ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr",
+                "-cq", "28", "-b:v", "0"]
+    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "26"]
+
+def _vcodec_args_fast() -> list[str]:
+    """Faster video codec args for prerender (lower quality OK)."""
+    if HAS_NVENC:
+        return ["-c:v", "h264_nvenc", "-preset", "p1", "-rc", "vbr",
+                "-cq", "30", "-b:v", "0"]
+    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "28"]
+
+def _is_nvenc_error(stderr: str) -> bool:
+    """Check if an FFmpeg failure is NVENC-specific (not a general filter/input error)."""
+    lower = stderr.lower()
+    return any(k in lower for k in
+               ["nvenc", "no capable devices", "cannot load nvencode",
+                "hwframe", "cuda_error", "encoder not found"])
+
+def _extract_ffmpeg_error(stderr: str) -> str:
+    """Extract the meaningful error line from FFmpeg stderr, skipping version spam."""
+    lines = stderr.strip().splitlines()
+    error_lines = [l for l in lines if any(k in l.lower() for k in
+                   ["error", "invalid", "not found", "no such", "failed",
+                    "moov atom", "does not exist", "permission denied"])]
+    if error_lines:
+        return "; ".join(error_lines[-5:])
+    return lines[-1] if lines else stderr[-300:]
+
 # Whisper model instance — pre-loaded once at startup, reused across all jobs
 _whisper_model = None
 
@@ -417,13 +475,29 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
             "-i", str(no_vocals),
             "-filter_complex", aurora,
             "-map", "[out]", "-map", "1:a",
-            "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
+            *_vcodec_args_fast(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-shortest", str(out),
         )
+        if rc != 0 and HAS_NVENC and _is_nvenc_error(err):
+            print("[prererender] NVENC failed — retrying prerender with CPU libx264")
+            HAS_NVENC = False
+            rc, err = await run_cmd(
+                *nice_cmd,
+                "ffmpeg", "-y",
+                "-threads", "0",
+                "-f", "lavfi", "-i", f"color=s=640x360:r={FPS}:d={duration}:c=black",
+                "-i", str(no_vocals),
+                "-filter_complex", aurora,
+                "-map", "[out]", "-map", "1:a",
+                *_vcodec_args_fast(),
+                "-c:a", "aac", "-b:a", "128k",
+                "-r", str(FPS), "-pix_fmt", "yuv420p",
+                "-shortest", str(out),
+            )
         if rc != 0:
-            print(f"[prererender] WARN: background pre-render failed: {err[-300:]}")
+            print(f"[prererender] WARN: background pre-render failed: {_extract_ffmpeg_error(err)}")
             if out.exists():
                 out.unlink()
                 print("[prererender] Removed corrupt/partial bg_prerender.mp4")
@@ -518,9 +592,11 @@ async def render_job(job_id: str):
         render_done = asyncio.Event()
 
         async def _progress_tracker():
-            """Smoothly advance progress 80→96 while FFmpeg renders.
-            Pre-render path is ~5× faster so estimate accordingly."""
-            est_render = max(duration * (0.15 if use_prerender else 0.7), 10.0)
+            """Smoothly advance progress 80→96 while FFmpeg renders."""
+            if HAS_NVENC:
+                est_render = max(duration * (0.05 if use_prerender else 0.15), 8.0)
+            else:
+                est_render = max(duration * (0.15 if use_prerender else 0.5), 10.0)
             t0 = asyncio.get_event_loop().time()
             while not render_done.is_set():
                 await asyncio.sleep(2)
@@ -528,6 +604,8 @@ async def render_job(job_id: str):
                 pct = min(elapsed / est_render, 0.95)
                 update_job(job_id, progress=int(80 + pct * 16))   # 80 → 96
 
+        encoder = "h264_nvenc (GPU)" if HAS_NVENC else "libx264 (CPU)"
+        print(f"[render] Starting {'fast' if use_prerender else 'full'} render with {encoder}")
         update_job(job_id, progress=80)
         tracker = asyncio.create_task(_progress_tracker())
         try:
@@ -536,7 +614,14 @@ async def render_job(job_id: str):
                     bg_prerender, ass_p, video_p,
                     avatar_p if has_avatar else None)
                 if rc != 0:
-                    print(f"[render] Fast render failed ({err[-200:]}), falling back to full render")
+                    if HAS_NVENC and _is_nvenc_error(err):
+                        print("[render] NVENC failed at runtime — disabling and retrying fast render with CPU")
+                        HAS_NVENC = False
+                        rc, err = await _render_video_fast(
+                            bg_prerender, ass_p, video_p,
+                            avatar_p if has_avatar else None)
+                if rc != 0:
+                    print(f"[render] Fast render failed ({_extract_ffmpeg_error(err)}), falling back to full render")
                     bg_prerender.unlink(missing_ok=True)
                     rc, err = await _render_video(
                         no_vocals_p, ass_p, video_p, duration,
@@ -545,12 +630,18 @@ async def render_job(job_id: str):
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
                     avatar_p if has_avatar else None)
+            if rc != 0 and HAS_NVENC and _is_nvenc_error(err):
+                print("[render] NVENC failed at runtime — disabling and retrying with CPU")
+                HAS_NVENC = False
+                rc, err = await _render_video(
+                    no_vocals_p, ass_p, video_p, duration,
+                    avatar_p if has_avatar else None)
         finally:
             render_done.set()
             tracker.cancel()
 
         if rc != 0:
-            raise RuntimeError(f"FFmpeg render: {err[-2000:]}")
+            raise RuntimeError(f"FFmpeg render failed: {_extract_ffmpeg_error(err)}")
 
         # Copy instrumental (may fail if job was deleted during render — ignore)
         try:
@@ -978,7 +1069,7 @@ async def _render_video_fast(bg: Path, ass: Path,
             *inputs,
             "-filter_complex", fc,
             "-map", "[out]", "-map", "0:a",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+            *_vcodec_args(),
             "-c:a", "copy",
             "-pix_fmt", "yuv420p",
             "-shortest", str(out),
@@ -997,7 +1088,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 "-loop", "1", "-i", wm_path,
                 "-filter_complex", fc,
                 "-map", "[out]", "-map", "0:a",
-                "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+                *_vcodec_args(),
                 "-c:a", "copy",
                 "-pix_fmt", "yuv420p",
                 str(out),
@@ -1009,7 +1100,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 "-i", str(bg),
                 "-filter_complex", fc,
                 "-map", "[out]", "-map", "0:a",
-                "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+                *_vcodec_args(),
                 "-c:a", "copy",
                 "-pix_fmt", "yuv420p",
                 str(out),
@@ -1025,9 +1116,8 @@ async def _render_video(no_vocals: Path, ass: Path,
     ass_path   = str(ass).replace("\\", "/")
     fonts_path = str(FONTS_DIR).replace("\\", "/")
 
-    FPS = 25   # 25 fps — smooth enough for karaoke, 17 % fewer frames than 30
+    FPS = 20   # 20 fps — adequate for karaoke text, 33% fewer frames than 30
 
-    # Aurora background: 128×72 geq upscaled → fast animated gradient
     aurora_expr = (
         f"color=s=128x72:r={FPS}:d={duration}:c=0x06061A[tiny];"
         "[tiny]geq="
@@ -1039,7 +1129,7 @@ async def _render_video(no_vocals: Path, ass: Path,
         "+70*sin(6.2832*X/128-6.2832*T/13)+90'"
         "[tiny_aurora];"
         "[tiny_aurora]scale=1280:720:flags=bilinear[aurora];"
-        "[aurora]gblur=sigma=8[bg_blurred];"
+        "[aurora]gblur=sigma=4[bg_blurred];"
     )
 
     wave_expr = (
@@ -1106,7 +1196,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             *inputs,
             "-filter_complex", fg,
             "-map", "[out]", "-map", "1:a",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+            *_vcodec_args(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-shortest", str(out),
@@ -1121,7 +1211,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             *inputs,
             "-filter_complex", fg,
             "-map", "[out]", "-map", "1:a",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+            *_vcodec_args(),
             "-c:a", "aac", "-b:a", "128k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-shortest", str(out),

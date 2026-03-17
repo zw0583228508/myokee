@@ -37,6 +37,7 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 
 ### System Design Choices
 - **Processing Pipeline**: A serial Demucs→Whisper pipeline is used to prevent OOM errors, with pre-rendering starting in parallel to Whisper to reduce overall wait time. Pre-render completion is tracked via `asyncio.Event` to prevent race conditions where `render_job` reads an incomplete `bg_prerender.mp4`. If the fast render path fails (e.g., corrupt pre-render), it automatically falls back to the full render path instead of erroring out. MP4 validation checks both video+audio streams and attempts to decode a frame.
+- **GPU-accelerated encoding**: Auto-detects NVENC on CUDA servers (H100/A100) and uses `h264_nvenc` for video encoding instead of CPU `libx264`. Falls back to `libx264 -preset ultrafast` when no GPU is available. NVENC presets: `p4` for final render, `p1` for prerender. Full render uses 20fps (vs prerender 25fps) and `gblur=sigma=4` (reduced from 8) to minimize CPU filter overhead.
 - **Job Management**: Job state is managed in-memory within the Python service, with files stored temporarily.
 - **Subtitle Format**: FFmpeg utilizes ASS (Advanced SubStation Alpha) for subtitle rendering, allowing for complex styling and animation of lyrics.
 - **Language Support**: Comprehensive support for RTL (Hebrew, Arabic) and LTR languages in both UI and video subtitles.
