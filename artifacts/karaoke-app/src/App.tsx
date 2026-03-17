@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { Mic2 } from "lucide-react";
+import { FloatingShareFab } from "@/components/FloatingShareFab";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import JobDetails from "@/pages/JobDetails";
@@ -100,6 +101,7 @@ function Router() {
           <Route component={NotFound} />
         </Switch>
       </main>
+      <FloatingShareFab />
     </div>
   );
 }
