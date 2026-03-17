@@ -127,14 +127,25 @@ export default function JobDetails() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ durationSeconds }),
     }))
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok && res.status !== 200) {
+          console.error(`[Charge] HTTP ${res.status} for job ${jobId}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        if (data.error) {
+          console.error(`[Charge] API error: ${data.error}`);
+          chargeTriggeredRef.current = false;
+          toast({ title: "שגיאה בחיוב", description: "נסה שוב בעוד כמה שניות", variant: "destructive" });
+          return;
+        }
         if (data.alreadyCharged) {
           setChargeState(data.creditsCharged === 0 ? "free" : "charged");
           setCreditsCharged(data.creditsCharged);
           return;
         }
-        if (!data.success) {
+        if (data.success === false) {
           setChargeState("insufficient");
           chargeTriggeredRef.current = false;
           return;
@@ -152,18 +163,32 @@ export default function JobDetails() {
           queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(`[Charge] Network error:`, err);
         chargeTriggeredRef.current = false;
+        toast({ title: "שגיאת רשת", description: "לא הצלחנו לחייג לשרת, נסה שוב", variant: "destructive" });
       });
   };
 
-  // Charge credits once when job transitions to "done"
   useEffect(() => {
     if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
     const durationSeconds = (job as any).duration_seconds;
-    if (!durationSeconds) return;
+    if (!durationSeconds || durationSeconds <= 0) return;
     attemptCharge(id, durationSeconds);
   }, [job?.status, (job as any)?.duration_seconds, id]);
+
+  useEffect(() => {
+    if (chargeState !== "insufficient" || !id) return;
+    const dur = (job as any)?.duration_seconds;
+    if (!dur) return;
+    const handler = () => {
+      if (document.visibilityState === "visible" && chargeState === "insufficient") {
+        attemptCharge(id, dur);
+      }
+    };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [chargeState, id, (job as any)?.duration_seconds]);
 
   const handleLyricsConfirmed = () => {
     queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(id || "") });
