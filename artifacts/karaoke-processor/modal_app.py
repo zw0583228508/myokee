@@ -48,6 +48,8 @@ app = modal.App("karaoke-processor", image=image)
     },
     min_containers=1,
     max_containers=1,
+    allow_concurrent_inputs=100,
+    container_idle_timeout=300,
     timeout=600,
     secrets=[
         modal.Secret.from_dict({
