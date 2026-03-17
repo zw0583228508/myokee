@@ -15,7 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 
-type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
+type ChargeState = "pending" | "free" | "charged" | "insufficient";
 
 export default function JobDetails() {
   const { id } = useParams<{ id: string }>();
@@ -31,9 +31,11 @@ export default function JobDetails() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chargeTriggeredRef = useRef(false);
   const chargingInProgressRef = useRef(false);
+  const chargeRetryCountRef = useRef(0);
   const prevStatusRef = useRef<string>("");
   const [chargeState, setChargeState] = useState<ChargeState>("pending");
   const [creditsCharged, setCreditsCharged] = useState(0);
+  const [chargeRetryTrigger, setChargeRetryTrigger] = useState(0);
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -122,15 +124,39 @@ export default function JobDetails() {
   const checkAccess = async (jobId: string): Promise<boolean> => {
     try {
       const res = await fetch(apiUrl(`/api/jobs/${jobId}/access`), authFetchOptions());
-      if (!res.ok) return false;
+      if (!res.ok) {
+        console.warn(`[Charge] Access check failed: HTTP ${res.status}`);
+        return false;
+      }
       const data = await res.json();
-      if (data.access && data.creditsCharged != null) {
+      console.log(`[Charge] Access check:`, data);
+      if (data.access && data.creditsCharged != null && data.creditsCharged >= 0) {
         setChargeState(data.creditsCharged === 0 ? "free" : "charged");
         setCreditsCharged(data.creditsCharged ?? 0);
         return true;
       }
-    } catch {}
+    } catch (e) {
+      console.warn(`[Charge] Access check error:`, e);
+    }
     return false;
+  };
+
+  const scheduleRetry = (jobId: string, durationSeconds: number) => {
+    const MAX_RETRIES = 5;
+    chargeRetryCountRef.current += 1;
+    const attempt = chargeRetryCountRef.current;
+    if (attempt > MAX_RETRIES) {
+      console.error(`[Charge] Max retries (${MAX_RETRIES}) reached for job ${jobId}`);
+      toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לחייב. נסה לרענן את הדף.", variant: "destructive" });
+      return;
+    }
+    const delay = Math.min(attempt * 2000, 10000);
+    console.log(`[Charge] Scheduling retry ${attempt}/${MAX_RETRIES} in ${delay}ms`);
+    setTimeout(() => {
+      chargeTriggeredRef.current = false;
+      chargingInProgressRef.current = false;
+      setChargeRetryTrigger(prev => prev + 1);
+    }, delay);
   };
 
   const attemptCharge = async (jobId: string, durationSeconds: number) => {
@@ -139,8 +165,14 @@ export default function JobDetails() {
     chargeTriggeredRef.current = true;
     setChargeState("pending");
 
+    console.log(`[Charge] Starting charge for job ${jobId}, duration=${durationSeconds}s`);
+
     const alreadyPaid = await checkAccess(jobId);
-    if (alreadyPaid) { chargingInProgressRef.current = false; return; }
+    if (alreadyPaid) {
+      console.log(`[Charge] Already paid, skipping charge`);
+      chargingInProgressRef.current = false;
+      return;
+    }
 
     try {
       const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
@@ -149,18 +181,19 @@ export default function JobDetails() {
         body: JSON.stringify({ durationSeconds }),
       }));
       const data = await res.json();
+      console.log(`[Charge] Response:`, data);
 
       if (data.error) {
         console.error(`[Charge] API error: ${data.error}`);
-        chargeTriggeredRef.current = false;
         chargingInProgressRef.current = false;
-        setChargeState("error");
-        toast({ title: "שגיאה בחיוב", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
+        chargeTriggeredRef.current = false;
+        scheduleRetry(jobId, durationSeconds);
         return;
       }
       if (data.alreadyCharged) {
-        setChargeState(data.creditsCharged === 0 ? "free" : "charged");
-        setCreditsCharged(data.creditsCharged);
+        const cc = data.creditsCharged >= 0 ? data.creditsCharged : 0;
+        setChargeState(cc === 0 ? "free" : "charged");
+        setCreditsCharged(cc);
         chargingInProgressRef.current = false;
         return;
       }
@@ -170,6 +203,7 @@ export default function JobDetails() {
         chargingInProgressRef.current = false;
         return;
       }
+      chargeRetryCountRef.current = 0;
       if (data.creditsCharged === 0) {
         setChargeState("free");
         toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
@@ -185,26 +219,27 @@ export default function JobDetails() {
       chargingInProgressRef.current = false;
     } catch (err) {
       console.error(`[Charge] Network error:`, err);
-      chargeTriggeredRef.current = false;
       chargingInProgressRef.current = false;
-      setChargeState("error");
-      toast({ title: "שגיאת רשת", description: "ההורדה זמינה, ניתן לנסות חיוב שוב מאוחר יותר", variant: "destructive" });
+      chargeTriggeredRef.current = false;
+      scheduleRetry(jobId, durationSeconds);
     }
   };
 
   useEffect(() => {
     if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
     const durationSeconds = (job as any).duration_seconds;
+    console.log(`[Charge] Job done, duration_seconds=${durationSeconds}`);
     if (!durationSeconds || durationSeconds <= 0) {
       checkAccess(id).then(paid => {
         if (!paid) {
+          console.log(`[Charge] No duration + not paid → treating as free (legacy job)`);
           setChargeState("free");
         }
       });
       return;
     }
     attemptCharge(id, durationSeconds);
-  }, [job?.status, (job as any)?.duration_seconds, id]);
+  }, [job?.status, (job as any)?.duration_seconds, id, chargeRetryTrigger]);
 
   useEffect(() => {
     if (chargeState !== "insufficient" || !id) return;
@@ -280,7 +315,7 @@ export default function JobDetails() {
             </div>
           </div>
           
-          {isDone && chargeState !== "insufficient" && (
+          {isDone && (chargeState === "free" || chargeState === "charged") && (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
@@ -297,6 +332,12 @@ export default function JobDetails() {
                 </Button>
               </div>
               <ShareButtons title={job.filename} jobId={job.id} />
+            </div>
+          )}
+          {isDone && chargeState === "pending" && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+              <span>מעבד חיוב...</span>
             </div>
           )}
           {isDone && chargeState === "insufficient" && (
@@ -341,6 +382,15 @@ export default function JobDetails() {
         </div>
       )}
 
+      {/* Charge pending — show loading */}
+      {isDone && chargeState === "pending" && (
+        <Card className="p-8 mb-6 flex flex-col items-center justify-center min-h-[200px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-3 border-primary border-t-transparent mb-4" />
+          <h3 className="font-semibold mb-1">מאמת חיוב...</h3>
+          <p className="text-sm text-muted-foreground">רגע, מעבדים את החיוב ומכינים את ההורדה.</p>
+        </Card>
+      )}
+
       {/* Insufficient credits banner */}
       {isDone && chargeState === "insufficient" && (
         <Card className="p-6 mb-6 border-destructive/30 bg-destructive/10">
@@ -366,7 +416,7 @@ export default function JobDetails() {
       )}
 
       {/* Done state — video player + lyrics sidebar */}
-      {isDone && chargeState !== "insufficient" && (
+      {isDone && (chargeState === "free" || chargeState === "charged") && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-primary/10">
