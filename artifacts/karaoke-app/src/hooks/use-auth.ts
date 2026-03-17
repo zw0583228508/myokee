@@ -113,3 +113,18 @@ export function consumeAuthTokenFromUrl(): void {
     window.history.replaceState({}, "", newUrl);
   }
 }
+
+/** Check for auth error in URL (from failed Google OAuth redirect) */
+export function consumeAuthErrorFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  const authStatus = params.get("auth");
+  const reason = params.get("reason");
+  if (authStatus === "error") {
+    params.delete("auth");
+    params.delete("reason");
+    const newUrl = window.location.pathname + (params.toString() ? `?${params}` : "");
+    window.history.replaceState({}, "", newUrl);
+    return reason || "unknown";
+  }
+  return null;
+}

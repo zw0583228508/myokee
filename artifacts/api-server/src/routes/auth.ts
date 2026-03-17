@@ -92,6 +92,7 @@ router.get("/auth/google", (req: Request, res: Response, next: NextFunction) => 
       error: "Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.",
     });
   }
+  console.log("[auth] Google OAuth initiation — host:", req.get("host"), "protocol:", req.protocol);
   return passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
@@ -103,31 +104,43 @@ router.get(
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate(
       "google",
-      (err: any, user: any, _info: any) => {
+      (err: any, user: any, info: any) => {
+        const errorRedirectBase = FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
         if (err) {
-          console.error("[auth] Google callback error:", err);
-          return res.redirect(`${FRONTEND_URL}/?auth=error&reason=${encodeURIComponent(err.message ?? "unknown")}`);
+          console.error("[auth] Google callback error:", err.message, err.stack);
+          return res.redirect(`${errorRedirectBase}/?auth=error&reason=${encodeURIComponent(err.message ?? "unknown")}`);
         }
         if (!user) {
-          console.error("[auth] Google callback: no user");
-          return res.redirect(`${FRONTEND_URL}/?auth=error&reason=no_user`);
+          console.error("[auth] Google callback: no user. Info:", JSON.stringify(info));
+          return res.redirect(`${errorRedirectBase}/?auth=error&reason=no_user`);
         }
         // Issue JWT regardless of session save result — JWT is the primary
         // auth mechanism for cross-origin (Netlify ↔ Render) requests.
         const token = signToken(user.id);
         console.log("[auth] Issued JWT for:", user.id);
+        // Redirect URL: prefer FRONTEND_URL, fallback to request origin (same-origin prod)
+        const redirectUrl = FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
+        console.log("[auth] Redirect URL:", redirectUrl);
         const html = `<!DOCTYPE html><html><head><title>Login successful</title></head><body>
 <script>
   var token = ${JSON.stringify(token)};
-  var frontendUrl = ${JSON.stringify(FRONTEND_URL)};
+  var redirectUrl = ${JSON.stringify(redirectUrl)};
+  // Always persist token to localStorage — works for same-origin popup flows
+  // even when window.opener is nullified by cross-origin navigation through Google.
+  try { localStorage.setItem("myoukee_auth_token", token); } catch(e) {}
   if (window.opener) {
-    window.opener.postMessage({ type: "AUTH_SUCCESS", token: token }, "*");
+    try {
+      window.opener.postMessage({ type: "AUTH_SUCCESS", token: token }, "*");
+    } catch(e) {}
     window.close();
   } else {
-    window.location.href = frontendUrl + "?auth_token=" + encodeURIComponent(token);
+    // No opener — full redirect. Use origin of THIS page (same-origin in prod)
+    // or fall back to configured frontend URL.
+    var dest = window.location.origin || redirectUrl;
+    window.location.href = dest + "/?auth_token=" + encodeURIComponent(token);
   }
 </script>
-<p>Login successful. You may close this window.</p>
+<p>Login successful. Redirecting...</p>
 </body></html>`;
         // Send HTML immediately — don't wait for session (session is optional).
         res.send(html);

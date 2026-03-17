@@ -37,6 +37,7 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
     if (!popup) return;
 
     const onMessage = (e: MessageEvent) => {
+      if (e.source !== popup) return;
       if (e.data?.type === "AUTH_SUCCESS") {
         if (e.data.token) {
           localStorage.setItem("myoukee_auth_token", e.data.token);

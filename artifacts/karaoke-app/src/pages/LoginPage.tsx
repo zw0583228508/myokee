@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Mic2, Mail, Lock, User, Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEmailLogin, useEmailRegister } from "@/hooks/use-auth";
+import { useEmailLogin, useEmailRegister, consumeAuthErrorFromUrl } from "@/hooks/use-auth";
 import { useLang, type SupportedLang } from "@/contexts/LanguageContext";
 import {
   DropdownMenu,
@@ -37,6 +37,13 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const authError = consumeAuthErrorFromUrl();
+    if (authError) {
+      setError(`Google login failed: ${authError}`);
+    }
+  }, []);
+
   const handleGoogleLogin = () => {
     const apiBase = import.meta.env.VITE_API_URL ?? "";
     const width = 500;
@@ -50,9 +57,10 @@ export default function LoginPage() {
     );
     if (!popup) return;
 
+    const tokenBefore = localStorage.getItem("myoukee_auth_token");
+
     const onMessage = (e: MessageEvent) => {
-      const expectedOrigin = new URL(apiBase || window.location.origin).origin;
-      if (e.origin !== expectedOrigin) return;
+      if (e.source !== popup) return;
       if (e.data?.type === "AUTH_SUCCESS") {
         if (e.data.token) {
           localStorage.setItem("myoukee_auth_token", e.data.token);

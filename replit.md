@@ -53,8 +53,11 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
     - Stripe (via Replit Stripe connector)
     - PayPal (direct REST API v2)
 - **Authentication**:
-    - Google OAuth
+    - Google OAuth (popup flow with localStorage fallback + redirect fallback)
     - Email/Password (bcrypt)
+    - JWT tokens used for cross-origin auth (30-day expiry)
+    - Callback HTML stores JWT in localStorage AND sends via postMessage for robustness
+    - Auth errors from Google OAuth are surfaced on LoginPage via URL params
 - **Other**:
     - FFmpeg (for video generation and processing)
     - Google Fonts (for Noto Sans Hebrew and other fonts)
