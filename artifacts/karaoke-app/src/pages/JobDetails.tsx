@@ -266,15 +266,6 @@ export default function JobDetails() {
                     וידאו קריוקי
                   </a>
                 </Button>
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  onClick={() => setSingMode(true)}
-                  className="shadow-lg shadow-primary/30 text-xs sm:text-sm"
-                >
-                  <Mic className="w-3.5 h-3.5 mr-1.5" />
-                  שר עכשיו 🎤
-                </Button>
               </div>
               <ShareButtons title={job.filename} jobId={job.id} />
             </div>
@@ -355,7 +346,35 @@ export default function JobDetails() {
                 onTimeUpdate={setCurrentTime}
               />
             </div>
-            
+
+            <button
+              onClick={() => setSingMode(true)}
+              className="group relative w-full overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 p-5 sm:p-6 transition-all duration-300 hover:border-primary/60 hover:shadow-[0_0_40px_rgba(147,51,234,0.25)] active:scale-[0.99]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-colors duration-500" />
+              <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors duration-500" />
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 group-hover:shadow-primary/50 group-hover:scale-105 transition-all duration-300">
+                    <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-primary-foreground transition-colors">
+                      שר עכשיו
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-0.5">
+                      הקלט את עצמך שר על הקריוקי
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 text-primary/70 group-hover:text-primary group-hover:translate-x-[-4px] transition-all duration-300">
+                  <span className="text-sm font-medium">התחל</span>
+                  <ArrowLeft className="w-5 h-5" />
+                </div>
+              </div>
+            </button>
+
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Music2 className="w-5 h-5 text-accent" />
