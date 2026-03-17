@@ -66,17 +66,23 @@ router.post("/paypal/checkout", async (req: Request, res: Response) => {
 });
 
 async function captureAndFulfill(orderId: string, userId: string, expectedCredits: number): Promise<{ success: boolean; creditsAdded: number; alreadyFulfilled: boolean }> {
+  console.log(`[PayPal] captureAndFulfill called: orderId=${orderId}, userId=${userId}, expectedCredits=${expectedCredits}`);
+
   const existing = await query(
     "SELECT credits_added FROM fulfilled_sessions WHERE session_id = $1",
     [`paypal_${orderId}`]
   );
   if (existing.rows.length > 0) {
+    console.log(`[PayPal] Order ${orderId} already fulfilled with ${existing.rows[0].credits_added} credits`);
     return { success: true, creditsAdded: existing.rows[0].credits_added, alreadyFulfilled: true };
   }
 
+  console.log(`[PayPal] Calling PayPal capture API for order ${orderId}...`);
   const result = await capturePayPalOrder(orderId);
+  console.log(`[PayPal] Capture API result: status=${result.status}, customId=${result.customId}, payerEmail=${result.payerEmail}`);
 
   if (result.status !== "COMPLETED") {
+    console.error(`[PayPal] Order ${orderId} capture returned non-COMPLETED status: ${result.status}`);
     return { success: false, creditsAdded: 0, alreadyFulfilled: false };
   }
 
@@ -134,6 +140,8 @@ router.post("/paypal/capture", async (req: Request, res: Response) => {
   const user = req.user as any;
   const { orderId } = req.body;
 
+  console.log(`[PayPal] /capture called: orderId=${orderId}, userId=${user.id}`);
+
   if (!orderId) return res.status(400).json({ error: "orderId required" });
 
   try {
@@ -143,21 +151,25 @@ router.post("/paypal/capture", async (req: Request, res: Response) => {
     );
 
     if (pending.rows.length > 0 && pending.rows[0].user_id !== user.id) {
+      console.error(`[PayPal] Order ${orderId} belongs to ${pending.rows[0].user_id}, not ${user.id}`);
       return res.status(403).json({ error: "Order does not belong to this user" });
     }
 
     const expectedCredits = pending.rows[0]?.credits ?? 0;
+    console.log(`[PayPal] Expected credits for order ${orderId}: ${expectedCredits}`);
 
     const result = await captureAndFulfill(orderId, user.id, expectedCredits);
 
     if (!result.success) {
+      console.error(`[PayPal] Capture not successful for order ${orderId}`);
       return res.status(402).json({ error: "Payment not completed" });
     }
 
     const credits = await storage.getCredits(user.id);
+    console.log(`[PayPal] Capture complete for order ${orderId}: creditsAdded=${result.creditsAdded}, totalBalance=${credits}`);
     return res.json({ success: true, alreadyFulfilled: result.alreadyFulfilled, creditsAdded: result.creditsAdded, credits });
   } catch (err: any) {
-    console.error("[PayPal] Capture error:", err.message);
+    console.error("[PayPal] Capture error:", err.message, err.stack);
     if (err.message === "Order does not belong to this user") {
       return res.status(403).json({ error: err.message });
     }

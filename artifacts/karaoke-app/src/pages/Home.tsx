@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
 
-type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | null;
+type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | "error" | null;
 
 const SMALL_CARD_ICONS = [Trophy, Swords, Users, Video, Download, Star, Share2, FileText];
 
@@ -59,7 +59,10 @@ export default function Home() {
           setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
           queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         },
-        onError: () => setPaymentBanner("success"),
+        onError: (err) => {
+          console.error("[Payment] Stripe fulfillment error:", err);
+          setPaymentBanner("error");
+        },
       });
       window.history.replaceState({}, "", window.location.pathname);
     } else if ((payment === "paypal_success" || !payment) && paypalOrderId) {
@@ -69,7 +72,11 @@ export default function Home() {
           setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
           queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         },
-        onError: () => setPaymentBanner("success"),
+        onError: (err) => {
+          console.error("[Payment] PayPal capture error:", err);
+          sessionStorage.setItem("paypal_order_id", paypalOrderId);
+          setPaymentBanner("error");
+        },
       });
       window.history.replaceState({}, "", window.location.pathname);
     } else if (payment === "cancelled") {
@@ -137,6 +144,13 @@ export default function Home() {
           <XCircle className="w-4 h-4 text-yellow-400 shrink-0" />
           <span className="text-yellow-400">{lang === "he" ? "הרכישה בוטלה. ניתן לרכוש בכל עת." : "Purchase cancelled. You can buy at any time."}</span>
           <button onClick={() => setPaymentBanner(null)} className="text-yellow-600 hover:text-yellow-400 ml-2">✕</button>
+        </div>
+      )}
+      {paymentBanner === "error" && (
+        <div className="w-full bg-red-500/10 border-b border-red-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
+          <XCircle className="w-4 h-4 text-red-400 shrink-0" />
+          <span className="text-red-400">{lang === "he" ? "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה." : "Payment processing error. Credits will be added automatically on next login."}</span>
+          <button onClick={() => setPaymentBanner(null)} className="text-red-600 hover:text-red-400 ml-2">✕</button>
         </div>
       )}
 

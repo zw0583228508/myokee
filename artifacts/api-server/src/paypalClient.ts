@@ -110,6 +110,18 @@ export async function capturePayPalOrder(orderId: string): Promise<{
 
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 422 && text.includes("ORDER_ALREADY_CAPTURED")) {
+      console.log(`[PayPal] Order ${orderId} was already captured, fetching order details...`);
+      const detailRes = await fetch(`${BASE_URL}/v2/checkout/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (detailRes.ok) {
+        const detail: any = await detailRes.json();
+        const customId = detail.purchase_units?.[0]?.payments?.captures?.[0]?.custom_id ?? null;
+        const payerEmail = detail.payer?.email_address ?? null;
+        return { id: detail.id, status: detail.status, customId, payerEmail };
+      }
+    }
     throw new Error(`PayPal capture failed (${res.status}): ${text}`);
   }
 
