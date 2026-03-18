@@ -67,6 +67,7 @@ router.post("/jobs/:id/claim", async (req: Request, res: Response) => {
 
 // POST /api/jobs/:id/charge — called by frontend when job finishes
 // Deducts credits based on song duration (first 40 seconds free, then 1 credit/min)
+// durationSeconds can be provided in body OR the server fetches it from the processor
 router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
@@ -74,12 +75,7 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
 
   const user = req.user as any;
   const jobId = req.params.id;
-  const { durationSeconds } = req.body;
-
-  if (typeof durationSeconds !== "number" || durationSeconds <= 0) {
-    console.error(`[Charge] Bad durationSeconds: ${JSON.stringify(durationSeconds)} (type: ${typeof durationSeconds}) for job ${jobId}`);
-    return res.status(400).json({ error: "durationSeconds required" });
-  }
+  let durationSeconds = req.body?.durationSeconds;
 
   try {
     const owner = await storage.getJobOwner(jobId);
@@ -90,6 +86,28 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
       return res.status(403).json({ error: "Not your job" });
     }
 
+    if (typeof durationSeconds !== "number" || durationSeconds <= 0) {
+      console.log(`[Charge] No durationSeconds in body, fetching from processor for job ${jobId}`);
+      const processorUrl = process.env.PROCESSOR_URL ?? "http://localhost:8000";
+      const jobRes = await fetch(`${processorUrl}/processor/jobs/${jobId}`);
+      if (jobRes.ok) {
+        const jobData = await jobRes.json();
+        durationSeconds = jobData.duration_seconds;
+        console.log(`[Charge] Got duration from processor: ${durationSeconds}s, status=${jobData.status}`);
+        if (jobData.status !== "done") {
+          return res.status(400).json({ error: "Job not done yet" });
+        }
+      } else {
+        console.error(`[Charge] Failed to fetch job from processor: ${jobRes.status}`);
+        return res.status(502).json({ error: "Could not get job info from processor" });
+      }
+    }
+
+    if (typeof durationSeconds !== "number" || durationSeconds <= 0) {
+      console.error(`[Charge] Still no valid durationSeconds for job ${jobId}: ${durationSeconds}`);
+      return res.status(400).json({ error: "Could not determine song duration" });
+    }
+
     const result = await storage.chargeJob(jobId, user.id, durationSeconds);
     if (!result.success) {
       const balance = await storage.getCredits(user.id);
@@ -97,7 +115,7 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
       const creditsNeeded = Math.max(0, Math.ceil((durationSeconds - FREE_SECONDS) / 60));
       console.error(`[Charge] INSUFFICIENT: user=${user.id} balance=${balance} needed=${creditsNeeded} duration=${durationSeconds}s job=${jobId}`);
     } else {
-      console.log(`[Charge] OK: user=${user.id} charged=${result.creditsCharged} newBalance=${result.newBalance} job=${jobId}`);
+      console.log(`[Charge] OK: user=${user.id} charged=${result.creditsCharged} newBalance=${result.newBalance} alreadyCharged=${result.alreadyCharged} job=${jobId}`);
     }
     res.json(result);
   } catch (err) {

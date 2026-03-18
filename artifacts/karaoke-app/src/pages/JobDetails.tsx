@@ -139,13 +139,13 @@ export default function JobDetails() {
     return false;
   };
 
-  const attemptCharge = async (jobId: string, durationSeconds: number) => {
+  const attemptCharge = async (jobId: string) => {
     if (chargingInProgressRef.current) return;
     chargingInProgressRef.current = true;
     chargeTriggeredRef.current = true;
     setChargeState("pending");
 
-    console.log(`[Charge] Starting charge for job ${jobId}, duration=${durationSeconds}s`);
+    console.log(`[Charge] Starting charge for job ${jobId}`);
 
     const MAX_RETRIES = 3;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -174,7 +174,7 @@ export default function JobDetails() {
         const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ durationSeconds }),
+          body: JSON.stringify({}),
         }));
         const data = await res.json();
         console.log(`[Charge] Response:`, data);
@@ -227,32 +227,20 @@ export default function JobDetails() {
 
   useEffect(() => {
     if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
-    const durationSeconds = (job as any).duration_seconds;
-    console.log(`[Charge] Job done, duration_seconds=${durationSeconds}`);
-    if (!durationSeconds || durationSeconds <= 0) {
-      checkAccess(id).then(paid => {
-        if (!paid) {
-          console.log(`[Charge] No duration + not paid → treating as free (legacy job)`);
-          setChargeState("free");
-        }
-      });
-      return;
-    }
-    attemptCharge(id, durationSeconds);
-  }, [job?.status, (job as any)?.duration_seconds, id]);
+    console.log(`[Charge] Job done, triggering charge for ${id}`);
+    attemptCharge(id);
+  }, [job?.status, id]);
 
   useEffect(() => {
     if (chargeState !== "insufficient" || !id) return;
-    const dur = (job as any)?.duration_seconds;
-    if (!dur) return;
     const handler = () => {
       if (document.visibilityState === "visible" && chargeState === "insufficient") {
-        attemptCharge(id, dur);
+        attemptCharge(id);
       }
     };
     document.addEventListener("visibilitychange", handler);
     return () => document.removeEventListener("visibilitychange", handler);
-  }, [chargeState, id, (job as any)?.duration_seconds]);
+  }, [chargeState, id]);
 
   const handleLyricsConfirmed = () => {
     queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(id || "") });
@@ -400,8 +388,7 @@ export default function JobDetails() {
               <p className="text-sm text-muted-foreground">לא הצלחנו לעבד את החיוב. לחץ על "נסה שוב" כדי לנסות מחדש.</p>
             </div>
             <Button variant="gradient" className="shrink-0" onClick={() => {
-              const dur = (job as any)?.duration_seconds;
-              if (id && dur) attemptCharge(id, dur);
+              if (id) attemptCharge(id);
             }}>
               נסה שוב
             </Button>
@@ -419,8 +406,7 @@ export default function JobDetails() {
             </div>
             <div className="flex gap-2 ml-auto shrink-0">
               <Button variant="outline" onClick={() => {
-                const dur = (job as any)?.duration_seconds;
-                if (id && dur) attemptCharge(id, dur);
+                if (id) attemptCharge(id);
               }}>
                 נסה שוב
               </Button>
