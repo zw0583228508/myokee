@@ -53,7 +53,8 @@ The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM error
 
 ## Video Generation Visual Style
 - **Fonts**: Montserrat (Latin, bold cinematic look), Noto Sans Hebrew (RTL), Noto Sans CJK SC (CJK). All in `artifacts/karaoke-processor/fonts/`.
-- **ASS Subtitle Effects**: Neon cyan/magenta active word glow (\\blur6 + \\fscx105/\\fscy105 scale pop), pinkish "sung" words, gradient opacity for context lines (Near 48px, Far 36px, Active 68px). 6 styles: Active, Glow, Sung, ActiveDim, Near, Far.
+- **ASS Subtitle Layout**: Sentence-based 2-line display (active line + next upcoming line). Active line at y=330 with cyan \\kf word sweep; upcoming line at y=420 dimmed. Same font size (54px) for both. No small-font context lines. 2 styles: Active, Upcoming. -0.15s timing offset for sync.
 - **Background**: Multi-layer aurora nebula (geq sine waves with clip(), 5+ overlapping color frequencies for purple/cyan/magenta/blue), gaussian blur σ=6, pre-rendered at 160×90 upscaled to 640×360.
 - **Waveform**: 3-color (cyan/magenta/purple) cline mode, sqrt scale.
 - **Avatar**: Only explicitly uploaded photos — Google profile photos are NOT auto-sent.
+- **Encoding**: NVENC: cq=32, maxrate 2M, profile high; CPU: libx264 medium, crf=26, tune animation, profile high. Audio: AAC 96k.

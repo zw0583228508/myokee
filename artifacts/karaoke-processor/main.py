@@ -802,9 +802,9 @@ def _run_demucs(wav_in: Path, jdir: Path, job_id: str) -> tuple[Path, Path]:
 # ---------------------------------------------------------------------------
 # LYRIC LINE GROUPER
 # ---------------------------------------------------------------------------
-def _group_words_into_lines(words: list[dict], max_words: int = 5) -> list[list[dict]]:
-    """Split word list into lyric lines.
-    New line when: pause > 0.45 s OR max words reached.
+def _group_words_into_lines(words: list[dict], max_words: int = 8) -> list[list[dict]]:
+    """Split word list into lyric lines (sentence-like).
+    New line when: pause > 0.55 s OR max words reached OR line too wide (>1100 px).
     """
     if not words:
         return []
@@ -814,29 +814,26 @@ def _group_words_into_lines(words: list[dict], max_words: int = 5) -> list[list[
         cur.append(w)
         is_last = (i == len(words) - 1)
         next_gap = (words[i + 1]["start"] - w["end"]) if not is_last else 999.0
-        if len(cur) >= max_words or next_gap > 0.45 or is_last:
+        cur_width = sum(_word_px(ww["word"]) for ww in cur) + 12 * (len(cur) - 1)
+        if len(cur) >= max_words or next_gap > 0.55 or cur_width > 1100 or is_last:
             lines.append(cur)
             cur = []
     return lines
 
 
 # ---------------------------------------------------------------------------
-# ASS SUBTITLE BUILDER — cinematic multi-line karaoke  (RTL/LTR per-word layout)
+# ASS SUBTITLE BUILDER — sentence-based karaoke (2-line display)
 # ---------------------------------------------------------------------------
-# Layout is achieved via explicit \pos(x,y) for every word — no BiDi dependency.
-# RTL (Hebrew, Arabic, etc.): words positioned right-to-left, chars reversed.
-# LTR (Latin, CJK, etc.):     words positioned left-to-right, no reversal.
-# Each word has:
-#   Layer 0 = context (Far / Near style, shown for full line duration)
-#   Layer 1 = base active dim (shown before/after highlight)
-#   Layer 2 = neon highlight with glow (during word's own time window)
-#   Layer 3 = glow shadow layer behind active word
+# Each line is rendered as a full sentence with \kf word-by-word sweep.
+# Only 2 lines shown: the active (currently sung) line + next upcoming line.
+# Same font size for both lines; upcoming line is dimmer.
+# A small negative timing offset improves perceived sync.
 
-# Pixel-width estimate at 68 px Montserrat Bold
-_CHAR_PX      = 44   # average px per Latin/Hebrew character (Montserrat is wider)
-_CHAR_PX_CJK  = 64   # CJK ideographs are full-width (~1.6x Latin)
-_MIN_W    = 48   # minimum word width
-_GAP_PX   = 20   # horizontal gap between words
+# Pixel-width estimate at 54 px font
+_CHAR_PX      = 36   # average px per Latin/Hebrew character
+_CHAR_PX_CJK  = 54   # CJK ideographs are full-width
+_MIN_W    = 32   # minimum word width
+_GAP_PX   = 12   # gap between words (natural sentence spacing)
 
 # Languages that read right-to-left
 _RTL_LANGS = {"he", "ar", "fa", "ur", "arc", "dv", "ha", "khw", "ks", "ps", "yi"}
@@ -876,69 +873,35 @@ def _word_px(word: str) -> int:
     return max(px, _MIN_W)
 
 
-def _rtl_positions(words_in_line: list[dict], center_x: int = 640) -> list[int]:
-    """X-centers for each word, laid out right-to-left (Hebrew/Arabic style)."""
-    widths = [_word_px(w["word"]) for w in words_in_line]
-    total  = sum(widths) + _GAP_PX * (len(widths) - 1)
-    if total > 1160:
-        scale  = 1160 / total
-        widths = [max(int(w * scale), 28) for w in widths]
-        total  = sum(widths) + _GAP_PX * (len(widths) - 1)
-    right_edge = center_x + total / 2
-    pos, cur = [], right_edge
-    for ww in widths:
-        pos.append(round(cur - ww / 2))
-        cur -= ww + _GAP_PX
-    return pos
-
-
-def _ltr_positions(words_in_line: list[dict], center_x: int = 640) -> list[int]:
-    """X-centers for each word, laid out left-to-right (Latin/CJK style)."""
-    widths = [_word_px(w["word"]) for w in words_in_line]
-    total  = sum(widths) + _GAP_PX * (len(widths) - 1)
-    if total > 1160:
-        scale  = 1160 / total
-        widths = [max(int(w * scale), 28) for w in widths]
-        total  = sum(widths) + _GAP_PX * (len(widths) - 1)
-    left_edge = center_x - total / 2
-    pos, cur = [], left_edge
-    for ww in widths:
-        pos.append(round(cur + ww / 2))
-        cur += ww + _GAP_PX
-    return pos
+_SYNC_OFFSET = -0.15   # shift all word times earlier by 150ms to improve perceived sync
 
 
 def _build_ass(words: list[dict], out: Path, language: str = "en"):
     """
-    Cinematic karaoke subtitle layout (1280×720):
-      5 lines visible at once centred at y≈305
-        offset -2 → y=115   Far  (faded, small)
-        offset -1 → y=210   Near (semi-visible)
-        offset  0 → y=305   Active — neon glow, bold, large
-        offset +1 → y=405   Near
-        offset +2 → y=495   Far
-      Active words get:
-        - Layer 3: neon glow blur behind (cyan/magenta)
-        - Layer 2: bright neon fill with \\kf karaoke sweep
-        - Layer 1: dim white before/after singing
-      Context lines: gradient opacity falloff
+    Sentence-based karaoke layout (1280×720):
+      2 lines only:  active line (y=330) + next upcoming line (y=420).
+      Same font size for both — upcoming line is dimmer.
+      Each line = single dialogue event with \\kf word-by-word sweep.
+      No small-font context lines.
     """
-    lines  = _group_words_into_lines(words)
+    import copy as _copy
+    words_adj = _copy.deepcopy(words)
+    for w in words_adj:
+        w["start"] = max(0.0, w["start"] + _SYNC_OFFSET)
+        w["end"]   = max(0.01, w["end"] + _SYNC_OFFSET)
+    lines  = _group_words_into_lines(words_adj)
     is_rtl = _is_rtl(language)
 
-    # ASS colours: &HAABBGGRR (AA=00 opaque, FF=transparent)
-    # Neon cyan active fill (sweep destination)
-    C_NEON_CYAN   = "&H00FFFF00&"       # bright cyan (BGR: 00FFFF = cyan)
-    C_NEON_MAGENTA = "&H00FF00FF&"      # magenta secondary
-    C_SUNG_PINK   = "&H40CB88FF&"       # pinkish-white for already-sung words
-    C_NEAR        = "&H60FFFFFF&"       # ~62% opacity white
-    C_FAR         = "&HA0FFFFFF&"       # ~37% opacity white
-    C_GLOW_CYAN   = "&H00FFFF00&"       # glow outline color
-    C_OUT_ACTIVE  = "&H00FF4488&"       # magenta-ish outline for active
-    C_OUT_NEAR    = "&H80000000&"       # semi-transparent black outline
-    C_OUT_FAR     = "&HA0000000&"
+    # ASS colours: &HAABBGGRR
+    # Active line: PrimaryColour = highlighted (already sung) colour
+    #              SecondaryColour = not-yet-sung colour (dim white)
+    C_HIGHLIGHT = "&H00FFFF00&"     # bright cyan — colour of sung words
+    C_UNSUNSG   = "&H50FFFFFF&"     # dim white — words not yet sung
+    C_OUTLINE   = "&H00000000&"     # black outline
+    C_UPCOMING  = "&H60FFFFFF&"     # dimmer white for next line
+    C_UP_OUTLINE = "&H70000000&"    # softer outline for upcoming
 
-    # Font selection: Montserrat for Latin, Noto Sans Hebrew for RTL, Noto Sans CJK
+    # Font selection
     if _is_cjk(language):
         font_name = "Noto Sans SC"
     elif is_rtl:
@@ -946,55 +909,40 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
     else:
         font_name = "Montserrat"
 
+    FONT_SIZE = 54
+
     header = (
         "[Script Info]\n"
         "ScriptType: v4.00+\n"
         "PlayResX: 1280\n"
         "PlayResY: 720\n"
-        "WrapStyle: 0\n"
+        "WrapStyle: 2\n"
         "ScaledBorderAndShadow: yes\n\n"
         "[V4+ Styles]\n"
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour,"
         " OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut,"
         " ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow,"
         " Alignment, MarginL, MarginR, MarginV, Encoding\n"
-        # Active: neon cyan, bold, thick outline, shadow glow
-        f"Style: Active,{font_name},68,{C_NEON_CYAN},{C_NEON_MAGENTA},{C_OUT_ACTIVE},&H60000000,"
-        "-1,0,0,0,100,100,3,0,1,4,4,2,0,0,0,1\n"
-        # Glow: blurred neon behind active word (larger, softer)
-        f"Style: Glow,{font_name},72,{C_GLOW_CYAN},&H00000000,{C_GLOW_CYAN},&H00000000,"
-        "-1,0,0,0,100,100,3,0,1,8,0,2,0,0,0,1\n"
-        # Sung: already-sung words on active line (pinkish white)
-        f"Style: Sung,{font_name},68,{C_SUNG_PINK},&H00000000,&H60000000,&H00000000,"
-        "-1,0,0,0,100,100,2,0,1,3,1,2,0,0,0,1\n"
-        # ActiveDim: unsunsg words on active line (same size as Active, dimmer)
-        f"Style: ActiveDim,{font_name},68,{C_NEAR},&H00000000,{C_OUT_NEAR},&H00000000,"
-        "-1,0,0,0,100,100,2,0,1,3,1,2,0,0,0,1\n"
-        # Near: adjacent lines (semi-visible)
-        f"Style: Near,{font_name},48,{C_NEAR},&H00000000,{C_OUT_NEAR},&H00000000,"
-        "0,0,0,0,100,100,1,0,1,3,1,2,0,0,0,1\n"
-        # Far: distant context lines (faded)
-        f"Style: Far,{font_name},36,{C_FAR},&H00000000,{C_OUT_FAR},&H00000000,"
-        "0,0,0,0,100,100,1,0,1,2,0,2,0,0,0,1\n\n"
+        # Active: cyan highlight sweeps over dim-white unsunsg text
+        f"Style: Active,{font_name},{FONT_SIZE},{C_HIGHLIGHT},{C_UNSUNSG},{C_OUTLINE},&H80000000,"
+        "-1,0,0,0,100,100,1,0,1,3,2,5,60,60,0,1\n"
+        # Upcoming: dim white, no karaoke effect
+        f"Style: Upcoming,{font_name},{FONT_SIZE},{C_UPCOMING},&H00000000,{C_UP_OUTLINE},&H00000000,"
+        "0,0,0,0,100,100,1,0,1,2,1,5,60,60,0,1\n\n"
         "[Events]\n"
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
     )
 
     def ts(s: float) -> str:
+        s = max(0.0, s)
         h  = int(s // 3600)
         m  = int((s % 3600) // 60)
         sc = s % 60
         cs = round((sc - int(sc)) * 100)
         return f"{h}:{m:02d}:{int(sc):02d}.{cs:02d}"
 
-    def word_display(word: str) -> str:
-        return word[::-1] if is_rtl else word
-
-    def line_positions(line: list[dict]) -> list[int]:
-        return _rtl_positions(line) if is_rtl else _ltr_positions(line)
-
-    Y_ACTIVE  = 305
-    Y_OFFSETS = {-2: -190, -1: -95, 0: 0, 1: 100, 2: 190}
+    Y_ACTIVE   = 330
+    Y_UPCOMING = 420
 
     events = [header]
 
@@ -1004,50 +952,34 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
         line_start = line[0]["start"]
         line_end   = line[-1]["end"]
 
-        # ── Context lines (offsets -2, -1, +1, +2) ─────────────────────────
-        for offset in [-2, -1, 1, 2]:
-            ctx_i = line_idx + offset
-            if 0 <= ctx_i < len(lines):
-                ctx_line  = lines[ctx_i]
-                ctx_pos   = line_positions(ctx_line)
-                y         = Y_ACTIVE + Y_OFFSETS[offset]
-                style     = "Near" if abs(offset) == 1 else "Far"
-                for w, xp in zip(ctx_line, ctx_pos):
-                    events.append(
-                        f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
-                        f"{style},,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{word_display(w['word'])}\n"
-                    )
+        # ── Build sentence text with \kf timing tags ────────────────────
+        # Words stay in chronological/spoken order.
+        # libass BiDi handles RTL display automatically.
+        # Each word's \kf = (gap before + word duration) so sweep covers
+        # the full time from the previous word's end to this word's end.
+        parts = []
+        kf_cursor = line_start
+        for w in line:
+            total_cs = max(1, round((w["end"] - kf_cursor) * 100))
+            parts.append(f"{{\\kf{total_cs}}}{w['word']}")
+            kf_cursor = w["end"]
+        sentence = " ".join(parts)
 
-        # ── Active line ──────────────────────────────────────────────────────
-        y            = Y_ACTIVE + Y_OFFSETS[0]
-        active_pos   = line_positions(line)
+        # Active line — this line is being sung right now
+        events.append(
+            f"Dialogue: 1,{ts(line_start)},{ts(line_end)},"
+            f"Active,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_ACTIVE})}}{sentence}\n"
+        )
 
-        for w, xp in zip(line, active_pos):
-            w_dur_cs = max(1, round((w["end"] - w["start"]) * 100))
-            wdisp    = word_display(w["word"])
-
-            # Layer 1 — dim base before the word is sung (same size as Active)
-            if w["start"] > line_start:
-                events.append(
-                    f"Dialogue: 1,{ts(line_start)},{ts(w['start'])},"
-                    f"ActiveDim,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
-                )
-            # Layer 3 — neon glow blur behind active word
+        # ── Upcoming line — show next line dimmed below ──────────────────
+        next_idx = line_idx + 1
+        if next_idx < len(lines):
+            next_line = lines[next_idx]
+            next_text = " ".join(w["word"] for w in next_line)
             events.append(
-                f"Dialogue: 3,{ts(w['start'])},{ts(w['end'])},"
-                f"Glow,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{{\\blur6}}{{\\kf{w_dur_cs}}}{wdisp}\n"
+                f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
+                f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_UPCOMING})}}{next_text}\n"
             )
-            # Layer 4 — main neon highlight with karaoke sweep + scale pop
-            events.append(
-                f"Dialogue: 4,{ts(w['start'])},{ts(w['end'])},"
-                f"Active,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{{\\fscx105}}{{\\fscy105}}{{\\kf{w_dur_cs}}}{wdisp}\n"
-            )
-            # Layer 2 — already-sung (pinkish glow) after the word
-            if w["end"] < line_end:
-                events.append(
-                    f"Dialogue: 2,{ts(w['end'])},{ts(line_end)},"
-                    f"Sung,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
-                )
 
     out.write_text("".join(events), encoding="utf-8")
 
