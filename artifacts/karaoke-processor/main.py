@@ -555,13 +555,20 @@ async def render_job(job_id: str):
         jdir = JOBS_DIR / job_id
         if not jdir.exists():
             return
+
+        import time as _time
+        _phase_t0 = _time.monotonic()
+        def _phase_log(label: str):
+            elapsed = _time.monotonic() - _phase_t0
+            print(f"[render:{job_id[:8]}] {label} (t={elapsed:.1f}s)")
+
+        _phase_log("START render_job")
         update_job(job_id, status="rendering", progress=72)
 
         words = json.loads((jdir / "words.json").read_text())
         stems = json.loads((jdir / "stems_paths.json").read_text())
         no_vocals_p = Path(stems["no_vocals"])
 
-        # Load detected language (saved during transcription phase)
         lang_f = jdir / "language.txt"
         song_language = lang_f.read_text().strip() if lang_f.exists() else \
                         (jobs.get(job_id, {}).get("language") or "en")
@@ -569,8 +576,8 @@ async def render_job(job_id: str):
         update_job(job_id, progress=74)
         ass_p = jdir / "karaoke.ass"
         _build_ass(words, ass_p, language=song_language)
+        _phase_log("ASS built")
 
-        # Get audio duration
         dur_proc = await asyncio.create_subprocess_exec(
             "ffprobe", "-v", "error",
             "-show_entries", "format=duration",
@@ -579,36 +586,39 @@ async def render_job(job_id: str):
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         dur_out, _ = await dur_proc.communicate()
         duration = float(dur_out.decode().strip()) if dur_out.strip() else 180.0
+        _phase_log(f"Duration={duration:.1f}s")
 
-        # Prefer processed (bg-removed) avatar; fall back to raw if not ready
         avatar_p = jdir / "avatar_processed.png"
         if not avatar_p.exists():
             avatar_p = jdir / "avatar.jpg"
         if not avatar_p.exists():
             avatar_p = jdir / "avatar.png"
         has_avatar = avatar_p.exists()
+        _phase_log(f"Avatar={'yes' if has_avatar else 'no'}")
 
         video_p = jdir / "karaoke.mp4"
 
-        # ── Check for pre-rendered background ──────────────────────────────
-        # Background rendering started automatically when the user entered
-        # the review phase. Wait for the prerender task to actually finish
-        # (not just for the file to appear) to avoid reading incomplete files.
         bg_prerender = jdir / "bg_prerender.mp4"
         prerender_event = _prerender_events.get(job_id)
         if prerender_event and not prerender_event.is_set():
+            _phase_log("Waiting for prerender event (max 180s)...")
             update_job(job_id, progress=75, status="rendering")
             try:
                 await asyncio.wait_for(prerender_event.wait(), timeout=180)
+                _phase_log("Prerender event fired")
             except asyncio.TimeoutError:
-                print(f"[render] Pre-render timed out after 180s, falling back")
+                _phase_log("Prerender event TIMED OUT after 180s — falling back")
         elif not bg_prerender.exists():
+            _phase_log("No prerender file, waiting up to 120s...")
             update_job(job_id, progress=75, status="rendering")
             wait_secs, slept = 120, 0
             while not bg_prerender.exists() and slept < wait_secs:
                 await asyncio.sleep(2)
                 slept += 2
                 update_job(job_id, progress=int(75 + min(slept / wait_secs, 0.9) * 5))
+            _phase_log(f"Waited {slept}s for prerender file, exists={bg_prerender.exists()}")
+        else:
+            _phase_log("Prerender file already exists")
 
         use_prerender = bg_prerender.exists()
         if use_prerender:
@@ -639,7 +649,7 @@ async def render_job(job_id: str):
                 update_job(job_id, progress=int(80 + pct * 18))   # 80 → 98
 
         encoder = "h264_nvenc (GPU)" if HAS_NVENC else "libx264 (CPU)"
-        print(f"[render] Starting {'fast' if use_prerender else 'full'} render with {encoder}, duration={duration:.1f}s")
+        _phase_log(f"Prerender={'yes' if use_prerender else 'no'}, encoder={encoder}")
         update_job(job_id, progress=80)
         tracker = asyncio.create_task(_progress_tracker())
         try:
@@ -676,13 +686,13 @@ async def render_job(job_id: str):
 
         render_elapsed = asyncio.get_event_loop().time() - render_start_time
         if rc != 0:
-            print(f"[render] FFmpeg FAILED after {render_elapsed:.1f}s (rc={rc}): {_extract_ffmpeg_error(err)}")
+            _phase_log(f"FFmpeg FAILED after {render_elapsed:.1f}s (rc={rc}): {_extract_ffmpeg_error(err)}")
             raise RuntimeError(f"FFmpeg render failed: {_extract_ffmpeg_error(err)}")
 
-        print(f"[render] Render completed in {render_elapsed:.1f}s")
+        _phase_log(f"Render completed in {render_elapsed:.1f}s")
         if video_p.exists():
             sz = video_p.stat().st_size / (1024*1024)
-            print(f"[render] Output: {video_p.name} ({sz:.1f} MB)")
+            _phase_log(f"Output: {video_p.name} ({sz:.1f} MB)")
 
         try:
             if Path(no_vocals_p).exists():
