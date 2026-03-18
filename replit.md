@@ -29,6 +29,19 @@ The project uses a monorepo structure with pnpm workspaces for the React fronten
 ### System Design Choices
 The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM errors, with parallel pre-rendering to reduce wait times and automatic fallback for failed pre-renders. GPU-accelerated encoding (NVENC) is used where available, falling back to CPU. Job state is managed in-memory with temporary file storage. FFmpeg utilizes ASS for complex subtitle rendering. Comprehensive language support includes both RTL and LTR languages for UI and video subtitles. All FFmpeg calls (prerender, fast render, full render) have timeouts to prevent infinite hangs. Render progress uses an asymptotic curve (never stalls). Frontend detects stuck jobs (>5 min without update) and shows a retry button. The retry endpoint accepts stuck jobs (stale >120s). **Fast render (prerender upscale path) is skipped on CPU** — it hangs/times out consistently; full render is used directly instead (5x faster on CPU). Modal Labs deployment: `modal deploy artifacts/karaoke-processor/modal_app.py` (copy to /tmp first to avoid git lock).
 
+### Analytics Dashboard
+A dedicated analytics dashboard at `/analytics/` provides real-time insights into all platform data:
+- **Overview**: KPIs (total users, songs processed, credits purchased, active users, avg duration, performances, party rooms), user registrations & songs over time, revenue breakdown, credits distribution
+- **Users**: Top 50 users by activity with email, credits, job count
+- **Songs**: Recent 100 processed songs with user, duration, credits
+- **Performances**: Score distribution, top scores, performances over time with avg score
+- **Gamification**: XP stats, badge/achievement distribution, XP sources
+- **Referrals**: Total referrals, credits awarded, top referrers
+- **Parties**: Room stats, recent rooms with member/queue counts
+
+API routes: `artifacts/api-server/src/routes/analytics.ts` (10 endpoints under `/api/analytics/`)
+Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
+
 ## External Dependencies
 
 - **Cloud Deployment**:

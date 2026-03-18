@@ -9,6 +9,7 @@ import referralsRouter from "./referrals";
 import partyRouter from "./party";
 import gamificationRouter from "./gamification";
 import storageRouter from "./storage";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(referralsRouter);
 router.use(partyRouter);
 router.use(gamificationRouter);
 router.use(storageRouter);
+router.use(analyticsRouter);
 
 export default router;
