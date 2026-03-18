@@ -34,6 +34,7 @@ export default function JobDetails() {
   const prevStatusRef = useRef<string>("");
   const [chargeState, setChargeState] = useState<ChargeState>("pending");
   const [creditsCharged, setCreditsCharged] = useState(0);
+  const [chargeError, setChargeError] = useState("");
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -213,10 +214,12 @@ export default function JobDetails() {
         }
         if (data.error) {
           console.error(`[Charge] API error: ${data.error}`);
+          setChargeError(`${res.status}: ${data.error}`);
           continue;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(`[Charge] Network error:`, err);
+        setChargeError(`Network: ${err.message}`);
         continue;
       }
     }
@@ -398,6 +401,7 @@ export default function JobDetails() {
             <div>
               <h3 className="font-semibold text-destructive mb-1">שגיאה בעיבוד החיוב</h3>
               <p className="text-sm text-muted-foreground">לא הצלחנו לעבד את החיוב. לחץ על "נסה שוב" כדי לנסות מחדש.</p>
+              {chargeError && <p className="text-xs text-muted-foreground/60 mt-1 font-mono" dir="ltr">{chargeError}</p>}
             </div>
             <Button variant="gradient" className="shrink-0" onClick={() => {
               if (id) attemptCharge(id);

@@ -154,6 +154,42 @@ router.post("/jobs/:id/store-duration", async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/jobs/:id/charge-debug — diagnostic endpoint (no auth required, read-only)
+router.get("/jobs/:id/charge-debug", async (req: Request, res: Response) => {
+  const jobId = req.params.id;
+  const info: any = { jobId, steps: [] };
+  try {
+    const owner = await storage.getJobOwner(jobId);
+    info.steps.push({ step: "owner", owner });
+
+    const storedDuration = await storage.getStoredDuration(jobId);
+    info.steps.push({ step: "storedDuration", storedDuration });
+
+    const access = await storage.getJobAccess(jobId);
+    info.steps.push({ step: "access", access });
+
+    const processorUrl = process.env.PROCESSOR_URL ?? "http://localhost:8000";
+    info.steps.push({ step: "processorUrl", processorUrl: processorUrl.substring(0, 50) });
+
+    try {
+      const jobRes = await fetch(`${processorUrl}/processor/jobs/${jobId}`);
+      if (jobRes.ok) {
+        const jobData = await jobRes.json();
+        info.steps.push({ step: "processor", status: jobData.status, duration: jobData.duration_seconds });
+      } else {
+        info.steps.push({ step: "processor", error: `HTTP ${jobRes.status}` });
+      }
+    } catch (e: any) {
+      info.steps.push({ step: "processor", error: e.message });
+    }
+
+    res.json(info);
+  } catch (err: any) {
+    info.steps.push({ step: "error", error: err.message });
+    res.json(info);
+  }
+});
+
 // GET /api/jobs/:id/access — check if user can access results of a job
 router.get("/jobs/:id/access", async (req: Request, res: Response) => {
   if (!req.user) {
