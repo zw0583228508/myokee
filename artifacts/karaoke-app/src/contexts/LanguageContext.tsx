@@ -406,7 +406,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "הייחודיות שלנו", title: "למה MYOUKEE?", subtitle: "שאלה טובה. הנה התשובה.",
         items: [
-          { title: "בלי מאגר קריוקי", desc: "כל שיר שאי פעם הוקלט עובד. לא תלוי בזכויות, לא מחכה שמישהו יוסיף את השיר המועדף עליך." },
+          { title: "בלי מאגר קריוקי", desc: "כל שיר שאי פעם הוקלט עובד. לא מחכה שמישהו יוסיף את השיר המועדף עליך." },
           { title: "AI בזמן אמת", desc: "ניתוח מנגינה וזיהוי תזמון חי — הטכנולוגיה שמאחורי אפליקציות הקריוקי הגדולות." },
           { title: "וידאו קריוקי מוכן", desc: "AI מייצר קובץ MP4 עם מילים מסונכרנות, אנימציה ועיצוב — מוכן לשיתוף מיידי." },
           { title: "תמונה שלך בסרטון", desc: "העלה תמונת פרופיל ו-AI מוחק רקע ומוסיף הילה ניאון — את/ה מופיע/ה בסרטון הקריוקי שלך." },
@@ -617,7 +617,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "What Makes Us Different", title: "Why MYOUKEE?", subtitle: "Good question. Here's the answer.",
         items: [
-          { title: "No Karaoke Database", desc: "Every song ever recorded works. Not dependent on rights, no waiting for someone to add your favorite song." },
+          { title: "No Karaoke Database", desc: "Every song ever recorded works. No waiting for someone to add your favorite song." },
           { title: "Real-time AI", desc: "Live pitch analysis and timing detection — the technology behind the biggest karaoke apps." },
           { title: "Ready Karaoke Video", desc: "AI generates an MP4 with synced lyrics, animation and design — ready to share instantly." },
           { title: "Your Photo in the Video", desc: "Upload a profile photo and AI removes background, adds neon glow — you appear in your karaoke video." },
@@ -828,7 +828,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "ما يميزنا", title: "لماذا MYOUKEE?", subtitle: "سؤال جيد. إليك الجواب.",
         items: [
-          { title: "بدون قاعدة بيانات كاريوكي", desc: "كل أغنية سُجِّلت تعمل. غير مرتبط بحقوق، لا انتظار." },
+          { title: "بدون قاعدة بيانات كاريوكي", desc: "كل أغنية سُجِّلت تعمل. لا انتظار." },
           { title: "ذكاء اصطناعي في الوقت الحقيقي", desc: "تحليل النغمة ورصد التوقيت مباشرة — التكنولوجيا خلف أكبر تطبيقات الكاريوكي." },
           { title: "فيديو كاريوكي جاهز", desc: "الذكاء الاصطناعي يولد MP4 بكلمات مزامنة وأنيميشن وتصميم — جاهز للمشاركة الفورية." },
           { title: "صورتك في الفيديو", desc: "ارفع صورة ملفك ويزيل الذكاء الاصطناعي الخلفية ويضيف هالة نيون — تظهر في فيديو الكاريوكي." },
@@ -1039,7 +1039,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Наши преимущества", title: "Почему MYOUKEE?", subtitle: "Хороший вопрос. Вот ответ.",
         items: [
-          { title: "Без базы данных Karaoke", desc: "Любая когда-либо записанная песня работает. Не зависит от прав, не ждёт добавления." },
+          { title: "Без базы данных Karaoke", desc: "Любая когда-либо записанная песня работает. Не нужно ждать добавления." },
           { title: "ИИ в реальном времени", desc: "Живой анализ тона и тайминга — технология крупнейших Karaoke-приложений." },
           { title: "Готовое Karaoke-видео", desc: "ИИ генерирует MP4 с синхронизированным текстом, анимацией и дизайном." },
           { title: "Ваше фото в видео", desc: "Загрузите фото, ИИ удалит фон и добавит неоновый ореол — вы появляетесь в видео." },
@@ -1250,7 +1250,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Lo que nos hace únicos", title: "¿Por qué MYOUKEE?", subtitle: "Buena pregunta. Aquí está la respuesta.",
         items: [
-          { title: "Sin base de datos karaoke", desc: "Cualquier canción grabada funciona. Sin derechos, sin esperas." },
+          { title: "Sin base de datos karaoke", desc: "Cualquier canción grabada funciona. Sin esperas." },
           { title: "IA en tiempo real", desc: "Análisis de tono y detección de timing en vivo — la tecnología detrás de las grandes apps de karaoke." },
           { title: "Video karaoke listo", desc: "IA genera MP4 con letras sincronizadas, animación y diseño — listo para compartir al instante." },
           { title: "Tu foto en el video", desc: "Sube una foto, IA elimina el fondo y añade halo neón — apareces en tu video de karaoke." },
@@ -1461,7 +1461,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Notre originalité", title: "Pourquoi MYOUKEE?", subtitle: "Bonne question. Voici la réponse.",
         items: [
-          { title: "Sans base de données karaoké", desc: "Toute chanson jamais enregistrée fonctionne. Pas de droits, pas d'attente." },
+          { title: "Sans base de données karaoké", desc: "Toute chanson jamais enregistrée fonctionne. Pas d'attente." },
           { title: "IA en temps réel", desc: "Analyse de tonalité et détection de timing en direct — la technologie derrière les grandes apps karaoké." },
           { title: "Vidéo karaoké prête", desc: "L'IA génère un MP4 avec paroles synchronisées, animation et design — prêt à partager." },
           { title: "Votre photo dans la vidéo", desc: "Téléchargez une photo, l'IA supprime le fond et ajoute un halo néon — vous apparaissez dans votre vidéo." },
@@ -1672,7 +1672,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Was uns einzigartig macht", title: "Warum MYOUKEE?", subtitle: "Gute Frage. Hier ist die Antwort.",
         items: [
-          { title: "Keine Karaoke-Datenbank", desc: "Jedes je aufgenommene Lied funktioniert. Nicht abhängig von Rechten, kein Warten." },
+          { title: "Keine Karaoke-Datenbank", desc: "Jedes je aufgenommene Lied funktioniert. Kein Warten." },
           { title: "KI in Echtzeit", desc: "Live Tonhöhenanalyse und Timing-Erkennung — die Technologie hinter den größten Karaoke-Apps." },
           { title: "Fertiges Karaoke-Video", desc: "KI generiert MP4 mit synchronisierten Texten, Animation und Design — sofort bereit zum Teilen." },
           { title: "Ihr Foto im Video", desc: "Foto hochladen, KI entfernt Hintergrund und fügt Neon-Halo hinzu — Sie erscheinen im Video." },
@@ -1884,7 +1884,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "MYOUKEEの特長", title: "なぜMYOUKEE？", subtitle: "いい質問です。お答えします。",
         items: [
-          { title: "カラオケデータベース不要", desc: "録音されたすべての曲が使えます。権利に依存せず、お気に入りの曲の追加を待つ必要もありません。" },
+          { title: "カラオケデータベース不要", desc: "録音されたすべての曲が使えます。お気に入りの曲の追加を待つ必要もありません。" },
           { title: "リアルタイムAI", desc: "ライブピッチ分析とタイミング検出 — 大手カラオケアプリの背後にある技術。" },
           { title: "カラオケ動画完成", desc: "AIが同期歌詞、アニメーション、デザイン付きのMP4を生成 — すぐにシェア可能。" },
           { title: "あなたの写真が動画に", desc: "プロフィール写真をアップロードすると、AIが背景を削除しネオングローを追加 — カラオケ動画にあなたが登場。" },
@@ -2308,7 +2308,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "차별화 포인트", title: "왜 MYOUKEE?", subtitle: "좋은 질문이에요. 답해 드릴게요.",
         items: [
-          { title: "노래방 데이터베이스 불필요", desc: "녹음된 모든 노래가 작동합니다. 저작권에 의존하지 않고, 좋아하는 노래가 추가되기를 기다릴 필요 없습니다." },
+          { title: "노래방 데이터베이스 불필요", desc: "녹음된 모든 노래가 작동합니다. 좋아하는 노래가 추가되기를 기다릴 필요 없습니다." },
           { title: "실시간 AI", desc: "실시간 음정 분석 및 타이밍 감지 — 대형 노래방 앱의 핵심 기술." },
           { title: "노래방 영상 완성", desc: "AI가 동기화된 가사, 애니메이션, 디자인이 포함된 MP4를 생성 — 즉시 공유 가능." },
           { title: "영상 속 당신의 사진", desc: "프로필 사진을 업로드하면 AI가 배경을 제거하고 네온 글로우를 추가 — 노래방 영상에 당신이 등장합니다." },
@@ -2520,7 +2520,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "จุดเด่นของเรา", title: "ทำไมต้อง MYOUKEE?", subtitle: "คำถามดี นี่คือคำตอบ",
         items: [
-          { title: "ไม่ต้องมีฐานข้อมูลคาราโอเกะ", desc: "ทุกเพลงที่เคยบันทึกใช้ได้ ไม่ขึ้นกับลิขสิทธิ์ ไม่ต้องรอใครเพิ่มเพลงโปรดของคุณ" },
+          { title: "ไม่ต้องมีฐานข้อมูลคาราโอเกะ", desc: "ทุกเพลงที่เคยบันทึกใช้ได้ ไม่ต้องรอใครเพิ่มเพลงโปรดของคุณ" },
           { title: "AI แบบเรียลไทม์", desc: "วิเคราะห์ระดับเสียงและจับจังหวะสด — เทคโนโลยีเบื้องหลังแอปคาราโอเกะชั้นนำ" },
           { title: "วิดีโอคาราโอเกะพร้อมใช้", desc: "AI สร้าง MP4 พร้อมเนื้อเพลงซิงค์ แอนิเมชัน และดีไซน์ — พร้อมแชร์ทันที" },
           { title: "รูปคุณในวิดีโอ", desc: "อัปโหลดรูปโปรไฟล์ AI ลบพื้นหลังเพิ่มแสงนีออน — คุณปรากฏในวิดีโอคาราโอเกะ" },
@@ -2732,7 +2732,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Điểm khác biệt", title: "Tại sao MYOUKEE?", subtitle: "Câu hỏi hay. Đây là câu trả lời.",
         items: [
-          { title: "Không cần thư viện karaoke", desc: "Mọi bài hát từng được thu âm đều dùng được. Không phụ thuộc bản quyền, không chờ đợi." },
+          { title: "Không cần thư viện karaoke", desc: "Mọi bài hát từng được thu âm đều dùng được. Không chờ đợi." },
           { title: "AI thời gian thực", desc: "Phân tích cao độ và phát hiện nhịp trực tiếp — công nghệ đứng sau các ứng dụng karaoke lớn nhất." },
           { title: "Video karaoke sẵn sàng", desc: "AI tạo MP4 với lời đồng bộ, hoạt hình và thiết kế — sẵn sàng chia sẻ ngay." },
           { title: "Ảnh của bạn trong video", desc: "Tải ảnh đại diện, AI xóa nền thêm ánh neon — bạn xuất hiện trong video karaoke." },
@@ -2943,7 +2943,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       why: {
         badge: "Ang Pagkakaiba Namin", title: "Bakit MYOUKEE?", subtitle: "Magandang tanong. Narito ang sagot.",
         items: [
-          { title: "Walang Karaoke Database", desc: "Gumagana ang lahat ng kanta na na-record. Hindi umaasa sa rights, walang paghihintay." },
+          { title: "Walang Karaoke Database", desc: "Gumagana ang lahat ng kanta na na-record. Walang paghihintay." },
           { title: "Real-time AI", desc: "Live pitch analysis at timing detection — ang teknolohiya sa likod ng pinakamalaking karaoke apps." },
           { title: "Handa nang Karaoke Video", desc: "Gumagawa ang AI ng MP4 na may naka-sync na lyrics, animation at design — handa nang i-share agad." },
           { title: "Photo mo sa Video", desc: "Mag-upload ng profile photo, aalisin ng AI ang background at magdadagdag ng neon glow — makikita ka sa iyong karaoke video." },
