@@ -1513,7 +1513,120 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
         words = expanded
         print(f"[whisper] CJK segmentation: {len(words)} character-level entries")
 
+    words = _filter_hallucinations(words)
+
     return words, detected_lang
+
+
+# ---------------------------------------------------------------------------
+# Post-processing: remove Whisper hallucinations
+# ---------------------------------------------------------------------------
+_HALLUCINATION_PHRASES = {
+    "תודה רבה", "תודה", "תודה לצפייה", "שלום", "לתמלול", "תודה רבה לך",
+    "תודה רבה רבה", "בשם אללה", "ברוך השם",
+    "thank you", "thanks for watching", "thank you for watching",
+    "thanks", "subscribe", "like and subscribe", "please subscribe",
+    "thank you very much", "thanks for listening",
+    "شكرا", "شكرا لكم", "شكرا جزيلا",
+    "merci", "merci beaucoup", "danke", "danke schön", "gracias",
+}
+
+def _filter_hallucinations(words: list[dict]) -> list[dict]:
+    """
+    Remove common Whisper hallucinations:
+    1. Known single-word and multi-word phrases at the start/end
+    2. Runs of ≥ 3 consecutive identical words collapsed to 1
+    3. Known hallucination bigrams in the interior of the transcript
+    """
+    if not words:
+        return words
+
+    single_set = set()
+    bigram_set = set()
+    for p in _HALLUCINATION_PHRASES:
+        parts = p.lower().split()
+        if len(parts) == 1:
+            single_set.add(parts[0])
+        elif len(parts) == 2:
+            bigram_set.add((parts[0], parts[1]))
+            single_set.add(parts[0])
+            single_set.add(parts[1])
+
+    def _wl(w: dict) -> str:
+        return w["word"].lower().strip()
+
+    def _matches_boundary(idx: int, wlist: list[dict]) -> int:
+        """Check if position idx starts a hallucination phrase.
+        Returns number of words consumed (0 if no match)."""
+        w0 = _wl(wlist[idx])
+        if idx + 1 < len(wlist):
+            w1 = _wl(wlist[idx + 1])
+            if (w0, w1) in bigram_set:
+                return 2
+        if w0 in single_set:
+            return 1
+        return 0
+
+    # Pass 1: Remove leading hallucination words/phrases
+    start = 0
+    while start < len(words):
+        consumed = _matches_boundary(start, words)
+        if consumed == 0:
+            break
+        start += consumed
+
+    # Pass 2: Remove trailing hallucination words/phrases
+    end = len(words)
+    while end > start:
+        w0 = _wl(words[end - 1])
+        if w0 in single_set:
+            end -= 1
+            continue
+        if end - 2 >= start:
+            w_prev = _wl(words[end - 2])
+            if (w_prev, w0) in bigram_set:
+                end -= 2
+                continue
+        break
+
+    filtered = words[start:end]
+
+    # Pass 3: Collapse runs of ≥ 3 consecutive identical words to 1
+    if len(filtered) > 2:
+        result = []
+        i = 0
+        while i < len(filtered):
+            w_lower = _wl(filtered[i])
+            run_end = i + 1
+            while run_end < len(filtered) and _wl(filtered[run_end]) == w_lower:
+                run_end += 1
+            run_len = run_end - i
+            if run_len >= 3:
+                result.append(filtered[i])
+            else:
+                result.extend(filtered[i:run_end])
+            i = run_end
+        filtered = result
+
+    # Pass 4: Remove known hallucination bigrams in interior
+    if len(filtered) > 2:
+        result = []
+        i = 0
+        while i < len(filtered):
+            if i + 1 < len(filtered):
+                pair = (_wl(filtered[i]), _wl(filtered[i + 1]))
+                if pair in bigram_set:
+                    i += 2
+                    continue
+            result.append(filtered[i])
+            i += 1
+        filtered = result
+
+    removed = len(words) - len(filtered)
+    if removed > 0:
+        print(f"[whisper] Hallucination filter: removed {removed} word(s)")
+
+    return filtered
 
 
 @asynccontextmanager
