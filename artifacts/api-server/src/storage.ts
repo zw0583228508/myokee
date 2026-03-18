@@ -118,6 +118,18 @@ export class Storage {
     return res.rows.map((r: any) => r.job_id);
   }
 
+  async storeDuration(jobId: string, durationSeconds: number): Promise<void> {
+    await query(
+      `UPDATE job_ownership SET duration_seconds = $1 WHERE job_id = $2 AND duration_seconds IS NULL`,
+      [durationSeconds, jobId]
+    );
+  }
+
+  async getStoredDuration(jobId: string): Promise<number | null> {
+    const res = await query(`SELECT duration_seconds FROM job_ownership WHERE job_id = $1`, [jobId]);
+    return res.rows[0]?.duration_seconds ?? null;
+  }
+
   async getJobAccess(jobId: string): Promise<{ user_id: string; credits_charged: number | null } | null> {
     const res = await query(`SELECT user_id, credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
     return res.rows[0] ?? null;

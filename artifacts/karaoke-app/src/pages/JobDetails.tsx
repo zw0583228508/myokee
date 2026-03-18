@@ -139,13 +139,16 @@ export default function JobDetails() {
     return false;
   };
 
-  const attemptCharge = async (jobId: string) => {
+  const attemptCharge = async (jobId: string, durationSeconds?: number) => {
     if (chargingInProgressRef.current) return;
     chargingInProgressRef.current = true;
     chargeTriggeredRef.current = true;
     setChargeState("pending");
 
-    console.log(`[Charge] Starting charge for job ${jobId}`);
+    if (!durationSeconds) {
+      durationSeconds = (job as any)?.duration_seconds;
+    }
+    console.log(`[Charge] Starting charge for job ${jobId}, duration=${durationSeconds}`);
 
     const MAX_RETRIES = 3;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -174,7 +177,7 @@ export default function JobDetails() {
         const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify(durationSeconds ? { durationSeconds } : {}),
         }));
         const data = await res.json();
         console.log(`[Charge] Response:`, data);
@@ -226,9 +229,18 @@ export default function JobDetails() {
   };
 
   useEffect(() => {
-    if (job?.status !== "done" || chargeTriggeredRef.current || !id) return;
-    console.log(`[Charge] Job done, triggering charge for ${id}`);
-    attemptCharge(id);
+    if (job?.status !== "done" || !id) return;
+    const dur = (job as any)?.duration_seconds;
+    if (dur && dur > 0) {
+      fetch(apiUrl(`/api/jobs/${id}/store-duration`), authFetchOptions({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ durationSeconds: dur }),
+      })).catch(() => {});
+    }
+    if (chargeTriggeredRef.current) return;
+    console.log(`[Charge] Job done, triggering charge for ${id}, duration=${dur}`);
+    attemptCharge(id, dur);
   }, [job?.status, id]);
 
   useEffect(() => {
