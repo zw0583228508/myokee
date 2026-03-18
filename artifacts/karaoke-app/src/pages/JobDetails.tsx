@@ -15,7 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 
-type ChargeState = "pending" | "free" | "charged" | "insufficient";
+type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
 export default function JobDetails() {
   const { id } = useParams<{ id: string }>();
@@ -219,9 +219,10 @@ export default function JobDetails() {
     }
 
     console.error(`[Charge] All retries exhausted for job ${jobId}`);
-    setChargeState("free");
+    setChargeState("error");
     chargingInProgressRef.current = false;
-    toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לחייב. ניתן להוריד, החיוב יתבצע מאוחר יותר.", variant: "destructive" });
+    chargeTriggeredRef.current = false;
+    toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לעבד את החיוב. נסה שוב.", variant: "destructive" });
   };
 
   useEffect(() => {
@@ -390,7 +391,24 @@ export default function JobDetails() {
         </Card>
       )}
 
-      {/* Insufficient credits banner */}
+      {isDone && chargeState === "error" && (
+        <Card className="p-6 mb-6 border-destructive/30 bg-destructive/10">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
+            <CreditCard className="w-8 h-8 text-destructive shrink-0" />
+            <div>
+              <h3 className="font-semibold text-destructive mb-1">שגיאה בעיבוד החיוב</h3>
+              <p className="text-sm text-muted-foreground">לא הצלחנו לעבד את החיוב. לחץ על "נסה שוב" כדי לנסות מחדש.</p>
+            </div>
+            <Button variant="gradient" className="shrink-0" onClick={() => {
+              const dur = (job as any)?.duration_seconds;
+              if (id && dur) attemptCharge(id, dur);
+            }}>
+              נסה שוב
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {isDone && chargeState === "insufficient" && (
         <Card className="p-6 mb-6 border-destructive/30 bg-destructive/10">
           <div className="flex items-center gap-4">
