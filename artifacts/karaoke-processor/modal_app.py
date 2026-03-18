@@ -29,7 +29,7 @@ image = (
         "soundfile",
         "torch==2.3.0",
         "torchaudio==2.3.0",
-        "yt-dlp",
+        "yt-dlp==2026.3.17",
     )
     .run_commands(
         "python -c \"from demucs.pretrained import get_model; get_model('htdemucs')\"",
