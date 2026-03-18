@@ -1801,17 +1801,57 @@ async def retry_job(jid: str, background_tasks: BackgroundTasks):
 
 
 @app.get("/processor/jobs/{jid}/video")
-async def get_video(jid: str):
+async def get_video(jid: str, request: Request):
     p = JOBS_DIR / jid / "karaoke.mp4"
     if not p.exists():
-        # Check in-memory for friendlier error
         if jid in jobs and jobs[jid]["status"] != "done":
             raise HTTPException(409, "Not done yet")
         raise HTTPException(404, "File not found")
+
+    file_size = p.stat().st_size
+    range_header = request.headers.get("range")
+
+    if range_header:
+        range_match = re.match(r"bytes=(\d+)-(\d*)", range_header)
+        if range_match:
+            start = int(range_match.group(1))
+            end = int(range_match.group(2)) if range_match.group(2) else file_size - 1
+            end = min(end, file_size - 1)
+            chunk_size = end - start + 1
+
+            async def stream_range():
+                with open(p, "rb") as f:
+                    f.seek(start)
+                    remaining = chunk_size
+                    while remaining > 0:
+                        read_size = min(remaining, 65536)
+                        data = f.read(read_size)
+                        if not data:
+                            break
+                        remaining -= len(data)
+                        yield data
+
+            from starlette.responses import StreamingResponse
+            return StreamingResponse(
+                stream_range(),
+                status_code=206,
+                media_type="video/mp4",
+                headers={
+                    "Content-Range": f"bytes {start}-{end}/{file_size}",
+                    "Accept-Ranges": "bytes",
+                    "Content-Length": str(chunk_size),
+                    "Cache-Control": "public, max-age=3600",
+                },
+            )
+
     return FileResponse(str(p), media_type="video/mp4",
                         filename=f"karaoke_{jid[:8]}.mp4",
-                        headers={"Content-Disposition":
-                                 f'attachment; filename="karaoke_{jid[:8]}.mp4"'})
+                        headers={
+                            "Content-Disposition": f'inline; filename="karaoke_{jid[:8]}.mp4"',
+                            "Accept-Ranges": "bytes",
+                            "Content-Length": str(file_size),
+                            "Cache-Control": "public, max-age=3600",
+                        })
 
 
 @app.get("/processor/jobs/{jid}/instrumental")

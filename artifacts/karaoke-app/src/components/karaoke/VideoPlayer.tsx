@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Download } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface VideoPlayerProps {
@@ -14,6 +14,7 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -30,12 +31,25 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
       if (onEnded) onEnded();
     };
 
+    const handleWaiting = () => setIsBuffering(true);
+    const handlePlaying = () => setIsBuffering(false);
+    const handleCanPlay = () => setIsBuffering(false);
+    const handleStalled = () => setIsBuffering(true);
+
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("ended", handleEnded);
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("playing", handlePlaying);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("stalled", handleStalled);
 
     return () => {
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("playing", handlePlaying);
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("stalled", handleStalled);
     };
   }, [onTimeUpdate, onEnded]);
 
@@ -104,6 +118,7 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
         ref={videoRef}
         src={src}
         poster={poster}
+        preload="auto"
         className="w-full h-full object-contain cursor-pointer"
         onClick={togglePlay}
         playsInline
@@ -147,6 +162,12 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
           <div className="w-16 h-16 rounded-full bg-primary/80 backdrop-blur-md flex items-center justify-center text-white shadow-lg shadow-primary/50 pl-1">
             <Play className="w-8 h-8 fill-current" />
           </div>
+        </div>
+      )}
+
+      {isBuffering && isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <Loader2 className="w-10 h-10 text-white/70 animate-spin" />
         </div>
       )}
 
