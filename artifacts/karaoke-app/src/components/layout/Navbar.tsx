@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift } from "lucide-react";
+import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
@@ -72,6 +72,16 @@ export function Navbar() {
               aria-current={location === "/leaderboard" ? "page" : undefined}
             >
               <Trophy className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.leaderboard}
+            </Link>
+            <Link href="/party"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                location.startsWith("/party")
+                  ? "bg-primary/15 text-primary"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              }`}
+              aria-current={location.startsWith("/party") ? "page" : undefined}
+            >
+              <PartyPopper className="w-3.5 h-3.5" aria-hidden="true" />Party
             </Link>
           </nav>
 
@@ -201,6 +211,7 @@ export function Navbar() {
                 { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
                 { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },
                 { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
+                { href: "/party",       icon: PartyPopper, label: "Party" },
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${

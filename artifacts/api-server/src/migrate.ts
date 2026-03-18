@@ -86,6 +86,60 @@ export async function runMigrations(): Promise<void> {
       );
       CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens (token);
       CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens (user_id);
+
+      -- Party rooms
+      CREATE TABLE IF NOT EXISTS party_rooms (
+        id             TEXT PRIMARY KEY,
+        code           TEXT NOT NULL UNIQUE,
+        host_user_id   TEXT NOT NULL REFERENCES users(id),
+        name           TEXT NOT NULL DEFAULT 'Karaoke Party',
+        theme          TEXT NOT NULL DEFAULT 'neon',
+        status         TEXT NOT NULL DEFAULT 'active',
+        settings       JSONB NOT NULL DEFAULT '{}',
+        current_queue_item_id INTEGER,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_party_rooms_code ON party_rooms (code);
+      CREATE INDEX IF NOT EXISTS idx_party_rooms_host ON party_rooms (host_user_id);
+
+      -- Party queue
+      CREATE TABLE IF NOT EXISTS party_queue (
+        id             SERIAL PRIMARY KEY,
+        room_id        TEXT NOT NULL REFERENCES party_rooms(id) ON DELETE CASCADE,
+        job_id         TEXT,
+        user_id        TEXT REFERENCES users(id),
+        display_name   TEXT NOT NULL,
+        song_name      TEXT NOT NULL,
+        position       INTEGER NOT NULL DEFAULT 0,
+        status         TEXT NOT NULL DEFAULT 'waiting',
+        mode           TEXT NOT NULL DEFAULT 'solo',
+        duet_partner   TEXT,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_party_queue_room ON party_queue (room_id);
+
+      -- Party members
+      CREATE TABLE IF NOT EXISTS party_members (
+        room_id        TEXT NOT NULL REFERENCES party_rooms(id) ON DELETE CASCADE,
+        user_id        TEXT NOT NULL REFERENCES users(id),
+        display_name   TEXT NOT NULL,
+        role           TEXT NOT NULL DEFAULT 'guest',
+        joined_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (room_id, user_id)
+      );
+
+      -- Party scores (for battle mode)
+      CREATE TABLE IF NOT EXISTS party_scores (
+        id             SERIAL PRIMARY KEY,
+        room_id        TEXT NOT NULL REFERENCES party_rooms(id) ON DELETE CASCADE,
+        queue_item_id  INTEGER NOT NULL REFERENCES party_queue(id) ON DELETE CASCADE,
+        user_id        TEXT NOT NULL REFERENCES users(id),
+        score          INTEGER NOT NULL DEFAULT 0,
+        timing_score   INTEGER NOT NULL DEFAULT 0,
+        pitch_score    INTEGER NOT NULL DEFAULT 0,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_party_scores_room ON party_scores (room_id);
     `);
     console.log("[migrate] Tables ensured.");
   } finally {

@@ -351,6 +351,193 @@ export class Storage {
       creditsEarned: stats.rows[0]?.earned ?? 0,
     };
   }
+  // ── Party System ──────────────────────────────────────────────────────────
+
+  async createPartyRoom(room: {
+    id: string;
+    code: string;
+    hostUserId: string;
+    name: string;
+    theme: string;
+    settings: Record<string, any>;
+  }) {
+    const res = await query(
+      `INSERT INTO party_rooms (id, code, host_user_id, name, theme, settings)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [room.id, room.code, room.hostUserId, room.name, room.theme, JSON.stringify(room.settings)]
+    );
+    return res.rows[0];
+  }
+
+  async getPartyRoom(id: string) {
+    const res = await query(`SELECT * FROM party_rooms WHERE id = $1`, [id]);
+    return res.rows[0] ?? null;
+  }
+
+  async getPartyRoomByCode(code: string) {
+    const res = await query(`SELECT * FROM party_rooms WHERE code = $1 AND status = 'active'`, [code]);
+    return res.rows[0] ?? null;
+  }
+
+  async getHostPartyRooms(userId: string) {
+    const res = await query(
+      `SELECT * FROM party_rooms WHERE host_user_id = $1 ORDER BY created_at DESC LIMIT 20`,
+      [userId]
+    );
+    return res.rows;
+  }
+
+  async updatePartyRoom(id: string, updates: { name?: string; theme?: string; status?: string; settings?: Record<string, any>; currentQueueItemId?: number | null }) {
+    const sets: string[] = [];
+    const vals: any[] = [];
+    let idx = 1;
+    if (updates.name !== undefined) { sets.push(`name = $${idx++}`); vals.push(updates.name); }
+    if (updates.theme !== undefined) { sets.push(`theme = $${idx++}`); vals.push(updates.theme); }
+    if (updates.status !== undefined) { sets.push(`status = $${idx++}`); vals.push(updates.status); }
+    if (updates.settings !== undefined) { sets.push(`settings = $${idx++}`); vals.push(JSON.stringify(updates.settings)); }
+    if (updates.currentQueueItemId !== undefined) { sets.push(`current_queue_item_id = $${idx++}`); vals.push(updates.currentQueueItemId); }
+    if (sets.length === 0) return null;
+    vals.push(id);
+    const res = await query(`UPDATE party_rooms SET ${sets.join(", ")} WHERE id = $${idx} RETURNING *`, vals);
+    return res.rows[0] ?? null;
+  }
+
+  async joinPartyRoom(roomId: string, userId: string, displayName: string, role: string = "guest") {
+    const res = await query(
+      `INSERT INTO party_members (room_id, user_id, display_name, role)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (room_id, user_id) DO UPDATE SET display_name = EXCLUDED.display_name
+       RETURNING *`,
+      [roomId, userId, displayName, role]
+    );
+    return res.rows[0];
+  }
+
+  async getPartyMembers(roomId: string) {
+    const res = await query(
+      `SELECT pm.*, u.picture FROM party_members pm LEFT JOIN users u ON pm.user_id = u.id WHERE pm.room_id = $1 ORDER BY pm.joined_at ASC`,
+      [roomId]
+    );
+    return res.rows;
+  }
+
+  async addToQueue(item: {
+    roomId: string;
+    jobId?: string;
+    userId?: string;
+    displayName: string;
+    songName: string;
+    mode: string;
+    duetPartner?: string;
+  }) {
+    const posRes = await query(
+      `SELECT COALESCE(MAX(position), 0) + 1 AS next_pos FROM party_queue WHERE room_id = $1`,
+      [item.roomId]
+    );
+    const position = posRes.rows[0].next_pos;
+    const res = await query(
+      `INSERT INTO party_queue (room_id, job_id, user_id, display_name, song_name, position, mode, duet_partner)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING *`,
+      [item.roomId, item.jobId ?? null, item.userId ?? null, item.displayName, item.songName, position, item.mode, item.duetPartner ?? null]
+    );
+    return res.rows[0];
+  }
+
+  async getQueue(roomId: string) {
+    const res = await query(
+      `SELECT * FROM party_queue WHERE room_id = $1 ORDER BY position ASC`,
+      [roomId]
+    );
+    return res.rows;
+  }
+
+  async updateQueueItem(id: number, updates: { status?: string; position?: number }) {
+    const sets: string[] = [];
+    const vals: any[] = [];
+    let idx = 1;
+    if (updates.status !== undefined) { sets.push(`status = $${idx++}`); vals.push(updates.status); }
+    if (updates.position !== undefined) { sets.push(`position = $${idx++}`); vals.push(updates.position); }
+    if (sets.length === 0) return null;
+    vals.push(id);
+    const res = await query(`UPDATE party_queue SET ${sets.join(", ")} WHERE id = $${idx} RETURNING *`, vals);
+    return res.rows[0] ?? null;
+  }
+
+  async removeFromQueue(id: number) {
+    await query(`DELETE FROM party_queue WHERE id = $1`, [id]);
+  }
+
+  async advanceQueue(roomId: string) {
+    const current = await query(
+      `SELECT current_queue_item_id FROM party_rooms WHERE id = $1`,
+      [roomId]
+    );
+    const currentId = current.rows[0]?.current_queue_item_id;
+    if (currentId) {
+      await query(`UPDATE party_queue SET status = 'done' WHERE id = $1`, [currentId]);
+    }
+    const next = await query(
+      `SELECT id FROM party_queue WHERE room_id = $1 AND status = 'waiting' ORDER BY position ASC LIMIT 1`,
+      [roomId]
+    );
+    const nextId = next.rows[0]?.id ?? null;
+    if (nextId) {
+      await query(`UPDATE party_queue SET status = 'singing' WHERE id = $1`, [nextId]);
+      await query(`UPDATE party_rooms SET current_queue_item_id = $1 WHERE id = $2`, [nextId, roomId]);
+    } else {
+      await query(`UPDATE party_rooms SET current_queue_item_id = NULL WHERE id = $1`, [roomId]);
+    }
+    return nextId;
+  }
+
+  async savePartyScore(score: {
+    roomId: string;
+    queueItemId: number;
+    userId: string;
+    score: number;
+    timingScore: number;
+    pitchScore: number;
+  }) {
+    const res = await query(
+      `INSERT INTO party_scores (room_id, queue_item_id, user_id, score, timing_score, pitch_score)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [score.roomId, score.queueItemId, score.userId, score.score, score.timingScore, score.pitchScore]
+    );
+    return res.rows[0];
+  }
+
+  async getPartyScores(roomId: string) {
+    const res = await query(
+      `SELECT ps.*, pm.display_name, u.picture
+       FROM party_scores ps
+       LEFT JOIN party_members pm ON ps.room_id = pm.room_id AND ps.user_id = pm.user_id
+       LEFT JOIN users u ON ps.user_id = u.id
+       WHERE ps.room_id = $1
+       ORDER BY ps.score DESC`,
+      [roomId]
+    );
+    return res.rows;
+  }
+
+  async getPartyLeaderboard(roomId: string) {
+    const res = await query(
+      `SELECT ps.user_id, pm.display_name, u.picture,
+              SUM(ps.score)::int AS total_score,
+              COUNT(*)::int AS songs_sung,
+              MAX(ps.score)::int AS best_score
+       FROM party_scores ps
+       LEFT JOIN party_members pm ON ps.room_id = pm.room_id AND ps.user_id = pm.user_id
+       LEFT JOIN users u ON ps.user_id = u.id
+       WHERE ps.room_id = $1
+       GROUP BY ps.user_id, pm.display_name, u.picture
+       ORDER BY total_score DESC`,
+      [roomId]
+    );
+    return res.rows;
+  }
 }
 
 export const storage = new Storage();

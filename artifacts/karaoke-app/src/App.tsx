@@ -23,6 +23,9 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Copyright from "@/pages/Copyright";
 import Referral from "@/pages/Referral";
+import Party from "@/pages/Party";
+import PartyRoom from "@/pages/PartyRoom";
+import PartyDisplay from "@/pages/PartyDisplay";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -94,6 +97,9 @@ function Router() {
           <Route path="/leaderboard" component={Leaderboard} />
 
           <Route path="/job/:id"     component={JobDetails}  />
+          <Route path="/party"       component={Party}       />
+          <Route path="/party/:id"   component={PartyRoom}   />
+          <Route path="/party/:id/display" component={PartyDisplay} />
           <Route path="/privacy"     component={Privacy}     />
           <Route path="/terms"       component={Terms}       />
           <Route path="/copyright"   component={Copyright}   />

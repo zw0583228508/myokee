@@ -34,6 +34,19 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Content Management**: Multilingual legal pages (Terms, Privacy, Copyright) with content stored as per-language arrays.
 - **Copyright Confirmation**: Required user consent for legal right to use uploaded audio.
 - **Watermarking**: Semi-transparent MYOUKEE logo in the top-right corner of all generated karaoke videos.
+- **Party Mode**: Full party karaoke system with 7 features:
+  - **Party Rooms**: Create/join rooms via 6-char codes, polling-based real-time updates (2-5s refetchInterval)
+  - **Queue System**: Song queue with host controls for advancing, guests can add songs
+  - **Scoring & Leaderboard**: Party scores with leaderboard display (total score, best score, songs sung)
+  - **Duet Mode**: Split lyrics between Singer A/B with color-coded lines and turn indicators (`DuetMode.tsx`)
+  - **Battle Mode**: Two singers compete with split-screen scoring display and winner announcement (`BattleMode.tsx`)
+  - **Theme Packs**: 5 themes (Neon Night, Birthday Bash, Retro Vibes, Elegant Gold, Ocean Wave) in `party-themes.ts`
+  - **Social Clips**: Shareable score cards with WhatsApp/Twitter/native share (`SocialClip.tsx`)
+  - **Party Display**: Fullscreen TV/projector mode with animated particles (`PartyDisplay.tsx`)
+  - **i18n**: Full translations for all party strings across 14 languages (`partyTranslations.ts`)
+  - DB tables: `party_rooms`, `party_queue`, `party_members`, `party_scores`
+  - API routes: `api-server/src/routes/party.ts`
+  - Frontend hooks: `use-party.ts`, `use-party-translations.ts`
 
 ### System Design Choices
 - **Processing Pipeline**: A serial Demucs→Whisper pipeline is used to prevent OOM errors, with pre-rendering starting in parallel to Whisper to reduce overall wait time. Pre-render completion is tracked via `asyncio.Event` to prevent race conditions where `render_job` reads an incomplete `bg_prerender.mp4`. If the fast render path fails (e.g., corrupt pre-render), it automatically falls back to the full render path instead of erroring out. MP4 validation checks both video+audio streams and attempts to decode a frame.
