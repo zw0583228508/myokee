@@ -56,10 +56,10 @@ function Router() {
   useAutoApplyReferral();
   const { data: authData, isLoading } = useAuth();
   const user = authData?.user ?? null;
-  const [isSharedRoute] = useRoute("/shared/:id");
+  const [isSharedRoute, sharedParams] = useRoute("/shared/:id");
 
-  if (isSharedRoute) {
-    return <SharedView />;
+  if (isSharedRoute && sharedParams?.id) {
+    return <SharedView jobId={sharedParams.id} />;
   }
 
   if (isLoading) {

@@ -1,4 +1,3 @@
-import { useParams } from "wouter";
 import { useGetJob } from "@workspace/api-client-react";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Loader2, AlertTriangle, Mic2, Sparkles } from "lucide-react";
 import { apiUrl } from "@/lib/api";
 
-export default function SharedView() {
-  const { id } = useParams<{ id: string }>();
-  const { data: job, isLoading, error } = useGetJob(id || "", {
+export default function SharedView({ jobId }: { jobId: string }) {
+  const { data: job, isLoading, error } = useGetJob(jobId, {
     query: {
       refetchInterval: (query) => {
         const status = query.state.data?.status;
