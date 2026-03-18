@@ -108,18 +108,23 @@ def _detect_nvenc():
 _detect_nvenc()
 
 def _vcodec_args() -> list[str]:
-    """Return FFmpeg video codec args: NVENC (GPU) when available, else libx264."""
+    """Return FFmpeg video codec args: NVENC (GPU) when available, else libx264.
+    Optimised for small file size at high visual quality (720p karaoke content).
+    """
     if HAS_NVENC:
         return ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr",
-                "-cq", "28", "-b:v", "0"]
-    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "26"]
+                "-cq", "32", "-b:v", "0", "-maxrate", "2M", "-bufsize", "4M",
+                "-profile:v", "high"]
+    return ["-c:v", "libx264", "-preset", "medium", "-crf", "26",
+            "-tune", "animation", "-profile:v", "high"]
 
 def _vcodec_args_fast() -> list[str]:
-    """Faster video codec args for prerender (lower quality OK)."""
+    """Faster video codec args for prerender (lower quality OK — intermediate file)."""
     if HAS_NVENC:
         return ["-c:v", "h264_nvenc", "-preset", "p1", "-rc", "vbr",
-                "-cq", "30", "-b:v", "0"]
-    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "28"]
+                "-cq", "34", "-b:v", "0"]
+    return ["-c:v", "libx264", "-preset", "veryfast", "-crf", "30",
+            "-tune", "animation"]
 
 def _is_nvenc_error(stderr: str) -> bool:
     """Check if an FFmpeg failure is NVENC-specific (not a general filter/input error)."""
@@ -492,7 +497,7 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
             "-filter_complex", aurora,
             "-map", "[out]", "-map", "1:a",
             *_vcodec_args_fast(),
-            "-c:a", "aac", "-b:a", "128k",
+            "-c:a", "aac", "-b:a", "96k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
@@ -510,7 +515,7 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
                 "-filter_complex", aurora,
                 "-map", "[out]", "-map", "1:a",
                 *_vcodec_args_fast(),
-                "-c:a", "aac", "-b:a", "128k",
+                "-c:a", "aac", "-b:a", "96k",
                 "-r", str(FPS), "-pix_fmt", "yuv420p",
                 "-movflags", "+faststart",
                 "-shortest", str(out),
@@ -1252,7 +1257,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             "-filter_complex", fg,
             "-map", "[out]", "-map", "1:a",
             *_vcodec_args(),
-            "-c:a", "aac", "-b:a", "128k",
+            "-c:a", "aac", "-b:a", "96k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
@@ -1268,7 +1273,7 @@ async def _render_video(no_vocals: Path, ass: Path,
             "-filter_complex", fg,
             "-map", "[out]", "-map", "1:a",
             *_vcodec_args(),
-            "-c:a", "aac", "-b:a", "128k",
+            "-c:a", "aac", "-b:a", "96k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
