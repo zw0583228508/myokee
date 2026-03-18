@@ -503,7 +503,9 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
             "-movflags", "+faststart",
             "-shortest", str(out),
         ]
-        rc, err = await run_cmd(*prerender_cmd)
+        prerender_timeout = max(duration * 4, 180)
+        print(f"[prererender] Starting prerender ({duration:.0f}s audio, timeout={prerender_timeout:.0f}s)")
+        rc, err = await run_cmd(*prerender_cmd, timeout=prerender_timeout)
         if rc != 0 and HAS_NVENC and _is_nvenc_error(err):
             print("[prererender] NVENC failed — retrying prerender with CPU libx264")
             HAS_NVENC = False
@@ -521,9 +523,9 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
                 "-movflags", "+faststart",
                 "-shortest", str(out),
             ]
-            rc, err = await run_cmd(*prerender_cmd_cpu)
+            rc, err = await run_cmd(*prerender_cmd_cpu, timeout=prerender_timeout)
         if rc != 0:
-            print(f"[prererender] WARN: background pre-render failed: {_extract_ffmpeg_error(err)}")
+            print(f"[prererender] WARN: background pre-render failed (rc={rc}): {_extract_ffmpeg_error(err)}")
             if out.exists():
                 out.unlink()
                 print("[prererender] Removed corrupt/partial bg_prerender.mp4")
@@ -534,7 +536,8 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
                 if out.exists():
                     out.unlink()
             else:
-                print(f"[prererender] Background ready → {out.name} (360p, ultrafast)")
+                sz = out.stat().st_size / (1024*1024)
+                print(f"[prererender] Background ready → {out.name} ({sz:.1f} MB, 360p)")
     finally:
         if event:
             event.set()
@@ -615,11 +618,14 @@ async def render_job(job_id: str):
                 bg_prerender.unlink(missing_ok=True)
                 use_prerender = False
 
-        # Render with live progress tracking via asyncio background task
         render_done = asyncio.Event()
+        render_start_time = asyncio.get_event_loop().time()
 
         async def _progress_tracker():
-            """Smoothly advance progress 80→96 while FFmpeg renders."""
+            """Smoothly advance progress 80→98 while FFmpeg renders.
+            Uses asymptotic curve so progress never fully stalls even if
+            the render takes much longer than estimated.
+            """
             if HAS_NVENC:
                 est_render = max(duration * (0.05 if use_prerender else 0.15), 8.0)
             else:
@@ -628,11 +634,12 @@ async def render_job(job_id: str):
             while not render_done.is_set():
                 await asyncio.sleep(2)
                 elapsed = asyncio.get_event_loop().time() - t0
-                pct = min(elapsed / est_render, 0.95)
-                update_job(job_id, progress=int(80 + pct * 16))   # 80 → 96
+                ratio = elapsed / est_render
+                pct = ratio / (1.0 + ratio)
+                update_job(job_id, progress=int(80 + pct * 18))   # 80 → 98
 
         encoder = "h264_nvenc (GPU)" if HAS_NVENC else "libx264 (CPU)"
-        print(f"[render] Starting {'fast' if use_prerender else 'full'} render with {encoder}")
+        print(f"[render] Starting {'fast' if use_prerender else 'full'} render with {encoder}, duration={duration:.1f}s")
         update_job(job_id, progress=80)
         tracker = asyncio.create_task(_progress_tracker())
         try:
@@ -667,16 +674,23 @@ async def render_job(job_id: str):
             render_done.set()
             tracker.cancel()
 
+        render_elapsed = asyncio.get_event_loop().time() - render_start_time
         if rc != 0:
+            print(f"[render] FFmpeg FAILED after {render_elapsed:.1f}s (rc={rc}): {_extract_ffmpeg_error(err)}")
             raise RuntimeError(f"FFmpeg render failed: {_extract_ffmpeg_error(err)}")
 
-        # Copy instrumental (may fail if job was deleted during render — ignore)
+        print(f"[render] Render completed in {render_elapsed:.1f}s")
+        if video_p.exists():
+            sz = video_p.stat().st_size / (1024*1024)
+            print(f"[render] Output: {video_p.name} ({sz:.1f} MB)")
+
         try:
             if Path(no_vocals_p).exists():
                 shutil.copy(no_vocals_p, jdir / "instrumental.wav")
         except Exception:
             pass
         update_job(job_id, status="done", progress=100, duration_seconds=duration)
+        print(f"[render] Job {job_id} → done")
 
     except Exception as exc:
         if job_id in _cancelled_jobs or str(exc) == "job_cancelled":
@@ -1764,7 +1778,20 @@ async def retry_job(jid: str, background_tasks: BackgroundTasks):
     """
     if jid not in jobs:
         raise HTTPException(404, "Not found")
-    if jobs[jid]["status"] not in ("error", "done"):
+    retryable = {"error", "done"}
+    stuck_statuses = {"pending", "queued", "separating", "transcribing", "rendering"}
+    if jobs[jid]["status"] in stuck_statuses:
+        updated = jobs[jid].get("updated_at", "")
+        try:
+            from datetime import timezone
+            last = datetime.fromisoformat(updated.rstrip("Z")).replace(tzinfo=timezone.utc)
+            stale_secs = (datetime.now(timezone.utc) - last).total_seconds()
+        except Exception:
+            stale_secs = 999
+        if stale_secs > 120:
+            print(f"[retry] Job {jid} stuck in '{jobs[jid]['status']}' for {stale_secs:.0f}s — allowing retry")
+            retryable = retryable | stuck_statuses
+    if jobs[jid]["status"] not in retryable:
         raise HTTPException(409, "Job must be in error or done state to retry")
 
     jdir = JOBS_DIR / jid

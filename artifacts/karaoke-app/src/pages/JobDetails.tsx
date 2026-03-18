@@ -40,6 +40,16 @@ export default function JobDetails() {
   const [isConfirming, setIsConfirming] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
 
+  const isJobStuck = useMemo(() => {
+    if (!job) return false;
+    const activeStatuses = new Set(["separating", "transcribing", "rendering", "pending", "queued"]);
+    if (!activeStatuses.has(job.status)) return false;
+    const updatedAt = new Date(job.updated_at).getTime();
+    if (isNaN(updatedAt)) return false;
+    const staleMinutes = (Date.now() - updatedAt) / 60000;
+    return staleMinutes > 5;
+  }, [job?.status, job?.updated_at]);
+
   useEffect(() => {
     if (job?.status && job.status !== 'awaiting_review') {
       setIsConfirming(false);
@@ -371,9 +381,16 @@ export default function JobDetails() {
               progress={job.progress}
               onRetry={handleRetry}
               isRetrying={retryJob.isPending}
-              canRetry={job.status === 'error'}
+              canRetry={job.status === 'error' || isJobStuck}
               isConfirming={isConfirming}
             />
+            {isJobStuck && !job.error && (
+              <div className="mt-8 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-200 text-sm w-full max-w-2xl text-center">
+                <AlertTriangle className="w-5 h-5 inline-block ml-2 mb-0.5" />
+                <strong>נראה שהעיבוד נתקע.</strong>{" "}
+                לחץ על "נסה שוב" כדי להפעיל מחדש.
+              </div>
+            )}
             {job.error && (
               <div className="mt-8 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm w-full max-w-2xl">
                 <strong>פרטי שגיאה:</strong> {job.error}

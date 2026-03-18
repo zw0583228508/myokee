@@ -285,7 +285,7 @@ const STAGE_PROGRESS_TARGETS: Record<string, number> = {
   separating: 48,
   transcribing: 68,
   awaiting_review: 70,
-  rendering: 96,
+  rendering: 99,
   done: 100,
 };
 
@@ -500,6 +500,21 @@ export function JobPipeline({ status, progress, onRetry, isRetrying, canRetry, i
         <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">{message}</p>
         {subMessage && (
           <p className="text-xs text-muted-foreground/60 max-w-xs mx-auto">{subMessage}</p>
+        )}
+        {canRetry && onRetry && status !== "error" && (
+          <Button
+            onClick={onRetry}
+            disabled={isRetrying}
+            variant="outline"
+            size="sm"
+            className="mt-2 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-400"
+          >
+            {isRetrying ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t.retrying}</>
+            ) : (
+              <><RotateCcw className="w-4 h-4 mr-2" />{t.retryBtn}</>
+            )}
+          </Button>
         )}
       </div>
     </div>

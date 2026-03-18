@@ -21,11 +21,16 @@ export function useKaraokeJob(jobId: string) {
   return useGetJob(jobId, {
     query: {
       refetchInterval: (query) => {
+        if (query.state.error) return 5000;
         const status = query.state.data?.status;
         if (!status) return 2000;
         if (status === 'done' || status === 'error') return false;
         if (status === 'awaiting_review') return 5000;
         return 2000;
+      },
+      retry: (failureCount, error) => {
+        if (error && 'status' in error && (error as any).status === 404) return false;
+        return failureCount < 2;
       },
     },
   });
