@@ -1016,6 +1016,8 @@ async def _render_video_fast(bg: Path, ass: Path,
     wm_scale = "scale=48:48:flags=bilinear,format=rgba"
     wm_opacity = "colorchannelmixer=aa=0.55"
 
+    fast_timeout = 300
+
     if avatar and avatar.exists():
         pulse   = "0.88+0.12*sin(6.2832*T/4.0)"
         opacity = "0.82"
@@ -1052,6 +1054,7 @@ async def _render_video_fast(bg: Path, ass: Path,
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
+            timeout=fast_timeout,
         )
     else:
         if wm_input_flag:
@@ -1072,6 +1075,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 "-pix_fmt", "yuv420p",
                 "-movflags", "+faststart",
                 str(out),
+                timeout=fast_timeout,
             )
         else:
             fc = upscale_filter + f"{bg_ref}ass={ass_path}:fontsdir={fonts_path}[out]"
@@ -1085,6 +1089,7 @@ async def _render_video_fast(bg: Path, ass: Path,
                 "-pix_fmt", "yuv420p",
                 "-movflags", "+faststart",
                 str(out),
+                timeout=fast_timeout,
             )
 
 
@@ -1121,7 +1126,7 @@ async def _render_video(no_vocals: Path, ass: Path,
     )
 
     wave_expr = (
-        f"[1:a]showwaves=s=1280x80:mode=cline:rate={FPS}:"
+        f"[0:a]showwaves=s=1280x80:mode=cline:rate={FPS}:"
         "colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF:scale=sqrt[wv];"
     )
 
@@ -1133,7 +1138,7 @@ async def _render_video(no_vocals: Path, ass: Path,
     def _wm_overlay(prev_label: str) -> str:
         if not wm_input_flag:
             return f"[{prev_label}]ass={ass_path}:fontsdir={fonts_path}[out]"
-        wm_idx = "3" if avatar and avatar.exists() else "2"
+        wm_idx = "2" if avatar and avatar.exists() else "1"
         return (
             f"[{wm_idx}:v]{wm_scale},{wm_opacity}[wm];"
             f"[{prev_label}][wm]overlay=W-w-16:16[v_wm];"
@@ -1154,7 +1159,7 @@ async def _render_video(no_vocals: Path, ass: Path,
         return (
             aurora_expr +
             wave_expr +
-            "[2:v]format=rgba,"
+            "[1:v]format=rgba,"
             "scale=trunc(oh*a/2)*2:720:flags=bilinear,"
             "format=rgba,"
             "split=2[av_a][av_b];"
@@ -1170,9 +1175,10 @@ async def _render_video(no_vocals: Path, ass: Path,
         )
 
     base_inputs = [
-        "-f", "lavfi", "-i", f"color=s=1280x720:r={FPS}:d={duration}:c=black",
         "-i", str(no_vocals),
     ]
+
+    render_timeout = max(duration * 3, 300)
 
     if avatar and avatar.exists():
         fg = compose_with_avatar()
@@ -1183,12 +1189,13 @@ async def _render_video(no_vocals: Path, ass: Path,
             "ffmpeg", "-y", "-threads", "0",
             *inputs,
             "-filter_complex", fg,
-            "-map", "[out]", "-map", "1:a",
+            "-map", "[out]", "-map", "0:a",
             *_vcodec_args(),
             "-c:a", "aac", "-b:a", "96k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
+            timeout=render_timeout,
         )
     else:
         fg = compose_no_avatar()
@@ -1199,12 +1206,13 @@ async def _render_video(no_vocals: Path, ass: Path,
             "ffmpeg", "-y", "-threads", "0",
             *inputs,
             "-filter_complex", fg,
-            "-map", "[out]", "-map", "1:a",
+            "-map", "[out]", "-map", "0:a",
             *_vcodec_args(),
             "-c:a", "aac", "-b:a", "96k",
             "-r", str(FPS), "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             "-shortest", str(out),
+            timeout=render_timeout,
         )
 
 
