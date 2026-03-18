@@ -1319,7 +1319,7 @@ export function KaraokeSingMode({
                 muted
                 playsInline
                 className="w-full h-full object-cover"
-                style={{ filter: "brightness(0.38) saturate(0.85)" }}
+                style={{ filter: "brightness(0.18) blur(4px) saturate(0.7)" }}
               />
               <div className="absolute inset-0 sing-bg" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/65" />

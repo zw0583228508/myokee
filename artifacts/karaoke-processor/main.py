@@ -979,34 +979,67 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
         line_start = line[0]["start"]
         line_end   = line[-1]["end"]
 
-        # ── Build sentence text with \kf timing tags ────────────────────
-        # Words stay in chronological/spoken order.
-        # libass BiDi handles RTL display automatically.
-        # Each word's \kf = (gap before + word duration) so sweep covers
-        # the full time from the previous word's end to this word's end.
-        parts = []
-        kf_cursor = line_start
-        for w in line:
-            total_cs = max(1, round((w["end"] - kf_cursor) * 100))
-            parts.append(f"{{\\kf{total_cs}}}{w['word']}")
-            kf_cursor = w["end"]
-        sentence = " ".join(parts)
+        if is_rtl:
+            # ── RTL: position each word individually right-to-left ─────
+            # libass BiDi is unreliable across FFmpeg builds, so we
+            # manually place each word at its correct RTL x-position.
+            word_data = [(w, _word_px(w["word"])) for w in line]
+            total_px = sum(px for _, px in word_data) + _GAP_PX * max(0, len(word_data) - 1)
 
-        # Active line — this line is being sung right now
-        events.append(
-            f"Dialogue: 1,{ts(line_start)},{ts(line_end)},"
-            f"Active,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_ACTIVE})}}{sentence}\n"
-        )
+            x_cursor = 640 + total_px // 2   # right edge of centered line
 
-        # ── Upcoming line — show next line dimmed below ──────────────────
-        next_idx = line_idx + 1
-        if next_idx < len(lines):
-            next_line = lines[next_idx]
-            next_text = " ".join(w["word"] for w in next_line)
+            for w, wpx in word_data:
+                wcx = x_cursor - wpx // 2    # word center x
+                x_cursor -= wpx + _GAP_PX
+
+                events.append(
+                    f"Dialogue: 1,{ts(line_start)},{ts(line_end)},"
+                    f"Active,,0,0,0,,{{\\an5}}{{\\pos({wcx},{Y_ACTIVE})}}"
+                    f"{{\\1c{C_UNSUNSG}\\2c{C_UNSUNSG}}}{w['word']}\n"
+                )
+                word_cs = max(1, round((w["end"] - w["start"]) * 100))
+                events.append(
+                    f"Dialogue: 2,{ts(w['start'])},{ts(line_end)},"
+                    f"Active,,0,0,0,,{{\\an5}}{{\\pos({wcx},{Y_ACTIVE})}}"
+                    f"{{\\kf{word_cs}}}{w['word']}\n"
+                )
+
+            next_idx = line_idx + 1
+            if next_idx < len(lines):
+                next_line = lines[next_idx]
+                nd = [(w, _word_px(w["word"])) for w in next_line]
+                ntotal = sum(px for _, px in nd) + _GAP_PX * max(0, len(nd) - 1)
+                nx = 640 + ntotal // 2
+                for w, wpx in nd:
+                    ncx = nx - wpx // 2
+                    nx -= wpx + _GAP_PX
+                    events.append(
+                        f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
+                        f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos({ncx},{Y_UPCOMING})}}{w['word']}\n"
+                    )
+        else:
+            # ── LTR: single event per line with \kf sweep ─────────────
+            parts = []
+            kf_cursor = line_start
+            for w in line:
+                total_cs = max(1, round((w["end"] - kf_cursor) * 100))
+                parts.append(f"{{\\kf{total_cs}}}{w['word']}")
+                kf_cursor = w["end"]
+            sentence = " ".join(parts)
+
             events.append(
-                f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
-                f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_UPCOMING})}}{next_text}\n"
+                f"Dialogue: 1,{ts(line_start)},{ts(line_end)},"
+                f"Active,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_ACTIVE})}}{sentence}\n"
             )
+
+            next_idx = line_idx + 1
+            if next_idx < len(lines):
+                next_line = lines[next_idx]
+                next_text = " ".join(w["word"] for w in next_line)
+                events.append(
+                    f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
+                    f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos(640,{Y_UPCOMING})}}{next_text}\n"
+                )
 
     out.write_text("".join(events), encoding="utf-8")
 
