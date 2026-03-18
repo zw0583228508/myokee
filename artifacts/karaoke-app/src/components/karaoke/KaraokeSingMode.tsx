@@ -1241,11 +1241,9 @@ export function KaraokeSingMode({
   };
 
   const progress = dur > 0 ? (t / dur) * 100 : 0;
-  const slots = [
-    lines[lineIdx - 1] ?? null,
+  const slots: (Line | null)[] = [
     lines[lineIdx]     ?? null,
     lines[lineIdx + 1] ?? null,
-    lines[lineIdx + 2] ?? null,
   ];
 
   const wordClass = (globalIdx: number, isCurrent: boolean): string => {
@@ -1254,8 +1252,12 @@ export function KaraokeSingMode({
       if (w && t >= w.start - 0.08 && t <= w.end + 0.08) return "kw-active";
     }
     const c = wordColors.get(globalIdx);
-    if (!c) return "kw-upcoming";
-    return c === "pitched" ? "kw-pitched" : c === "sang" ? "kw-sang" : "kw-missed";
+    if (c) return c === "pitched" ? "kw-pitched" : c === "sang" ? "kw-sang" : "kw-missed";
+    if (isCurrent) {
+      const w = words[globalIdx];
+      if (w && t > w.end) return "kw-past";
+    }
+    return "kw-upcoming";
   };
 
   // ── Effects panel helper ──────────────────────────────────────────────────
@@ -1281,11 +1283,25 @@ export function KaraokeSingMode({
   return (
     <>
       <style>{`
-        .kw-active   { color: #c084fc; text-shadow: 0 0 18px rgba(192,132,252,.9), 0 0 36px rgba(147,51,234,.55); transform: scale(1.08); display: inline-block; }
-        .kw-pitched  { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,.5); }
-        .kw-sang     { color: #facc15; }
-        .kw-missed   { color: rgba(255,255,255,.2); }
-        .kw-upcoming { color: white; }
+        .kw-active   {
+          color: #fff;
+          background: linear-gradient(135deg, rgba(168,85,247,.85), rgba(59,130,246,.75));
+          padding: 2px 6px;
+          border-radius: 6px;
+          text-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 40px rgba(59,130,246,.5);
+          transform: scale(1.15);
+          display: inline-block;
+          animation: kw-pulse 0.6s ease-in-out infinite alternate;
+        }
+        @keyframes kw-pulse {
+          from { text-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 40px rgba(59,130,246,.5); }
+          to   { text-shadow: 0 0 30px rgba(168,85,247,1), 0 0 60px rgba(59,130,246,.7), 0 0 80px rgba(168,85,247,.4); }
+        }
+        .kw-pitched  { color: #4ade80; text-shadow: 0 0 12px rgba(74,222,128,.5); }
+        .kw-sang     { color: #facc15; text-shadow: 0 0 8px rgba(250,204,21,.3); }
+        .kw-missed   { color: rgba(255,255,255,.18); }
+        .kw-upcoming { color: rgba(255,255,255,.85); }
+        .kw-past     { color: rgba(255,255,255,.35); }
         .sing-bg     { background: radial-gradient(ellipse at 50% 40%, rgba(88,28,135,.20) 0%, transparent 70%); }
         .score-grad  { background: linear-gradient(135deg, #c084fc, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .fx-panel    { background: rgba(10,5,25,0.88); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
@@ -1444,25 +1460,27 @@ export function KaraokeSingMode({
         {/* ══ SINGING ═══════════════════════════════════════════════════════ */}
         {phase === "singing" && (
           <div className="relative z-10 flex-1 flex flex-col">
-            {/* Lyrics */}
-            <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-14 gap-3 text-center select-none">
+            {/* Lyrics — 2 lines: current + next */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-10 gap-5 sm:gap-6 text-center select-none">
               {words.length === 0
                 ? <p className="text-white/30 text-3xl tracking-widest">♪ ♪ ♪</p>
                 : slots.map((line, slot) => {
-                    if (!line) return <div key={slot} className="h-8" />;
-                    const isCurrent = slot === 1;
-                    const isPrev    = slot === 0;
+                    if (!line) return <div key={slot} className="h-6" />;
+                    const isCurrent = slot === 0;
                     return (
-                      <div key={`${slot}-${line.startTime}`} className="transition-all duration-500 leading-tight"
+                      <div key={`${slot}-${line.startTime}`}
+                        className="transition-all duration-500 leading-relaxed"
+                        dir="auto"
                         style={{
-                          fontSize:   isCurrent ? "clamp(1.6rem,5vw,3rem)" : "clamp(1rem,3vw,1.6rem)",
-                          fontWeight: isCurrent ? 700 : 400,
-                          opacity:    isCurrent ? 1 : isPrev ? 0.18 : 0.45,
+                          fontSize:   isCurrent ? "clamp(1.8rem,6vw,3.2rem)" : "clamp(1rem,3vw,1.4rem)",
+                          fontWeight: isCurrent ? 800 : 400,
+                          opacity:    isCurrent ? 1 : 0.35,
+                          letterSpacing: isCurrent ? "0.01em" : "0.02em",
                         }}>
                         {line.words.map((w, wi) => {
                           const gIdx = words.findIndex(gw => gw.start === w.start);
                           return (
-                            <span key={wi} className={`inline-block mx-[2px] transition-all duration-100 ${wordClass(gIdx, isCurrent)}`}>
+                            <span key={wi} className={`inline-block mx-[3px] transition-all duration-150 ${wordClass(gIdx, isCurrent)}`}>
                               {w.word}
                             </span>
                           );
