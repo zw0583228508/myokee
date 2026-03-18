@@ -306,9 +306,15 @@ export default function JobDetails() {
       </div>
     <div className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-8">
       <div className="mb-8">
-        <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" /> חזרה לסטודיו
-        </Link>
+        <div className="flex items-center gap-4 mb-6">
+          <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" /> חזרה לסטודיו
+          </Link>
+          <span className="text-muted-foreground/40">|</span>
+          <Link href="/history" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
+            <Music2 className="w-4 h-4 mr-2" /> חזרה לגלריה
+          </Link>
+        </div>
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
