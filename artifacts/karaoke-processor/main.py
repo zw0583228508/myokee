@@ -452,17 +452,31 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
 
         FPS = 25
         aurora = (
-            f"color=s=128x72:r={FPS}:d={duration}:c=0x06061A[tiny];"
+            f"color=s=160x90:r={FPS}:d={duration}:c=0x030310[tiny];"
             "[tiny]geq="
-            "r='60*sin(6.2832*X/128+6.2832*T/14)*sin(6.2832*Y/72+6.2832*T/10)"
-            "+40*sin(6.2832*(X+Y)/160+6.2832*T/18)+30':"
-            "g='25*sin(6.2832*X/96-6.2832*T/16)*cos(6.2832*Y/72+6.2832*T/12)+10':"
-            "b='160*sin(6.2832*Y/72+6.2832*T/10)+70*sin(6.2832*X/128-6.2832*T/13)+90'"
+            "r='clip("
+            "45*sin(6.28*X/160+6.28*T/12)*sin(6.28*Y/90+6.28*T/8)"
+            "+55*sin(6.28*(X+Y)/200+6.28*T/15)"
+            "+30*sin(6.28*X/80-6.28*T/20)*cos(6.28*Y/60+6.28*T/25)"
+            "+25*pow(sin(6.28*T/10),2)*sin(6.28*X/100+6.28*Y/100)"
+            "+20,0,255)':"
+            "g='clip("
+            "15*sin(6.28*X/120-6.28*T/14)*cos(6.28*Y/90+6.28*T/11)"
+            "+25*sin(6.28*(X-Y)/180+6.28*T/22)"
+            "+20*pow(sin(6.28*T/16),2)*sin(6.28*X/70)"
+            "+8,0,160)':"
+            "b='clip("
+            "180*sin(6.28*Y/90+6.28*T/9)"
+            "+90*sin(6.28*X/160-6.28*T/11)"
+            "+60*sin(6.28*(X+Y)/120+6.28*T/17)"
+            "+40*cos(6.28*X/80+6.28*T/14)*sin(6.28*Y/60-6.28*T/19)"
+            "+50*pow(sin(6.28*T/7),2)"
+            "+80,0,255)'"
             "[tiny_aurora];"
             "[tiny_aurora]scale=640:360:flags=bilinear[aurora];"
-            "[aurora]gblur=sigma=4[bg_blurred];"
+            "[aurora]gblur=sigma=6[bg_blurred];"
             f"[1:a]showwaves=s=640x40:mode=cline:rate={FPS}:"
-            "colors=0x9333EAFF|0x3B82F6FF:scale=sqrt[wv];"
+            "colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF:scale=sqrt[wv];"
             "[bg_blurred][wv]overlay=0:320[out]"
         )
 
@@ -809,14 +823,15 @@ def _group_words_into_lines(words: list[dict], max_words: int = 5) -> list[list[
 # LTR (Latin, CJK, etc.):     words positioned left-to-right, no reversal.
 # Each word has:
 #   Layer 0 = context (Far / Near style, shown for full line duration)
-#   Layer 1 = base active (Near style dim, shown before/after highlight)
-#   Layer 2 = highlight (Active style yellow, during word's own time window)
+#   Layer 1 = base active dim (shown before/after highlight)
+#   Layer 2 = neon highlight with glow (during word's own time window)
+#   Layer 3 = glow shadow layer behind active word
 
-# Pixel-width estimate at 64 px Noto Sans
-_CHAR_PX      = 40   # average px per Latin/Hebrew character
+# Pixel-width estimate at 68 px Montserrat Bold
+_CHAR_PX      = 44   # average px per Latin/Hebrew character (Montserrat is wider)
 _CHAR_PX_CJK  = 64   # CJK ideographs are full-width (~1.6x Latin)
 _MIN_W    = 48   # minimum word width
-_GAP_PX   = 18   # horizontal gap between words
+_GAP_PX   = 20   # horizontal gap between words
 
 # Languages that read right-to-left
 _RTL_LANGS = {"he", "ar", "fa", "ur", "arc", "dv", "ha", "khw", "ks", "ps", "yi"}
@@ -890,35 +905,41 @@ def _ltr_positions(words_in_line: list[dict], center_x: int = 640) -> list[int]:
 
 def _build_ass(words: list[dict], out: Path, language: str = "en"):
     """
-    Layout (1280×720):
+    Cinematic karaoke subtitle layout (1280×720):
       5 lines visible at once centred at y≈305
-        offset -2 → y=115   Far  (31% opacity)
-        offset -1 → y=210   Near (55% opacity)
-        offset  0 → y=305   Active — yellow, bold, black outline
+        offset -2 → y=115   Far  (faded, small)
+        offset -1 → y=210   Near (semi-visible)
+        offset  0 → y=305   Active — neon glow, bold, large
         offset +1 → y=405   Near
         offset +2 → y=495   Far
-      RTL Hebrew: each word positioned with explicit \\pos(x,y) — right to left.
-      Waveform occupies y=640–720 (handled by FFmpeg).
+      Active words get:
+        - Layer 3: neon glow blur behind (cyan/magenta)
+        - Layer 2: bright neon fill with \\kf karaoke sweep
+        - Layer 1: dim white before/after singing
+      Context lines: gradient opacity falloff
     """
     lines  = _group_words_into_lines(words)
     is_rtl = _is_rtl(language)
 
-    # ASS colours: AABBGGRR (00=opaque, FF=transparent)
-    C_YELLOW    = "&H0000FFFF&"
-    C_DIM_WHITE = "&H00CCCCCC&"
-    C_NEAR      = "&H72FFFFFF&"   # ≈55% opacity
-    C_FAR       = "&HB0FFFFFF&"   # ≈31% opacity
-    C_OUT_NEAR  = "&H88000000&"
-    C_OUT_FAR   = "&H55000000&"
+    # ASS colours: &HAABBGGRR (AA=00 opaque, FF=transparent)
+    # Neon cyan active fill (sweep destination)
+    C_NEON_CYAN   = "&H00FFFF00&"       # bright cyan (BGR: 00FFFF = cyan)
+    C_NEON_MAGENTA = "&H00FF00FF&"      # magenta secondary
+    C_SUNG_PINK   = "&H40CB88FF&"       # pinkish-white for already-sung words
+    C_NEAR        = "&H60FFFFFF&"       # ~62% opacity white
+    C_FAR         = "&HA0FFFFFF&"       # ~37% opacity white
+    C_GLOW_CYAN   = "&H00FFFF00&"       # glow outline color
+    C_OUT_ACTIVE  = "&H00FF4488&"       # magenta-ish outline for active
+    C_OUT_NEAR    = "&H80000000&"       # semi-transparent black outline
+    C_OUT_FAR     = "&HA0000000&"
 
-    # Font selection: CJK languages need Noto Sans CJK for proper glyph coverage.
-    # RTL scripts use Noto Sans Hebrew. Everything else uses Noto Sans.
+    # Font selection: Montserrat for Latin, Noto Sans Hebrew for RTL, Noto Sans CJK
     if _is_cjk(language):
         font_name = "Noto Sans SC"
     elif is_rtl:
         font_name = "Noto Sans Hebrew"
     else:
-        font_name = "Noto Sans"
+        font_name = "Montserrat"
 
     header = (
         "[Script Info]\n"
@@ -932,10 +953,22 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
         " OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut,"
         " ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow,"
         " Alignment, MarginL, MarginR, MarginV, Encoding\n"
-        f"Style: Active,{font_name},64,{C_YELLOW},{C_DIM_WHITE},&H00000000,&HAA000000,"
-        "-1,0,0,0,100,100,2,0,1,5,3,2,0,0,0,1\n"
+        # Active: neon cyan, bold, thick outline, shadow glow
+        f"Style: Active,{font_name},68,{C_NEON_CYAN},{C_NEON_MAGENTA},{C_OUT_ACTIVE},&H60000000,"
+        "-1,0,0,0,100,100,3,0,1,4,4,2,0,0,0,1\n"
+        # Glow: blurred neon behind active word (larger, softer)
+        f"Style: Glow,{font_name},72,{C_GLOW_CYAN},&H00000000,{C_GLOW_CYAN},&H00000000,"
+        "-1,0,0,0,100,100,3,0,1,8,0,2,0,0,0,1\n"
+        # Sung: already-sung words on active line (pinkish white)
+        f"Style: Sung,{font_name},68,{C_SUNG_PINK},&H00000000,&H60000000,&H00000000,"
+        "-1,0,0,0,100,100,2,0,1,3,1,2,0,0,0,1\n"
+        # ActiveDim: unsunsg words on active line (same size as Active, dimmer)
+        f"Style: ActiveDim,{font_name},68,{C_NEAR},&H00000000,{C_OUT_NEAR},&H00000000,"
+        "-1,0,0,0,100,100,2,0,1,3,1,2,0,0,0,1\n"
+        # Near: adjacent lines (semi-visible)
         f"Style: Near,{font_name},48,{C_NEAR},&H00000000,{C_OUT_NEAR},&H00000000,"
         "0,0,0,0,100,100,1,0,1,3,1,2,0,0,0,1\n"
+        # Far: distant context lines (faded)
         f"Style: Far,{font_name},36,{C_FAR},&H00000000,{C_OUT_FAR},&H00000000,"
         "0,0,0,0,100,100,1,0,1,2,0,2,0,0,0,1\n\n"
         "[Events]\n"
@@ -950,11 +983,6 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
         return f"{h}:{m:02d}:{int(sc):02d}.{cs:02d}"
 
     def word_display(word: str) -> str:
-        """
-        For RTL scripts (Hebrew/Arabic), libass renders text left-to-right.
-        Reversing character order makes it display correctly.
-        For LTR scripts, no transformation needed.
-        """
         return word[::-1] if is_rtl else word
 
     def line_positions(line: list[dict]) -> list[int]:
@@ -993,22 +1021,27 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
             w_dur_cs = max(1, round((w["end"] - w["start"]) * 100))
             wdisp    = word_display(w["word"])
 
-            # Dim base — before the word is sung
+            # Layer 1 — dim base before the word is sung (same size as Active)
             if w["start"] > line_start:
                 events.append(
                     f"Dialogue: 1,{ts(line_start)},{ts(w['start'])},"
-                    f"Near,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
+                    f"ActiveDim,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
                 )
-            # Yellow highlight — during word's own time window
+            # Layer 3 — neon glow blur behind active word
             events.append(
-                f"Dialogue: 2,{ts(w['start'])},{ts(w['end'])},"
-                f"Active,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{{\\kf{w_dur_cs}}}{wdisp}\n"
+                f"Dialogue: 3,{ts(w['start'])},{ts(w['end'])},"
+                f"Glow,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{{\\blur6}}{{\\kf{w_dur_cs}}}{wdisp}\n"
             )
-            # Dim base — after the word is sung
+            # Layer 4 — main neon highlight with karaoke sweep + scale pop
+            events.append(
+                f"Dialogue: 4,{ts(w['start'])},{ts(w['end'])},"
+                f"Active,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{{\\fscx105}}{{\\fscy105}}{{\\kf{w_dur_cs}}}{wdisp}\n"
+            )
+            # Layer 2 — already-sung (pinkish glow) after the word
             if w["end"] < line_end:
                 events.append(
-                    f"Dialogue: 1,{ts(w['end'])},{ts(line_end)},"
-                    f"Near,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
+                    f"Dialogue: 2,{ts(w['end'])},{ts(line_end)},"
+                    f"Sung,,0,0,0,,{{\\an5}}{{\\pos({xp},{y})}}{wdisp}\n"
                 )
 
     out.write_text("".join(events), encoding="utf-8")
@@ -1129,22 +1162,34 @@ async def _render_video(no_vocals: Path, ass: Path,
     FPS = 20   # 20 fps — adequate for karaoke text, 33% fewer frames than 30
 
     aurora_expr = (
-        f"color=s=128x72:r={FPS}:d={duration}:c=0x06061A[tiny];"
+        f"color=s=160x90:r={FPS}:d={duration}:c=0x030310[tiny];"
         "[tiny]geq="
-        "r='60*sin(6.2832*X/128+6.2832*T/14)*sin(6.2832*Y/72+6.2832*T/10)"
-        "+40*sin(6.2832*(X+Y)/160+6.2832*T/18)+30':"
-        "g='25*sin(6.2832*X/96-6.2832*T/16)*cos(6.2832*Y/72+6.2832*T/12)"
-        "+10':"
-        "b='160*sin(6.2832*Y/72+6.2832*T/10)"
-        "+70*sin(6.2832*X/128-6.2832*T/13)+90'"
+        "r='clip("
+        "45*sin(6.28*X/160+6.28*T/12)*sin(6.28*Y/90+6.28*T/8)"
+        "+55*sin(6.28*(X+Y)/200+6.28*T/15)"
+        "+30*sin(6.28*X/80-6.28*T/20)*cos(6.28*Y/60+6.28*T/25)"
+        "+25*pow(sin(6.28*T/10),2)*sin(6.28*X/100+6.28*Y/100)"
+        "+20,0,255)':"
+        "g='clip("
+        "15*sin(6.28*X/120-6.28*T/14)*cos(6.28*Y/90+6.28*T/11)"
+        "+25*sin(6.28*(X-Y)/180+6.28*T/22)"
+        "+20*pow(sin(6.28*T/16),2)*sin(6.28*X/70)"
+        "+8,0,160)':"
+        "b='clip("
+        "180*sin(6.28*Y/90+6.28*T/9)"
+        "+90*sin(6.28*X/160-6.28*T/11)"
+        "+60*sin(6.28*(X+Y)/120+6.28*T/17)"
+        "+40*cos(6.28*X/80+6.28*T/14)*sin(6.28*Y/60-6.28*T/19)"
+        "+50*pow(sin(6.28*T/7),2)"
+        "+80,0,255)'"
         "[tiny_aurora];"
         "[tiny_aurora]scale=1280:720:flags=bilinear[aurora];"
-        "[aurora]gblur=sigma=4[bg_blurred];"
+        "[aurora]gblur=sigma=6[bg_blurred];"
     )
 
     wave_expr = (
         f"[1:a]showwaves=s=1280x80:mode=cline:rate={FPS}:"
-        "colors=0x9333EAFF|0x3B82F6FF:scale=sqrt[wv];"
+        "colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF:scale=sqrt[wv];"
     )
 
     wm_path = str(WATERMARK).replace("\\", "/")

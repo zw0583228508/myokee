@@ -183,7 +183,7 @@ export function FileUpload() {
         job = await createYouTubeJob.mutateAsync({ url: youtubeUrl.trim(), languageHint });
       }
 
-      const avatarSource = avatarFile || (user?.picture ?? null);
+      const avatarSource = avatarFile || null;
       if (avatarSource) {
         try {
           await uploadAvatarToJob(job.id, avatarSource);
@@ -210,11 +210,9 @@ export function FileUpload() {
     }
   };
 
-  const effectiveAvatarPreview = avatarPreview || user?.picture || null;
+  const effectiveAvatarPreview = avatarPreview || null;
   const effectiveAvatarLabel = avatarFile
     ? avatarFile.name
-    : user
-    ? `${user.displayName} ${t.upload.googleLabel}`
     : null;
 
   const canSubmit =

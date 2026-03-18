@@ -49,4 +49,11 @@ The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM error
 - **Email Service**: Brevo SMTP
 - **Other**:
     - FFmpeg (video generation)
-    - Google Fonts (for Noto Sans Hebrew and other fonts)
+    - Google Fonts (Montserrat, Noto Sans Hebrew, Noto Sans CJK SC)
+
+## Video Generation Visual Style
+- **Fonts**: Montserrat (Latin, bold cinematic look), Noto Sans Hebrew (RTL), Noto Sans CJK SC (CJK). All in `artifacts/karaoke-processor/fonts/`.
+- **ASS Subtitle Effects**: Neon cyan/magenta active word glow (\\blur6 + \\fscx105/\\fscy105 scale pop), pinkish "sung" words, gradient opacity for context lines (Near 48px, Far 36px, Active 68px). 6 styles: Active, Glow, Sung, ActiveDim, Near, Far.
+- **Background**: Multi-layer aurora nebula (geq sine waves with clip(), 5+ overlapping color frequencies for purple/cyan/magenta/blue), gaussian blur σ=6, pre-rendered at 160×90 upscaled to 640×360.
+- **Waveform**: 3-color (cyan/magenta/purple) cline mode, sqrt scale.
+- **Avatar**: Only explicitly uploaded photos — Google profile photos are NOT auto-sent.
