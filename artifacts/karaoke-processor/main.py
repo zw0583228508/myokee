@@ -653,23 +653,25 @@ async def render_job(job_id: str):
         update_job(job_id, progress=80)
         tracker = asyncio.create_task(_progress_tracker())
         try:
-            if use_prerender:
+            if use_prerender and HAS_NVENC:
                 rc, err = await _render_video_fast(
                     bg_prerender, ass_p, video_p,
                     avatar_p if has_avatar else None)
                 if rc != 0:
-                    if HAS_NVENC and _is_nvenc_error(err):
-                        print("[render] NVENC failed at runtime — disabling and retrying fast render with CPU")
+                    if _is_nvenc_error(err):
+                        print("[render] NVENC failed at runtime — disabling and retrying with full render")
                         HAS_NVENC = False
-                        rc, err = await _render_video_fast(
-                            bg_prerender, ass_p, video_p,
-                            avatar_p if has_avatar else None)
                 if rc != 0:
                     print(f"[render] Fast render failed ({_extract_ffmpeg_error(err)}), falling back to full render")
                     bg_prerender.unlink(missing_ok=True)
                     rc, err = await _render_video(
                         no_vocals_p, ass_p, video_p, duration,
                         avatar_p if has_avatar else None)
+            elif use_prerender and not HAS_NVENC:
+                _phase_log("Skipping fast render on CPU (too slow), using full render directly")
+                rc, err = await _render_video(
+                    no_vocals_p, ass_p, video_p, duration,
+                    avatar_p if has_avatar else None)
             else:
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
