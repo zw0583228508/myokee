@@ -7,7 +7,7 @@ import {
 import { useSavePerformance, usePublishPerformance } from "@/hooks/use-performances";
 import { useAwardXP } from "@/hooks/use-gamification";
 import { useCloudRecording } from "@/hooks/use-cloud-recording";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetchOptions, AUTH_TOKEN_KEY } from "@/lib/api";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface WordTimestamp { word: string; start: number; end: number; }
@@ -1776,19 +1776,43 @@ export function KaraokeSingMode({
                   </button>
                 </>
               )}
-              {savedPerfId && !publishPerf.isSuccess && (
-                <button
-                  onClick={() => publishPerf.mutate(savedPerfId)}
-                  disabled={publishPerf.isPending}
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 hover:from-yellow-500/30 hover:to-amber-500/30 transition-all text-sm font-semibold"
-                >
-                  {publishPerf.isPending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />שולח...</>
-                  ) : (
-                    <><Trophy className="w-4 h-4" />שתף בלידרבורד 🏆</>
-                  )}
-                </button>
-              )}
+              {result && !publishPerf.isSuccess && (() => {
+                const isLoggedIn = !!localStorage.getItem(AUTH_TOKEN_KEY);
+                if (!isLoggedIn) return null;
+                const handlePublish = async () => {
+                  if (savedPerfId) {
+                    publishPerf.mutate(savedPerfId);
+                  } else {
+                    try {
+                      const saved: any = await savePerf.mutateAsync({
+                        jobId, songName,
+                        score: result.score,
+                        timingScore: result.timingScore,
+                        pitchScore: result.pitchScore,
+                        wordsCovered: result.wordsCovered,
+                        totalWords: result.totalWords,
+                      });
+                      if (saved?.id) {
+                        setSavedPerfId(saved.id);
+                        publishPerf.mutate(saved.id);
+                      }
+                    } catch { /* auth or network error */ }
+                  }
+                };
+                return (
+                  <button
+                    onClick={handlePublish}
+                    disabled={publishPerf.isPending || savePerf.isPending}
+                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 hover:from-yellow-500/30 hover:to-amber-500/30 transition-all text-sm font-semibold"
+                  >
+                    {(publishPerf.isPending || savePerf.isPending) ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" />שולח...</>
+                    ) : (
+                      <><Trophy className="w-4 h-4" />שתף בלידרבורד 🏆</>
+                    )}
+                  </button>
+                );
+              })()}
               {publishPerf.isSuccess && (
                 <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
                   <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
