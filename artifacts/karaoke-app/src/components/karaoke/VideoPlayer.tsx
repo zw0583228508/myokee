@@ -42,9 +42,28 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !autoPlay) return;
-    video.muted = true;
-    setIsMuted(true);
-    video.play().then(() => setIsPlaying(true)).catch(() => {});
+
+    video.muted = false;
+    video.play().then(() => {
+      setIsPlaying(true);
+      setIsMuted(false);
+    }).catch(() => {
+      video.muted = true;
+      setIsMuted(true);
+      video.play().then(() => {
+        setIsPlaying(true);
+        const unmute = () => {
+          if (videoRef.current) {
+            videoRef.current.muted = false;
+            setIsMuted(false);
+          }
+          document.removeEventListener("click", unmute);
+          document.removeEventListener("touchstart", unmute);
+        };
+        document.addEventListener("click", unmute, { once: true });
+        document.addEventListener("touchstart", unmute, { once: true });
+      }).catch(() => {});
+    });
   }, [src, autoPlay]);
 
   const togglePlay = () => {
@@ -129,6 +148,16 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
             <Play className="w-8 h-8 fill-current" />
           </div>
         </div>
+      )}
+
+      {isPlaying && isMuted && (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+          className="absolute top-3 end-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white text-xs font-medium border border-white/20 animate-pulse hover:bg-black/90 transition-colors z-10"
+        >
+          <VolumeX className="w-3.5 h-3.5" />
+          לחץ להפעלת שמע
+        </button>
       )}
     </div>
   );
