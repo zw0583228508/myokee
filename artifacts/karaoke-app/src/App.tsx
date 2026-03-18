@@ -27,6 +27,7 @@ import Party from "@/pages/Party";
 import PartyRoom from "@/pages/PartyRoom";
 import PartyDisplay from "@/pages/PartyDisplay";
 import GamificationProfile from "@/pages/GamificationProfile";
+import MyRecordings from "@/pages/MyRecordings";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -106,6 +107,7 @@ function Router() {
           <Route path="/terms"       component={Terms}       />
           <Route path="/copyright"   component={Copyright}   />
           <Route path="/referral"   component={Referral}    />
+          <Route path="/recordings" component={MyRecordings} />
           <Route component={NotFound} />
         </Switch>
       </main>

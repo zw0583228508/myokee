@@ -1752,7 +1752,7 @@ export function KaraokeSingMode({
                     onClick={() => {
                       if (cloudRecording.status === "error") cloudRecording.reset();
                       if (recordingBlobRef.current) {
-                        cloudRecording.upload(recordingBlobRef.current, `${songName.replace(/\.[^.]+$/, "")}-cover.wav`).catch(() => {});
+                        cloudRecording.upload(recordingBlobRef.current, `${songName.replace(/\.[^.]+$/, "")}-cover.wav`, songName, jobId).catch(() => {});
                       }
                     }}
                     className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-white font-semibold text-sm transition-all disabled:opacity-60"
@@ -1769,9 +1769,9 @@ export function KaraokeSingMode({
                     ) : cloudRecording.status === "done" ? (
                       <><CheckCircle2 className="w-4 h-4" />נשמר בענן ✓</>
                     ) : cloudRecording.status === "error" ? (
-                      <><Cloud className="w-4 h-4" />שגיאה — נסה שוב</>
+                      <><Cloud className="w-4 h-4" />{cloudRecording.error || "שגיאה — נסה שוב"}</>
                     ) : (
-                      <><Cloud className="w-4 h-4" />שמור בענן</>
+                      <><Cloud className="w-4 h-4" />שמור בענן ☁️</>
                     )}
                   </button>
                 </>

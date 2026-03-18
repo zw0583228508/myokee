@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper } from "lucide-react";
+import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
@@ -191,6 +191,11 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link href="/recordings" className="cursor-pointer flex items-center w-full">
+                        <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings"}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link href="/referral" className="cursor-pointer flex items-center w-full">
                         <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />הזמן חברים
                       </Link>
@@ -225,6 +230,7 @@ export function Navbar() {
               {[
                 { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
                 { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },
+                { href: "/recordings", icon: Cloud,   label: lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings" },
                 { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
                 { href: "/xp",         icon: Zap,     label: "XP" },
                 { href: "/party",       icon: PartyPopper, label: "Party" },

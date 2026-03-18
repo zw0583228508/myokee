@@ -68,7 +68,11 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
   - Server: `api-server/src/lib/objectStorage.ts` + `objectAcl.ts`, routes at `api-server/src/routes/storage.ts`
   - Endpoints: `POST /api/storage/uploads/request-url` (presigned URL), `GET /api/storage/objects/*` (serve objects)
   - Client: `use-cloud-recording.ts` hook — XHR upload with progress, state machine (idle/uploading/done/error)
-  - UI: "שמור בענן" (Save to Cloud) button in `KaraokeSingMode` results screen, next to download button
+  - UI: "שמור בענן ☁️" (Save to Cloud) button in `KaraokeSingMode` results screen, next to download button; shows specific error messages on failure
+  - Recording metadata saved to `recordings` DB table (user_id, song_name, job_id, object_path, etc.)
+  - **My Recordings page** (`/recordings`): Two-tab gallery — "הקלטות בענן" (cloud recordings with play/download/delete) and "הביצועים שלי" (performances with scores)
+  - Access control: `/api/storage/objects/*` requires auth + ownership check via `recordings` table
+  - Nav: "ההקלטות שלי" link in both mobile menu and desktop user dropdown
 - **Gallery Upload in Party**: Upload audio/video files directly from phone gallery inside party rooms:
   - File input in PartyRoom's "Add Song" panel with `accept="audio/*,video/*,..."`
   - Uses existing `useCreateJob` to process uploaded file, then auto-adds to party queue

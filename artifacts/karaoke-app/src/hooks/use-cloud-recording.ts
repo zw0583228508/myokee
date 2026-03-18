@@ -11,7 +11,7 @@ interface UploadState {
 export function useCloudRecording() {
   const [state, setState] = useState<UploadState>({ status: "idle", progress: 0 });
 
-  const upload = async (blob: Blob, fileName: string) => {
+  const upload = async (blob: Blob, fileName: string, songName?: string, jobId?: string) => {
     setState({ status: "uploading", progress: 0 });
 
     try {
@@ -24,11 +24,16 @@ export function useCloudRecording() {
             name: fileName,
             size: blob.size,
             contentType: blob.type || "audio/wav",
+            songName: songName || fileName,
+            jobId: jobId || "",
           }),
         }),
       );
 
-      if (!res.ok) throw new Error("Failed to get upload URL");
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(res.status === 401 ? "יש להתחבר כדי לשמור בענן" : errText || `שגיאה ${res.status}`);
+      }
 
       const { uploadURL, objectPath } = await res.json();
 
