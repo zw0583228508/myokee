@@ -538,6 +538,205 @@ export class Storage {
     );
     return res.rows;
   }
+  // ── Gamification ──────────────────────────────────────────
+
+  async getOrCreateXP(userId: string) {
+    const res = await query(
+      `INSERT INTO user_xp (user_id) VALUES ($1)
+       ON CONFLICT (user_id) DO UPDATE SET user_id = EXCLUDED.user_id
+       RETURNING *`,
+      [userId]
+    );
+    return res.rows[0];
+  }
+
+  async checkXPCooldown(userId: string, action: string, cooldownSeconds: number): Promise<boolean> {
+    const res = await query(
+      `SELECT 1 FROM xp_log
+       WHERE user_id = $1 AND reason = $2 AND created_at > NOW() - ($3 || ' seconds')::interval
+       LIMIT 1`,
+      [userId, action, cooldownSeconds]
+    );
+    return res.rows.length > 0;
+  }
+
+  async awardXP(userId: string, amount: number, reason: string, metadata: object = {}) {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      await client.query(
+        `INSERT INTO user_xp (user_id, total_xp, weekly_xp, updated_at)
+         VALUES ($1, $2, $2, NOW())
+         ON CONFLICT (user_id) DO UPDATE SET
+           total_xp = user_xp.total_xp + $2,
+           weekly_xp = user_xp.weekly_xp + $2,
+           updated_at = NOW()`,
+        [userId, amount]
+      );
+
+      await client.query(
+        `INSERT INTO xp_log (user_id, amount, reason, metadata) VALUES ($1, $2, $3, $4)`,
+        [userId, amount, reason, JSON.stringify(metadata)]
+      );
+
+      const levelRes = await client.query(
+        `SELECT total_xp FROM user_xp WHERE user_id = $1`,
+        [userId]
+      );
+      const totalXP = levelRes.rows[0]?.total_xp || 0;
+      const newLevel = this.calculateLevel(totalXP);
+
+      await client.query(
+        `UPDATE user_xp SET level = $1 WHERE user_id = $2`,
+        [newLevel, userId]
+      );
+
+      await client.query("COMMIT");
+      return { totalXP, level: newLevel, awarded: amount };
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+  }
+
+  calculateLevel(totalXP: number): number {
+    const thresholds = [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5200, 6500, 8000, 10000, 12500, 15500, 19000, 23000, 27500, 32500, 38000, 44000, 50500, 57500, 65000, 73000, 82000, 92000, 103000, 115000, 128000, 142000];
+    let level = 1;
+    for (let i = 1; i < thresholds.length; i++) {
+      if (totalXP >= thresholds[i]) level = i + 1;
+      else break;
+    }
+    return level;
+  }
+
+  xpForLevel(level: number): { current: number; next: number } {
+    const thresholds = [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5200, 6500, 8000, 10000, 12500, 15500, 19000, 23000, 27500, 32500, 38000, 44000, 50500, 57500, 65000, 73000, 82000, 92000, 103000, 115000, 128000, 142000];
+    const idx = Math.min(level - 1, thresholds.length - 1);
+    const nextIdx = Math.min(level, thresholds.length - 1);
+    return { current: thresholds[idx], next: thresholds[nextIdx] };
+  }
+
+  async getGamificationProfile(userId: string) {
+    const xp = await this.getOrCreateXP(userId);
+
+    const badgesRes = await query(
+      `SELECT badge_id, earned_at FROM user_badges WHERE user_id = $1 ORDER BY earned_at DESC`,
+      [userId]
+    );
+
+    const achievementsRes = await query(
+      `SELECT achievement_id, progress, target, completed_at FROM user_achievements WHERE user_id = $1 ORDER BY completed_at DESC NULLS LAST`,
+      [userId]
+    );
+
+    const { current, next } = this.xpForLevel(xp.level);
+
+    return {
+      totalXP: xp.total_xp,
+      level: xp.level,
+      weeklyXP: xp.weekly_xp,
+      streakDays: xp.streak_days,
+      xpForCurrentLevel: current,
+      xpForNextLevel: next,
+      badges: badgesRes.rows,
+      achievements: achievementsRes.rows,
+    };
+  }
+
+  async getXPLeaderboard(mode: "all" | "weekly" = "all", limit = 50) {
+    const orderCol = mode === "weekly" ? "ux.weekly_xp" : "ux.total_xp";
+    const res = await query(
+      `SELECT ux.user_id, u.display_name, u.picture, ux.total_xp, ux.weekly_xp, ux.level, ux.streak_days
+       FROM user_xp ux
+       LEFT JOIN users u ON ux.user_id = u.id
+       WHERE ${orderCol} > 0
+       ORDER BY ${orderCol} DESC
+       LIMIT $1`,
+      [limit]
+    );
+    return res.rows;
+  }
+
+  async awardBadge(userId: string, badgeId: string) {
+    try {
+      await query(
+        `INSERT INTO user_badges (user_id, badge_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [userId, badgeId]
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async getAchievementRow(userId: string, achievementId: string) {
+    const res = await query(
+      `SELECT * FROM user_achievements WHERE user_id = $1 AND achievement_id = $2`,
+      [userId, achievementId]
+    );
+    return res.rows[0] || null;
+  }
+
+  async setAchievementProgress(userId: string, achievementId: string, value: number, target: number) {
+    const res = await query(
+      `INSERT INTO user_achievements (user_id, achievement_id, progress, target)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, achievement_id) DO UPDATE SET
+         progress = GREATEST(user_achievements.progress, $3),
+         completed_at = CASE
+           WHEN GREATEST(user_achievements.progress, $3) >= user_achievements.target AND user_achievements.completed_at IS NULL
+           THEN NOW()
+           ELSE user_achievements.completed_at
+         END
+       RETURNING *`,
+      [userId, achievementId, value, target]
+    );
+    return res.rows[0];
+  }
+
+  async updateAchievementProgress(userId: string, achievementId: string, increment: number, target: number) {
+    const res = await query(
+      `INSERT INTO user_achievements (user_id, achievement_id, progress, target)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, achievement_id) DO UPDATE SET
+         progress = LEAST(user_achievements.progress + $3, user_achievements.target),
+         completed_at = CASE
+           WHEN user_achievements.progress + $3 >= user_achievements.target AND user_achievements.completed_at IS NULL
+           THEN NOW()
+           ELSE user_achievements.completed_at
+         END
+       RETURNING *`,
+      [userId, achievementId, increment, target]
+    );
+    return res.rows[0];
+  }
+
+  async updateStreak(userId: string) {
+    const res = await query(
+      `UPDATE user_xp SET
+         streak_days = CASE
+           WHEN last_active = CURRENT_DATE - INTERVAL '1 day' THEN streak_days + 1
+           WHEN last_active = CURRENT_DATE THEN streak_days
+           ELSE 1
+         END,
+         last_active = CURRENT_DATE,
+         updated_at = NOW()
+       WHERE user_id = $1
+       RETURNING streak_days`,
+      [userId]
+    );
+    return res.rows[0]?.streak_days || 1;
+  }
+
+  async resetWeeklyXP() {
+    await query(
+      `UPDATE user_xp SET weekly_xp = 0, week_reset_at = NOW()
+       WHERE week_reset_at < NOW() - INTERVAL '7 days'`
+    );
+  }
 }
 
 export const storage = new Storage();

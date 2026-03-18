@@ -140,6 +140,51 @@ export async function runMigrations(): Promise<void> {
         created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_party_scores_room ON party_scores (room_id);
+
+      -- Gamification: XP & Levels
+      CREATE TABLE IF NOT EXISTS user_xp (
+        user_id        TEXT PRIMARY KEY REFERENCES users(id),
+        total_xp       INTEGER NOT NULL DEFAULT 0,
+        level          INTEGER NOT NULL DEFAULT 1,
+        weekly_xp      INTEGER NOT NULL DEFAULT 0,
+        week_reset_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        streak_days    INTEGER NOT NULL DEFAULT 0,
+        last_active    DATE,
+        updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      -- Gamification: Badges
+      CREATE TABLE IF NOT EXISTS user_badges (
+        id             SERIAL PRIMARY KEY,
+        user_id        TEXT NOT NULL REFERENCES users(id),
+        badge_id       TEXT NOT NULL,
+        earned_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(user_id, badge_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_badges_user ON user_badges (user_id);
+
+      -- Gamification: Achievements
+      CREATE TABLE IF NOT EXISTS user_achievements (
+        id              SERIAL PRIMARY KEY,
+        user_id         TEXT NOT NULL REFERENCES users(id),
+        achievement_id  TEXT NOT NULL,
+        progress        INTEGER NOT NULL DEFAULT 0,
+        target          INTEGER NOT NULL DEFAULT 1,
+        completed_at    TIMESTAMPTZ,
+        UNIQUE(user_id, achievement_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements (user_id);
+
+      -- Gamification: XP log (audit trail)
+      CREATE TABLE IF NOT EXISTS xp_log (
+        id             SERIAL PRIMARY KEY,
+        user_id        TEXT NOT NULL REFERENCES users(id),
+        amount         INTEGER NOT NULL,
+        reason         TEXT NOT NULL,
+        metadata       JSONB DEFAULT '{}',
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_xp_log_user ON xp_log (user_id);
     `);
     console.log("[migrate] Tables ensured.");
   } finally {

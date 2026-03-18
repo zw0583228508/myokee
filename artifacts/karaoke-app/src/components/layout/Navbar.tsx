@@ -73,6 +73,16 @@ export function Navbar() {
             >
               <Trophy className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.leaderboard}
             </Link>
+            <Link href="/xp"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                location === "/xp"
+                  ? "bg-primary/15 text-primary"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              }`}
+              aria-current={location === "/xp" ? "page" : undefined}
+            >
+              <Zap className="w-3.5 h-3.5" aria-hidden="true" />XP
+            </Link>
             <Link href="/party"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                 location.startsWith("/party")
@@ -176,6 +186,11 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link href="/xp" className="cursor-pointer flex items-center w-full">
+                        <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />XP & Badges
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link href="/referral" className="cursor-pointer flex items-center w-full">
                         <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />הזמן חברים
                       </Link>
@@ -211,6 +226,7 @@ export function Navbar() {
                 { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
                 { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },
                 { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
+                { href: "/xp",         icon: Zap,     label: "XP" },
                 { href: "/party",       icon: PartyPopper, label: "Party" },
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>

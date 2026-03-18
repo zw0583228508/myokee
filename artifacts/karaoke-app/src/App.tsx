@@ -26,6 +26,7 @@ import Referral from "@/pages/Referral";
 import Party from "@/pages/Party";
 import PartyRoom from "@/pages/PartyRoom";
 import PartyDisplay from "@/pages/PartyDisplay";
+import GamificationProfile from "@/pages/GamificationProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -95,6 +96,7 @@ function Router() {
           <Route path="/upload"      component={Upload}      />
           <Route path="/history"     component={History}     />
           <Route path="/leaderboard" component={Leaderboard} />
+          <Route path="/xp"          component={GamificationProfile} />
 
           <Route path="/job/:id"     component={JobDetails}  />
           <Route path="/party"       component={Party}       />

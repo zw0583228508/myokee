@@ -1,8 +1,10 @@
 import { Link } from "wouter";
-import { ArrowLeft, Trophy, Star, Loader2, Music2, RefreshCw, Mic } from "lucide-react";
+import { ArrowLeft, Trophy, Star, Loader2, Music2, RefreshCw, Mic, Zap, Crown } from "lucide-react";
 import { useLeaderboard, useMyPerformances } from "@/hooks/use-performances";
+import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
+import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
 
 const toStars = (s: number) => s >= 90 ? 5 : s >= 75 ? 4 : s >= 60 ? 3 : s >= 40 ? 2 : 1;
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -13,13 +15,16 @@ function formatDate(iso: string, lang: string) {
 
 export default function Leaderboard() {
   const { t, lang } = useLang();
-  const [tab, setTab] = useState<"global" | "me">("global");
+  const gt = useGamificationTranslations();
+  const [tab, setTab] = useState<"global" | "me" | "xp">("global");
+  const [xpMode, setXpMode] = useState<"all" | "weekly">("all");
+
   const { data: globalData, isLoading: loadingGlobal, refetch: refetchGlobal } = useLeaderboard();
   const { data: myData,    isLoading: loadingMe,     refetch: refetchMe     } = useMyPerformances();
+  const { data: xpData,    isLoading: loadingXP,     refetch: refetchXP     } = useXPLeaderboard(xpMode);
 
-  const isLoading = tab === "global" ? loadingGlobal : loadingMe;
-  const rows      = tab === "global" ? (globalData ?? []) : (myData ?? []);
-  const doRefetch = tab === "global" ? refetchGlobal : refetchMe;
+  const isLoading = tab === "global" ? loadingGlobal : tab === "me" ? loadingMe : loadingXP;
+  const doRefetch = tab === "global" ? refetchGlobal : tab === "me" ? refetchMe : refetchXP;
 
   return (
     <div className="min-h-screen flex flex-col" dir={t.dir}>
@@ -52,17 +57,17 @@ export default function Leaderboard() {
 
       <div className="w-full max-w-2xl mx-auto px-4 flex items-center justify-between mb-5 gap-4">
         <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/8">
-          {(["global", "me"] as const).map(tabKey => (
+          {(["global", "me", "xp"] as const).map(tabKey => (
             <button
               key={tabKey}
               onClick={() => setTab(tabKey)}
-              className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 tab === tabKey
                   ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,.3)]"
                   : "text-white/40 hover:text-white/70"
               }`}
             >
-              {tabKey === "global" ? `🌍 ${t.leaderboard.global}` : `👤 ${t.leaderboard.mine}`}
+              {tabKey === "global" ? `🌍 ${t.leaderboard.global}` : tabKey === "me" ? `👤 ${t.leaderboard.mine}` : `⚡ XP`}
             </button>
           ))}
         </div>
@@ -74,80 +79,181 @@ export default function Leaderboard() {
       </div>
 
       <div className="w-full max-w-2xl mx-auto px-4 flex-1 pb-20">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-24 gap-3 text-white/30">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm">{t.leaderboard.loading}</span>
-          </div>
-        ) : rows.length === 0 ? (
-          <div className="text-center py-24 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto">
-              <Music2 className="w-8 h-8 text-white/20" />
-            </div>
-            <p className="text-white/35 text-sm">{t.leaderboard.empty}</p>
-            <Link href="/">
-              <button className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold transition-all hover:scale-105"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-                <Mic className="w-4 h-4" />
-                {t.leaderboard.singNow}
+        {tab === "xp" && (
+          <div className="flex gap-2 mb-5">
+            {(["all", "weekly"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setXpMode(mode)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  xpMode === mode
+                    ? "bg-white/10 text-white border border-white/15"
+                    : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                {mode === "all" ? gt.leaderboard.allTime : gt.leaderboard.thisWeek}
               </button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {rows.map((row, i) => {
-              const stars = toStars(row.score);
-              const rankEmoji = i < 3 ? MEDALS[i] : `#${i + 1}`;
-              const isPodium = i < 3;
-              return (
-                <div
-                  key={row.id}
-                  className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-2xl border transition-all hover:scale-[1.005] ${
-                    i === 0
-                      ? "bg-yellow-500/8 border-yellow-500/25 shadow-[0_0_30px_rgba(234,179,8,0.06)]"
-                      : i === 1
-                      ? "bg-zinc-300/5 border-zinc-300/15"
-                      : i === 2
-                      ? "bg-amber-600/5 border-amber-600/15"
-                      : "bg-white/3 border-white/7 hover:bg-white/5"
-                  }`}
-                >
-                  <span className={`text-lg w-8 text-center shrink-0 ${isPodium ? "" : "text-white/30 text-sm font-bold"}`}>
-                    {rankEmoji}
-                  </span>
-
-                  {row.picture ? (
-                    <img src={row.picture} alt={row.display_name}
-                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
-                  ) : (
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center text-sm font-bold shrink-0 text-white">
-                      {row.display_name?.charAt(0)?.toUpperCase() ?? "?"}
-                    </div>
-                  )}
-
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white truncate text-sm">{row.display_name}</p>
-                    <p className="text-white/35 text-xs truncate" dir="auto">{row.song_name}</p>
-                    <div className="flex items-center gap-0.5 mt-1">
-                      {Array.from({ length: 5 }).map((_, si) => (
-                        <Star key={si} className={`w-2.5 h-2.5 ${si < stars ? "text-yellow-400 fill-yellow-400" : "text-white/12"}`} />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className={`shrink-0 ${t.dir === "rtl" ? "text-left" : "text-right"}`}>
-                    <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
-                      {row.score}
-                    </p>
-                    <p className="text-white/25 text-[10px] mt-1">{formatDate(row.created_at, lang)}</p>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
           </div>
         )}
 
-        {rows.length > 0 && (
+        {tab !== "xp" && (
+          <>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-24 gap-3 text-white/30">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-sm">{t.leaderboard.loading}</span>
+              </div>
+            ) : (tab === "global" ? (globalData ?? []) : (myData ?? [])).length === 0 ? (
+              <div className="text-center py-24 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto">
+                  <Music2 className="w-8 h-8 text-white/20" />
+                </div>
+                <p className="text-white/35 text-sm">{t.leaderboard.empty}</p>
+                <Link href="/">
+                  <button className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold transition-all hover:scale-105"
+                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
+                    <Mic className="w-4 h-4" />
+                    {t.leaderboard.singNow}
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {(tab === "global" ? (globalData ?? []) : (myData ?? [])).map((row: any, i: number) => {
+                  const stars = toStars(row.score);
+                  const rankEmoji = i < 3 ? MEDALS[i] : `#${i + 1}`;
+                  const isPodium = i < 3;
+                  return (
+                    <div
+                      key={row.id}
+                      className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-2xl border transition-all hover:scale-[1.005] ${
+                        i === 0
+                          ? "bg-yellow-500/8 border-yellow-500/25 shadow-[0_0_30px_rgba(234,179,8,0.06)]"
+                          : i === 1
+                          ? "bg-zinc-300/5 border-zinc-300/15"
+                          : i === 2
+                          ? "bg-amber-600/5 border-amber-600/15"
+                          : "bg-white/3 border-white/7 hover:bg-white/5"
+                      }`}
+                    >
+                      <span className={`text-lg w-8 text-center shrink-0 ${isPodium ? "" : "text-white/30 text-sm font-bold"}`}>
+                        {rankEmoji}
+                      </span>
+
+                      {row.picture ? (
+                        <img src={row.picture} alt={row.display_name}
+                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center text-sm font-bold shrink-0 text-white">
+                          {row.display_name?.charAt(0)?.toUpperCase() ?? "?"}
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-white truncate text-sm">{row.display_name}</p>
+                        <p className="text-white/35 text-xs truncate" dir="auto">{row.song_name}</p>
+                        <div className="flex items-center gap-0.5 mt-1">
+                          {Array.from({ length: 5 }).map((_, si) => (
+                            <Star key={si} className={`w-2.5 h-2.5 ${si < stars ? "text-yellow-400 fill-yellow-400" : "text-white/12"}`} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className={`shrink-0 ${t.dir === "rtl" ? "text-left" : "text-right"}`}>
+                        <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
+                          {row.score}
+                        </p>
+                        <p className="text-white/25 text-[10px] mt-1">{formatDate(row.created_at, lang)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {tab === "xp" && (
+          <>
+            {loadingXP ? (
+              <div className="flex items-center justify-center py-24 gap-3 text-white/30">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
+            ) : xpData?.leaderboard?.length > 0 ? (
+              <div className="space-y-2">
+                {xpData.yourRank && (
+                  <div className="mb-4 px-4 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-sm text-white/70">
+                    {gt.leaderboard.yourRank}: <span className="font-bold text-white">#{xpData.yourRank}</span>
+                  </div>
+                )}
+
+                {xpData.leaderboard.map((entry: any) => {
+                  const isPodium = entry.rank <= 3;
+                  return (
+                    <div
+                      key={entry.userId}
+                      className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all ${
+                        entry.isYou
+                          ? "bg-primary/8 border-primary/25 ring-1 ring-primary/10"
+                          : entry.rank === 1
+                          ? "bg-yellow-500/8 border-yellow-500/25"
+                          : entry.rank === 2
+                          ? "bg-zinc-300/5 border-zinc-300/15"
+                          : entry.rank === 3
+                          ? "bg-amber-600/5 border-amber-600/15"
+                          : "bg-white/[0.02] border-white/7"
+                      }`}
+                    >
+                      <span className={`text-lg w-8 text-center shrink-0 ${!isPodium ? "text-white/30 text-sm font-bold" : ""}`}>
+                        {isPodium ? MEDALS[entry.rank - 1] : `#${entry.rank}`}
+                      </span>
+
+                      {entry.picture ? (
+                        <img src={entry.picture} alt={entry.displayName}
+                          className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center text-sm font-bold shrink-0 text-white">
+                          {entry.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-white truncate text-sm">
+                            {entry.displayName}
+                            {entry.isYou && <span className="text-primary text-xs ml-1">(you)</span>}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-white/30">Lv.{entry.level}</span>
+                          <span className="text-[10px] text-white/20">{entry.levelTitle}</span>
+                          {entry.streakDays >= 3 && (
+                            <span className="text-[10px] text-orange-400">🔥{entry.streakDays}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <p className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
+                          {(xpMode === "weekly" ? entry.weeklyXP : entry.totalXP).toLocaleString()}
+                        </p>
+                        <p className="text-[10px] text-white/25 mt-0.5">XP</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-20 space-y-3">
+                <Crown className="w-12 h-12 text-white/15 mx-auto" />
+                <p className="text-white/35 text-sm">{gt.leaderboard.empty}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {tab !== "xp" && (tab === "global" ? (globalData ?? []) : (myData ?? [])).length > 0 && (
           <div className="mt-10 text-center">
             <Link href="/">
               <button className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-white font-semibold text-sm transition-all hover:scale-105"

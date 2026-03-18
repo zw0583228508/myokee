@@ -7,6 +7,7 @@ import jobsRouter from "./jobs";
 import performancesRouter from "./performances";
 import referralsRouter from "./referrals";
 import partyRouter from "./party";
+import gamificationRouter from "./gamification";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(jobsRouter);
 router.use(performancesRouter);
 router.use(referralsRouter);
 router.use(partyRouter);
+router.use(gamificationRouter);
 
 export default router;

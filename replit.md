@@ -49,6 +49,19 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
   - DB tables: `party_rooms`, `party_queue`, `party_members`, `party_scores`
   - API routes: `api-server/src/routes/party.ts`
   - Frontend hooks: `use-party.ts`, `use-party-translations.ts`
+- **Gamification System**: XP-based progression with levels, badges, and achievements:
+  - **XP & Levels**: 30 level tiers with named titles, XP awarded for key actions (karaoke creation, battles, parties, sharing, daily login)
+  - **Badges**: 22 badges across 5 tiers (bronze/silver/gold/platinum/diamond) auto-awarded on milestones
+  - **Achievements**: 8 progress-based achievements with XP rewards on completion
+  - **Leaderboard**: Global XP leaderboard with all-time/weekly toggle, integrated into existing Leaderboard page as XP tab
+  - **Streak System**: Daily login streaks with badge milestones (3/7/30 days)
+  - **Rate Limiting**: Per-action cooldowns prevent XP farming (30s-86400s depending on action)
+  - **i18n**: Full translations for all 14 languages (`gamificationTranslations.ts`)
+  - DB tables: `user_xp`, `user_badges`, `user_achievements`, `xp_log`
+  - API routes: `api-server/src/routes/gamification.ts` (profile, leaderboard, award)
+  - Constants: `api-server/src/gamification-constants.ts` (XP_REWARDS, BADGES, ACHIEVEMENTS, LEVEL_TITLES)
+  - Frontend: `/xp` page (`GamificationProfile.tsx`), components (`XPProfileCard`, `BadgeGrid`, `AchievementList`)
+  - Hooks: `use-gamification.ts`, `use-gamification-translations.ts`
 
 ### System Design Choices
 - **Processing Pipeline**: A serial Demucs→Whisper pipeline is used to prevent OOM errors, with pre-rendering starting in parallel to Whisper to reduce overall wait time. Pre-render completion is tracked via `asyncio.Event` to prevent race conditions where `render_job` reads an incomplete `bg_prerender.mp4`. If the fast render path fails (e.g., corrupt pre-render), it automatically falls back to the full render path instead of erroring out. MP4 validation checks both video+audio streams and attempts to decode a frame.
@@ -56,6 +69,20 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Job Management**: Job state is managed in-memory within the Python service, with files stored temporarily.
 - **Subtitle Format**: FFmpeg utilizes ASS (Advanced SubStation Alpha) for subtitle rendering, allowing for complex styling and animation of lyrics.
 - **Language Support**: Comprehensive support for RTL (Hebrew, Arabic) and LTR languages in both UI and video subtitles.
+
+## International Growth Roadmap
+The following features are planned to make MYOUKEE a global karaoke platform:
+1. **Gamification** (XP, levels, badges, achievements) — COMPLETE
+2. **Weekly Challenges** — global "Song of the Week" with leaderboard
+3. **Public Feed** — gallery of best performances with likes/comments
+4. **Pitch/Key Change** — adjust song key to match singer's voice
+5. **Auto-Tune** — real-time pitch correction
+6. **Song Library Integration** — connect to music catalogs for one-click karaoke
+7. **Remote Live Karaoke** — sing together in real-time over the internet
+8. **Leagues & Competitions** — team/country-based tournaments
+9. **Virtual Currency & Marketplace** — unlock effects, premium themes
+10. **Subscription Model** — unlimited songs, advanced effects, no watermark
+11. **Paid Events** — businesses host karaoke nights through the platform
 
 ## External Dependencies
 
