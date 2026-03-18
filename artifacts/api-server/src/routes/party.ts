@@ -180,6 +180,25 @@ router.delete("/party/rooms/:id/queue/:itemId", async (req: Request, res: Respon
   }
 });
 
+router.put("/party/rooms/:id/queue/:itemId/reorder", async (req: Request, res: Response) => {
+  const user = authRequired(req, res);
+  if (!user) return;
+  try {
+    const { direction } = req.body;
+    if (direction !== "up" && direction !== "down") return res.status(400).json({ error: "Invalid direction" });
+    const room = await storage.getPartyRoom(req.params.id);
+    if (!room) return res.status(404).json({ error: "Room not found" });
+    if (room.host_user_id !== user.id) return res.status(403).json({ error: "Only host can reorder" });
+    const moved = await storage.reorderQueueItem(req.params.id, parseInt(req.params.itemId), direction);
+    if (!moved) return res.status(400).json({ error: "Cannot move item in that direction" });
+    const queue = await storage.getQueue(req.params.id);
+    res.json(queue);
+  } catch (err) {
+    console.error("Error reordering queue:", err);
+    res.status(500).json({ error: "Failed to reorder queue" });
+  }
+});
+
 router.post("/party/rooms/:id/next", async (req: Request, res: Response) => {
   const user = authRequired(req, res);
   if (!user) return;

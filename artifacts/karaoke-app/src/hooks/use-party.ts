@@ -108,6 +108,22 @@ export function useRemoveFromQueue(roomId: string) {
   });
 }
 
+export function useReorderQueue(roomId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, direction }: { itemId: number; direction: "up" | "down" }) =>
+      partyFetch(`/party/rooms/${roomId}/queue/${itemId}/reorder`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ direction }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["party", "queue", roomId] });
+      qc.invalidateQueries({ queryKey: ["party", "room", roomId] });
+    },
+  });
+}
+
 export function useAdvanceQueue(roomId: string) {
   const qc = useQueryClient();
   return useMutation({

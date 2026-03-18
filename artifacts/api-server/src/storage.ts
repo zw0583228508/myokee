@@ -465,6 +465,25 @@ export class Storage {
     return res.rows[0] ?? null;
   }
 
+  async reorderQueueItem(roomId: string, itemId: number, direction: "up" | "down"): Promise<boolean> {
+    const allWaiting = await query(
+      `SELECT id, position FROM party_queue WHERE room_id = $1 AND status = 'waiting' ORDER BY position ASC`,
+      [roomId]
+    );
+    const items = allWaiting.rows;
+    const idx = items.findIndex((i: any) => i.id === itemId);
+    if (idx < 0) return false;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= items.length) return false;
+    const a = items[idx];
+    const b = items[swapIdx];
+    await query(
+      `UPDATE party_queue SET position = CASE id WHEN $1 THEN $3 WHEN $2 THEN $4 END WHERE id IN ($1, $2)`,
+      [a.id, b.id, b.position, a.position]
+    );
+    return true;
+  }
+
   async removeFromQueue(id: number) {
     await query(`DELETE FROM party_queue WHERE id = $1`, [id]);
   }

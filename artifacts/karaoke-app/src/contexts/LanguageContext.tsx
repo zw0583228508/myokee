@@ -3171,21 +3171,7 @@ const LANGS: Record<SupportedLang, Translations> = {
 function detectLang(): SupportedLang {
   const stored = localStorage.getItem("myoukee-lang") as SupportedLang | null;
   if (stored && LANGS[stored]) return stored;
-  const nav = (navigator.language || "").toLowerCase();
-  if (nav.startsWith("ar")) return "ar";
-  if (nav.startsWith("ru")) return "ru";
-  if (nav.startsWith("es")) return "es";
-  if (nav.startsWith("fr")) return "fr";
-  if (nav.startsWith("de")) return "de";
-  if (nav.startsWith("ja")) return "ja";
-  if (nav.startsWith("zh")) return "zh";
-  if (nav.startsWith("ko")) return "ko";
-  if (nav.startsWith("th")) return "th";
-  if (nav.startsWith("vi")) return "vi";
-  if (nav.startsWith("tl") || nav.startsWith("fil")) return "tl";
-  if (nav.startsWith("id") || nav.startsWith("ms")) return "id";
-  if (nav.startsWith("en")) return "en";
-  return "he";
+  return "en";
 }
 
 interface LangContextValue {
@@ -3196,8 +3182,8 @@ interface LangContextValue {
 }
 
 const LangCtx = createContext<LangContextValue>({
-  lang: "he",
-  t: LANGS.he,
+  lang: "en",
+  t: LANGS.en,
   setLang: () => {},
   allLangs: [],
 });

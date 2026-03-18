@@ -4,7 +4,7 @@ import {
   Music, Users, Trophy, Settings, SkipForward, Plus, Trash2,
   Copy, Check, Monitor, Share2, QrCode, Crown, Mic2,
   Swords, Heart, ArrowLeft, X, Search, Play, Disc3,
-  Upload, Loader2,
+  Upload, Loader2, ChevronUp, ChevronDown, Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,13 +12,13 @@ import { usePartyTranslations } from "@/hooks/use-party-translations";
 import {
   usePartyRoom, useAddToQueue, useRemoveFromQueue,
   useAdvanceQueue, useUpdatePartyRoom, useEndParty,
-  usePartyLeaderboard,
+  usePartyLeaderboard, useReorderQueue,
 } from "@/hooks/use-party";
 import { getTheme, THEME_LIST } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { SocialClip } from "@/components/party/SocialClip";
-import { useKaraokeJobs, useCreateJob, getDownloadUrls } from "@/hooks/use-karaoke";
+import { useKaraokeJobs, useCreateJob, useCreateJobFromYouTube, getDownloadUrls } from "@/hooks/use-karaoke";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
 
 export default function PartyRoom() {
@@ -36,11 +36,13 @@ export default function PartyRoom() {
   const addToQueue = useAddToQueue(roomId || "");
   const removeFromQueue = useRemoveFromQueue(roomId || "");
   const advanceQueue = useAdvanceQueue(roomId || "");
+  const reorderQueue = useReorderQueue(roomId || "");
   const updateRoom = useUpdatePartyRoom(roomId || "");
   const endParty = useEndParty(roomId || "");
 
   const { data: myJobs } = useKaraokeJobs();
   const createJob = useCreateJob();
+  const createYouTubeJob = useCreateJobFromYouTube();
   const completedJobs = (myJobs || []).filter((j: any) => j.status === "done");
 
   const [activeTab, setActiveTab] = useState<"queue" | "members" | "leaderboard" | "settings">("queue");
@@ -52,6 +54,9 @@ export default function PartyRoom() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "processing" | "done" | "error">("idle");
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [ytStatus, setYtStatus] = useState<"idle" | "processing" | "done" | "error">("idle");
+  const [ytError, setYtError] = useState("");
 
   const isHost = room?.isHost === true;
   const theme = getTheme(room?.theme || "neon");
@@ -105,6 +110,36 @@ export default function PartyRoom() {
       setUploadStatus("error");
       setUploadError(err.message || "Upload failed");
       setTimeout(() => { setUploadStatus("idle"); setUploadError(""); }, 5000);
+    }
+  };
+
+  const handleYouTubeAdd = async () => {
+    const url = youtubeUrl.trim();
+    if (!url) return;
+    const ytRegex = /(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]+)/;
+    if (!ytRegex.test(url)) {
+      setYtError("Invalid YouTube URL");
+      setYtStatus("error");
+      setTimeout(() => { setYtStatus("idle"); setYtError(""); }, 4000);
+      return;
+    }
+    setYtStatus("processing");
+    setYtError("");
+    try {
+      const job = await createYouTubeJob.mutateAsync({ url });
+      await addToQueue.mutateAsync({
+        songName: job.filename || url,
+        jobId: job.id,
+        mode: songMode,
+        displayName: authData?.user?.displayName || "Guest",
+      });
+      setYtStatus("done");
+      setYoutubeUrl("");
+      setTimeout(() => setYtStatus("idle"), 3000);
+    } catch (err: any) {
+      setYtStatus("error");
+      setYtError(err.message || "Failed to process YouTube link");
+      setTimeout(() => { setYtStatus("idle"); setYtError(""); }, 6000);
     }
   };
 
@@ -326,16 +361,58 @@ export default function PartyRoom() {
                     ))}
                   </div>
 
-                  <div className="relative">
-                    <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <input
-                      type="text"
-                      value={songSearch}
-                      onChange={(e) => setSongSearch(e.target.value)}
-                      placeholder={pt.room.songNamePlaceholder}
-                      className="w-full ps-10 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      autoFocus
-                    />
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Link2 className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input
+                          type="text"
+                          value={youtubeUrl}
+                          onChange={(e) => setYoutubeUrl(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleYouTubeAdd()}
+                          placeholder="Paste YouTube link..."
+                          className="w-full ps-10 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                          dir="ltr"
+                          autoFocus
+                        />
+                      </div>
+                      <button
+                        onClick={handleYouTubeAdd}
+                        disabled={ytStatus === "processing" || !youtubeUrl.trim()}
+                        className={`px-4 rounded-xl text-sm font-medium transition-all shrink-0 ${
+                          ytStatus === "processing"
+                            ? "bg-cyan-500/20 text-cyan-400"
+                            : ytStatus === "done"
+                            ? "bg-green-500/20 text-green-400"
+                            : ytStatus === "error"
+                            ? "bg-red-500/20 text-red-400"
+                            : `bg-gradient-to-r ${theme.gradient} text-white hover:opacity-90`
+                        }`}
+                      >
+                        {ytStatus === "processing" ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : ytStatus === "done" ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    {ytStatus === "processing" && (
+                      <p className="text-xs text-cyan-400 flex items-center gap-1.5">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Processing YouTube video... this may take a minute
+                      </p>
+                    )}
+                    {ytStatus === "error" && ytError && (
+                      <p className="text-xs text-red-400">{ytError}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 my-1">
+                    <div className="flex-1 h-px bg-white/10" />
+                    <span className="text-[10px] text-white/30 uppercase">or</span>
+                    <div className="flex-1 h-px bg-white/10" />
                   </div>
 
                   <input
@@ -359,20 +436,41 @@ export default function PartyRoom() {
                     }`}
                   >
                     {uploadStatus === "uploading" ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" />מעבד שיר מהגלריה...</>
+                      <><Loader2 className="w-4 h-4 animate-spin" />Processing file...</>
                     ) : uploadStatus === "done" ? (
-                      <><Check className="w-4 h-4" />השיר נוסף לתור!</>
+                      <><Check className="w-4 h-4" />Song added to queue!</>
                     ) : uploadStatus === "error" ? (
-                      <>{uploadError || "שגיאה בהעלאה"}</>
+                      <>{uploadError || "Upload failed"}</>
                     ) : (
-                      <><Upload className="w-4 h-4" />העלה שיר מהגלריה</>
+                      <><Upload className="w-4 h-4" />Upload from gallery</>
                     )}
                   </button>
 
+                  {completedJobs.length > 0 && (
+                    <div className="flex items-center gap-3 mt-2">
+                      <div className="flex-1 h-px bg-white/10" />
+                      <span className="text-[10px] text-white/30 uppercase">my processed songs</span>
+                      <div className="flex-1 h-px bg-white/10" />
+                    </div>
+                  )}
+
+                  {completedJobs.length > 0 && (
+                    <div className="relative">
+                      <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                      <input
+                        type="text"
+                        value={songSearch}
+                        onChange={(e) => setSongSearch(e.target.value)}
+                        placeholder={pt.room.songNamePlaceholder}
+                        className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                      />
+                    </div>
+                  )}
+
                   {completedJobs.length === 0 ? (
-                    <div className="text-center py-6">
-                      <Music className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                      <p className="text-sm text-white/40">{pt.room.noSongs}</p>
+                    <div className="text-center py-4">
+                      <Music className="w-6 h-6 text-white/15 mx-auto mb-1" />
+                      <p className="text-xs text-white/30">{pt.room.noSongs}</p>
                     </div>
                   ) : (
                     <div className="max-h-64 overflow-y-auto space-y-1 scrollbar-thin">
@@ -440,7 +538,7 @@ export default function PartyRoom() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {item.job_id && (
                           <Disc3 className="w-3.5 h-3.5 text-green-400/60" />
                         )}
@@ -450,12 +548,28 @@ export default function PartyRoom() {
                           </span>
                         )}
                         {isHost && (
-                          <button
-                            onClick={() => removeFromQueue.mutate(item.id)}
-                            className="text-white/30 hover:text-red-400 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-0.5 ms-1">
+                            <button
+                              onClick={() => reorderQueue.mutate({ itemId: item.id, direction: "up" })}
+                              disabled={idx === 0 || reorderQueue.isPending}
+                              className="text-white/30 hover:text-white disabled:opacity-20 transition-colors p-0.5"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => reorderQueue.mutate({ itemId: item.id, direction: "down" })}
+                              disabled={idx === waitingQueue.length - 1 || reorderQueue.isPending}
+                              className="text-white/30 hover:text-white disabled:opacity-20 transition-colors p-0.5"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => removeFromQueue.mutate(item.id)}
+                              className="text-white/30 hover:text-red-400 transition-colors p-0.5 ms-1"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>

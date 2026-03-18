@@ -11,7 +11,7 @@ I want iterative development. I prefer detailed explanations. Ask before making 
 ### UI/UX Decisions
 The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motion, ensuring a modern, responsive, and performant user interface across all devices (mobile, tablet, desktop). Key design elements include:
 - **PWA Support**: Full Progressive Web App functionality for offline access and native app-like experience.
-- **Internationalization**: Full i18n support for 14 languages with auto-detection, covering all key UI elements and legal pages.
+- **Internationalization**: Full i18n support for 14 languages. Default language is **English** for first-time users; user's choice is persisted in localStorage.
 - **Visuals**: Increased background image opacity for a richer feel, cinematic karaoke video style with animated aurora/plasma gradients, and specific lyric layout for readability and aesthetic.
 - **Responsiveness**: Optimized layouts for various screen sizes using `sm:`, `md:`, `lg:` breakpoints. Mobile-specific fixes include: non-blocking Google Fonts via `<link>` tags (not CSS `@import`), `-webkit-backdrop-filter` prefixes with `@supports not` fallbacks, 44px minimum touch targets, 16px input font (prevents iOS auto-zoom), `ErrorBoundary` component wrapping the app, branded loading screen with retry button for JS boot failures, and `overflow-x-hidden` instead of `overflow-x: clip` for broader browser support.
 - **Service Worker**: Cache version `myoukee-v4` with network-first strategy for both HTML navigation AND static assets (prevents stale cached content causing blank screens on mobile after deploys). Includes SW version tracking in `main.tsx` with automatic cache purge on version mismatch. `sw.js`, `index.html`, and `site.webmanifest` served with `no-cache` headers in both Vercel and Netlify configs to ensure SW updates propagate. Build targets set to Chrome 87+/Safari 14+/Firefox 78+ for maximum mobile browser compatibility. Viewport uses `viewport-fit=cover` for notched iPhones; safe-area padding applied only in `display-mode: standalone` (PWA). Uses `100dvh` for dynamic viewport height on mobile. `background-attachment: fixed` overridden to `scroll` on mobile for iOS Safari compatibility.
@@ -36,13 +36,13 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
 - **Watermarking**: Semi-transparent MYOUKEE logo in the top-right corner of all generated karaoke videos.
 - **Party Mode**: Full party karaoke system with 7 features:
   - **Party Rooms**: Create/join rooms via 6-char codes, polling-based real-time updates (2-5s refetchInterval)
-  - **Queue System**: Song queue with host controls for advancing, guests can add songs
+  - **Queue System**: Song queue with host controls for advancing and reordering (up/down arrows), guests can add songs. Host can reorder waiting items via `PUT /party/rooms/:id/queue/:itemId/reorder` (atomic single-query swap).
   - **Scoring & Leaderboard**: Party scores with leaderboard display (total score, best score, songs sung)
   - **Duet Mode**: Split lyrics between Singer A/B with color-coded lines and turn indicators (`DuetMode.tsx`)
   - **Battle Mode**: Two singers compete with split-screen scoring display and winner announcement (`BattleMode.tsx`)
   - **Theme Packs**: 5 themes (Neon Night, Birthday Bash, Retro Vibes, Elegant Gold, Ocean Wave) in `party-themes.ts`
   - **Social Clips**: Shareable score cards with WhatsApp/Twitter/native share (`SocialClip.tsx`)
-  - **Song Picker**: Add songs from user's completed karaoke job history with search filter
+  - **Song Picker**: Add songs via YouTube URL (direct paste in party room, processes and auto-adds to queue), file upload from gallery, or from user's completed karaoke job history with search filter
   - **Auto-Play Video**: Karaoke videos auto-play inline when queue item has a `job_id`; auto-advances to next song on video end (host only)
   - **Party Display**: Fullscreen TV/projector mode with animated particles (`PartyDisplay.tsx`)
   - **i18n**: Full translations for all party strings across 14 languages (`partyTranslations.ts`), including `noSongs`/`noResults` keys
