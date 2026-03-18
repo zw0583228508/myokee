@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useRoute } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +28,7 @@ import PartyRoom from "@/pages/PartyRoom";
 import PartyDisplay from "@/pages/PartyDisplay";
 import GamificationProfile from "@/pages/GamificationProfile";
 import MyRecordings from "@/pages/MyRecordings";
+import SharedView from "@/pages/SharedView";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -55,6 +56,11 @@ function Router() {
   useAutoApplyReferral();
   const { data: authData, isLoading } = useAuth();
   const user = authData?.user ?? null;
+  const [isSharedRoute] = useRoute("/shared/:id");
+
+  if (isSharedRoute) {
+    return <SharedView />;
+  }
 
   if (isLoading) {
     return (

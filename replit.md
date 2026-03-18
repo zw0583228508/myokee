@@ -24,6 +24,7 @@ The project uses a monorepo structure with pnpm workspaces for the React fronten
 - **Gamification System**: XP-based progression with 30 level tiers, 22 badges across 5 tiers, 8 progress-based achievements, a global XP leaderboard (opt-in for performance sharing), and daily login streaks, with full i18n and anti-farming rate limiting.
 - **Cloud Recording Save**: Mixed karaoke recordings are uploaded to Replit Object Storage (GCS) via presigned URLs and stored in a `recordings` DB table. A "My Recordings" page allows playback, download, and deletion with access control.
 - **Gallery Upload in Party**: Enables direct audio/video uploads from phone galleries within party rooms, processing them into the queue.
+- **Public Shared View**: `/shared/:id` page shows karaoke video publicly without authentication. Bypasses both consent gate and auth gate. Share buttons generate `/shared/:id` URLs. Includes CTA to create own karaoke.
 
 ### System Design Choices
 The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM errors, with parallel pre-rendering to reduce wait times and automatic fallback for failed pre-renders. GPU-accelerated encoding (NVENC) is used where available, falling back to CPU. Job state is managed in-memory with temporary file storage. FFmpeg utilizes ASS for complex subtitle rendering. Comprehensive language support includes both RTL and LTR languages for UI and video subtitles.
@@ -39,8 +40,7 @@ The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM error
     - Transcription: faster-whisper `large-v3`
 - **Database**: PostgreSQL
 - **Payment Gateways**:
-    - Stripe (via Replit Stripe connector)
-    - PayPal (direct REST API v2)
+    - PayPal (direct REST API v2) — sole payment method
 - **Authentication**:
     - Google OAuth
     - Email/Password (bcrypt)

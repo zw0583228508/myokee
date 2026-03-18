@@ -26,7 +26,7 @@ function FacebookIcon({ className }: { className?: string }) {
 export function ShareButtons({ title, jobId }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${window.location.origin}/job/${jobId}`;
+  const shareUrl = `${window.location.origin}/shared/${jobId}`;
   const shareText = `${title} - MYOUKEE AI Karaoke`;
 
   const handleNativeShare = async () => {
