@@ -53,7 +53,7 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
   - **XP & Levels**: 30 level tiers with named titles, XP awarded for key actions (karaoke creation, battles, parties, sharing, daily login)
   - **Badges**: 22 badges across 5 tiers (bronze/silver/gold/platinum/diamond) auto-awarded on milestones
   - **Achievements**: 8 progress-based achievements with XP rewards on completion
-  - **Leaderboard**: Global XP leaderboard with all-time/weekly toggle, integrated into existing Leaderboard page as XP tab
+  - **Leaderboard**: Global XP leaderboard with all-time/weekly toggle, integrated into existing Leaderboard page as XP tab. Performance leaderboard is opt-in: performances are saved privately by default, users click "שתף בלידרבורד" button to publish. `is_public` column on `performances` table, `POST /api/performances/:id/publish` endpoint. Auth uses `req.user` check (not `req.isAuthenticated()`) for JWT compatibility.
   - **Streak System**: Daily login streaks with badge milestones (3/7/30 days)
   - **Rate Limiting**: Per-action cooldowns prevent XP farming (30s-86400s depending on action)
   - **i18n**: Full translations for all 14 languages (`gamificationTranslations.ts`)

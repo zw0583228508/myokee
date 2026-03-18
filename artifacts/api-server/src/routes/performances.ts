@@ -19,9 +19,11 @@ async function ensureTable() {
       pitch_score INTEGER NOT NULL DEFAULT 0,
       words_covered INTEGER NOT NULL DEFAULT 0,
       total_words INTEGER NOT NULL DEFAULT 0,
+      is_public BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+  await query(`ALTER TABLE performances ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT false`);
   await query(`CREATE INDEX IF NOT EXISTS idx_perf_score ON performances(score DESC)`);
   await query(`CREATE INDEX IF NOT EXISTS idx_perf_user ON performances(user_id)`);
   await query(`CREATE INDEX IF NOT EXISTS idx_perf_job ON performances(job_id)`);
@@ -29,7 +31,7 @@ async function ensureTable() {
 }
 
 function authRequired(req: Request, res: Response, next: any) {
-  if (!req.isAuthenticated?.() || !req.user) {
+  if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
   }
   next();
@@ -67,7 +69,7 @@ router.post("/performances", authRequired, async (req: Request, res: Response) =
   }
 });
 
-// GET /api/performances/leaderboard — top scores globally
+// GET /api/performances/leaderboard — top PUBLIC scores globally
 router.get("/performances/leaderboard", async (_req: Request, res: Response) => {
   await ensureTable();
   try {
@@ -77,12 +79,32 @@ router.get("/performances/leaderboard", async (_req: Request, res: Response) => 
              u.display_name, u.picture
       FROM performances p
       JOIN users u ON u.id = p.user_id
+      WHERE p.is_public = true
       ORDER BY p.score DESC
       LIMIT 50
     `);
     res.json(result.rows);
   } catch (err) {
     console.error("[performances] leaderboard error:", err);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
+// POST /api/performances/:id/publish — make a performance public (share to leaderboard)
+router.post("/performances/:id/publish", authRequired, async (req: Request, res: Response) => {
+  const user = req.user as any;
+  await ensureTable();
+  try {
+    const result = await query(
+      `UPDATE performances SET is_public = true WHERE id = $1 AND user_id = $2 RETURNING *`,
+      [req.params.id, user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Performance not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("[performances] publish error:", err);
     res.status(500).json({ error: "Internal error" });
   }
 });
@@ -107,7 +129,7 @@ router.get("/performances/me", authRequired, async (req: Request, res: Response)
   }
 });
 
-// GET /api/performances/song/:jobId — top scores for a specific song
+// GET /api/performances/song/:jobId — top PUBLIC scores for a specific song
 router.get("/performances/song/:jobId", async (req: Request, res: Response) => {
   await ensureTable();
   try {
@@ -116,7 +138,7 @@ router.get("/performances/song/:jobId", async (req: Request, res: Response) => {
              u.display_name, u.picture
       FROM performances p
       JOIN users u ON u.id = p.user_id
-      WHERE p.job_id = $1
+      WHERE p.job_id = $1 AND p.is_public = true
       ORDER BY p.score DESC
       LIMIT 10
     `, [req.params.jobId]);

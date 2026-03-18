@@ -4,7 +4,7 @@ import {
   Share2, Trophy, Volume2, Star, SlidersHorizontal, ChevronDown, ChevronUp,
   PlayCircle, StopCircle, Sliders, Cloud, CheckCircle2, Loader2,
 } from "lucide-react";
-import { useSavePerformance } from "@/hooks/use-performances";
+import { useSavePerformance, usePublishPerformance } from "@/hooks/use-performances";
 import { useAwardXP } from "@/hooks/use-gamification";
 import { useCloudRecording } from "@/hooks/use-cloud-recording";
 import { apiUrl, authFetchOptions } from "@/lib/api";
@@ -284,6 +284,8 @@ export function KaraokeSingMode({
   const [showVideo, setShowVideo] = useState(!!videoUrl);
 
   const savePerf = useSavePerformance();
+  const publishPerf = usePublishPerformance();
+  const [savedPerfId, setSavedPerfId] = useState<number | null>(null);
   const awardXP = useAwardXP();
   const cloudRecording = useCloudRecording();
   const lines    = toLines(words);
@@ -407,7 +409,6 @@ export function KaraokeSingMode({
             artistMatch:   data.artistMatch ?? prev.artistMatch,
             serverScored:  true,
           };
-          // Also update leaderboard with the real scores
           savePerf.mutate({
             jobId, songName,
             score:        updated.score,
@@ -415,7 +416,7 @@ export function KaraokeSingMode({
             pitchScore:   updated.pitchScore,
             wordsCovered: updated.wordsCovered,
             totalWords:   updated.totalWords,
-          });
+          }, { onSuccess: (data: any) => setSavedPerfId(data?.id ?? null) });
           awardXP.mutate({ action: "karaoke_created" });
           return updated;
         });
@@ -430,7 +431,7 @@ export function KaraokeSingMode({
             pitchScore: prev.pitchScore,
             wordsCovered: prev.wordsCovered,
             totalWords: prev.totalWords,
-          });
+          }, { onSuccess: (data: any) => setSavedPerfId(data?.id ?? null) });
           awardXP.mutate({ action: "karaoke_created" });
           return prev;
         });
@@ -1208,6 +1209,8 @@ export function KaraokeSingMode({
     rawVocalRef.current = null;
     instrBufRef.current = null;
     serverScoredRef.current = false;
+    setSavedPerfId(null);
+    publishPerf.reset();
     setHasVocal(false);
     setIsAnalyzing(false);
     setIsMixing(false);
@@ -1772,6 +1775,24 @@ export function KaraokeSingMode({
                     )}
                   </button>
                 </>
+              )}
+              {savedPerfId && !publishPerf.isSuccess && (
+                <button
+                  onClick={() => publishPerf.mutate(savedPerfId)}
+                  disabled={publishPerf.isPending}
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 hover:from-yellow-500/30 hover:to-amber-500/30 transition-all text-sm font-semibold"
+                >
+                  {publishPerf.isPending ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" />שולח...</>
+                  ) : (
+                    <><Trophy className="w-4 h-4" />שתף בלידרבורד 🏆</>
+                  )}
+                </button>
+              )}
+              {publishPerf.isSuccess && (
+                <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
+                  <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
+                </div>
               )}
               <button onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/8 border border-white/12 text-white hover:bg-white/15 transition-colors text-sm">

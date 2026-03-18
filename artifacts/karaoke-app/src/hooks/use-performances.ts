@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetchOptions } from "@/lib/api";
 
 export interface Performance {
   id: number;
@@ -13,12 +13,11 @@ export interface Performance {
   created_at: string;
   display_name: string;
   picture?: string;
+  is_public?: boolean;
 }
 
-const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-
 async function apiFetch(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE}${path}`, authFetchOptions(options));
+  const res = await fetch(apiUrl(path), authFetchOptions(options));
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -65,6 +64,20 @@ export function useSavePerformance() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["leaderboard"] });
+      qc.invalidateQueries({ queryKey: ["my-performances"] });
+    },
+  });
+}
+
+export function usePublishPerformance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (perfId: number) =>
+      apiFetch(`/api/performances/${perfId}/publish`, {
+        method: "POST",
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["leaderboard"] });
