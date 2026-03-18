@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePartyTranslations } from "@/hooks/use-party-translations";
 import { useCreateParty, useJoinParty, useMyParties } from "@/hooks/use-party";
+import { useAwardXP } from "@/hooks/use-gamification";
 import { THEME_LIST, getTheme } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
@@ -28,6 +29,7 @@ export default function Party() {
 
   const createParty = useCreateParty();
   const joinParty = useJoinParty();
+  const awardXP = useAwardXP();
   const { data: myParties } = useMyParties();
 
   const handleCreate = async () => {
@@ -37,6 +39,7 @@ export default function Party() {
         name: partyName || pt.hub.partyNamePlaceholder,
         theme: selectedTheme,
       });
+      awardXP.mutate({ action: "party_hosted" });
       navigate(`/party/${room.id}`);
     } catch (e: any) {
       setError(e.message);
@@ -51,6 +54,7 @@ export default function Party() {
         code: joinCode.trim().toUpperCase(),
         displayName: displayName || undefined,
       });
+      awardXP.mutate({ action: "party_joined" });
       navigate(`/party/${room.id}`);
     } catch (e: any) {
       setError(e.message);

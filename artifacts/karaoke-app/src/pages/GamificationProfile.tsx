@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Trophy, Award, Target, Loader2, Crown, Zap } from "lucide-react";
-import { useGamificationProfile, useXPLeaderboard } from "@/hooks/use-gamification";
+import { useGamificationProfile, useXPLeaderboard, useAwardXP } from "@/hooks/use-gamification";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
 import { useLang } from "@/contexts/LanguageContext";
 import { XPProfileCard } from "@/components/gamification/XPProfileCard";
@@ -18,6 +18,15 @@ export default function GamificationProfile() {
 
   const { data: profile, isLoading: loadingProfile } = useGamificationProfile();
   const { data: lbData, isLoading: loadingLb } = useXPLeaderboard(lbMode);
+  const awardXP = useAwardXP();
+  const dailyLoginSent = useRef(false);
+
+  useEffect(() => {
+    if (!dailyLoginSent.current && profile) {
+      dailyLoginSent.current = true;
+      awardXP.mutate({ action: "daily_login" });
+    }
+  }, [profile]);
 
   const tabs = [
     { key: "profile" as const, icon: <Award className="w-4 h-4" />, label: gt.xp.title },

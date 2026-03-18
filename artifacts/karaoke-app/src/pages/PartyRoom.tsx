@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
 import {
   Music, Users, Trophy, Settings, SkipForward, Plus, Trash2,
   Copy, Check, Monitor, Share2, QrCode, Crown, Mic2,
-  Swords, Heart, ArrowLeft, X, Search, Play, Disc3
+  Swords, Heart, ArrowLeft, X, Search, Play, Disc3,
+  Upload, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import { getTheme, THEME_LIST } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { SocialClip } from "@/components/party/SocialClip";
-import { useKaraokeJobs, getDownloadUrls } from "@/hooks/use-karaoke";
+import { useKaraokeJobs, useCreateJob, getDownloadUrls } from "@/hooks/use-karaoke";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
 
 export default function PartyRoom() {
@@ -39,6 +40,7 @@ export default function PartyRoom() {
   const endParty = useEndParty(roomId || "");
 
   const { data: myJobs } = useKaraokeJobs();
+  const createJob = useCreateJob();
   const completedJobs = (myJobs || []).filter((j: any) => j.status === "done");
 
   const [activeTab, setActiveTab] = useState<"queue" | "members" | "leaderboard" | "settings">("queue");
@@ -47,6 +49,9 @@ export default function PartyRoom() {
   const [showAddSong, setShowAddSong] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [songSearch, setSongSearch] = useState("");
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "processing" | "done" | "error">("idle");
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isHost = room?.isHost === true;
   const theme = getTheme(room?.theme || "neon");
@@ -77,6 +82,29 @@ export default function PartyRoom() {
       navigator.clipboard.writeText(`${msg}\n${url}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploadStatus("uploading");
+    setUploadError("");
+    try {
+      const job = await createJob.mutateAsync({ file });
+      setUploadStatus("done");
+      await addToQueue.mutateAsync({
+        songName: file.name.replace(/\.[^.]+$/, ""),
+        jobId: job.id,
+        mode: songMode,
+        displayName: authData?.user?.displayName || "Guest",
+      });
+      setTimeout(() => setUploadStatus("idle"), 3000);
+    } catch (err: any) {
+      setUploadStatus("error");
+      setUploadError(err.message || "Upload failed");
+      setTimeout(() => { setUploadStatus("idle"); setUploadError(""); }, 5000);
     }
   };
 
@@ -309,6 +337,37 @@ export default function PartyRoom() {
                       autoFocus
                     />
                   </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="audio/*,video/*,.mp3,.wav,.mp4,.m4a,.ogg,.flac,.aac,.wma,.webm"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadStatus === "uploading"}
+                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all border ${
+                      uploadStatus === "uploading"
+                        ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-400"
+                        : uploadStatus === "done"
+                        ? "bg-green-500/15 border-green-500/30 text-green-400"
+                        : uploadStatus === "error"
+                        ? "bg-red-500/15 border-red-500/30 text-red-400"
+                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {uploadStatus === "uploading" ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" />מעבד שיר מהגלריה...</>
+                    ) : uploadStatus === "done" ? (
+                      <><Check className="w-4 h-4" />השיר נוסף לתור!</>
+                    ) : uploadStatus === "error" ? (
+                      <>{uploadError || "שגיאה בהעלאה"}</>
+                    ) : (
+                      <><Upload className="w-4 h-4" />העלה שיר מהגלריה</>
+                    )}
+                  </button>
 
                   {completedJobs.length === 0 ? (
                     <div className="text-center py-6">

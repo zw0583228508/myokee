@@ -2,9 +2,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Mic, Square, Download, X, Music, RefreshCw, MicOff,
   Share2, Trophy, Volume2, Star, SlidersHorizontal, ChevronDown, ChevronUp,
-  PlayCircle, StopCircle, Sliders,
+  PlayCircle, StopCircle, Sliders, Cloud, CheckCircle2, Loader2,
 } from "lucide-react";
 import { useSavePerformance } from "@/hooks/use-performances";
+import { useAwardXP } from "@/hooks/use-gamification";
+import { useCloudRecording } from "@/hooks/use-cloud-recording";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -256,6 +258,7 @@ export function KaraokeSingMode({
   const [hasMic, setHasMic]       = useState<boolean | null>(null);
   const [isMixing, setIsMixing]         = useState(false);
   const [dlUrl, setDlUrl]               = useState<string | null>(null);
+  const recordingBlobRef                = useRef<Blob | null>(null);
   const [mixVocalGain, setMixVocalGain] = useState(0.72);
   const [mixInstrGain, setMixInstrGain] = useState(1.0);
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
@@ -281,6 +284,8 @@ export function KaraokeSingMode({
   const [showVideo, setShowVideo] = useState(!!videoUrl);
 
   const savePerf = useSavePerformance();
+  const awardXP = useAwardXP();
+  const cloudRecording = useCloudRecording();
   const lines    = toLines(words);
   const lineIdx  = findLastIdx(lines, (ln) => t >= ln.startTime - 0.3);
 
@@ -411,11 +416,11 @@ export function KaraokeSingMode({
             wordsCovered: updated.wordsCovered,
             totalWords:   updated.totalWords,
           });
+          awardXP.mutate({ action: "karaoke_created" });
           return updated;
         });
       } catch (err) {
         console.warn('[Scorer] scoring failed — saving preliminary scores:', err);
-        // Fallback: save the preliminary FFT-based scores
         setResult(prev => {
           if (!prev) return prev;
           savePerf.mutate({
@@ -426,6 +431,7 @@ export function KaraokeSingMode({
             wordsCovered: prev.wordsCovered,
             totalWords: prev.totalWords,
           });
+          awardXP.mutate({ action: "karaoke_created" });
           return prev;
         });
       } finally {
@@ -864,6 +870,7 @@ export function KaraokeSingMode({
       }
     }
     const blob = new Blob([buf], { type: 'audio/wav' });
+    recordingBlobRef.current = blob;
     if (dlUrl) URL.revokeObjectURL(dlUrl);
     setDlUrl(URL.createObjectURL(blob));
     setIsMixing(false);
@@ -1217,6 +1224,7 @@ export function KaraokeSingMode({
     try {
       if (navigator.share) await navigator.share({ title: "MYOUKEE", text, url });
       else { await navigator.clipboard.writeText(`${text}\n${url}`); setCopied(true); setTimeout(() => setCopied(false), 2500); }
+      awardXP.mutate({ action: "shared_clip" });
     } catch { /* cancelled */ }
   };
 
@@ -1730,11 +1738,40 @@ export function KaraokeSingMode({
                 </div>
               )}
               {dlUrl && (
-                <a href={dlUrl} download={`${songName.replace(/\.[^.]+$/, "")}-cover.wav`}
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
-                  style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
-                  <Download className="w-4 h-4" />הורד את הביצוע שלך (WAV)
-                </a>
+                <>
+                  <a href={dlUrl} download={`${songName.replace(/\.[^.]+$/, "")}-cover.wav`}
+                    className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
+                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
+                    <Download className="w-4 h-4" />הורד את הביצוע שלך (WAV)
+                  </a>
+                  <button
+                    disabled={cloudRecording.status === "uploading" || cloudRecording.status === "done"}
+                    onClick={() => {
+                      if (cloudRecording.status === "error") cloudRecording.reset();
+                      if (recordingBlobRef.current) {
+                        cloudRecording.upload(recordingBlobRef.current, `${songName.replace(/\.[^.]+$/, "")}-cover.wav`).catch(() => {});
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-white font-semibold text-sm transition-all disabled:opacity-60"
+                    style={{
+                      background: cloudRecording.status === "done"
+                        ? "linear-gradient(135deg,#10b981,#059669)"
+                        : cloudRecording.status === "error"
+                        ? "linear-gradient(135deg,#ef4444,#dc2626)"
+                        : "linear-gradient(135deg,#06b6d4,#8b5cf6)",
+                      boxShadow: "0 0 30px rgba(6,182,212,.3)",
+                    }}>
+                    {cloudRecording.status === "uploading" ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" />שומר בענן... {cloudRecording.progress}%</>
+                    ) : cloudRecording.status === "done" ? (
+                      <><CheckCircle2 className="w-4 h-4" />נשמר בענן ✓</>
+                    ) : cloudRecording.status === "error" ? (
+                      <><Cloud className="w-4 h-4" />שגיאה — נסה שוב</>
+                    ) : (
+                      <><Cloud className="w-4 h-4" />שמור בענן</>
+                    )}
+                  </button>
+                </>
               )}
               <button onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/8 border border-white/12 text-white hover:bg-white/15 transition-colors text-sm">

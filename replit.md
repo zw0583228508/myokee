@@ -62,6 +62,17 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
   - Constants: `api-server/src/gamification-constants.ts` (XP_REWARDS, BADGES, ACHIEVEMENTS, LEVEL_TITLES)
   - Frontend: `/xp` page (`GamificationProfile.tsx`), components (`XPProfileCard`, `BadgeGrid`, `AchievementList`)
   - Hooks: `use-gamification.ts`, `use-gamification-translations.ts`
+  - **XP Auto-Award**: `useAwardXP` hook calls wired into: `KaraokeSingMode` (karaoke_created + shared_clip), `Party` (party_hosted, party_joined), `SocialClip` (shared_clip), `GamificationProfile` (daily_login on mount)
+- **Cloud Recording Save**: Upload mixed karaoke recordings to Replit Object Storage (GCS):
+  - Object Storage: provisioned via `setupObjectStorage()`, bucket ID in `DEFAULT_OBJECT_STORAGE_BUCKET_ID`
+  - Server: `api-server/src/lib/objectStorage.ts` + `objectAcl.ts`, routes at `api-server/src/routes/storage.ts`
+  - Endpoints: `POST /api/storage/uploads/request-url` (presigned URL), `GET /api/storage/objects/*` (serve objects)
+  - Client: `use-cloud-recording.ts` hook — XHR upload with progress, state machine (idle/uploading/done/error)
+  - UI: "שמור בענן" (Save to Cloud) button in `KaraokeSingMode` results screen, next to download button
+- **Gallery Upload in Party**: Upload audio/video files directly from phone gallery inside party rooms:
+  - File input in PartyRoom's "Add Song" panel with `accept="audio/*,video/*,..."`
+  - Uses existing `useCreateJob` to process uploaded file, then auto-adds to party queue
+  - Status feedback: uploading → processing → done/error
 
 ### System Design Choices
 - **Processing Pipeline**: A serial Demucs→Whisper pipeline is used to prevent OOM errors, with pre-rendering starting in parallel to Whisper to reduce overall wait time. Pre-render completion is tracked via `asyncio.Event` to prevent race conditions where `render_job` reads an incomplete `bg_prerender.mp4`. If the fast render path fails (e.g., corrupt pre-render), it automatically falls back to the full render path instead of erroring out. MP4 validation checks both video+audio streams and attempts to decode a frame.

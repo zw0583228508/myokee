@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Share2, MessageCircle, Twitter, Link2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePartyTranslations } from "@/hooks/use-party-translations";
+import { useAwardXP } from "@/hooks/use-gamification";
 import type { PartyTheme } from "@/lib/party-themes";
 
 interface SocialClipProps {
@@ -13,6 +14,7 @@ interface SocialClipProps {
 
 export function SocialClip({ roomName, theme, leaderboard, score }: SocialClipProps) {
   const pt = usePartyTranslations();
+  const awardXP = useAwardXP();
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -22,25 +24,33 @@ export function SocialClip({ roomName, theme, leaderboard, score }: SocialClipPr
 
   const shareUrl = window.location.origin + "/party";
 
+  const trackShare = () => awardXP.mutate({ action: "shared_clip" });
+
   const handleShareWhatsApp = () => {
     const url = `https://wa.me/?text=${encodeURIComponent(shareText + "\n" + shareUrl)}`;
     window.open(url, "_blank");
+    trackShare();
   };
 
   const handleShareTwitter = () => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(url, "_blank");
+    trackShare();
   };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareText + "\n" + shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    trackShare();
   };
 
-  const handleNativeShare = () => {
+  const handleNativeShare = async () => {
     if (navigator.share) {
-      navigator.share({ title: roomName, text: shareText, url: shareUrl }).catch(() => {});
+      try {
+        await navigator.share({ title: roomName, text: shareText, url: shareUrl });
+        trackShare();
+      } catch { /* user cancelled */ }
     } else {
       handleCopyLink();
     }
