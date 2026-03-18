@@ -31,11 +31,9 @@ export default function JobDetails() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chargeTriggeredRef = useRef(false);
   const chargingInProgressRef = useRef(false);
-  const chargeRetryCountRef = useRef(0);
   const prevStatusRef = useRef<string>("");
   const [chargeState, setChargeState] = useState<ChargeState>("pending");
   const [creditsCharged, setCreditsCharged] = useState(0);
-  const [chargeRetryTrigger, setChargeRetryTrigger] = useState(0);
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -141,24 +139,6 @@ export default function JobDetails() {
     return false;
   };
 
-  const scheduleRetry = (jobId: string, durationSeconds: number) => {
-    const MAX_RETRIES = 5;
-    chargeRetryCountRef.current += 1;
-    const attempt = chargeRetryCountRef.current;
-    if (attempt > MAX_RETRIES) {
-      console.error(`[Charge] Max retries (${MAX_RETRIES}) reached for job ${jobId}`);
-      toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לחייב. נסה לרענן את הדף.", variant: "destructive" });
-      return;
-    }
-    const delay = Math.min(attempt * 2000, 10000);
-    console.log(`[Charge] Scheduling retry ${attempt}/${MAX_RETRIES} in ${delay}ms`);
-    setTimeout(() => {
-      chargeTriggeredRef.current = false;
-      chargingInProgressRef.current = false;
-      setChargeRetryTrigger(prev => prev + 1);
-    }, delay);
-  };
-
   const attemptCharge = async (jobId: string, durationSeconds: number) => {
     if (chargingInProgressRef.current) return;
     chargingInProgressRef.current = true;
@@ -167,62 +147,81 @@ export default function JobDetails() {
 
     console.log(`[Charge] Starting charge for job ${jobId}, duration=${durationSeconds}s`);
 
-    const alreadyPaid = await checkAccess(jobId);
-    if (alreadyPaid) {
-      console.log(`[Charge] Already paid, skipping charge`);
-      chargingInProgressRef.current = false;
-      return;
+    const MAX_RETRIES = 3;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      if (attempt > 0) {
+        console.log(`[Charge] Retry ${attempt}/${MAX_RETRIES}`);
+        await new Promise(r => setTimeout(r, attempt * 1500));
+      }
+
+      try {
+        const accessRes = await fetch(apiUrl(`/api/jobs/${jobId}/access`), authFetchOptions());
+        if (accessRes.ok) {
+          const accessData = await accessRes.json();
+          console.log(`[Charge] Access check:`, accessData);
+          if (accessData.access && accessData.creditsCharged != null && accessData.creditsCharged >= 0) {
+            setChargeState(accessData.creditsCharged === 0 ? "free" : "charged");
+            setCreditsCharged(accessData.creditsCharged);
+            chargingInProgressRef.current = false;
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn(`[Charge] Access check error:`, e);
+      }
+
+      try {
+        const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ durationSeconds }),
+        }));
+        const data = await res.json();
+        console.log(`[Charge] Response:`, data);
+
+        if (data.alreadyCharged) {
+          const cc = data.creditsCharged >= 0 ? data.creditsCharged : 0;
+          setChargeState(cc === 0 ? "free" : "charged");
+          setCreditsCharged(cc);
+          chargingInProgressRef.current = false;
+          return;
+        }
+        if (data.success === false) {
+          setChargeState("insufficient");
+          chargeTriggeredRef.current = false;
+          chargingInProgressRef.current = false;
+          return;
+        }
+        if (data.success === true) {
+          if (data.creditsCharged === 0) {
+            setChargeState("free");
+            toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
+          } else {
+            setChargeState("charged");
+            setCreditsCharged(data.creditsCharged);
+            toast({
+              title: `נוצלו ${data.creditsCharged} קרדיטים`,
+              description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
+            });
+            queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+          }
+          chargingInProgressRef.current = false;
+          return;
+        }
+        if (data.error) {
+          console.error(`[Charge] API error: ${data.error}`);
+          continue;
+        }
+      } catch (err) {
+        console.error(`[Charge] Network error:`, err);
+        continue;
+      }
     }
 
-    try {
-      const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ durationSeconds }),
-      }));
-      const data = await res.json();
-      console.log(`[Charge] Response:`, data);
-
-      if (data.error) {
-        console.error(`[Charge] API error: ${data.error}`);
-        chargingInProgressRef.current = false;
-        chargeTriggeredRef.current = false;
-        scheduleRetry(jobId, durationSeconds);
-        return;
-      }
-      if (data.alreadyCharged) {
-        const cc = data.creditsCharged >= 0 ? data.creditsCharged : 0;
-        setChargeState(cc === 0 ? "free" : "charged");
-        setCreditsCharged(cc);
-        chargingInProgressRef.current = false;
-        return;
-      }
-      if (data.success === false) {
-        setChargeState("insufficient");
-        chargeTriggeredRef.current = false;
-        chargingInProgressRef.current = false;
-        return;
-      }
-      chargeRetryCountRef.current = 0;
-      if (data.creditsCharged === 0) {
-        setChargeState("free");
-        toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
-      } else {
-        setChargeState("charged");
-        setCreditsCharged(data.creditsCharged);
-        toast({
-          title: `נוצלו ${data.creditsCharged} קרדיטים`,
-          description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
-        });
-        queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-      }
-      chargingInProgressRef.current = false;
-    } catch (err) {
-      console.error(`[Charge] Network error:`, err);
-      chargingInProgressRef.current = false;
-      chargeTriggeredRef.current = false;
-      scheduleRetry(jobId, durationSeconds);
-    }
+    console.error(`[Charge] All retries exhausted for job ${jobId}`);
+    setChargeState("free");
+    chargingInProgressRef.current = false;
+    toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לחייב. ניתן להוריד, החיוב יתבצע מאוחר יותר.", variant: "destructive" });
   };
 
   useEffect(() => {
@@ -239,7 +238,7 @@ export default function JobDetails() {
       return;
     }
     attemptCharge(id, durationSeconds);
-  }, [job?.status, (job as any)?.duration_seconds, id, chargeRetryTrigger]);
+  }, [job?.status, (job as any)?.duration_seconds, id]);
 
   useEffect(() => {
     if (chargeState !== "insufficient" || !id) return;

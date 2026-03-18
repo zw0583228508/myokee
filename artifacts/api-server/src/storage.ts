@@ -125,9 +125,20 @@ export class Storage {
 
   async chargeJob(jobId: string, userId: string, durationSeconds: number): Promise<{ success: boolean; creditsCharged: number; newBalance: number; alreadyCharged: boolean }> {
     const existing = await query(`SELECT credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
-    if (existing.rows[0]?.credits_charged != null) {
+    const existingCharge = existing.rows[0]?.credits_charged;
+    if (existingCharge != null && existingCharge >= 0) {
       const balance = await this.getCredits(userId);
-      return { success: true, creditsCharged: existing.rows[0].credits_charged, newBalance: balance, alreadyCharged: true };
+      return { success: true, creditsCharged: existingCharge, newBalance: balance, alreadyCharged: true };
+    }
+    if (existingCharge === -1) {
+      await new Promise(r => setTimeout(r, 2000));
+      const retry = await query(`SELECT credits_charged FROM job_ownership WHERE job_id = $1`, [jobId]);
+      const retryCharge = retry.rows[0]?.credits_charged;
+      if (retryCharge != null && retryCharge >= 0) {
+        const balance = await this.getCredits(userId);
+        return { success: true, creditsCharged: retryCharge, newBalance: balance, alreadyCharged: true };
+      }
+      await query(`UPDATE job_ownership SET credits_charged=NULL WHERE job_id=$1 AND credits_charged=-1`, [jobId]);
     }
 
     const FREE_SECONDS = 40;

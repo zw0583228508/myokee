@@ -123,7 +123,7 @@ router.get("/jobs/:id/access", async (req: Request, res: Response) => {
     if (row.user_id !== user.id) {
       return res.status(403).json({ error: "Not your job" });
     }
-    if (row.credits_charged != null) {
+    if (row.credits_charged != null && row.credits_charged >= 0) {
       return res.json({ access: true, creditsCharged: row.credits_charged });
     }
     const balance = await storage.getCredits(user.id);
