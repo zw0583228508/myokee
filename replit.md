@@ -57,4 +57,4 @@ The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM error
 - **Background**: Aurora nebula (geq sine waves with clip(), purple/cyan/blue), gaussian blur σ=6, pre-rendered at 96×54 upscaled to 640×360 (tiny source + blur = fast + smooth).
 - **Waveform**: 3-color (cyan/magenta/purple) cline mode, sqrt scale.
 - **Avatar**: Only explicitly uploaded photos — Google profile photos are NOT auto-sent.
-- **Encoding**: NVENC: cq=30, maxrate 2.5M, profile high; CPU: libx264 fast, crf=26, tune animation, profile high. Audio: AAC 96k.
+- **Encoding**: NVENC: cq=30, maxrate 2.5M, profile high; CPU: libx264 ultrafast, crf=23 (no tune/profile — speed over size on CPU). Audio: AAC 96k. Prerender: ultrafast crf=28. FFmpeg timeout: 600s.

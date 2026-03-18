@@ -109,14 +109,14 @@ _detect_nvenc()
 
 def _vcodec_args() -> list[str]:
     """Return FFmpeg video codec args: NVENC (GPU) when available, else libx264.
-    Optimised for small file size at high visual quality (720p karaoke content).
+    GPU: optimised for small file size at high visual quality.
+    CPU: ultrafast for speed — quality is still good at crf 23 with karaoke content.
     """
     if HAS_NVENC:
         return ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr",
                 "-cq", "30", "-b:v", "0", "-maxrate", "2.5M", "-bufsize", "5M",
                 "-profile:v", "high"]
-    return ["-c:v", "libx264", "-preset", "fast", "-crf", "26",
-            "-tune", "animation", "-profile:v", "high"]
+    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "23"]
 
 def _vcodec_args_fast() -> list[str]:
     """Faster video codec args for prerender (lower quality OK — intermediate file)."""
@@ -252,11 +252,18 @@ def _load_jobs_from_disk():
 def job_dir(job_id):
     d = JOBS_DIR / job_id; d.mkdir(parents=True, exist_ok=True); return d
 
-async def run_cmd(*args) -> tuple[int, str]:
-    """Run a subprocess and return (returncode, stderr)."""
+async def run_cmd(*args, timeout: float | None = None) -> tuple[int, str]:
+    """Run a subprocess and return (returncode, stderr).
+    Pass timeout in seconds to kill the process if it exceeds it.
+    """
     p = await asyncio.create_subprocess_exec(
         *args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-    _, err = await p.communicate()
+    try:
+        _, err = await asyncio.wait_for(p.communicate(), timeout=timeout)
+    except asyncio.TimeoutError:
+        p.kill()
+        await p.wait()
+        return -1, f"Process timed out after {timeout}s"
     return p.returncode, err.decode(errors="replace")
 
 async def run_cmd_stdout(*args) -> tuple[int, str]:
@@ -616,7 +623,7 @@ async def render_job(job_id: str):
             if HAS_NVENC:
                 est_render = max(duration * (0.05 if use_prerender else 0.15), 8.0)
             else:
-                est_render = max(duration * (0.15 if use_prerender else 0.5), 10.0)
+                est_render = max(duration * (0.3 if use_prerender else 1.0), 15.0)
             t0 = asyncio.get_event_loop().time()
             while not render_done.is_set():
                 await asyncio.sleep(2)
