@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Trophy, Award, Target, Loader2, Crown, Zap } from "lucide-react";
+import { ArrowLeft, Trophy, Award, Target, Loader2, Crown, Zap, User } from "lucide-react";
 import { useGamificationProfile, useXPLeaderboard, useAwardXP } from "@/hooks/use-gamification";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
 import { useLang } from "@/contexts/LanguageContext";
@@ -178,8 +178,8 @@ export default function GamificationProfile() {
                         <img src={entry.picture} alt={entry.displayName}
                           className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center text-sm font-bold shrink-0 text-white">
-                          {entry.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center shrink-0 text-white">
+                          <User className="w-5 h-5" />
                         </div>
                       )}
 

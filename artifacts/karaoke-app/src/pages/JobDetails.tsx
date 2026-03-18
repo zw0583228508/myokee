@@ -14,6 +14,7 @@ import { KaraokeSingMode } from "@/components/karaoke/KaraokeSingMode";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
+import { PricingModal } from "@/components/karaoke/PricingModal";
 
 type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
@@ -37,6 +38,7 @@ export default function JobDetails() {
   const [chargeError, setChargeError] = useState("");
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   useEffect(() => {
     if (job?.status && job.status !== 'awaiting_review') {
@@ -473,6 +475,34 @@ export default function JobDetails() {
               </div>
             </button>
 
+            {chargeState === "free" && (
+              <button
+                onClick={() => setShowPricing(true)}
+                className="group relative w-full overflow-hidden rounded-2xl border border-accent/30 bg-gradient-to-r from-accent/15 via-yellow-500/10 to-accent/15 p-5 sm:p-6 transition-all duration-300 hover:border-accent/60 hover:shadow-[0_0_40px_rgba(234,179,8,0.25)] active:scale-[0.99]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-accent to-yellow-500 shadow-lg shadow-accent/30 group-hover:shadow-accent/50 group-hover:scale-105 transition-all duration-300">
+                      <Coins className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-accent transition-colors">
+                        רכישת קרדיטים
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-0.5">
+                        עבד על שירים מלאים ללא הגבלת זמן
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 text-accent/70 group-hover:text-accent group-hover:translate-x-[-4px] transition-all duration-300">
+                    <span className="text-sm font-medium">קנה עכשיו</span>
+                    <ArrowLeft className="w-5 h-5" />
+                  </div>
+                </div>
+              </button>
+            )}
+
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Music2 className="w-5 h-5 text-accent" />
@@ -564,6 +594,7 @@ export default function JobDetails() {
         />
       )}
     </div>
+      <PricingModal open={showPricing} onOpenChange={setShowPricing} />
     </div>
   );
 }

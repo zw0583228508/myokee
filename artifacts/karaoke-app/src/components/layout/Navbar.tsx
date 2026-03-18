@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud } from "lucide-react";
+import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
@@ -161,8 +161,8 @@ export function Navbar() {
                           className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/30"
                         />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">
-                          {user.displayName.charAt(0)}
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center" aria-hidden="true">
+                          <User className="w-4 h-4 text-white" />
                         </div>
                       )}
                       <span className="text-sm font-medium hidden sm:block max-w-[120px] truncate">
