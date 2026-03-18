@@ -3,7 +3,7 @@ import { useRoute, useLocation } from "wouter";
 import {
   Music, Users, Trophy, Settings, SkipForward, Plus, Trash2,
   Copy, Check, Monitor, Share2, QrCode, Crown, Mic2,
-  Swords, Heart, ArrowLeft, X
+  Swords, Heart, ArrowLeft, X, Search, Play, Disc3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,8 @@ import { getTheme, THEME_LIST } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { SocialClip } from "@/components/party/SocialClip";
+import { useKaraokeJobs, getDownloadUrls } from "@/hooks/use-karaoke";
+import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
 
 export default function PartyRoom() {
   const [, params] = useRoute("/party/:id");
@@ -36,12 +38,15 @@ export default function PartyRoom() {
   const updateRoom = useUpdatePartyRoom(roomId || "");
   const endParty = useEndParty(roomId || "");
 
+  const { data: myJobs } = useKaraokeJobs();
+  const completedJobs = (myJobs || []).filter((j: any) => j.status === "done");
+
   const [activeTab, setActiveTab] = useState<"queue" | "members" | "leaderboard" | "settings">("queue");
-  const [songName, setSongName] = useState("");
   const [songMode, setSongMode] = useState<"solo" | "duet" | "battle">("solo");
   const [copied, setCopied] = useState(false);
   const [showAddSong, setShowAddSong] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [songSearch, setSongSearch] = useState("");
 
   const isHost = room?.isHost === true;
   const theme = getTheme(room?.theme || "neon");
@@ -50,6 +55,10 @@ export default function PartyRoom() {
   const currentItem = queue.find((q: any) => q.status === "singing");
   const waitingQueue = queue.filter((q: any) => q.status === "waiting");
   const doneQueue = queue.filter((q: any) => q.status === "done");
+
+  const filteredJobs = completedJobs.filter((j: any) =>
+    !songSearch || j.filename?.toLowerCase().includes(songSearch.toLowerCase())
+  );
 
   const handleCopyCode = () => {
     if (room?.code) {
@@ -71,15 +80,15 @@ export default function PartyRoom() {
     }
   };
 
-  const handleAddSong = async () => {
-    if (!songName.trim()) return;
+  const handleAddJobToQueue = async (job: any) => {
     await addToQueue.mutateAsync({
-      songName: songName.trim(),
+      songName: job.filename || "Unknown",
+      jobId: job.id,
       mode: songMode,
       displayName: authData?.user?.displayName || "Guest",
     });
-    setSongName("");
     setShowAddSong(false);
+    setSongSearch("");
   };
 
   const handleNextSong = () => advanceQueue.mutate();
@@ -88,6 +97,9 @@ export default function PartyRoom() {
     await endParty.mutateAsync();
     navigate("/party");
   };
+
+  const currentJobId = currentItem?.job_id;
+  const currentVideoUrls = currentJobId ? getDownloadUrls(currentJobId) : null;
 
   if (isLoading) {
     return (
@@ -150,13 +162,27 @@ export default function PartyRoom() {
           </div>
         </div>
 
-        {/* Now Singing Card */}
+        {/* Now Singing Card + Video Player */}
         {currentItem && (
           <Card className={`${theme.card} border ${theme.cardBorder} mb-6 overflow-hidden`}>
+            {currentVideoUrls && (
+              <div className="w-full aspect-video bg-black">
+                <VideoPlayer
+                  src={currentVideoUrls.videoUrl}
+                  key={currentItem.id}
+                  autoPlay
+                  onEnded={() => { if (isHost) advanceQueue.mutate(); }}
+                />
+              </div>
+            )}
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center shrink-0`}>
-                  <Mic2 className="w-6 h-6 text-white" />
+                  {currentVideoUrls ? (
+                    <Disc3 className="w-6 h-6 text-white animate-spin" style={{ animationDuration: "3s" }} />
+                  ) : (
+                    <Mic2 className="w-6 h-6 text-white" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-medium text-primary uppercase tracking-wider mb-0.5">
@@ -248,19 +274,11 @@ export default function PartyRoom() {
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-white">{pt.room.addToQueue}</span>
-                    <button onClick={() => setShowAddSong(false)} className="text-white/40 hover:text-white">
+                    <button onClick={() => { setShowAddSong(false); setSongSearch(""); }} className="text-white/40 hover:text-white">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    value={songName}
-                    onChange={(e) => setSongName(e.target.value)}
-                    placeholder={pt.room.songNamePlaceholder}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    onKeyDown={(e) => e.key === "Enter" && handleAddSong()}
-                    autoFocus
-                  />
+
                   <div className="flex gap-2">
                     {(["solo", "duet", "battle"] as const).map((mode) => (
                       <button
@@ -279,13 +297,55 @@ export default function PartyRoom() {
                       </button>
                     ))}
                   </div>
-                  <Button
-                    onClick={handleAddSong}
-                    disabled={!songName.trim() || addToQueue.isPending}
-                    className="w-full"
-                  >
-                    {pt.room.addToQueue}
-                  </Button>
+
+                  <div className="relative">
+                    <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type="text"
+                      value={songSearch}
+                      onChange={(e) => setSongSearch(e.target.value)}
+                      placeholder={pt.room.songNamePlaceholder}
+                      className="w-full ps-10 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      autoFocus
+                    />
+                  </div>
+
+                  {completedJobs.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Music className="w-8 h-8 text-white/20 mx-auto mb-2" />
+                      <p className="text-sm text-white/40">{pt.room.noSongs}</p>
+                    </div>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto space-y-1 scrollbar-thin">
+                      {filteredJobs.length === 0 ? (
+                        <p className="text-sm text-white/30 text-center py-4">{pt.room.noResults}</p>
+                      ) : (
+                        filteredJobs.map((job: any) => (
+                          <button
+                            key={job.id}
+                            onClick={() => handleAddJobToQueue(job)}
+                            disabled={addToQueue.isPending}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-primary/30 transition-all text-start"
+                          >
+                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${theme.gradient} flex items-center justify-center shrink-0`}>
+                              <Play className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-white truncate" dir="auto">
+                                {job.filename}
+                              </div>
+                              <div className="text-xs text-white/30">
+                                {job.duration_seconds
+                                  ? `${Math.floor(job.duration_seconds / 60)}:${String(Math.floor(job.duration_seconds % 60)).padStart(2, "0")}`
+                                  : ""}
+                              </div>
+                            </div>
+                            <Plus className="w-4 h-4 text-white/30 shrink-0" />
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -322,6 +382,9 @@ export default function PartyRoom() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        {item.job_id && (
+                          <Disc3 className="w-3.5 h-3.5 text-green-400/60" />
+                        )}
                         {item.mode !== "solo" && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/50 capitalize">
                             {pt.room[item.mode as keyof typeof pt.room] || item.mode}

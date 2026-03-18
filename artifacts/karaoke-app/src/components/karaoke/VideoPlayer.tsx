@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 interface VideoPlayerProps {
   src: string;
   poster?: string;
+  autoPlay?: boolean;
   onTimeUpdate?: (time: number) => void;
+  onEnded?: () => void;
 }
 
-export function VideoPlayer({ src, poster, onTimeUpdate }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -23,7 +25,10 @@ export function VideoPlayer({ src, poster, onTimeUpdate }: VideoPlayerProps) {
       if (onTimeUpdate) onTimeUpdate(video.currentTime);
     };
 
-    const handleEnded = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      if (onEnded) onEnded();
+    };
 
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("ended", handleEnded);
@@ -32,7 +37,15 @@ export function VideoPlayer({ src, poster, onTimeUpdate }: VideoPlayerProps) {
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("ended", handleEnded);
     };
-  }, [onTimeUpdate]);
+  }, [onTimeUpdate, onEnded]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !autoPlay) return;
+    video.muted = true;
+    setIsMuted(true);
+    video.play().then(() => setIsPlaying(true)).catch(() => {});
+  }, [src, autoPlay]);
 
   const togglePlay = () => {
     if (!videoRef.current) return;

@@ -42,8 +42,10 @@ The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motio
   - **Battle Mode**: Two singers compete with split-screen scoring display and winner announcement (`BattleMode.tsx`)
   - **Theme Packs**: 5 themes (Neon Night, Birthday Bash, Retro Vibes, Elegant Gold, Ocean Wave) in `party-themes.ts`
   - **Social Clips**: Shareable score cards with WhatsApp/Twitter/native share (`SocialClip.tsx`)
+  - **Song Picker**: Add songs from user's completed karaoke job history with search filter
+  - **Auto-Play Video**: Karaoke videos auto-play inline when queue item has a `job_id`; auto-advances to next song on video end (host only)
   - **Party Display**: Fullscreen TV/projector mode with animated particles (`PartyDisplay.tsx`)
-  - **i18n**: Full translations for all party strings across 14 languages (`partyTranslations.ts`)
+  - **i18n**: Full translations for all party strings across 14 languages (`partyTranslations.ts`), including `noSongs`/`noResults` keys
   - DB tables: `party_rooms`, `party_queue`, `party_members`, `party_scores`
   - API routes: `api-server/src/routes/party.ts`
   - Frontend hooks: `use-party.ts`, `use-party-translations.ts`

@@ -69,6 +69,7 @@ export function BattleMode({
       return () => clearTimeout(timer);
     }
     setShowResult(false);
+    return undefined;
   }, [status]);
 
   const winner =
