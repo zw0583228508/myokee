@@ -113,9 +113,9 @@ def _vcodec_args() -> list[str]:
     """
     if HAS_NVENC:
         return ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr",
-                "-cq", "32", "-b:v", "0", "-maxrate", "2M", "-bufsize", "4M",
+                "-cq", "30", "-b:v", "0", "-maxrate", "2.5M", "-bufsize", "5M",
                 "-profile:v", "high"]
-    return ["-c:v", "libx264", "-preset", "medium", "-crf", "26",
+    return ["-c:v", "libx264", "-preset", "fast", "-crf", "26",
             "-tune", "animation", "-profile:v", "high"]
 
 def _vcodec_args_fast() -> list[str]:
@@ -123,8 +123,7 @@ def _vcodec_args_fast() -> list[str]:
     if HAS_NVENC:
         return ["-c:v", "h264_nvenc", "-preset", "p1", "-rc", "vbr",
                 "-cq", "34", "-b:v", "0"]
-    return ["-c:v", "libx264", "-preset", "veryfast", "-crf", "30",
-            "-tune", "animation"]
+    return ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "28"]
 
 def _is_nvenc_error(stderr: str) -> bool:
     """Check if an FFmpeg failure is NVENC-specific (not a general filter/input error)."""
@@ -457,25 +456,20 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
 
         FPS = 25
         aurora = (
-            f"color=s=160x90:r={FPS}:d={duration}:c=0x030310[tiny];"
+            f"color=s=96x54:r={FPS}:d={duration}:c=0x030310[tiny];"
             "[tiny]geq="
             "r='clip("
-            "45*sin(6.28*X/160+6.28*T/12)*sin(6.28*Y/90+6.28*T/8)"
-            "+55*sin(6.28*(X+Y)/200+6.28*T/15)"
-            "+30*sin(6.28*X/80-6.28*T/20)*cos(6.28*Y/60+6.28*T/25)"
-            "+25*pow(sin(6.28*T/10),2)*sin(6.28*X/100+6.28*Y/100)"
+            "50*sin(6.28*X/96+6.28*T/12)*sin(6.28*Y/54+6.28*T/8)"
+            "+45*sin(6.28*(X+Y)/120+6.28*T/15)"
             "+20,0,255)':"
             "g='clip("
-            "15*sin(6.28*X/120-6.28*T/14)*cos(6.28*Y/90+6.28*T/11)"
-            "+25*sin(6.28*(X-Y)/180+6.28*T/22)"
-            "+20*pow(sin(6.28*T/16),2)*sin(6.28*X/70)"
+            "18*sin(6.28*X/72-6.28*T/14)*cos(6.28*Y/54+6.28*T/11)"
+            "+15*sin(6.28*(X-Y)/100+6.28*T/22)"
             "+8,0,160)':"
             "b='clip("
-            "180*sin(6.28*Y/90+6.28*T/9)"
-            "+90*sin(6.28*X/160-6.28*T/11)"
-            "+60*sin(6.28*(X+Y)/120+6.28*T/17)"
-            "+40*cos(6.28*X/80+6.28*T/14)*sin(6.28*Y/60-6.28*T/19)"
-            "+50*pow(sin(6.28*T/7),2)"
+            "170*sin(6.28*Y/54+6.28*T/9)"
+            "+80*sin(6.28*X/96-6.28*T/11)"
+            "+50*sin(6.28*(X+Y)/80+6.28*T/17)"
             "+80,0,255)'"
             "[tiny_aurora];"
             "[tiny_aurora]scale=640:360:flags=bilinear[aurora];"
@@ -1099,25 +1093,20 @@ async def _render_video(no_vocals: Path, ass: Path,
     FPS = 20   # 20 fps — adequate for karaoke text, 33% fewer frames than 30
 
     aurora_expr = (
-        f"color=s=160x90:r={FPS}:d={duration}:c=0x030310[tiny];"
+        f"color=s=96x54:r={FPS}:d={duration}:c=0x030310[tiny];"
         "[tiny]geq="
         "r='clip("
-        "45*sin(6.28*X/160+6.28*T/12)*sin(6.28*Y/90+6.28*T/8)"
-        "+55*sin(6.28*(X+Y)/200+6.28*T/15)"
-        "+30*sin(6.28*X/80-6.28*T/20)*cos(6.28*Y/60+6.28*T/25)"
-        "+25*pow(sin(6.28*T/10),2)*sin(6.28*X/100+6.28*Y/100)"
+        "50*sin(6.28*X/96+6.28*T/12)*sin(6.28*Y/54+6.28*T/8)"
+        "+45*sin(6.28*(X+Y)/120+6.28*T/15)"
         "+20,0,255)':"
         "g='clip("
-        "15*sin(6.28*X/120-6.28*T/14)*cos(6.28*Y/90+6.28*T/11)"
-        "+25*sin(6.28*(X-Y)/180+6.28*T/22)"
-        "+20*pow(sin(6.28*T/16),2)*sin(6.28*X/70)"
+        "18*sin(6.28*X/72-6.28*T/14)*cos(6.28*Y/54+6.28*T/11)"
+        "+15*sin(6.28*(X-Y)/100+6.28*T/22)"
         "+8,0,160)':"
         "b='clip("
-        "180*sin(6.28*Y/90+6.28*T/9)"
-        "+90*sin(6.28*X/160-6.28*T/11)"
-        "+60*sin(6.28*(X+Y)/120+6.28*T/17)"
-        "+40*cos(6.28*X/80+6.28*T/14)*sin(6.28*Y/60-6.28*T/19)"
-        "+50*pow(sin(6.28*T/7),2)"
+        "170*sin(6.28*Y/54+6.28*T/9)"
+        "+80*sin(6.28*X/96-6.28*T/11)"
+        "+50*sin(6.28*(X+Y)/80+6.28*T/17)"
         "+80,0,255)'"
         "[tiny_aurora];"
         "[tiny_aurora]scale=1280:720:flags=bilinear[aurora];"
