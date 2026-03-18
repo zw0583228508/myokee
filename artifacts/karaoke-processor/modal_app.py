@@ -12,7 +12,7 @@ jobs_volume = modal.Volume.from_name("karaoke-jobs", create_if_missing=True)
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .apt_install("ffmpeg", "libsndfile1", "git", "curl")
+    .apt_install("ffmpeg", "libsndfile1", "git", "curl", "nodejs", "npm")
     .pip_install(
         "fastapi==0.135.1",
         "uvicorn[standard]==0.41.0",

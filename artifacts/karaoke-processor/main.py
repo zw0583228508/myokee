@@ -1535,7 +1535,7 @@ async def _download_youtube_and_process(job_id: str, url: str,
         title_rc, title_out = await run_cmd_stdout(
             "yt-dlp", "--no-playlist",
             "--js-runtimes", "node", "--remote-components", "ejs:github",
-            "--extractor-args", "youtube:player_client=web_creator,mediaconnect",
+            "--cache-dir", "/tmp/yt-dlp-cache",
             "--print", "%(title)s", "--simulate", url)
         raw_title = title_out.strip().splitlines()[-1] if title_out.strip() else ""
         display_name = (raw_title[:80] + "…") if len(raw_title) > 80 else raw_title
@@ -1551,7 +1551,7 @@ async def _download_youtube_and_process(job_id: str, url: str,
             "yt-dlp",
             "--no-playlist",
             "--js-runtimes", "node", "--remote-components", "ejs:github",
-            "--extractor-args", "youtube:player_client=web_creator,mediaconnect",
+            "--cache-dir", "/tmp/yt-dlp-cache",
             "-f", "bestaudio/best",
             "-x",
             "--audio-format", "mp3",
