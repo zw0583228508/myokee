@@ -17,11 +17,13 @@ export async function runMigrations(): Promise<void> {
       CREATE TABLE IF NOT EXISTS job_ownership (
         job_id          TEXT PRIMARY KEY,
         user_id         TEXT NOT NULL REFERENCES users(id),
-        duration_seconds INTEGER,
+        duration_seconds DOUBLE PRECISION,
         credits_charged  INTEGER,
         charged_at       TIMESTAMPTZ,
         created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+
+      ALTER TABLE job_ownership ALTER COLUMN duration_seconds TYPE DOUBLE PRECISION;
 
       CREATE TABLE IF NOT EXISTS performances (
         id          SERIAL PRIMARY KEY,
