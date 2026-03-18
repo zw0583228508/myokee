@@ -424,6 +424,7 @@ async def process_job(job_id: str, input_path: Path, filename: str,
 # PIPELINE — Background pre-render (runs while user reviews transcript)
 # ---------------------------------------------------------------------------
 async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
+    global HAS_NVENC
     """
     Renders the aurora background + waveform + audio to a temp video file
     while the user is reading / editing the transcript.
@@ -524,6 +525,7 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
 # PIPELINE — Phase 2: render (after user confirms transcript)
 # ---------------------------------------------------------------------------
 async def render_job(job_id: str):
+    global HAS_NVENC
     try:
         if job_id in _cancelled_jobs:
             return
