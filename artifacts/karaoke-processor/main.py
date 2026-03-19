@@ -317,6 +317,13 @@ async def process_job(job_id: str, input_path: Path, filename: str,
         wav_in  = jdir / "input.wav"
         wav_16k = jdir / "input_16k.wav"
 
+        # If the uploaded file is already input.wav, rename it first to avoid
+        # FFmpeg "same as Input" error (cannot read and write the same file).
+        if input_path.resolve() == wav_in.resolve():
+            raw_src = jdir / "input_raw.wav"
+            input_path.rename(raw_src)
+            input_path = raw_src
+
         # Determine ffmpeg duration args (free users: first N seconds only)
         dur_args = ["-t", str(max_duration_secs)] if max_duration_secs else []
 
