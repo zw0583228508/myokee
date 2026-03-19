@@ -162,19 +162,17 @@ export interface Translations {
     tryAgain: string;
   };
   home: {
-    tabs: { home: string; howItWorks: string; features: string; whyMyoukee: string; };
+    tabs: { home: string; howItWorks: string; features: string; };
     hero: {
       badge: string;
       headline1: string;
       headline2: string;
       headline3: string;
       sub: string;
-      sub2: string;
       ctaCreate: string;
       ctaLeaderboard: string;
       chips: string[];
     };
-    valueStrip: { title1: string; desc1: string; title2: string; desc2: string; title3: string; desc3: string; };
     howItWorks: {
       badge: string; title: string; subtitle: string; cta: string;
       step1: { title: string; desc: string; };
@@ -187,19 +185,6 @@ export interface Translations {
       aiBadge: string; ai: string; aiDesc: string; aiTags: string[];
       avatarBadge: string; avatar: string; avatarDesc: string; avatarTags: string[];
       cards: { title: string; desc: string; badge: string; }[];
-    };
-    aiTech: {
-      badge: string; title: string; titleHighlight: string; subtitle: string;
-      demucsTitle: string; demucsSub: string; demucsDesc: string; demucsBullets: string[];
-      whisperTitle: string; whisperSub: string; whisperDesc: string; whisperBullets: string[];
-    };
-    compete: {
-      badge: string; title: string; subtitle: string;
-      ctaLeaderboard: string;
-    };
-    why: {
-      badge: string; title: string; subtitle: string;
-      items: { title: string; desc: string; }[];
     };
     support: { label: string; };
   };
@@ -347,20 +332,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "נסה שוב מאוחר יותר",
       },
     home: {
-      tabs: { home: "בית", howItWorks: "איך זה עובד", features: "פיצ'רים", whyMyoukee: "למה MYOUKEE?" },
+      tabs: { home: "בית", howItWorks: "איך זה עובד", features: "פיצ'רים" },
       hero: {
         badge: "40 שניות ראשונות חינם — ללא כרטיס אשראי",
         headline1: "הפוך כל שיר", headline2: "לקריוקי", headline3: " עכשיו",
         sub: "AI שמפריד ווקאל, מתמלל מילים ומסנכרן הכל בשניות.",
-        sub2: "אין צורך במאגר קריוקי. כל שיר עובד.",
         ctaCreate: "צור קריוקי עכשיו — חינם",
         ctaLeaderboard: "צפה בלידרבורד",
-        chips: ["🎤 שירה בזמן אמת", "🏆 לידרבורד גלובלי", "⚔️ אתגר חבר", "🌍 +100 שפות", "🎬 יצוא MP4"],
-      },
-      valueStrip: {
-        title1: "כל שיר. בלי מאגר.", desc1: "העלה קובץ MP3/MP4 או הדבק קישור YouTube — MYOUKEE יוצר קריוקי מושלם מכל שיר.",
-        title2: "פחות מ-5 דקות", desc2: "ה-AI מעבד, מפריד ווקאל, מתמלל ומסנכרן — תוך דקות ספורות אתה שר.",
-        title3: "+100 שפות", desc3: "עברית, ערבית, אנגלית, ספרדית ועוד — Whisper AI מזהה ומסנכרן כל שפה.",
+        chips: ["🎤 שירה בזמן אמת","🏆 לידרבורד גלובלי","⚔️ אתגר חבר","🎬 יצוא MP4"],
       },
       howItWorks: {
         badge: "תהליך פשוט", title: "שלושה שלבים. זה הכל.", subtitle: "מהעלאה לשירה — בפחות מ-5 דקות", cta: "התחל עכשיו — חינם",
@@ -380,38 +359,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "העלה תמונת פרופיל ו-AI מוחק את הרקע ומוסיף הילה ניאון סגולה — את/ה מופיע/ה ברקע הסרטון בזמן השירה.",
         avatarTags: ["הסרת רקע", "הילה ניאון", "אנימציה בוידאו"],
         cards: [
-          { title: "לידרבורד גלובלי", desc: "כל ביצוע מדורג. עלה בטבלת הניקוד העולמית.", badge: "" },
-          { title: "Battle Mode", desc: "שלח אתגר לחבר — הוא רואה את הציון שלך ומנסה לנצח.", badge: "ויראלי" },
-          { title: "יצוא MP4", desc: "קובץ וידאו מלא עם מילים, אנימציה ועיצוב — מוכן לשיתוף.", badge: "" },
-          { title: "קליפ ויראלי", desc: "ה-AI מאתר את 30 השניות הטובות ביותר בביצוע שלך.", badge: "" },
-          { title: "ניתוח ביצוע", desc: "תזמון, מנגינה, % דמיון לאמן המקורי — ציון מפורט.", badge: "" },
-          { title: "שיתוף חברתי", desc: "WhatsApp, Instagram ועוד — עם ציון, כוכבים ולינק.", badge: "" },
-          { title: "עורך מילים", desc: "ערוך את הסנכרון ידנית — שליטה מלאה על כל מילה.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "טכנולוגיית AI", title: "מופעל על ידי", titleHighlight: "מודלי AI עולמיים",
-        subtitle: "שני מודלים מתקדמים עובדים יחד לתוצאה מושלמת",
-        demucsTitle: "Demucs AI", demucsSub: "פירוק ווקאל",
-        demucsDesc: "מודל neural network מתקדם של Meta שמפריד את הווקאל מהמוזיקה בדיוק כירורגי. הפלט: track אינסטרומנטלי נקי שמוכן לשירה.",
-        demucsBullets: ["פירוד בדיוק מקצועי", "עובד עם כל ז'אנר מוזיקלי", "פלייבק נקי ללא רעשי רקע"],
-        whisperTitle: "Whisper AI", whisperSub: "תמלול וסנכרון",
-        whisperDesc: "מודל Speech-to-Text של OpenAI שמתמלל כל מילה ומסנכרן אותה לקצב המוזיקה ברמת דיוק של מילי-שניות.",
-        whisperBullets: ["+100 שפות נתמכות", "סנכרון מדויק מילה-מילה", "עורך ידני מובנה לתיקונים"],
-      },
-      compete: {
-        badge: "🏆 חווית תחרות", title: "ת'שיר. תתחרה. תנצח.", subtitle: "לא רק קריוקי — תחרות חברתית ומשחקית",
-        ctaLeaderboard: "טבלת הניקוד העולמית",
-      },
-      why: {
-        badge: "הייחודיות שלנו", title: "למה MYOUKEE?", subtitle: "שאלה טובה. הנה התשובה.",
-        items: [
-          { title: "בלי מאגר קריוקי", desc: "כל שיר שאי פעם הוקלט עובד. לא מחכה שמישהו יוסיף את השיר המועדף עליך." },
-          { title: "AI בזמן אמת", desc: "ניתוח מנגינה וזיהוי תזמון חי — הטכנולוגיה שמאחורי אפליקציות הקריוקי הגדולות." },
-          { title: "וידאו קריוקי מוכן", desc: "AI מייצר קובץ MP4 עם מילים מסונכרנות, אנימציה ועיצוב — מוכן לשיתוף מיידי." },
-          { title: "תמונה שלך בסרטון", desc: "העלה תמונת פרופיל ו-AI מוחק רקע ומוסיף הילה ניאון — את/ה מופיע/ה בסרטון הקריוקי שלך." },
-          { title: "בנוי לתחרות", desc: "לידרבורד, battle mode, אתגרים שבועיים — קריוקי שהוא גם משחק חברתי." },
-          { title: "מיקרופון בדיוק מקסימלי", desc: "RNNoise, EQ, reverb ו-delay עם ממשק פשוט — קול מקצועי בכל מיקרופון." },
+          { title: "Mode Pesta", desc: "Ruangan dengan kode, 5 tema, antrean lagu dan papan peringkat.", badge: "Baru" },
+          { title: "Battle & Duet", desc: "Layar terpisah dengan pemenang, atau lirik berwarna untuk berdua.", badge: "" },
+          { title: "30 Level + Lencana", desc: "XP, 22 lencana, 8 pencapaian dan papan peringkat global.", badge: "" },
+          { title: "Ekspor MP4", desc: "Video dengan lirik dan animasi — siap dibagikan.", badge: "" },
+          { title: "Analisis Performa", desc: "Timing, nada dan skor 0–100 dengan bintang.", badge: "" },
+          { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh.", badge: "" },
         ],
       },
       support: { label: "תמיכה: windot100@gmail.com" },
@@ -558,20 +511,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "Try again later",
       },
     home: {
-      tabs: { home: "Home", howItWorks: "How it Works", features: "Features", whyMyoukee: "Why MYOUKEE?" },
+      tabs: { home: "Home", howItWorks: "How it Works", features: "Features" },
       hero: {
         badge: "First 40 seconds free — no credit card",
         headline1: "Turn Any Song", headline2: "into Karaoke", headline3: " Now",
         sub: "AI that separates vocals, transcribes lyrics, and syncs everything in seconds.",
-        sub2: "No karaoke database needed. Every song works.",
         ctaCreate: "Create Karaoke Now — Free",
         ctaLeaderboard: "View Leaderboard",
-        chips: ["🎤 Real-time Singing", "🏆 Global Leaderboard", "⚔️ Challenge Friends", "🌍 +100 Languages", "🎬 Export MP4"],
-      },
-      valueStrip: {
-        title1: "Any Song. No Database.", desc1: "Upload MP3/MP4 or paste a YouTube link — MYOUKEE creates perfect karaoke from any song.",
-        title2: "Under 5 Minutes", desc2: "AI processes, separates vocals, transcribes and syncs — you're singing in minutes.",
-        title3: "+100 Languages", desc3: "Hebrew, Arabic, English, Spanish and more — Whisper AI detects and syncs every language.",
+        chips: ["🎤 Real-time Singing","🏆 Global Leaderboard","⚔️ Challenge Friends","🎬 Export MP4"],
       },
       howItWorks: {
         badge: "Simple Process", title: "Three Steps. That's It.", subtitle: "From upload to singing — in under 5 minutes", cta: "Start Now — Free",
@@ -598,31 +545,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Performance Analysis", desc: "Timing, pitch, % similarity to original artist — detailed score.", badge: "" },
           { title: "Social Sharing", desc: "WhatsApp, Instagram and more — with score, stars and link.", badge: "" },
           { title: "Lyrics Editor", desc: "Edit sync manually — full control over every word.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "AI Technology", title: "Powered by", titleHighlight: "World-Class AI Models",
-        subtitle: "Two advanced models working together for a perfect result",
-        demucsTitle: "Demucs AI", demucsSub: "Vocal Separation",
-        demucsDesc: "Meta's advanced neural network model that separates vocals from music with surgical precision. Output: a clean instrumental track ready for singing.",
-        demucsBullets: ["Professional-grade separation", "Works with every music genre", "Clean playback without background noise"],
-        whisperTitle: "Whisper AI", whisperSub: "Transcription & Sync",
-        whisperDesc: "OpenAI's Speech-to-Text model that transcribes every word and syncs it to the music beat at millisecond precision.",
-        whisperBullets: ["+100 supported languages", "Accurate word-by-word sync", "Built-in manual editor for corrections"],
-      },
-      compete: {
-        badge: "🏆 Compete", title: "Sing. Compete. Win.", subtitle: "Not just karaoke — social competitive experience",
-        ctaLeaderboard: "Global Leaderboard",
-      },
-      why: {
-        badge: "What Makes Us Different", title: "Why MYOUKEE?", subtitle: "Good question. Here's the answer.",
-        items: [
-          { title: "No Karaoke Database", desc: "Every song ever recorded works. No waiting for someone to add your favorite song." },
-          { title: "Real-time AI", desc: "Live pitch analysis and timing detection — the technology behind the biggest karaoke apps." },
-          { title: "Ready Karaoke Video", desc: "AI generates an MP4 with synced lyrics, animation and design — ready to share instantly." },
-          { title: "Your Photo in the Video", desc: "Upload a profile photo and AI removes background, adds neon glow — you appear in your karaoke video." },
-          { title: "Built for Competition", desc: "Leaderboard, battle mode, weekly challenges — karaoke that's also a social game." },
-          { title: "Maximum Mic Precision", desc: "RNNoise, EQ, reverb and delay with a simple interface — professional sound on any microphone." },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -769,20 +691,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "حاول مرة أخرى لاحقًا",
       },
     home: {
-      tabs: { home: "الرئيسية", howItWorks: "كيف يعمل", features: "المميزات", whyMyoukee: "لماذا MYOUKEE?" },
+      tabs: { home: "الرئيسية", howItWorks: "كيف يعمل", features: "المميزات" },
       hero: {
         badge: "أول 40 ثانية مجانية — بدون بطاقة ائتمان",
         headline1: "حوّل أي أغنية", headline2: "إلى كاريوكي", headline3: " الآن",
         sub: "ذكاء اصطناعي يفصل الصوت ويكتب الكلمات ويزامن كل شيء في ثوانٍ.",
-        sub2: "لا حاجة لقاعدة بيانات كاريوكي. كل أغنية تعمل.",
         ctaCreate: "أنشئ كاريوكي الآن — مجاناً",
         ctaLeaderboard: "عرض المتصدرين",
-        chips: ["🎤 الغناء المباشر", "🏆 المتصدرون العالميون", "⚔️ تحدى صديقك", "🌍 +100 لغة", "🎬 تصدير MP4"],
-      },
-      valueStrip: {
-        title1: "أي أغنية. بدون قاعدة بيانات.", desc1: "ارفع ملف MP3/MP4 أو الصق رابط يوتيوب — MYOUKEE ينشئ كاريوكي مثالي من أي أغنية.",
-        title2: "أقل من 5 دقائق", desc2: "الذكاء الاصطناعي يعالج ويفصل ويكتب ويزامن — ستغني في دقائق.",
-        title3: "+100 لغة", desc3: "العربية والعبرية والإنجليزية والإسبانية والمزيد — Whisper يتعرف ويزامن كل لغة.",
+        chips: ["🎤 الغناء المباشر","🏆 المتصدرون العالميون","⚔️ تحدى صديقك","🎬 تصدير MP4"],
       },
       howItWorks: {
         badge: "عملية بسيطة", title: "ثلاث خطوات. هذا كل شيء.", subtitle: "من الرفع إلى الغناء — في أقل من 5 دقائق", cta: "ابدأ الآن — مجاناً",
@@ -809,31 +725,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "تحليل الأداء", desc: "التوقيت، النغمة، % التشابه مع الفنان الأصلي — نقاط مفصلة.", badge: "" },
           { title: "المشاركة الاجتماعية", desc: "واتساب، إنستغرام والمزيد — مع النقاط والنجوم والرابط.", badge: "" },
           { title: "محرر الكلمات", desc: "عدّل المزامنة يدوياً — تحكم كامل في كل كلمة.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "تقنية الذكاء الاصطناعي", title: "مدعوم بـ", titleHighlight: "نماذج ذكاء اصطناعي عالمية",
-        subtitle: "نموذجان متقدمان يعملان معاً لنتيجة مثالية",
-        demucsTitle: "Demucs AI", demucsSub: "فصل الصوت",
-        demucsDesc: "نموذج شبكة عصبية متقدم من Meta يفصل الصوت عن الموسيقى بدقة جراحية. الناتج: مسار موسيقي نظيف جاهز للغناء.",
-        demucsBullets: ["فصل بجودة احترافية", "يعمل مع كل الأنواع الموسيقية", "تشغيل نظيف بدون ضوضاء"],
-        whisperTitle: "Whisper AI", whisperSub: "النسخ والمزامنة",
-        whisperDesc: "نموذج Speech-to-Text من OpenAI يكتب كل كلمة ويزامنها مع إيقاع الموسيقى بدقة الميللي ثانية.",
-        whisperBullets: ["+100 لغة مدعومة", "مزامنة دقيقة كلمة بكلمة", "محرر يدوي مدمج للتصحيحات"],
-      },
-      compete: {
-        badge: "🏆 المنافسة", title: "غنِّ. تنافس. انتصر.", subtitle: "ليست مجرد كاريوكي — تجربة اجتماعية تنافسية",
-        ctaLeaderboard: "لوحة النتائج العالمية",
-      },
-      why: {
-        badge: "ما يميزنا", title: "لماذا MYOUKEE?", subtitle: "سؤال جيد. إليك الجواب.",
-        items: [
-          { title: "بدون قاعدة بيانات كاريوكي", desc: "كل أغنية سُجِّلت تعمل. لا انتظار." },
-          { title: "ذكاء اصطناعي في الوقت الحقيقي", desc: "تحليل النغمة ورصد التوقيت مباشرة — التكنولوجيا خلف أكبر تطبيقات الكاريوكي." },
-          { title: "فيديو كاريوكي جاهز", desc: "الذكاء الاصطناعي يولد MP4 بكلمات مزامنة وأنيميشن وتصميم — جاهز للمشاركة الفورية." },
-          { title: "صورتك في الفيديو", desc: "ارفع صورة ملفك ويزيل الذكاء الاصطناعي الخلفية ويضيف هالة نيون — تظهر في فيديو الكاريوكي." },
-          { title: "مبني للمنافسة", desc: "لوحة متصدرين، وضع المعركة، تحديات أسبوعية — كاريوكي هو أيضاً لعبة اجتماعية." },
-          { title: "دقة ميكروفون قصوى", desc: "RNNoise, EQ, reverb و-delay مع واجهة بسيطة — صوت احترافي على أي ميكروفون." },
         ],
       },
       support: { label: "الدعم: windot100@gmail.com" },
@@ -980,20 +871,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "Попробуйте позже",
       },
     home: {
-      tabs: { home: "Главная", howItWorks: "Как это работает", features: "Функции", whyMyoukee: "Почему MYOUKEE?" },
+      tabs: { home: "Главная", howItWorks: "Как это работает", features: "Функции" },
       hero: {
         badge: "Первые 40 секунд бесплатно — без кредитной карты",
         headline1: "Превратите любую песню", headline2: "в Karaoke", headline3: " сейчас",
         sub: "ИИ разделяет вокал, транскрибирует слова и синхронизирует всё за секунды.",
-        sub2: "Не нужна база Karaoke. Любая песня работает.",
         ctaCreate: "Создать Karaoke — Бесплатно",
         ctaLeaderboard: "Просмотр рейтинга",
-        chips: ["🎤 Пение в реальном времени", "🏆 Глобальный рейтинг", "⚔️ Вызов другу", "🌍 +100 языков", "🎬 Экспорт MP4"],
-      },
-      valueStrip: {
-        title1: "Любая песня. Без базы.", desc1: "Загрузите MP3/MP4 или вставьте ссылку YouTube — MYOUKEE создаёт идеальное Karaoke из любой песни.",
-        title2: "Менее 5 минут", desc2: "ИИ обрабатывает, разделяет, транскрибирует и синхронизирует — вы поёте через минуты.",
-        title3: "+100 языков", desc3: "Русский, иврит, арабский, испанский и многое другое — Whisper ИИ распознаёт каждый язык.",
+        chips: ["🎤 Пение в реальном времени","🏆 Глобальный рейтинг","⚔️ Вызов другу","🎬 Экспорт MP4"],
       },
       howItWorks: {
         badge: "Просто", title: "Три шага. Вот и всё.", subtitle: "От загрузки до пения — менее чем за 5 минут", cta: "Начать бесплатно",
@@ -1020,31 +905,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Анализ выступления", desc: "Тайминг, тон, % сходства с оригиналом — подробная оценка.", badge: "" },
           { title: "Публикация в соцсетях", desc: "WhatsApp, Instagram и другие — с оценкой, звёздами и ссылкой.", badge: "" },
           { title: "Редактор текста", desc: "Редактируйте синхронизацию вручную — полный контроль.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "Технология ИИ", title: "Работает на", titleHighlight: "мировых ИИ-моделях",
-        subtitle: "Два продвинутых ИИ-модели работают вместе для идеального результата",
-        demucsTitle: "Demucs AI", demucsSub: "Разделение вокала",
-        demucsDesc: "Продвинутая нейронная сеть от Meta, разделяющая вокал от музыки с хирургической точностью. Результат: чистый инструментальный трек, готовый к пению.",
-        demucsBullets: ["Профессиональное разделение", "Работает с любым музыкальным жанром", "Чистое воспроизведение без шумов"],
-        whisperTitle: "Whisper AI", whisperSub: "Транскрипция и синхронизация",
-        whisperDesc: "Модель Speech-to-Text от OpenAI, транскрибирующая каждое слово и синхронизирующая его с музыкой с точностью до миллисекунды.",
-        whisperBullets: ["+100 поддерживаемых языков", "Точная синхронизация слово за словом", "Встроенный ручной редактор"],
-      },
-      compete: {
-        badge: "🏆 Соревнование", title: "Пойте. Соревнуйтесь. Побеждайте.", subtitle: "Не просто Karaoke — социальный соревновательный опыт",
-        ctaLeaderboard: "Мировой рейтинг",
-      },
-      why: {
-        badge: "Наши преимущества", title: "Почему MYOUKEE?", subtitle: "Хороший вопрос. Вот ответ.",
-        items: [
-          { title: "Без базы данных Karaoke", desc: "Любая когда-либо записанная песня работает. Не нужно ждать добавления." },
-          { title: "ИИ в реальном времени", desc: "Живой анализ тона и тайминга — технология крупнейших Karaoke-приложений." },
-          { title: "Готовое Karaoke-видео", desc: "ИИ генерирует MP4 с синхронизированным текстом, анимацией и дизайном." },
-          { title: "Ваше фото в видео", desc: "Загрузите фото, ИИ удалит фон и добавит неоновый ореол — вы появляетесь в видео." },
-          { title: "Создано для соревнований", desc: "Рейтинг, режим битвы, еженедельные задания — Karaoke это тоже социальная игра." },
-          { title: "Максимальная точность микрофона", desc: "RNNoise, EQ, reverb и delay с простым интерфейсом — профессиональный звук на любом микрофоне." },
         ],
       },
       support: { label: "Поддержка: windot100@gmail.com" },
@@ -1191,20 +1051,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "Inténtalo más tarde",
       },
     home: {
-      tabs: { home: "Inicio", howItWorks: "Cómo funciona", features: "Funciones", whyMyoukee: "¿Por qué MYOUKEE?" },
+      tabs: { home: "Inicio", howItWorks: "Cómo funciona", features: "Funciones" },
       hero: {
         badge: "Primeros 40 segundos gratis — sin tarjeta de crédito",
         headline1: "Convierte Cualquier Canción", headline2: "en Karaoke", headline3: " Ahora",
         sub: "IA que separa voces, transcribe letras y sincroniza todo en segundos.",
-        sub2: "Sin base de datos de karaoke. Cualquier canción funciona.",
         ctaCreate: "Crear Karaoke — Gratis",
         ctaLeaderboard: "Ver clasificación",
-        chips: ["🎤 Canto en tiempo real", "🏆 Clasificación global", "⚔️ Desafía amigos", "🌍 +100 idiomas", "🎬 Exportar MP4"],
-      },
-      valueStrip: {
-        title1: "Cualquier canción. Sin base.", desc1: "Sube MP3/MP4 o pega un enlace de YouTube — MYOUKEE crea karaoke perfecto de cualquier canción.",
-        title2: "Menos de 5 minutos", desc2: "IA procesa, separa, transcribe y sincroniza — estás cantando en minutos.",
-        title3: "+100 idiomas", desc3: "Español, hebreo, árabe, inglés y más — Whisper IA detecta y sincroniza cada idioma.",
+        chips: ["🎤 Canto en tiempo real","🏆 Clasificación global","⚔️ Desafía amigos","🎬 Exportar MP4"],
       },
       howItWorks: {
         badge: "Proceso simple", title: "Tres pasos. Eso es todo.", subtitle: "De la subida al canto — en menos de 5 minutos", cta: "Empezar gratis",
@@ -1231,31 +1085,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Análisis de actuación", desc: "Timing, tono, % similitud con artista original — puntuación detallada.", badge: "" },
           { title: "Compartir en redes", desc: "WhatsApp, Instagram y más — con puntuación, estrellas y enlace.", badge: "" },
           { title: "Editor de letras", desc: "Edita la sincronización manualmente — control total de cada palabra.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "Tecnología IA", title: "Impulsado por", titleHighlight: "modelos de IA de clase mundial",
-        subtitle: "Dos modelos avanzados trabajando juntos para un resultado perfecto",
-        demucsTitle: "Demucs AI", demucsSub: "Separación vocal",
-        demucsDesc: "Modelo de red neuronal avanzado de Meta que separa la voz de la música con precisión quirúrgica. Salida: una pista instrumental limpia lista para cantar.",
-        demucsBullets: ["Separación de grado profesional", "Funciona con todo género musical", "Reproducción limpia sin ruido de fondo"],
-        whisperTitle: "Whisper AI", whisperSub: "Transcripción y sincronización",
-        whisperDesc: "Modelo Speech-to-Text de OpenAI que transcribe cada palabra y la sincroniza con el ritmo musical con precisión de milisegundos.",
-        whisperBullets: ["+100 idiomas soportados", "Sincronización precisa palabra por palabra", "Editor manual integrado para correcciones"],
-      },
-      compete: {
-        badge: "🏆 Compite", title: "Canta. Compite. Gana.", subtitle: "No solo karaoke — experiencia social competitiva",
-        ctaLeaderboard: "Clasificación global",
-      },
-      why: {
-        badge: "Lo que nos hace únicos", title: "¿Por qué MYOUKEE?", subtitle: "Buena pregunta. Aquí está la respuesta.",
-        items: [
-          { title: "Sin base de datos karaoke", desc: "Cualquier canción grabada funciona. Sin esperas." },
-          { title: "IA en tiempo real", desc: "Análisis de tono y detección de timing en vivo — la tecnología detrás de las grandes apps de karaoke." },
-          { title: "Video karaoke listo", desc: "IA genera MP4 con letras sincronizadas, animación y diseño — listo para compartir al instante." },
-          { title: "Tu foto en el video", desc: "Sube una foto, IA elimina el fondo y añade halo neón — apareces en tu video de karaoke." },
-          { title: "Construido para competir", desc: "Clasificación, modo batalla, desafíos semanales — karaoke que también es un juego social." },
-          { title: "Máxima precisión de micrófono", desc: "RNNoise, EQ, reverb y delay con interfaz simple — sonido profesional en cualquier micrófono." },
         ],
       },
       support: { label: "Soporte: windot100@gmail.com" },
@@ -1402,20 +1231,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "Réessayez plus tard",
       },
     home: {
-      tabs: { home: "Accueil", howItWorks: "Comment ça marche", features: "Fonctionnalités", whyMyoukee: "Pourquoi MYOUKEE?" },
+      tabs: { home: "Accueil", howItWorks: "Comment ça marche", features: "Fonctionnalités" },
       hero: {
         badge: "40 premières secondes gratuites — sans carte bancaire",
         headline1: "Transformez n'importe quelle chanson", headline2: "en Karaoké", headline3: " maintenant",
         sub: "IA qui sépare la voix, transcrit les paroles et synchronise tout en secondes.",
-        sub2: "Aucune base de données karaoké. Toutes les chansons fonctionnent.",
         ctaCreate: "Créer un Karaoké — Gratuit",
         ctaLeaderboard: "Voir le classement",
-        chips: ["🎤 Chant en temps réel", "🏆 Classement mondial", "⚔️ Défier des amis", "🎉 Soirée Karaoké", "🌍 +100 langues", "🎬 Export MP4"],
-      },
-      valueStrip: {
-        title1: "Toute chanson. Sans base.", desc1: "Téléchargez MP3/MP4 ou collez un lien YouTube — MYOUKEE crée un karaoké parfait de toute chanson.",
-        title2: "Moins de 5 minutes", desc2: "L'IA traite, sépare, transcrit et synchronise — vous chantez en quelques minutes.",
-        title3: "+100 langues", desc3: "Français, hébreu, arabe, espagnol et plus — Whisper IA détecte et synchronise chaque langue.",
+        chips: ["🎤 Chant en temps réel","🏆 Classement mondial","⚔️ Défier des amis","🎬 Export MP4"],
       },
       howItWorks: {
         badge: "Processus simple", title: "Trois étapes. C'est tout.", subtitle: "Du téléchargement au chant — en moins de 5 minutes", cta: "Commencer gratuitement",
@@ -1442,31 +1265,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Analyse de performance", desc: "Timing, tonalité, % similitude avec l'artiste original — score détaillé.", badge: "" },
           { title: "Partage social", desc: "WhatsApp, Instagram et plus — avec score, étoiles et lien.", badge: "" },
           { title: "Éditeur de paroles", desc: "Modifiez la synchronisation manuellement — contrôle total.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "Technologie IA", title: "Alimenté par", titleHighlight: "des modèles IA mondiaux",
-        subtitle: "Deux modèles avancés travaillant ensemble pour un résultat parfait",
-        demucsTitle: "Demucs AI", demucsSub: "Séparation vocale",
-        demucsDesc: "Modèle de réseau neuronal avancé de Meta qui sépare la voix de la musique avec une précision chirurgicale. Résultat : une piste instrumentale propre prête pour le chant.",
-        demucsBullets: ["Séparation de qualité professionnelle", "Fonctionne avec tous les genres musicaux", "Lecture propre sans bruits de fond"],
-        whisperTitle: "Whisper AI", whisperSub: "Transcription et synchronisation",
-        whisperDesc: "Modèle Speech-to-Text d'OpenAI qui transcrit chaque mot et le synchronise avec le rythme musical à la milliseconde près.",
-        whisperBullets: ["+100 langues supportées", "Synchronisation précise mot par mot", "Éditeur manuel intégré pour corrections"],
-      },
-      compete: {
-        badge: "🏆 Compétition", title: "Chantez. Compétez. Gagnez.", subtitle: "Pas seulement du karaoké — une expérience sociale compétitive",
-        ctaLeaderboard: "Classement mondial",
-      },
-      why: {
-        badge: "Notre originalité", title: "Pourquoi MYOUKEE?", subtitle: "Bonne question. Voici la réponse.",
-        items: [
-          { title: "Sans base de données karaoké", desc: "Toute chanson jamais enregistrée fonctionne. Pas d'attente." },
-          { title: "IA en temps réel", desc: "Analyse de tonalité et détection de timing en direct — la technologie derrière les grandes apps karaoké." },
-          { title: "Vidéo karaoké prête", desc: "L'IA génère un MP4 avec paroles synchronisées, animation et design — prêt à partager." },
-          { title: "Votre photo dans la vidéo", desc: "Téléchargez une photo, l'IA supprime le fond et ajoute un halo néon — vous apparaissez dans votre vidéo." },
-          { title: "Conçu pour la compétition", desc: "Classement, mode bataille, défis hebdomadaires — le karaoké est aussi un jeu social." },
-          { title: "Précision maximale du micro", desc: "RNNoise, EQ, reverb et delay avec interface simple — son professionnel sur tout microphone." },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -1613,20 +1411,14 @@ const LANGS: Record<SupportedLang, Translations> = {
         tryAgain: "Versuchen Sie es später",
       },
     home: {
-      tabs: { home: "Startseite", howItWorks: "So funktioniert's", features: "Funktionen", whyMyoukee: "Warum MYOUKEE?" },
+      tabs: { home: "Startseite", howItWorks: "So funktioniert's", features: "Funktionen" },
       hero: {
         badge: "Erste 40 Sekunden kostenlos — ohne Kreditkarte",
         headline1: "Jedes Lied in", headline2: "Karaoke", headline3: " verwandeln",
         sub: "KI trennt Gesang, transkribiert Texte und synchronisiert alles in Sekunden.",
-        sub2: "Keine Karaoke-Datenbank nötig. Jedes Lied funktioniert.",
         ctaCreate: "Karaoke erstellen — Kostenlos",
         ctaLeaderboard: "Rangliste ansehen",
-        chips: ["🎤 Echtzeit-Singen", "🏆 Globale Rangliste", "⚔️ Freunde herausfordern", "🌍 +100 Sprachen", "🎬 MP4 exportieren"],
-      },
-      valueStrip: {
-        title1: "Jedes Lied. Keine Datenbank.", desc1: "MP3/MP4 hochladen oder YouTube-Link einfügen — MYOUKEE erstellt perfektes Karaoke aus jedem Lied.",
-        title2: "Unter 5 Minuten", desc2: "KI verarbeitet, trennt, transkribiert und synchronisiert — Sie singen in wenigen Minuten.",
-        title3: "+100 Sprachen", desc3: "Deutsch, Hebräisch, Arabisch, Englisch und mehr — Whisper KI erkennt und synchronisiert jede Sprache.",
+        chips: ["🎤 Echtzeit-Singen","🏆 Globale Rangliste","⚔️ Freunde herausfordern","🎬 MP4 exportieren"],
       },
       howItWorks: {
         badge: "Einfacher Prozess", title: "Drei Schritte. Das ist alles.", subtitle: "Vom Upload zum Singen — in unter 5 Minuten", cta: "Jetzt starten — Kostenlos",
@@ -1653,31 +1445,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Aufführungsanalyse", desc: "Timing, Tonhöhe, % Ähnlichkeit mit Original-Künstler — detaillierte Bewertung.", badge: "" },
           { title: "Social Sharing", desc: "WhatsApp, Instagram und mehr — mit Punktzahl, Sternen und Link.", badge: "" },
           { title: "Liedtext-Editor", desc: "Synchronisierung manuell bearbeiten — volle Kontrolle über jedes Wort.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "KI-Technologie", title: "Betrieben von", titleHighlight: "weltweiten KI-Modellen",
-        subtitle: "Zwei fortschrittliche KI-Modelle arbeiten zusammen für ein perfektes Ergebnis",
-        demucsTitle: "Demucs AI", demucsSub: "Gesangstrennung",
-        demucsDesc: "Metas fortschrittliches neuronales Netzwerkmodell, das Gesang von Musik mit chirurgischer Präzision trennt. Ausgabe: eine saubere Instrumentalspur bereit zum Singen.",
-        demucsBullets: ["Professionelle Trennqualität", "Funktioniert mit jedem Musikgenre", "Saubere Wiedergabe ohne Hintergrundgeräusche"],
-        whisperTitle: "Whisper AI", whisperSub: "Transkription und Synchronisation",
-        whisperDesc: "OpenAIs Speech-to-Text-Modell, das jedes Wort transkribiert und es mit Millisekunden-Genauigkeit mit dem Musikrhythmus synchronisiert.",
-        whisperBullets: ["+100 unterstützte Sprachen", "Genaue Wort-für-Wort-Synchronisation", "Integrierter manueller Editor für Korrekturen"],
-      },
-      compete: {
-        badge: "🏆 Wettkampf", title: "Singen. Wettkampf. Gewinnen.", subtitle: "Nicht nur Karaoke — soziales Wettkampferlebnis",
-        ctaLeaderboard: "Weltrangliste",
-      },
-      why: {
-        badge: "Was uns einzigartig macht", title: "Warum MYOUKEE?", subtitle: "Gute Frage. Hier ist die Antwort.",
-        items: [
-          { title: "Keine Karaoke-Datenbank", desc: "Jedes je aufgenommene Lied funktioniert. Kein Warten." },
-          { title: "KI in Echtzeit", desc: "Live Tonhöhenanalyse und Timing-Erkennung — die Technologie hinter den größten Karaoke-Apps." },
-          { title: "Fertiges Karaoke-Video", desc: "KI generiert MP4 mit synchronisierten Texten, Animation und Design — sofort bereit zum Teilen." },
-          { title: "Ihr Foto im Video", desc: "Foto hochladen, KI entfernt Hintergrund und fügt Neon-Halo hinzu — Sie erscheinen im Video." },
-          { title: "Für Wettkampf gebaut", desc: "Rangliste, Kampf-Modus, wöchentliche Herausforderungen — Karaoke ist auch ein Gesellschaftsspiel." },
-          { title: "Maximale Mikrofonpräzision", desc: "RNNoise, EQ, Reverb und Delay mit einfacher Benutzeroberfläche — professioneller Sound an jedem Mikrofon." },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -1824,20 +1591,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "後でもう一度お試しください",
     },
     home: {
-      tabs: { home: "ホーム", howItWorks: "使い方", features: "機能", whyMyoukee: "なぜMYOUKEE？" },
+      tabs: { home: "ホーム", howItWorks: "使い方", features: "機能" },
       hero: {
         badge: "最初の40秒は無料 — クレジットカード不要",
         headline1: "どんな曲でも", headline2: "カラオケに", headline3: "変換",
         sub: "AIがボーカルを分離し、歌詞を文字起こしし、すべてを数秒で同期します。",
-        sub2: "カラオケデータベース不要。どんな曲でも対応。",
         ctaCreate: "今すぐカラオケを作成 — 無料",
         ctaLeaderboard: "ランキングを見る",
-        chips: ["🎤 リアルタイム歌唱", "🏆 グローバルランキング", "⚔️ フレンドに挑戦", "🌍 100以上の言語", "🎬 MP4エクスポート"],
-      },
-      valueStrip: {
-        title1: "どんな曲でも。データベース不要。", desc1: "MP3/MP4をアップロードするかYouTubeリンクを貼るだけ — MYOUKEEがどんな曲からも完璧なカラオケを作成。",
-        title2: "5分以内", desc2: "AIが処理、ボーカル分離、文字起こし、同期 — 数分で歌い始められます。",
-        title3: "100以上の言語", desc3: "日本語、英語、韓国語、中国語など — Whisper AIがあらゆる言語を検出し同期。",
+        chips: ["🎤 リアルタイム歌唱","🏆 グローバルランキング","⚔️ フレンドに挑戦","🎬 MP4エクスポート"],
       },
       howItWorks: {
         badge: "シンプルなプロセス", title: "3ステップ。それだけ。", subtitle: "アップロードから歌唱まで — 5分以内", cta: "今すぐ始める — 無料",
@@ -1865,31 +1626,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "パフォーマンス分析", desc: "タイミング、ピッチ、オリジナルアーティストとの類似度% — 詳細スコア。", badge: "" },
           { title: "SNSシェア", desc: "WhatsApp、Instagramなど — スコア、星、リンク付き。", badge: "" },
           { title: "歌詞エディター", desc: "同期を手動で編集 — すべての単語を完全にコントロール。", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "AI技術", title: "搭載技術", titleHighlight: "世界最高水準のAIモデル",
-        subtitle: "2つの先進モデルが連携し完璧な結果を実現",
-        demucsTitle: "Demucs AI", demucsSub: "ボーカル分離",
-        demucsDesc: "Metaの先進ニューラルネットワークモデルが、外科的精度で音楽からボーカルを分離。出力：歌唱用のクリーンなインストゥルメンタルトラック。",
-        demucsBullets: ["プロフェッショナルグレードの分離", "あらゆる音楽ジャンルに対応", "バックグラウンドノイズのないクリーンな再生"],
-        whisperTitle: "Whisper AI", whisperSub: "文字起こしと同期",
-        whisperDesc: "OpenAIのSpeech-to-Textモデルが、すべての単語を文字起こしし、ミリ秒精度で音楽のビートに同期。",
-        whisperBullets: ["100以上の言語をサポート", "正確な単語ごとの同期", "修正用の内蔵マニュアルエディター"],
-      },
-      compete: {
-        badge: "🏆 競争", title: "歌え。競え。勝て。", subtitle: "ただのカラオケではない — ソーシャル対戦体験",
-        ctaLeaderboard: "グローバルランキング",
-      },
-      why: {
-        badge: "MYOUKEEの特長", title: "なぜMYOUKEE？", subtitle: "いい質問です。お答えします。",
-        items: [
-          { title: "カラオケデータベース不要", desc: "録音されたすべての曲が使えます。お気に入りの曲の追加を待つ必要もありません。" },
-          { title: "リアルタイムAI", desc: "ライブピッチ分析とタイミング検出 — 大手カラオケアプリの背後にある技術。" },
-          { title: "カラオケ動画完成", desc: "AIが同期歌詞、アニメーション、デザイン付きのMP4を生成 — すぐにシェア可能。" },
-          { title: "あなたの写真が動画に", desc: "プロフィール写真をアップロードすると、AIが背景を削除しネオングローを追加 — カラオケ動画にあなたが登場。" },
-          { title: "競争のために設計", desc: "ランキング、バトルモード、週間チャレンジ — カラオケであり、ソーシャルゲームでもある。" },
-          { title: "最高精度のマイク", desc: "RNNoise、EQ、リバーブ、ディレイをシンプルなインターフェースで — どんなマイクでもプロの音質。" },
         ],
       },
       support: { label: "サポート: windot100@gmail.com" },
@@ -2036,20 +1772,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "稍后再试",
     },
     home: {
-      tabs: { home: "首页", howItWorks: "使用方法", features: "功能", whyMyoukee: "为什么选择MYOUKEE？" },
+      tabs: { home: "首页", howItWorks: "使用方法", features: "功能" },
       hero: {
         badge: "前40秒免费 — 无需信用卡",
         headline1: "将任何歌曲", headline2: "变成卡拉OK", headline3: "",
         sub: "AI分离人声、转录歌词，数秒内完成全部同步。",
-        sub2: "无需卡拉OK曲库。任何歌曲都能用。",
         ctaCreate: "立即创建卡拉OK — 免费",
         ctaLeaderboard: "查看排行榜",
-        chips: ["🎤 实时演唱", "🏆 全球排行榜", "⚔️ 挑战好友", "🌍 100+种语言", "🎬 导出MP4"],
-      },
-      valueStrip: {
-        title1: "任何歌曲。无需曲库。", desc1: "上传MP3/MP4或粘贴YouTube链接 — MYOUKEE为任何歌曲创建完美卡拉OK。",
-        title2: "5分钟以内", desc2: "AI处理、分离人声、转录并同步 — 几分钟就能开唱。",
-        title3: "100+种语言", desc3: "中文、英语、日语、韩语等 — Whisper AI检测并同步每种语言。",
+        chips: ["🎤 实时演唱","🏆 全球排行榜","⚔️ 挑战好友","🎬 导出MP4"],
       },
       howItWorks: {
         badge: "简单流程", title: "三个步骤。就这么简单。", subtitle: "从上传到演唱 — 5分钟以内", cta: "立即开始 — 免费",
@@ -2077,31 +1807,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "表演分析", desc: "节奏、音准、与原唱的相似度% — 详细评分。", badge: "" },
           { title: "社交分享", desc: "微信、Instagram等 — 附带评分、星级和链接。", badge: "" },
           { title: "歌词编辑器", desc: "手动编辑同步 — 完全控制每一个字。", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "AI技术", title: "驱动引擎", titleHighlight: "世界级AI模型",
-        subtitle: "两个先进模型协同工作，实现完美效果",
-        demucsTitle: "Demucs AI", demucsSub: "人声分离",
-        demucsDesc: "Meta的先进神经网络模型，以外科手术般的精度将人声从音乐中分离。输出：可直接演唱的干净伴奏。",
-        demucsBullets: ["专业级分离", "适用于所有音乐流派", "无背景噪音的干净播放"],
-        whisperTitle: "Whisper AI", whisperSub: "转录与同步",
-        whisperDesc: "OpenAI的语音转文字模型，转录每个字并以毫秒级精度与音乐节拍同步。",
-        whisperBullets: ["支持100+种语言", "精确的逐词同步", "内置手动编辑器用于修正"],
-      },
-      compete: {
-        badge: "🏆 竞技", title: "唱歌。比赛。获胜。", subtitle: "不仅是卡拉OK — 社交竞技体验",
-        ctaLeaderboard: "全球排行榜",
-      },
-      why: {
-        badge: "我们的独特之处", title: "为什么选择MYOUKEE？", subtitle: "好问题。答案在这里。",
-        items: [
-          { title: "无需卡拉OK曲库", desc: "所有录制过的歌曲都能用。不依赖版权，无需等待添加你喜欢的歌。" },
-          { title: "实时AI", desc: "实时音高分析和节奏检测 — 大型卡拉OK应用背后的技术。" },
-          { title: "即用卡拉OK视频", desc: "AI生成带同步歌词、动画和设计的MP4 — 可立即分享。" },
-          { title: "你的照片在视频中", desc: "上传头像，AI去除背景并添加霓虹光效 — 你出现在自己的卡拉OK视频中。" },
-          { title: "为竞技而生", desc: "排行榜、对战模式、每周挑战 — 卡拉OK也是社交游戏。" },
-          { title: "极致麦克风精度", desc: "RNNoise、EQ、混响和延迟，界面简洁 — 任何麦克风都能发出专业音质。" },
         ],
       },
       support: { label: "客服: windot100@gmail.com" },
@@ -2248,20 +1953,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "나중에 다시 시도하세요",
     },
     home: {
-      tabs: { home: "홈", howItWorks: "사용 방법", features: "기능", whyMyoukee: "왜 MYOUKEE?" },
+      tabs: { home: "홈", howItWorks: "사용 방법", features: "기능" },
       hero: {
         badge: "처음 40초 무료 — 신용카드 불필요",
         headline1: "어떤 노래든", headline2: "노래방으로", headline3: " 변환",
         sub: "AI가 보컬을 분리하고 가사를 받아쓰고 모든 것을 몇 초 만에 동기화합니다.",
-        sub2: "노래방 데이터베이스 불필요. 모든 노래가 가능합니다.",
         ctaCreate: "지금 노래방 만들기 — 무료",
         ctaLeaderboard: "리더보드 보기",
-        chips: ["🎤 실시간 노래", "🏆 글로벌 리더보드", "⚔️ 친구에게 도전", "🎉 노래방 파티", "🌍 100개 이상 언어", "🎬 MP4 내보내기"],
-      },
-      valueStrip: {
-        title1: "어떤 노래든. 데이터베이스 불필요.", desc1: "MP3/MP4를 업로드하거나 YouTube 링크를 붙여넣기 — MYOUKEE가 어떤 노래든 완벽한 노래방으로 만들어줍니다.",
-        title2: "5분 이내", desc2: "AI가 처리, 보컬 분리, 받아쓰기 및 동기화 — 몇 분이면 노래할 수 있습니다.",
-        title3: "100개 이상 언어", desc3: "한국어, 영어, 일본어, 중국어 등 — Whisper AI가 모든 언어를 감지하고 동기화합니다.",
+        chips: ["🎤 실시간 노래","🏆 글로벌 리더보드","⚔️ 친구에게 도전","🎬 MP4 내보내기"],
       },
       howItWorks: {
         badge: "간단한 과정", title: "세 단계. 그게 전부.", subtitle: "업로드에서 노래까지 — 5분 이내", cta: "지금 시작 — 무료",
@@ -2289,31 +1988,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "공연 분석", desc: "타이밍, 음정, 원곡 아티스트와의 유사도% — 상세 점수.", badge: "" },
           { title: "소셜 공유", desc: "WhatsApp, Instagram 등 — 점수, 별, 링크 포함.", badge: "" },
           { title: "가사 편집기", desc: "수동으로 동기화 편집 — 모든 단어를 완전히 제어.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "AI 기술", title: "동력", titleHighlight: "세계 최고 수준의 AI 모델",
-        subtitle: "두 개의 고급 모델이 함께 작동하여 완벽한 결과를 도출",
-        demucsTitle: "Demucs AI", demucsSub: "보컬 분리",
-        demucsDesc: "Meta의 고급 신경망 모델이 외과적 정밀도로 음악에서 보컬을 분리합니다. 출력: 노래할 준비가 된 깨끗한 반주 트랙.",
-        demucsBullets: ["전문가급 분리", "모든 음악 장르에 대응", "배경 소음 없는 깨끗한 재생"],
-        whisperTitle: "Whisper AI", whisperSub: "받아쓰기 및 동기화",
-        whisperDesc: "OpenAI의 음성-텍스트 모델이 모든 단어를 받아쓰고 밀리초 정밀도로 음악 비트에 동기화합니다.",
-        whisperBullets: ["100개 이상 언어 지원", "정확한 단어별 동기화", "수정을 위한 내장 수동 편집기"],
-      },
-      compete: {
-        badge: "🏆 경쟁", title: "노래해. 경쟁해. 이겨.", subtitle: "단순한 노래방이 아닌 — 소셜 경쟁 경험",
-        ctaLeaderboard: "글로벌 리더보드",
-      },
-      why: {
-        badge: "차별화 포인트", title: "왜 MYOUKEE?", subtitle: "좋은 질문이에요. 답해 드릴게요.",
-        items: [
-          { title: "노래방 데이터베이스 불필요", desc: "녹음된 모든 노래가 작동합니다. 좋아하는 노래가 추가되기를 기다릴 필요 없습니다." },
-          { title: "실시간 AI", desc: "실시간 음정 분석 및 타이밍 감지 — 대형 노래방 앱의 핵심 기술." },
-          { title: "노래방 영상 완성", desc: "AI가 동기화된 가사, 애니메이션, 디자인이 포함된 MP4를 생성 — 즉시 공유 가능." },
-          { title: "영상 속 당신의 사진", desc: "프로필 사진을 업로드하면 AI가 배경을 제거하고 네온 글로우를 추가 — 노래방 영상에 당신이 등장합니다." },
-          { title: "경쟁을 위해 설계", desc: "리더보드, 배틀 모드, 주간 챌린지 — 노래방이자 소셜 게임." },
-          { title: "최고의 마이크 정밀도", desc: "RNNoise, EQ, 리버브, 딜레이를 간단한 인터페이스로 — 어떤 마이크든 프로 사운드." },
         ],
       },
       support: { label: "고객지원: windot100@gmail.com" },
@@ -2460,20 +2134,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "ลองอีกครั้งในภายหลัง",
     },
     home: {
-      tabs: { home: "หน้าแรก", howItWorks: "วิธีใช้งาน", features: "ฟีเจอร์", whyMyoukee: "ทำไมต้อง MYOUKEE?" },
+      tabs: { home: "หน้าแรก", howItWorks: "วิธีใช้งาน", features: "ฟีเจอร์" },
       hero: {
         badge: "40 วินาทีแรกฟรี — ไม่ต้องใช้บัตรเครดิต",
         headline1: "เปลี่ยนทุกเพลง", headline2: "เป็นคาราโอเกะ", headline3: " ตอนนี้",
         sub: "AI แยกเสียงร้อง ถอดเนื้อเพลง และซิงค์ทุกอย่างภายในไม่กี่วินาที",
-        sub2: "ไม่ต้องใช้ฐานข้อมูลคาราโอเกะ ทุกเพลงใช้ได้",
         ctaCreate: "สร้างคาราโอเกะตอนนี้ — ฟรี",
         ctaLeaderboard: "ดูกระดานผู้นำ",
-        chips: ["🎤 ร้องเพลงสด", "🏆 กระดานผู้นำทั่วโลก", "⚔️ ท้าเพื่อน", "🌍 100+ ภาษา", "🎬 ส่งออก MP4"],
-      },
-      valueStrip: {
-        title1: "ทุกเพลง ไม่ต้องมีฐานข้อมูล", desc1: "อัปโหลด MP3/MP4 หรือวางลิงก์ YouTube — MYOUKEE สร้างคาราโอเกะสมบูรณ์แบบจากทุกเพลง",
-        title2: "ไม่เกิน 5 นาที", desc2: "AI ประมวลผล แยกเสียง ถอดเนื้อเพลง และซิงค์ — ไม่กี่นาทีก็ร้องได้",
-        title3: "100+ ภาษา", desc3: "ไทย อังกฤษ ญี่ปุ่น เกาหลี และอื่นๆ — Whisper AI ตรวจจับและซิงค์ทุกภาษา",
+        chips: ["🎤 ร้องเพลงสด","🏆 กระดานผู้นำทั่วโลก","⚔️ ท้าเพื่อน","🎬 ส่งออก MP4"],
       },
       howItWorks: {
         badge: "ขั้นตอนง่ายๆ", title: "แค่ 3 ขั้นตอน", subtitle: "จากอัปโหลดถึงร้องเพลง — ไม่เกิน 5 นาที", cta: "เริ่มเลย — ฟรี",
@@ -2501,31 +2169,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "วิเคราะห์การแสดง", desc: "จังหวะ ระดับเสียง % ความเหมือนกับศิลปินต้นฉบับ — คะแนนละเอียด", badge: "" },
           { title: "แชร์โซเชียล", desc: "WhatsApp, Instagram และอื่นๆ — พร้อมคะแนน ดาว และลิงก์", badge: "" },
           { title: "แก้ไขเนื้อเพลง", desc: "แก้ไขการซิงค์ด้วยตนเอง — ควบคุมทุกคำอย่างเต็มที่", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "เทคโนโลยี AI", title: "ขับเคลื่อนด้วย", titleHighlight: "โมเดล AI ระดับโลก",
-        subtitle: "สองโมเดลขั้นสูงทำงานร่วมกันเพื่อผลลัพธ์ที่สมบูรณ์แบบ",
-        demucsTitle: "Demucs AI", demucsSub: "แยกเสียงร้อง",
-        demucsDesc: "โมเดลเครือข่ายประสาทเทียมขั้นสูงจาก Meta ที่แยกเสียงร้องจากดนตรีด้วยความแม่นยำระดับศัลยแพทย์ ผลลัพธ์: แทร็กดนตรีบรรเลงที่สะอาดพร้อมร้อง",
-        demucsBullets: ["การแยกระดับมืออาชีพ", "ใช้ได้กับทุกแนวเพลง", "เล่นเสียงสะอาดไม่มีเสียงรบกวน"],
-        whisperTitle: "Whisper AI", whisperSub: "ถอดเสียงและซิงค์",
-        whisperDesc: "โมเดล Speech-to-Text จาก OpenAI ที่ถอดทุกคำและซิงค์กับจังหวะเพลงด้วยความแม่นยำระดับมิลลิวินาที",
-        whisperBullets: ["รองรับ 100+ ภาษา", "ซิงค์แม่นยำทีละคำ", "เครื่องมือแก้ไขด้วยตนเองในตัว"],
-      },
-      compete: {
-        badge: "🏆 แข่งขัน", title: "ร้อง. แข่ง. ชนะ.", subtitle: "ไม่ใช่แค่คาราโอเกะ — ประสบการณ์แข่งขันทางสังคม",
-        ctaLeaderboard: "กระดานผู้นำทั่วโลก",
-      },
-      why: {
-        badge: "จุดเด่นของเรา", title: "ทำไมต้อง MYOUKEE?", subtitle: "คำถามดี นี่คือคำตอบ",
-        items: [
-          { title: "ไม่ต้องมีฐานข้อมูลคาราโอเกะ", desc: "ทุกเพลงที่เคยบันทึกใช้ได้ ไม่ต้องรอใครเพิ่มเพลงโปรดของคุณ" },
-          { title: "AI แบบเรียลไทม์", desc: "วิเคราะห์ระดับเสียงและจับจังหวะสด — เทคโนโลยีเบื้องหลังแอปคาราโอเกะชั้นนำ" },
-          { title: "วิดีโอคาราโอเกะพร้อมใช้", desc: "AI สร้าง MP4 พร้อมเนื้อเพลงซิงค์ แอนิเมชัน และดีไซน์ — พร้อมแชร์ทันที" },
-          { title: "รูปคุณในวิดีโอ", desc: "อัปโหลดรูปโปรไฟล์ AI ลบพื้นหลังเพิ่มแสงนีออน — คุณปรากฏในวิดีโอคาราโอเกะ" },
-          { title: "สร้างมาเพื่อแข่งขัน", desc: "กระดานผู้นำ โหมดแบทเทิล ชาเลนจ์รายสัปดาห์ — คาราโอเกะที่เป็นเกมโซเชียลด้วย" },
-          { title: "ไมค์แม่นยำสูงสุด", desc: "RNNoise, EQ, reverb และ delay ด้วยอินเทอร์เฟซง่ายๆ — เสียงมืออาชีพบนทุกไมโครโฟน" },
         ],
       },
       support: { label: "ฝ่ายสนับสนุน: windot100@gmail.com" },
@@ -2672,20 +2315,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "Thử lại sau",
     },
     home: {
-      tabs: { home: "Trang chủ", howItWorks: "Cách hoạt động", features: "Tính năng", whyMyoukee: "Tại sao MYOUKEE?" },
+      tabs: { home: "Trang chủ", howItWorks: "Cách hoạt động", features: "Tính năng" },
       hero: {
         badge: "40 giây đầu miễn phí — không cần thẻ tín dụng",
         headline1: "Biến mọi bài hát", headline2: "thành Karaoke", headline3: " ngay",
         sub: "AI tách giọng hát, phiên âm lời và đồng bộ mọi thứ trong vài giây.",
-        sub2: "Không cần cơ sở dữ liệu karaoke. Mọi bài hát đều dùng được.",
         ctaCreate: "Tạo Karaoke ngay — Miễn phí",
         ctaLeaderboard: "Xem bảng xếp hạng",
-        chips: ["🎤 Hát trực tiếp", "🏆 Bảng xếp hạng toàn cầu", "⚔️ Thách đấu bạn bè", "🎉 Tiệc Karaoke", "🌍 100+ ngôn ngữ", "🎬 Xuất MP4"],
-      },
-      valueStrip: {
-        title1: "Mọi bài hát. Không cần thư viện.", desc1: "Tải MP3/MP4 hoặc dán liên kết YouTube — MYOUKEE tạo karaoke hoàn hảo từ mọi bài hát.",
-        title2: "Dưới 5 phút", desc2: "AI xử lý, tách giọng, phiên âm và đồng bộ — bạn hát được trong vài phút.",
-        title3: "100+ ngôn ngữ", desc3: "Tiếng Việt, tiếng Anh, tiếng Nhật, tiếng Hàn và nhiều hơn — Whisper AI nhận diện và đồng bộ mọi ngôn ngữ.",
+        chips: ["🎤 Hát trực tiếp","🏆 Bảng xếp hạng toàn cầu","⚔️ Thách đấu bạn bè","🎬 Xuất MP4"],
       },
       howItWorks: {
         badge: "Quy trình đơn giản", title: "Ba bước. Chỉ vậy thôi.", subtitle: "Từ tải lên đến hát — dưới 5 phút", cta: "Bắt đầu ngay — Miễn phí",
@@ -2713,31 +2350,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Phân tích trình diễn", desc: "Nhịp, cao độ, % giống nghệ sĩ gốc — điểm chi tiết.", badge: "" },
           { title: "Chia sẻ mạng xã hội", desc: "WhatsApp, Instagram và nhiều hơn — kèm điểm, sao và liên kết.", badge: "" },
           { title: "Trình sửa lời", desc: "Chỉnh đồng bộ thủ công — kiểm soát hoàn toàn từng từ.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "Công nghệ AI", title: "Được hỗ trợ bởi", titleHighlight: "mô hình AI đẳng cấp thế giới",
-        subtitle: "Hai mô hình tiên tiến phối hợp để có kết quả hoàn hảo",
-        demucsTitle: "Demucs AI", demucsSub: "Tách giọng hát",
-        demucsDesc: "Mô hình mạng nơ-ron tiên tiến của Meta tách giọng hát khỏi nhạc với độ chính xác phẫu thuật. Đầu ra: bản nhạc nền sạch sẵn sàng để hát.",
-        demucsBullets: ["Tách chất lượng chuyên nghiệp", "Hoạt động với mọi thể loại nhạc", "Phát lại sạch không nhiễu nền"],
-        whisperTitle: "Whisper AI", whisperSub: "Phiên âm & Đồng bộ",
-        whisperDesc: "Mô hình Speech-to-Text của OpenAI phiên âm từng từ và đồng bộ với nhịp nhạc chính xác đến mili giây.",
-        whisperBullets: ["Hỗ trợ 100+ ngôn ngữ", "Đồng bộ chính xác từng từ", "Trình sửa thủ công tích hợp"],
-      },
-      compete: {
-        badge: "🏆 Thi đấu", title: "Hát. Thi đấu. Chiến thắng.", subtitle: "Không chỉ là karaoke — trải nghiệm thi đấu xã hội",
-        ctaLeaderboard: "Bảng xếp hạng toàn cầu",
-      },
-      why: {
-        badge: "Điểm khác biệt", title: "Tại sao MYOUKEE?", subtitle: "Câu hỏi hay. Đây là câu trả lời.",
-        items: [
-          { title: "Không cần thư viện karaoke", desc: "Mọi bài hát từng được thu âm đều dùng được. Không chờ đợi." },
-          { title: "AI thời gian thực", desc: "Phân tích cao độ và phát hiện nhịp trực tiếp — công nghệ đứng sau các ứng dụng karaoke lớn nhất." },
-          { title: "Video karaoke sẵn sàng", desc: "AI tạo MP4 với lời đồng bộ, hoạt hình và thiết kế — sẵn sàng chia sẻ ngay." },
-          { title: "Ảnh của bạn trong video", desc: "Tải ảnh đại diện, AI xóa nền thêm ánh neon — bạn xuất hiện trong video karaoke." },
-          { title: "Xây dựng cho thi đấu", desc: "Bảng xếp hạng, chế độ đối kháng, thử thách hàng tuần — karaoke cũng là trò chơi xã hội." },
-          { title: "Micro chính xác tối đa", desc: "RNNoise, EQ, reverb và delay với giao diện đơn giản — âm thanh chuyên nghiệp trên mọi micro." },
         ],
       },
       support: { label: "Hỗ trợ: windot100@gmail.com" },
@@ -2884,20 +2496,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "Subukan ulit mamaya",
     },
     home: {
-      tabs: { home: "Home", howItWorks: "Paano gumagana", features: "Mga Feature", whyMyoukee: "Bakit MYOUKEE?" },
+      tabs: { home: "Home", howItWorks: "Paano gumagana", features: "Mga Feature" },
       hero: {
         badge: "Unang 40 segundo libre — walang credit card",
         headline1: "Gawing Karaoke", headline2: "ang kahit anong kanta", headline3: " ngayon",
         sub: "AI na naghihiwalay ng boses, nagta-transcribe ng lyrics, at nagsi-sync ng lahat sa ilang segundo.",
-        sub2: "Hindi kailangan ng karaoke database. Lahat ng kanta gumagana.",
         ctaCreate: "Gumawa ng Karaoke Ngayon — Libre",
         ctaLeaderboard: "Tingnan ang Leaderboard",
-        chips: ["🎤 Real-time na Pagkanta", "🏆 Global Leaderboard", "⚔️ Hamunin ang Kaibigan", "🌍 100+ na Wika", "🎬 I-export sa MP4"],
-      },
-      valueStrip: {
-        title1: "Kahit anong kanta. Walang database.", desc1: "Mag-upload ng MP3/MP4 o mag-paste ng YouTube link — gumagawa ang MYOUKEE ng perpektong karaoke mula sa kahit anong kanta.",
-        title2: "Wala pang 5 minuto", desc2: "Pinoproseso, hinahiwalay, tina-transcribe at sina-sync ng AI — kakanta ka na sa ilang minuto.",
-        title3: "100+ na wika", desc3: "Filipino, Ingles, Hapon, Koreano at marami pa — dine-detect at sina-sync ng Whisper AI ang bawat wika.",
+        chips: ["🎤 Real-time na Pagkanta","🏆 Global Leaderboard","⚔️ Hamunin ang Kaibigan","🎬 I-export sa MP4"],
       },
       howItWorks: {
         badge: "Simpleng proseso", title: "Tatlong hakbang. Ayun lang.", subtitle: "Mula sa pag-upload hanggang pagkanta — wala pang 5 minuto", cta: "Magsimula Ngayon — Libre",
@@ -2924,31 +2530,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Performance Analysis", desc: "Timing, pitch, % pagkakatulad sa original artist — detalyadong score.", badge: "" },
           { title: "Social Sharing", desc: "WhatsApp, Instagram at iba pa — may score, stars at link.", badge: "" },
           { title: "Lyrics Editor", desc: "I-edit ang sync nang manual — buong kontrol sa bawat salita.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "AI Technology", title: "Pinapagana ng", titleHighlight: "World-Class AI Models",
-        subtitle: "Dalawang advanced na modelo na nagtutulungan para sa perpektong resulta",
-        demucsTitle: "Demucs AI", demucsSub: "Vocal Separation",
-        demucsDesc: "Advanced neural network model ng Meta na naghihiwalay ng boses mula sa musika nang napaka-precise. Output: malinis na instrumental track na handa nang kantahin.",
-        demucsBullets: ["Professional-grade na paghihiwalay", "Gumagana sa lahat ng genre ng musika", "Malinis na playback na walang background noise"],
-        whisperTitle: "Whisper AI", whisperSub: "Transcription at Sync",
-        whisperDesc: "Speech-to-Text model ng OpenAI na tina-transcribe ang bawat salita at sina-sync sa beat ng musika na may millisecond precision.",
-        whisperBullets: ["100+ na sinusuportahang wika", "Tumpak na word-by-word sync", "Built-in manual editor para sa corrections"],
-      },
-      compete: {
-        badge: "🏆 Labanan", title: "Kumanta. Lumaban. Manalo.", subtitle: "Hindi lang karaoke — social competitive experience",
-        ctaLeaderboard: "Global Leaderboard",
-      },
-      why: {
-        badge: "Ang Pagkakaiba Namin", title: "Bakit MYOUKEE?", subtitle: "Magandang tanong. Narito ang sagot.",
-        items: [
-          { title: "Walang Karaoke Database", desc: "Gumagana ang lahat ng kanta na na-record. Walang paghihintay." },
-          { title: "Real-time AI", desc: "Live pitch analysis at timing detection — ang teknolohiya sa likod ng pinakamalaking karaoke apps." },
-          { title: "Handa nang Karaoke Video", desc: "Gumagawa ang AI ng MP4 na may naka-sync na lyrics, animation at design — handa nang i-share agad." },
-          { title: "Photo mo sa Video", desc: "Mag-upload ng profile photo, aalisin ng AI ang background at magdadagdag ng neon glow — makikita ka sa iyong karaoke video." },
-          { title: "Ginawa para sa Kompetisyon", desc: "Leaderboard, battle mode, weekly challenges — karaoke na social game din." },
-          { title: "Pinakamataas na Mic Precision", desc: "RNNoise, EQ, reverb at delay na may simpleng interface — professional na tunog sa kahit anong microphone." },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -3095,20 +2676,14 @@ const LANGS: Record<SupportedLang, Translations> = {
       tryAgain: "Coba lagi nanti",
     },
     home: {
-      tabs: { home: "Beranda", howItWorks: "Cara Kerja", features: "Fitur", whyMyoukee: "Mengapa MYOUKEE?" },
+      tabs: { home: "Beranda", howItWorks: "Cara Kerja", features: "Fitur" },
       hero: {
         badge: "40 detik pertama gratis — tanpa kartu kredit",
         headline1: "Ubah Lagu Apa Pun", headline2: "Jadi Karaoke", headline3: " Sekarang",
         sub: "AI yang memisahkan vokal, menyalin lirik, dan menyelaraskan semua dalam hitungan detik.",
-        sub2: "Tidak perlu database karaoke. Semua lagu bisa dipakai.",
         ctaCreate: "Buat Karaoke Sekarang — Gratis",
         ctaLeaderboard: "Lihat Papan Peringkat",
-        chips: ["🎤 Nyanyi Real-time", "🏆 Papan Peringkat Global", "⚔️ Tantang Teman", "🌍 100+ Bahasa", "🎬 Ekspor MP4"],
-      },
-      valueStrip: {
-        title1: "Lagu apa pun. Tanpa database.", desc1: "Unggah MP3/MP4 atau tempel tautan YouTube — MYOUKEE membuat karaoke sempurna dari lagu apa pun.",
-        title2: "Kurang dari 5 menit", desc2: "AI memproses, memisahkan vokal, menyalin dan menyelaraskan — Anda bernyanyi dalam hitungan menit.",
-        title3: "100+ Bahasa", desc3: "Indonesia, Inggris, Jepang, Korea dan lainnya — Whisper AI mendeteksi dan menyelaraskan setiap bahasa.",
+        chips: ["🎤 Nyanyi Real-time","🏆 Papan Peringkat Global","⚔️ Tantang Teman","🎬 Ekspor MP4"],
       },
       howItWorks: {
         badge: "Proses Sederhana", title: "Tiga langkah. Itu saja.", subtitle: "Dari unggah hingga bernyanyi — kurang dari 5 menit", cta: "Mulai Sekarang — Gratis",
@@ -3136,31 +2711,6 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Analisis Penampilan", desc: "Timing, nada, % kemiripan dengan artis asli — skor detail.", badge: "" },
           { title: "Berbagi Sosial", desc: "WhatsApp, Instagram dan lainnya — dengan skor, bintang dan tautan.", badge: "" },
           { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh atas setiap kata.", badge: "" },
-        ],
-      },
-      aiTech: {
-        badge: "Teknologi AI", title: "Didukung oleh", titleHighlight: "Model AI Kelas Dunia",
-        subtitle: "Dua model canggih bekerja sama untuk hasil sempurna",
-        demucsTitle: "Demucs AI", demucsSub: "Pemisahan Vokal",
-        demucsDesc: "Model jaringan saraf canggih dari Meta yang memisahkan vokal dari musik dengan presisi bedah. Output: track instrumental bersih yang siap dinyanyikan.",
-        demucsBullets: ["Pemisahan kualitas profesional", "Berfungsi dengan semua genre musik", "Pemutaran bersih tanpa noise latar"],
-        whisperTitle: "Whisper AI", whisperSub: "Transkripsi & Sinkronisasi",
-        whisperDesc: "Model Speech-to-Text OpenAI yang menyalin setiap kata dan menyelaraskannya dengan beat musik pada presisi milidetik.",
-        whisperBullets: ["100+ bahasa didukung", "Sinkronisasi akurat kata per kata", "Editor manual bawaan untuk koreksi"],
-      },
-      compete: {
-        badge: "🏆 Kompetisi", title: "Nyanyi. Berlomba. Menang.", subtitle: "Bukan sekadar karaoke — pengalaman kompetisi sosial",
-        ctaLeaderboard: "Papan Peringkat Global",
-      },
-      why: {
-        badge: "Yang Membedakan Kami", title: "Mengapa MYOUKEE?", subtitle: "Pertanyaan bagus. Inilah jawabannya.",
-        items: [
-          { title: "Tanpa Database Karaoke", desc: "Semua lagu yang pernah direkam bisa dipakai. Tidak tergantung hak cipta, tidak perlu menunggu." },
-          { title: "AI Real-time", desc: "Analisis nada dan deteksi timing secara langsung — teknologi di balik aplikasi karaoke terbesar." },
-          { title: "Video Karaoke Siap Pakai", desc: "AI menghasilkan MP4 dengan lirik tersinkronisasi, animasi dan desain — siap dibagikan langsung." },
-          { title: "Foto Anda di Video", desc: "Unggah foto profil, AI menghapus latar dan menambah cahaya neon — Anda muncul di video karaoke Anda." },
-          { title: "Dibuat untuk Kompetisi", desc: "Papan peringkat, mode pertarungan, tantangan mingguan — karaoke yang juga game sosial." },
-          { title: "Presisi Mikrofon Maksimal", desc: "RNNoise, EQ, reverb dan delay dengan antarmuka sederhana — suara profesional di mikrofon apa pun." },
         ],
       },
       support: { label: "Dukungan: windot100@gmail.com" },
