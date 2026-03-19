@@ -1536,9 +1536,11 @@ _HALLUCINATION_PHRASES = {
 
 def _filter_hallucinations(words: list[dict]) -> list[dict]:
     """
-    Remove common Whisper hallucinations — only when REPEATED.
-    A single occurrence of a hallucination phrase is kept (could be real lyrics).
-    1. Repeated hallucination phrases (≥2 consecutive) at start/end
+    Remove common Whisper hallucinations from boundaries.
+    Matches COMPLETE phrases only — never decomposes multi-word phrases
+    into individual words.  Longer phrases are tried first so that
+    "תודה רבה" is consumed as a unit before "תודה" alone could match.
+    1. Known phrases at start/end (complete phrase match)
     2. Runs of ≥ 3 consecutive identical words collapsed to 1
     """
     if not words:
@@ -1548,6 +1550,7 @@ def _filter_hallucinations(words: list[dict]) -> list[dict]:
     for p in _HALLUCINATION_PHRASES:
         parts = tuple(p.lower().split())
         phrases.append(parts)
+    phrases.sort(key=lambda p: len(p), reverse=True)
 
     def _wl(w: dict) -> str:
         return w["word"].lower().strip()
@@ -1557,46 +1560,34 @@ def _filter_hallucinations(words: list[dict]) -> list[dict]:
             return False
         return all(_wl(wlist[idx + j]) == phrase[j] for j in range(len(phrase)))
 
-    def _find_repeated_hallucination_at_start(wlist: list[dict]) -> int:
-        """Find how many words to skip at the start due to repeated hallucinations.
-        Only removes if the SAME phrase repeats ≥2 times consecutively."""
+    def _try_match_any(idx: int, wlist: list[dict]) -> int:
         for phrase in phrases:
-            plen = len(phrase)
-            if not _match_phrase_at(0, wlist, phrase):
-                continue
-            count = 0
-            pos = 0
-            while _match_phrase_at(pos, wlist, phrase):
-                count += 1
-                pos += plen
-            if count >= 2:
-                return pos
+            if _match_phrase_at(idx, wlist, phrase):
+                return len(phrase)
         return 0
 
-    def _find_repeated_hallucination_at_end(wlist: list[dict]) -> int:
-        """Find how many words to trim from the end due to repeated hallucinations.
-        Only removes if the SAME phrase repeats ≥2 times consecutively at the end."""
+    # Pass 1: Remove leading hallucination phrases
+    start = 0
+    while start < len(words):
+        consumed = _try_match_any(start, words)
+        if consumed == 0:
+            break
+        start += consumed
+
+    # Pass 2: Remove trailing hallucination phrases
+    end = len(words)
+    while end > start:
+        matched = False
         for phrase in phrases:
             plen = len(phrase)
-            count = 0
-            pos = len(wlist) - plen
-            while pos >= 0 and _match_phrase_at(pos, wlist, phrase):
-                count += 1
-                pos -= plen
-            if count >= 2:
-                return len(wlist) - (pos + plen)
-        return 0
+            if end - plen >= start and _match_phrase_at(end - plen, words, phrase):
+                end -= plen
+                matched = True
+                break
+        if not matched:
+            break
 
-    # Pass 1: Remove repeated hallucination phrases from the start
-    skip_start = _find_repeated_hallucination_at_start(words)
-
-    # Pass 2: Remove repeated hallucination phrases from the end
-    trimmed = words[skip_start:]
-    skip_end = _find_repeated_hallucination_at_end(trimmed)
-    if skip_end > 0:
-        trimmed = trimmed[:-skip_end]
-
-    filtered = trimmed
+    filtered = words[start:end]
 
     # Pass 3: Collapse runs of ≥ 3 consecutive identical words to 1
     if len(filtered) > 2:
