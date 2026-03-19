@@ -32,6 +32,29 @@ export async function runMigrations(): Promise<void> {
         score       INTEGER,
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS song_name TEXT NOT NULL DEFAULT '';
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS timing_score INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS pitch_score INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS words_covered INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS total_words INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT false;
+      CREATE INDEX IF NOT EXISTS idx_perf_score ON performances(score DESC);
+      CREATE INDEX IF NOT EXISTS idx_perf_user ON performances(user_id);
+      CREATE INDEX IF NOT EXISTS idx_perf_job ON performances(job_id);
+
+      CREATE TABLE IF NOT EXISTS recordings (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        song_name TEXT NOT NULL DEFAULT '',
+        job_id TEXT NOT NULL DEFAULT '',
+        object_path TEXT NOT NULL,
+        file_name TEXT NOT NULL DEFAULT '',
+        content_type TEXT NOT NULL DEFAULT 'audio/wav',
+        size_bytes INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_rec_user ON recordings(user_id);
+      CREATE INDEX IF NOT EXISTS idx_rec_created ON recordings(created_at DESC);
 
       CREATE TABLE IF NOT EXISTS fulfilled_sessions (
         session_id     TEXT PRIMARY KEY,

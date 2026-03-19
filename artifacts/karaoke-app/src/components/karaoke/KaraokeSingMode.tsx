@@ -1814,16 +1814,19 @@ export function KaraokeSingMode({
                         setSavedPerfId(saved.id);
                         publishPerf.mutate(saved.id);
                       }
-                    } catch { /* auth or network error */ }
+                    } catch (err: any) {
+                      console.error('[Leaderboard] publish failed:', err);
+                      alert(err?.message || "שגיאה בשיתוף ללידרבורד — נסה שוב");
+                    }
                   }
                 };
                 return (
                   <button
                     onClick={handlePublish}
-                    disabled={publishPerf.isPending || savePerf.isPending}
+                    disabled={publishPerf.isPending}
                     className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 hover:from-yellow-500/30 hover:to-amber-500/30 transition-all text-sm font-semibold"
                   >
-                    {(publishPerf.isPending || savePerf.isPending) ? (
+                    {publishPerf.isPending ? (
                       <><Loader2 className="w-4 h-4 animate-spin" />שולח...</>
                     ) : (
                       <><Trophy className="w-4 h-4" />שתף בלידרבורד 🏆</>
@@ -1831,6 +1834,11 @@ export function KaraokeSingMode({
                   </button>
                 );
               })()}
+              {publishPerf.isError && (
+                <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-red-500/15 border border-red-500/25 text-red-400 text-xs font-semibold">
+                  שגיאה בשיתוף — נסה שוב
+                </div>
+              )}
               {publishPerf.isSuccess && (
                 <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
                   <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
