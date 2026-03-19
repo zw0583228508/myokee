@@ -18,13 +18,15 @@ interface PerformanceResult {
   score: number;
   timingScore: number;
   pitchScore: number;
-  stabilityScore?: number;    // server-scored: pitch stability (0-100)
+  stabilityScore?: number;
+  contourScore?: number;
+  expressionScore?: number;
   wordsCovered: number;
   totalWords: number;
   stars: number;
   artistMatch: number;
   highlightStart: number;
-  serverScored?: boolean;     // true = scores came from pyin analysis
+  serverScored?: boolean;
 }
 
 interface AudioEffects {
@@ -396,18 +398,19 @@ export function KaraokeSingMode({
         const data = await resp.json();
         console.log('[Scorer] server scores:', data);
 
-        // ── Merge server scores into result ────────────────────────────────
         setResult(prev => {
           if (!prev) return prev;
           const updated: PerformanceResult = {
             ...prev,
-            score:         data.overall  ?? prev.score,
-            timingScore:   data.timing   ?? prev.timingScore,
-            pitchScore:    data.pitch    ?? prev.pitchScore,
-            stabilityScore: data.stability,
-            stars:         data.stars    ?? prev.stars,
-            artistMatch:   data.artistMatch ?? prev.artistMatch,
-            serverScored:  true,
+            score:           data.overall  ?? prev.score,
+            timingScore:     data.timing   ?? prev.timingScore,
+            pitchScore:      data.pitch    ?? prev.pitchScore,
+            stabilityScore:  data.stability,
+            contourScore:    data.details?.melodyContour != null ? Math.round(data.details.melodyContour) : undefined,
+            expressionScore: data.details?.expression != null ? Math.round(data.details.expression) : undefined,
+            stars:           data.stars    ?? prev.stars,
+            artistMatch:     data.artistMatch ?? prev.artistMatch,
+            serverScored:    true,
           };
           savePerf.mutate({
             jobId, songName,
@@ -1567,7 +1570,7 @@ export function KaraokeSingMode({
                 <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
                 <div>
                   <p className="text-primary text-sm font-semibold">AI מנתח את הביצוע…</p>
-                  <p className="text-white/40 text-[11px]">ניתוח pitch מדויק מול המקור</p>
+                  <p className="text-white/40 text-[11px]">ניתוח מתקדם: דיוק, תזמון, יציבות, ביטוי</p>
                 </div>
               </div>
             )}
@@ -1590,18 +1593,24 @@ export function KaraokeSingMode({
               <p className="text-white/35 text-sm">נקודות</p>
             </div>
 
-            <div className="w-full max-w-xs grid grid-cols-2 gap-2.5">
+            <div className="w-full max-w-xs grid grid-cols-3 gap-2">
               {[
-                { label: "תזמון",   value: `${result.timingScore}%`,  color: "text-green-400",  icon: "⏱" },
-                { label: "מנגינה",  value: `${result.pitchScore}%`,   color: "text-blue-400",   icon: "🎵" },
+                { label: "דיוק צלילים", value: `${result.pitchScore}%`,   color: "text-blue-400",   icon: "🎵" },
+                { label: "תזמון",       value: `${result.timingScore}%`,  color: "text-green-400",  icon: "⏱" },
                 ...(result.stabilityScore !== undefined
                   ? [{ label: "יציבות", value: `${result.stabilityScore}%`, color: "text-amber-400", icon: "📊" }]
                   : []),
-                { label: "מילים",   value: `${result.wordsCovered}/${result.totalWords}`, color: "text-purple-400", icon: "📝" },
+                { label: "מילים",       value: `${result.wordsCovered}/${result.totalWords}`, color: "text-purple-400", icon: "📝" },
+                ...(result.contourScore !== undefined
+                  ? [{ label: "קו מנגינה", value: `${result.contourScore}%`, color: "text-cyan-400", icon: "〰️" }]
+                  : []),
+                ...(result.expressionScore !== undefined
+                  ? [{ label: "ביטוי", value: `${result.expressionScore}%`, color: "text-pink-400", icon: "🎭" }]
+                  : []),
               ].map(s => (
-                <div key={s.label} className="bg-white/6 border border-white/10 rounded-xl p-3 text-center">
-                  <p className="text-white/30 text-sm mb-0.5">{s.icon}</p>
-                  <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
+                <div key={s.label} className="bg-white/6 border border-white/10 rounded-xl p-2.5 text-center">
+                  <p className="text-white/30 text-xs mb-0.5">{s.icon}</p>
+                  <p className={`text-base font-bold ${s.color}`}>{s.value}</p>
                   <p className="text-white/35 text-[10px] mt-0.5">{s.label}</p>
                 </div>
               ))}
@@ -1614,7 +1623,7 @@ export function KaraokeSingMode({
                 <p className="text-3xl font-black" style={{ background: "linear-gradient(135deg,#c084fc,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   {result.artistMatch}%
                 </p>
-                <p className="text-white/35 text-xs">{result.serverScored ? "מחושב ע״י AI מול המקור" : "התאמה לסגנון המקורי"}</p>
+                <p className="text-white/35 text-xs">{result.serverScored ? "ניתוח AI: דיוק, מנגינה, יציבות וביטוי" : "התאמה לסגנון המקורי"}</p>
               </div>
             </div>
 

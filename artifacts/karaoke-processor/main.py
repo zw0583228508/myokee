@@ -2051,143 +2051,488 @@ async def get_lyrics(jid: str):
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SERVER-SIDE VOCAL PERFORMANCE SCORING
-# Uses librosa.pyin (probabilistic YIN) to extract pitch from both the
-# reference vocal (Demucs stem) and the singer's recording, then compares
-# them frame-by-frame at semitone resolution — same methodology as SingStar.
+# ══════════════════════════════════════════════════════════════════════════════
+# PROFESSIONAL VOCAL SCORING ENGINE v2
 # ──────────────────────────────────────────────────────────────────────────────
+# Multi-dimensional analysis: pitch accuracy (octave-invariant), temporal
+# alignment via DTW, melody contour matching, per-note stability with vibrato
+# detection, onset/offset timing precision, and energy-contour expression.
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _normalize_audio(y: "np.ndarray", target_db: float = -20.0) -> "np.ndarray":
+    import numpy as np
+    rms = float(np.sqrt(np.mean(y ** 2)))
+    if rms < 1e-8:
+        return y
+    target_rms = 10 ** (target_db / 20.0)
+    return y * (target_rms / rms)
+
+
+def _noise_gate(y: "np.ndarray", threshold_db: float = -50.0, sr: int = 16000) -> "np.ndarray":
+    import numpy as np
+    frame_len = int(0.025 * sr)
+    hop = frame_len // 2
+    threshold = 10 ** (threshold_db / 20.0)
+    out = y.copy()
+    for start in range(0, len(y) - frame_len, hop):
+        frame = y[start:start + frame_len]
+        rms = float(np.sqrt(np.mean(frame ** 2)))
+        if rms < threshold:
+            fade = np.linspace(1.0, 0.0, frame_len)
+            out[start:start + frame_len] *= fade
+    return out
+
+
+def _detect_octave_shift(ref_f0: "np.ndarray", perf_f0: "np.ndarray",
+                          both_mask: "np.ndarray") -> float:
+    import numpy as np
+    if np.sum(both_mask) < 20:
+        return 0.0
+    ref_hz = ref_f0[both_mask]
+    perf_hz = perf_f0[both_mask]
+    ratio = perf_hz / np.clip(ref_hz, 1e-6, None)
+    semitones = 12.0 * np.log2(np.clip(ratio, 1e-6, 1e6))
+    median_st = float(np.median(semitones))
+    octave_candidates = [0.0, 12.0, -12.0, 24.0, -24.0]
+    best_shift = 0.0
+    best_residual = float('inf')
+    for shift in octave_candidates:
+        residual = float(np.median(np.abs(semitones - shift)))
+        if residual < best_residual:
+            best_residual = residual
+            best_shift = shift
+    if abs(best_shift) >= 10:
+        print(f"[score] detected octave shift: {best_shift:+.1f} semitones (median raw={median_st:.1f})")
+    return best_shift
+
+
+def _dtw_align_pitch(ref_cents: "np.ndarray", perf_cents: "np.ndarray",
+                      ref_voiced: "np.ndarray", perf_voiced: "np.ndarray",
+                      max_warp: int = 60) -> "tuple":
+    import numpy as np
+    n = len(ref_cents)
+    m = len(perf_cents)
+    if n == 0 or m == 0:
+        return np.array([]), np.array([])
+
+    band_w = min(max_warp, max(n, m) // 5, 200)
+    INF = 1e18
+    band_size = 2 * band_w + 1
+    dtw = np.full((n + 1, band_size), INF)
+    dtw[0, band_w] = 0.0
+
+    def j_to_band(i, j):
+        center = int(i * m / n) if n > 0 else 0
+        return j - center + band_w
+
+    def band_to_j(i, b):
+        center = int(i * m / n) if n > 0 else 0
+        return center - band_w + b
+
+    for i in range(1, n + 1):
+        center = int(i * m / n)
+        for b in range(band_size):
+            j = center - band_w + b
+            if j < 1 or j > m:
+                continue
+            if ref_voiced[i - 1] and perf_voiced[j - 1]:
+                cost = abs(ref_cents[i - 1] - perf_cents[j - 1])
+            elif ref_voiced[i - 1] != perf_voiced[j - 1]:
+                cost = 50.0
+            else:
+                cost = 0.0
+            prev_center = int((i - 1) * m / n)
+            diag_b = j_to_band(i - 1, j - 1)
+            left_b = j_to_band(i - 1, j)
+            below_b = b
+            prev_vals = []
+            if 0 <= diag_b < band_size:
+                prev_vals.append(dtw[i - 1, diag_b])
+            if 0 <= left_b < band_size:
+                prev_vals.append(dtw[i - 1, left_b])
+            prev_j_minus1_b = j_to_band(i, j - 1)
+            if 0 <= prev_j_minus1_b < band_size:
+                prev_vals.append(dtw[i, prev_j_minus1_b])
+            if prev_vals:
+                dtw[i, b] = cost + min(prev_vals)
+
+    end_b = j_to_band(n, m)
+    if end_b < 0 or end_b >= band_size or not np.isfinite(dtw[n, end_b]):
+        print(f"[score-v2] DTW path unreachable, falling back to frame-by-frame")
+        return np.array([]), np.array([])
+
+    path_i, path_j = [], []
+    i, j = n, m
+    while i > 0 and j > 0:
+        path_i.append(i - 1)
+        path_j.append(j - 1)
+        candidates = []
+        diag_b = j_to_band(i - 1, j - 1)
+        if i > 0 and j > 0 and 0 <= diag_b < band_size:
+            candidates.append((dtw[i - 1, diag_b], i - 1, j - 1))
+        left_b = j_to_band(i - 1, j)
+        if i > 0 and 0 <= left_b < band_size:
+            candidates.append((dtw[i - 1, left_b], i - 1, j))
+        below_b = j_to_band(i, j - 1)
+        if j > 0 and 0 <= below_b < band_size:
+            candidates.append((dtw[i, below_b], i, j - 1))
+        if not candidates:
+            break
+        _, i, j = min(candidates)
+
+    path_i.reverse()
+    path_j.reverse()
+    return np.array(path_i), np.array(path_j)
+
+
+def _segment_notes(f0: "np.ndarray", voiced: "np.ndarray",
+                    frame_dur: float, min_note_frames: int = 4) -> list:
+    import numpy as np
+    notes = []
+    in_note = False
+    start_idx = 0
+    for i in range(len(voiced)):
+        if voiced[i] and not in_note:
+            start_idx = i
+            in_note = True
+        elif not voiced[i] and in_note:
+            if i - start_idx >= min_note_frames:
+                note_f0 = f0[start_idx:i]
+                valid = note_f0[~np.isnan(note_f0)]
+                if len(valid) >= min_note_frames:
+                    notes.append({
+                        "start_frame": start_idx,
+                        "end_frame": i,
+                        "start_time": start_idx * frame_dur,
+                        "end_time": i * frame_dur,
+                        "f0": valid,
+                        "median_hz": float(np.median(valid)),
+                    })
+            in_note = False
+    if in_note and len(voiced) - start_idx >= min_note_frames:
+        note_f0 = f0[start_idx:]
+        valid = note_f0[~np.isnan(note_f0)]
+        if len(valid) >= min_note_frames:
+            notes.append({
+                "start_frame": start_idx,
+                "end_frame": len(voiced),
+                "start_time": start_idx * frame_dur,
+                "end_time": len(voiced) * frame_dur,
+                "f0": valid,
+                "median_hz": float(np.median(valid)),
+            })
+    return notes
+
+
+def _detect_vibrato(f0_segment: "np.ndarray", frame_rate: float) -> dict:
+    import numpy as np
+    if len(f0_segment) < 8:
+        return {"has_vibrato": False, "rate": 0.0, "extent": 0.0}
+    median_hz = float(np.median(f0_segment))
+    if median_hz < 1:
+        return {"has_vibrato": False, "rate": 0.0, "extent": 0.0}
+    cents = 1200.0 * np.log2(np.clip(f0_segment / median_hz, 1e-6, 1e6))
+    cents_centered = cents - np.mean(cents)
+    if len(cents_centered) < 8:
+        return {"has_vibrato": False, "rate": 0.0, "extent": 0.0}
+    fft = np.fft.rfft(cents_centered)
+    magnitudes = np.abs(fft)
+    freqs = np.fft.rfftfreq(len(cents_centered), d=1.0 / frame_rate)
+    vibrato_mask = (freqs >= 4.0) & (freqs <= 8.0)
+    if not np.any(vibrato_mask):
+        return {"has_vibrato": False, "rate": 0.0, "extent": 0.0}
+    vibrato_mag = magnitudes[vibrato_mask]
+    vibrato_freqs = freqs[vibrato_mask]
+    peak_idx = np.argmax(vibrato_mag)
+    peak_mag = float(vibrato_mag[peak_idx])
+    peak_freq = float(vibrato_freqs[peak_idx])
+    total_mag = float(np.sum(magnitudes[1:])) + 1e-10
+    vibrato_ratio = peak_mag / total_mag
+    extent_cents = float(np.std(cents)) * 2.0
+    has_vibrato = vibrato_ratio > 0.15 and extent_cents > 15 and extent_cents < 200
+    return {
+        "has_vibrato": has_vibrato,
+        "rate": round(peak_freq, 1) if has_vibrato else 0.0,
+        "extent": round(extent_cents, 1) if has_vibrato else 0.0,
+    }
+
+
+def _melody_contour_score(ref_f0: "np.ndarray", perf_f0: "np.ndarray",
+                            ref_voiced: "np.ndarray", perf_voiced: "np.ndarray",
+                            window: int = 5) -> float:
+    import numpy as np
+    both = ref_voiced & perf_voiced
+    indices = np.where(both)[0]
+    if len(indices) < window * 2:
+        return 50.0
+    ref_cents = 1200.0 * np.log2(np.clip(ref_f0[indices], 1e-6, None))
+    perf_cents = 1200.0 * np.log2(np.clip(perf_f0[indices], 1e-6, None))
+    ref_diff = np.diff(ref_cents)
+    perf_diff = np.diff(perf_cents)
+    min_len = min(len(ref_diff), len(perf_diff))
+    ref_diff = ref_diff[:min_len]
+    perf_diff = perf_diff[:min_len]
+    if min_len < 5:
+        return 50.0
+    direction_match = np.sign(ref_diff) == np.sign(perf_diff)
+    direction_score = float(np.mean(direction_match)) * 100
+    magnitude_errors = np.abs(ref_diff - perf_diff)
+    median_mag_err = float(np.median(magnitude_errors))
+    magnitude_score = max(0, 100 - median_mag_err * 0.3)
+    return float(np.clip(direction_score * 0.6 + magnitude_score * 0.4, 0, 100))
+
+
+def _expression_score(ref_audio: "np.ndarray", perf_audio: "np.ndarray",
+                       sr: int, hop: int) -> float:
+    import numpy as np
+    ref_rms = []
+    perf_rms = []
+    frame_len = hop * 2
+    for start in range(0, min(len(ref_audio), len(perf_audio)) - frame_len, hop):
+        ref_rms.append(float(np.sqrt(np.mean(ref_audio[start:start + frame_len] ** 2))))
+        perf_rms.append(float(np.sqrt(np.mean(perf_audio[start:start + frame_len] ** 2))))
+    if len(ref_rms) < 10:
+        return 60.0
+    ref_rms = np.array(ref_rms)
+    perf_rms = np.array(perf_rms)
+    ref_norm = ref_rms / (np.max(ref_rms) + 1e-10)
+    perf_norm = perf_rms / (np.max(perf_rms) + 1e-10)
+    min_len = min(len(ref_norm), len(perf_norm))
+    correlation = float(np.corrcoef(ref_norm[:min_len], perf_norm[:min_len])[0, 1])
+    if np.isnan(correlation):
+        correlation = 0.0
+    return float(np.clip((correlation + 1) * 50, 0, 100))
+
 
 def _score_performance_sync(
     ref_path: Path,
     perf_path: Path,
     words_path: Optional[Path],
 ) -> dict:
-    """
-    Real pitch-accurate vocal scoring using librosa.pyin.
-
-    Algorithm:
-    1. Load reference vocal (Demucs stem) + user recording at 16 kHz.
-    2. Extract f0 (fundamental frequency) + voiced flags from both using pyin.
-    3. For frames where BOTH have a clear pitch, compute semitone distance.
-    4. Grade tiers: perfect ≤0.5 st, good ≤1.5 st, ok ≤3.0 st — like SingStar.
-    5. Stability = low pitch variance within note windows.
-    6. Timing = % of lyric words where user was voiced.
-    7. Overall = weighted combination.
-    """
     import librosa
     import numpy as np
 
-    SR  = 16_000           # 16 kHz — enough for pitch; 5× faster than 44.1 kHz
-    HOP = 512              # ~32 ms per frame at 16 kHz
-    FMIN = librosa.note_to_hz("C2")   # 65 Hz  — low bass
-    FMAX = librosa.note_to_hz("C7")   # 2093 Hz — high soprano
+    SR  = 22050
+    HOP = 256
+    FMIN = librosa.note_to_hz("C2")
+    FMAX = librosa.note_to_hz("C7")
+    FRAME_DUR = HOP / SR
 
-    # ── Load audio ────────────────────────────────────────────────────────────
     ref_audio,  _ = librosa.load(str(ref_path),  sr=SR, mono=True)
     perf_audio, _ = librosa.load(str(perf_path), sr=SR, mono=True)
 
-    # Trim to the shorter duration (user may have stopped early)
     min_len = min(len(ref_audio), len(perf_audio))
     ref_audio  = ref_audio[:min_len]
     perf_audio = perf_audio[:min_len]
 
-    print(f"[score] ref={len(ref_audio)/SR:.1f}s  perf={len(perf_audio)/SR:.1f}s  at {SR} Hz")
+    ref_audio  = _normalize_audio(ref_audio,  target_db=-20.0)
+    perf_audio = _normalize_audio(perf_audio, target_db=-20.0)
+    perf_audio = _noise_gate(perf_audio, threshold_db=-48.0, sr=SR)
 
-    # ── Pitch extraction — pyin is the state-of-the-art for monophonic pitch ─
-    ref_f0,  ref_voiced,  _ = librosa.pyin(
-        ref_audio,  sr=SR, fmin=FMIN, fmax=FMAX, hop_length=HOP)
-    perf_f0, perf_voiced, _ = librosa.pyin(
-        perf_audio, sr=SR, fmin=FMIN, fmax=FMAX, hop_length=HOP)
+    print(f"[score-v2] ref={len(ref_audio)/SR:.1f}s  perf={len(perf_audio)/SR:.1f}s  at {SR} Hz, hop={HOP}")
 
-    n_ref_frames  = len(ref_f0)
-    n_perf_frames = len(perf_f0)
-    n_frames      = min(n_ref_frames, n_perf_frames)
+    ref_f0,  ref_voiced,  ref_prob  = librosa.pyin(
+        ref_audio,  sr=SR, fmin=FMIN, fmax=FMAX, hop_length=HOP,
+        fill_na=0.0)
+    perf_f0, perf_voiced, perf_prob = librosa.pyin(
+        perf_audio, sr=SR, fmin=FMIN, fmax=FMAX, hop_length=HOP,
+        fill_na=0.0)
 
-    ref_f0    = ref_f0[:n_frames];   ref_voiced  = ref_voiced[:n_frames]
-    perf_f0   = perf_f0[:n_frames];  perf_voiced = perf_voiced[:n_frames]
+    n_frames = min(len(ref_f0), len(perf_f0))
+    ref_f0    = ref_f0[:n_frames];    ref_voiced  = ref_voiced[:n_frames]
+    perf_f0   = perf_f0[:n_frames];   perf_voiced = perf_voiced[:n_frames]
+    ref_prob  = ref_prob[:n_frames];   perf_prob  = perf_prob[:n_frames]
 
-    # ── Pitch accuracy ────────────────────────────────────────────────────────
-    # Only compare frames where BOTH have a clear voiced note.
     both_mask = ref_voiced & perf_voiced
     n_both    = int(np.sum(both_mask))
+    n_ref_voiced  = int(np.sum(ref_voiced))
+    n_perf_voiced = int(np.sum(perf_voiced))
 
-    if n_both >= 10:
+    octave_shift = _detect_octave_shift(ref_f0, perf_f0, both_mask)
+
+    perf_f0_corrected = perf_f0.copy()
+    if abs(octave_shift) >= 10:
+        correction_ratio = 2.0 ** (-octave_shift / 12.0)
+        perf_f0_corrected[perf_voiced] *= correction_ratio
+        print(f"[score-v2] applied octave correction: ×{correction_ratio:.4f}")
+
+    ref_cents  = np.zeros(n_frames)
+    perf_cents = np.zeros(n_frames)
+    ref_cents[ref_voiced]   = 1200.0 * np.log2(np.clip(ref_f0[ref_voiced], 1e-6, None))
+    perf_cents[perf_voiced] = 1200.0 * np.log2(np.clip(perf_f0_corrected[perf_voiced], 1e-6, None))
+
+    use_dtw = n_frames <= 15000 and n_both >= 20
+    aligned_errors = None
+    dtw_path_len = 0
+
+    if use_dtw:
+        try:
+            path_i, path_j = _dtw_align_pitch(ref_cents, perf_cents, ref_voiced, perf_voiced,
+                                               max_warp=min(80, n_frames // 10))
+            if len(path_i) > 0:
+                dtw_path_len = len(path_i)
+                aligned_both = ref_voiced[path_i] & perf_voiced[path_j]
+                aligned_ref = ref_cents[path_i][aligned_both]
+                aligned_perf = perf_cents[path_j][aligned_both]
+                if len(aligned_ref) >= 10:
+                    aligned_errors = np.abs(aligned_ref - aligned_perf)
+                    print(f"[score-v2] DTW aligned {len(aligned_errors)} frames (path_len={dtw_path_len})")
+        except Exception as e:
+            print(f"[score-v2] DTW failed, using frame-by-frame: {e}")
+
+    if aligned_errors is None and n_both >= 10:
         ref_hz  = ref_f0[both_mask]
-        perf_hz = perf_f0[both_mask]
-        # Absolute semitone error (0 = perfect, 12 = octave off)
-        st_err = np.abs(12.0 * np.log2(np.clip(perf_hz / ref_hz, 1e-6, 1e6)))
-        pct_perfect = float(np.mean(st_err <= 0.5))
-        pct_good    = float(np.mean(st_err <= 1.5))
-        pct_ok      = float(np.mean(st_err <= 3.0))
-        # Weighted pitch score (100 = perfect intonation)
-        pitch_score = int(pct_perfect * 50 + (pct_good - pct_perfect) * 30
-                          + (pct_ok - pct_good) * 15)
+        perf_hz = perf_f0_corrected[both_mask]
+        aligned_errors = np.abs(
+            1200.0 * np.log2(np.clip(perf_hz / ref_hz, 1e-6, 1e6))
+        )
+
+    if aligned_errors is not None and len(aligned_errors) >= 10:
+        pct_perfect = float(np.mean(aligned_errors <= 50))
+        pct_good    = float(np.mean(aligned_errors <= 100))
+        pct_ok      = float(np.mean(aligned_errors <= 200))
+        pct_close   = float(np.mean(aligned_errors <= 300))
+        pitch_score = int(
+            pct_perfect * 40 +
+            (pct_good - pct_perfect) * 30 +
+            (pct_ok - pct_good) * 20 +
+            (pct_close - pct_ok) * 10
+        )
         pitch_score = max(0, min(100, pitch_score))
-        mean_st_err   = float(np.mean(st_err))
-        median_st_err = float(np.median(st_err))
+        mean_cent_err   = float(np.mean(aligned_errors))
+        median_cent_err = float(np.median(aligned_errors))
+        mean_st_err     = mean_cent_err / 100.0
+        median_st_err   = median_cent_err / 100.0
     else:
         pitch_score   = 0
         mean_st_err   = -1.0
         median_st_err = -1.0
         pct_ok        = 0.0
+        mean_cent_err = -1.0
+        median_cent_err = -1.0
 
-    # ── Coverage: % of reference vocal frames where user also sang ────────────
-    n_ref_voiced  = int(np.sum(ref_voiced))
-    n_perf_voiced = int(np.sum(perf_voiced))
+    contour_score = _melody_contour_score(ref_f0, perf_f0_corrected, ref_voiced, perf_voiced)
+    print(f"[score-v2] melody contour score: {contour_score:.1f}")
+
+    if pitch_score > 0:
+        pitch_score = int(pitch_score * 0.75 + contour_score * 0.25)
+        pitch_score = max(0, min(100, pitch_score))
+
     coverage = n_both / max(n_ref_voiced, 1)
-    coverage_score = max(0, min(100, int(coverage * 100)))
 
-    # ── Stability: pitch std-dev inside note windows ──────────────────────────
-    stability_score = 70   # sensible default if not enough data
-    if n_perf_voiced >= 30:
-        perf_hz_v = perf_f0[perf_voiced]
-        med        = float(np.median(perf_hz_v))
+    perf_notes = _segment_notes(perf_f0_corrected, perf_voiced, FRAME_DUR)
+    stability_scores = []
+    vibrato_count = 0
+    for note in perf_notes:
+        cents = 1200.0 * np.log2(np.clip(note["f0"] / note["median_hz"], 1e-6, 1e6))
+        std_cents = float(np.std(cents))
+        if std_cents <= 20:
+            base_stability = 95
+        elif std_cents <= 40:
+            base_stability = 80
+        elif std_cents <= 80:
+            base_stability = 60
+        elif std_cents <= 150:
+            base_stability = 35
+        else:
+            base_stability = 15
+        vib = _detect_vibrato(note["f0"], 1.0 / FRAME_DUR)
+        if vib["has_vibrato"]:
+            vibrato_count += 1
+            base_stability = max(base_stability, min(base_stability + 15, 92))
+        stability_scores.append(base_stability)
+
+    if stability_scores:
+        stability_score = int(np.mean(stability_scores))
+    elif n_perf_voiced >= 30:
+        perf_hz_v = perf_f0_corrected[perf_voiced]
+        med = float(np.median(perf_hz_v))
         if med > 0:
-            semitones  = 12.0 * np.log2(np.clip(perf_hz_v / med, 1e-6, 1e6))
-            win        = 15    # ~0.5 s window
-            stds       = [float(np.std(semitones[i:i + win]))
-                          for i in range(0, len(semitones) - win, win // 2)]
+            semitones = 12.0 * np.log2(np.clip(perf_hz_v / med, 1e-6, 1e6))
+            win = 20
+            stds = [float(np.std(semitones[i:i + win]))
+                    for i in range(0, len(semitones) - win, win // 2)]
             if stds:
-                avg_std      = float(np.mean(stds))
-                # avg_std 0→perfect, ~3→unstable; map to 0-100
-                stability_score = max(0, min(100, int(100 - avg_std * 25)))
+                avg_std = float(np.mean(stds))
+                stability_score = max(0, min(100, int(100 - avg_std * 20)))
+            else:
+                stability_score = 60
+        else:
+            stability_score = 60
+    else:
+        stability_score = 50
 
-    # ── Timing: % of lyric words the singer voiced ────────────────────────────
-    timing_score = coverage_score   # fallback
+    timing_score = max(0, min(100, int(coverage * 100)))
+    onset_precision = -1.0
     if words_path and words_path.exists():
         try:
             words_data = json.loads(words_path.read_text())
             if isinstance(words_data, list) and words_data:
-                frame_dur    = HOP / SR
-                words_sung   = 0
+                words_sung = 0
+                onset_errors = []
                 for w in words_data:
-                    sf = max(0, int(w.get("start", 0) / frame_dur))
-                    ef = min(n_frames, int(w.get("end",   0) / frame_dur) + 1)
-                    if ef > sf and np.any(perf_voiced[sf:ef]):
+                    w_start = w.get("start", 0)
+                    w_end   = w.get("end", 0)
+                    sf = max(0, int(w_start / FRAME_DUR))
+                    ef = min(n_frames, int(w_end / FRAME_DUR) + 1)
+                    margin_frames = int(0.3 / FRAME_DUR)
+                    sf_expanded = max(0, sf - margin_frames)
+                    ef_expanded = min(n_frames, ef + margin_frames)
+                    if ef_expanded > sf_expanded and np.any(perf_voiced[sf_expanded:ef_expanded]):
                         words_sung += 1
+                        for f in range(sf_expanded, ef_expanded):
+                            if perf_voiced[f]:
+                                onset_err = abs(f - sf) * FRAME_DUR
+                                onset_errors.append(onset_err)
+                                break
                 timing_score = max(0, min(100, int(words_sung / len(words_data) * 100)))
+                if onset_errors:
+                    avg_onset = float(np.mean(onset_errors))
+                    onset_precision = avg_onset
+                    if avg_onset <= 0.1:
+                        timing_bonus = 15
+                    elif avg_onset <= 0.25:
+                        timing_bonus = 8
+                    elif avg_onset <= 0.5:
+                        timing_bonus = 3
+                    else:
+                        timing_bonus = -5
+                    timing_score = max(0, min(100, timing_score + timing_bonus))
         except Exception as e:
-            print(f"[score] timing calc failed: {e}")
+            print(f"[score-v2] timing calc failed: {e}")
 
-    # ── Overall weighted score ────────────────────────────────────────────────
+    expression = _expression_score(ref_audio, perf_audio, SR, HOP)
+    print(f"[score-v2] expression (dynamics correlation): {expression:.1f}")
+
     overall = max(0, min(100, int(
-        pitch_score    * 0.50 +
-        timing_score   * 0.30 +
-        stability_score * 0.20
+        pitch_score     * 0.40 +
+        timing_score    * 0.25 +
+        stability_score * 0.15 +
+        contour_score   * 0.10 +
+        expression      * 0.10
     )))
 
-    # Stars 1-5
     stars = 1
-    if overall >= 90: stars = 5
-    elif overall >= 74: stars = 4
-    elif overall >= 55: stars = 3
-    elif overall >= 35: stars = 2
+    if overall >= 88: stars = 5
+    elif overall >= 72: stars = 4
+    elif overall >= 52: stars = 3
+    elif overall >= 32: stars = 2
 
-    # Entertaining "artist match" % (similar to Smule)
-    artist_match = min(97, int(overall * 0.82 + float(np.random.uniform(3, 10))))
+    artist_match = max(5, min(98, int(
+        pitch_score * 0.35 +
+        contour_score * 0.25 +
+        stability_score * 0.15 +
+        expression * 0.15 +
+        timing_score * 0.10
+    )))
 
-    print(f"[score] pitch={pitch_score}  timing={timing_score}  "
-          f"stability={stability_score}  overall={overall}  stars={stars}  "
-          f"mean_st_err={mean_st_err:.2f}  coverage={coverage:.2f}")
+    print(f"[score-v2] FINAL: pitch={pitch_score}  timing={timing_score}  "
+          f"stability={stability_score}  contour={contour_score:.0f}  "
+          f"expression={expression:.0f}  overall={overall}  stars={stars}  "
+          f"mean_st_err={mean_st_err:.2f}  coverage={coverage:.2f}  "
+          f"vibrato_notes={vibrato_count}/{len(perf_notes)}  "
+          f"onset_precision={onset_precision:.3f}s  octave_shift={octave_shift:.0f}st  "
+          f"dtw={'yes' if use_dtw and dtw_path_len > 0 else 'no'}")
 
     return {
         "overall":    overall,
@@ -2198,12 +2543,19 @@ def _score_performance_sync(
         "stars":      stars,
         "artistMatch": artist_match,
         "details": {
-            "meanSemitoneError":   round(mean_st_err,   2),
+            "meanSemitoneError":   round(mean_st_err, 2),
             "medianSemitoneError": round(median_st_err, 2),
             "voicedFrames":        n_perf_voiced,
             "refVoicedFrames":     n_ref_voiced,
             "overlappingFrames":   n_both,
             "pctPitchOk":          round(pct_ok, 3),
+            "melodyContour":       round(contour_score, 1),
+            "expression":          round(expression, 1),
+            "vibratoNotes":        vibrato_count,
+            "totalNotes":          len(perf_notes),
+            "onsetPrecision":      round(onset_precision, 3) if onset_precision >= 0 else None,
+            "octaveShift":         round(octave_shift, 1),
+            "dtwAligned":          use_dtw and dtw_path_len > 0,
         },
     }
 

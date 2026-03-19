@@ -22,9 +22,21 @@ The project uses a monorepo structure with pnpm workspaces for the React fronten
 - **Watermarking**: MYOUKEE logo on all generated videos.
 - **Party Mode**: Features party rooms, a song queue with host controls, scoring and leaderboards, duet/battle modes, theme packs, social clip sharing, YouTube/gallery song picker, auto-playing videos, and a fullscreen party display, all with full i18n support.
 - **Gamification System**: XP-based progression with 30 level tiers, 22 badges across 5 tiers, 8 progress-based achievements, a global XP leaderboard (opt-in for performance sharing), and daily login streaks, with full i18n and anti-farming rate limiting.
-- **Cloud Recording Save**: Mixed karaoke recordings are uploaded to Replit Object Storage (GCS) via presigned URLs and stored in a `recordings` DB table. A "My Recordings" page allows playback, download, and deletion with access control.
+- **Cloud Recording Save**: (Removed from UI) Mixed karaoke recordings feature was deprecated.
 - **Gallery Upload in Party**: Enables direct audio/video uploads from phone galleries within party rooms, processing them into the queue.
 - **Public Shared View**: `/shared/:id` page shows karaoke video publicly without authentication. Bypasses both consent gate and auth gate. Share buttons generate `/shared/:id` URLs. Includes CTA to create own karaoke.
+
+### Vocal Scoring Engine v2
+The performance scoring uses a multi-dimensional AI analysis on the server (Modal Labs):
+- **Pitch accuracy (octave-invariant)**: Detects if singer is in a different octave (±12/24 semitones) and auto-corrects before scoring. Uses cents-based error thresholds (50/100/200/300 cents).
+- **DTW temporal alignment**: Banded Dynamic Time Warping aligns the singer's pitch to the reference vocal, handling timing differences and tempo variations. Memory-efficient O(band×n) implementation.
+- **Melody contour matching**: Scores how well the singer follows the up/down shape of the melody, independent of absolute pitch.
+- **Per-note stability with vibrato detection**: Segments voiced regions into notes, measures pitch variance per note. Detects intentional vibrato (4-8 Hz oscillation) and treats it as a positive stability modifier.
+- **Onset timing precision**: Measures how precisely the singer starts each word relative to the reference lyrics.
+- **Expression/dynamics**: Correlates the singer's energy contour with the reference to measure dynamic expression.
+- **Audio preprocessing**: RMS normalization to -20dB + noise gate at -48dB before analysis.
+- **Overall formula**: 40% pitch + 25% timing + 15% stability + 10% contour + 10% expression.
+- **Artist match**: Weighted composite of all dimensions (no random component).
 
 ### System Design Choices
 The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM errors, with parallel pre-rendering to reduce wait times and automatic fallback for failed pre-renders. GPU-accelerated encoding (NVENC) is used where available, falling back to CPU. Job state is managed in-memory with temporary file storage. FFmpeg utilizes ASS for complex subtitle rendering. Comprehensive language support includes both RTL and LTR languages for UI and video subtitles. **RTL video subtitles** use per-word `\pos()` placement (right-to-left word order) with character reversal (`word[::-1]`) to compensate for libass rendering all characters LTR; `\kf` sweep on reversed chars produces correct RTL visual sweep. A **Whisper hallucination filter** (`_filter_hallucinations`) removes known phrases (e.g. "תודה רבה", "Thank you") from transcript boundaries, collapses ≥3 consecutive identical words, and strips interior hallucination bigrams. All FFmpeg calls (prerender, fast render, full render) have timeouts to prevent infinite hangs. Render progress uses an asymptotic curve (never stalls). Frontend detects stuck jobs (>5 min without update) and shows a retry button. The retry endpoint accepts stuck jobs (stale >120s). **Fast render (prerender upscale path) is skipped on CPU** — it hangs/times out consistently; full render is used directly instead (5x faster on CPU). Modal Labs deployment: `modal deploy artifacts/karaoke-processor/modal_app.py` (copy to /tmp first to avoid git lock).
