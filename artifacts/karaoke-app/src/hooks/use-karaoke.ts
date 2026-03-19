@@ -52,11 +52,11 @@ export function useConfirmLyrics(jobId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (words: WordTimestamp[]) => {
+    mutationFn: async ({ words, bg_style = "aurora" }: { words: WordTimestamp[]; bg_style?: string }) => {
       const res = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions({
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ words }),
+        body: JSON.stringify({ words, bg_style }),
       }));
       if (!res.ok) {
         const errorText = await res.text();

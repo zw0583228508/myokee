@@ -405,6 +405,7 @@ export default function JobDetails() {
               words={jobWords}
               onConfirmed={handleLyricsConfirmed}
               onConfirmingChange={setIsConfirming}
+              initialBgStyle={(job as any).bg_style}
             />
           )}
         </div>

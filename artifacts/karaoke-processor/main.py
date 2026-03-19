@@ -179,6 +179,7 @@ class Job(BaseModel):
     words: Optional[list[WordTimestamp]] = None
     language: Optional[str] = None
     duration_seconds: Optional[float] = None
+    bg_style: Optional[str] = "aurora"
     created_at: str; updated_at: str
 
 class DeleteResponse(BaseModel):
@@ -189,6 +190,7 @@ class YoutubeRequest(BaseModel):
 
 class LyricsUpdateRequest(BaseModel):
     words: List[WordTimestamp]
+    bg_style: str = "aurora"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -439,38 +441,126 @@ async def process_job(job_id: str, input_path: Path, filename: str,
 
 
 # ---------------------------------------------------------------------------
-# PIPELINE — Background pre-render (runs while user reviews transcript)
+# Background style definitions (FFmpeg filter_complex generators)
 # ---------------------------------------------------------------------------
-async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
-    global HAS_NVENC
-    """
-    Renders the aurora background + waveform + audio to a temp video file
-    while the user is reading / editing the transcript.
-    When render_job() runs later, it only needs to overlay the ASS text
-    (and optionally the avatar), saving 3-5 minutes of render time.
+def _bg_filter(style: str, fps: int, duration: float) -> str:
+    W, H, WV_H = 640, 360, 40
+    wv_y = H - WV_H
+    wv = f"[1:a]showwaves=s={W}x{WV_H}:mode=cline:rate={fps}:scale=sqrt"
 
-    Speed optimisations vs v6:
-    - Rendered at 640×360 (1/4 the pixels) → ~3× faster FFmpeg compute
-    - preset ultrafast → ~40% faster vs veryfast (background video quality is fine)
-    - nice -n 10: lower OS priority so Demucs/Whisper get first claim on CPU cores
-    - crf 26 (was 20) — slightly more compressed; upscaled to 720p in final render
-    - waveform at 640×40 (was 1280×80) — same visual, half the work
-    Final render upscales from 360p → 720p in one fast scale step.
-    """
-    event = _prerender_events.get(job_id)
-    try:
-        if job_id in _cancelled_jobs:
-            return
-        jdir = JOBS_DIR / job_id
-        if not jdir.exists():
-            return
-        out  = jdir / "bg_prerender.mp4"
-        if out.exists():
-            return
-
-        FPS = 25
-        aurora = (
-            f"color=s=96x54:r={FPS}:d={duration}:c=0x030310[tiny];"
+    if style == "neon_pulse":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x050008[tiny];"
+            "[tiny]geq="
+            "r='clip(180*sin(6.28*X/96+6.28*T/4)*sin(6.28*Y/54+6.28*T/6)+60,0,255)':"
+            "g='clip(30*sin(6.28*X/48+6.28*T/7)+15,0,100)':"
+            "b='clip(220*sin(6.28*Y/54+6.28*T/5)+120*cos(6.28*X/72-6.28*T/8)+100,0,255)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=8[bg];"
+            f"{wv}:colors=0xFF00FFFF|0x00FFFFFF|0xFF44CCFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "fire_storm":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x0A0200[tiny];"
+            "[tiny]geq="
+            "r='clip(220*sin(6.28*Y/54+6.28*T/5)+60*sin(6.28*X/48+6.28*T/3)+80,0,255)':"
+            "g='clip(120*sin(6.28*Y/27+6.28*T/4)*sin(6.28*X/96+6.28*T/7)+30,0,180)':"
+            "b='clip(15*sin(6.28*(X+Y)/80+6.28*T/10)+8,0,60)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=6[bg];"
+            f"{wv}:colors=0xFF6600FF|0xFF0000FF|0xFFCC00FF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "ocean_deep":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x000812[tiny];"
+            "[tiny]geq="
+            "r='clip(10*sin(6.28*X/72+6.28*T/15)+5,0,40)':"
+            "g='clip(80*sin(6.28*Y/54+6.28*T/8)+50*cos(6.28*X/96-6.28*T/12)+40,0,200)':"
+            "b='clip(200*sin(6.28*Y/27+6.28*T/6)+80*sin(6.28*(X+Y)/100+6.28*T/10)+100,0,255)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=7[bg];"
+            f"{wv}:colors=0x00CCFFFF|0x0066FFFF|0x00FFFFFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "galaxy":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x020010[tiny];"
+            "[tiny]geq="
+            "r='clip(100*sin(6.28*X/48+6.28*T/10)*cos(6.28*Y/54+6.28*T/14)+60*sin(6.28*(X-Y)/60+6.28*T/8)+30,0,200)':"
+            "g='clip(30*sin(6.28*Y/27+6.28*T/12)+20*cos(6.28*X/72+6.28*T/18)+15,0,100)':"
+            "b='clip(180*sin(6.28*Y/54+6.28*T/7)+100*sin(6.28*X/96-6.28*T/9)+80,0,255)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=5[bg];"
+            f"{wv}:colors=0xCC66FFFF|0x6633FFFF|0xFFFFFFFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "sunset_vibes":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x0A0305[tiny];"
+            "[tiny]geq="
+            "r='clip(200*sin(6.28*Y/54+6.28*T/7)+40*sin(6.28*X/72+6.28*T/12)+80,0,255)':"
+            "g='clip(80*sin(6.28*Y/27+6.28*T/9)+50*cos(6.28*X/48-6.28*T/15)+30,0,180)':"
+            "b='clip(140*sin(6.28*X/96+6.28*T/6)*sin(6.28*Y/54-6.28*T/10)+60,0,220)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=8[bg];"
+            f"{wv}:colors=0xFF6699FF|0xFF3366FF|0xFFCC66FF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "matrix_rain":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x000800[tiny];"
+            "[tiny]geq="
+            "r='clip(8*sin(6.28*X/24+6.28*T/3)+4,0,30)':"
+            "g='clip(180*sin(6.28*Y/18+6.28*T/2)*sin(6.28*X/48+6.28*T/5)+80*sin(6.28*Y/9-6.28*T/3)+60,0,255)':"
+            "b='clip(15*sin(6.28*(X+Y)/60+6.28*T/8)+8,0,50)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=4[bg];"
+            f"{wv}:colors=0x00FF00FF|0x00CC00FF|0x66FF66FF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "electric_storm":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x020208[tiny];"
+            "[tiny]geq="
+            "r='clip(60*sin(6.28*X/32+6.28*T/3)*cos(6.28*Y/27+6.28*T/5)+30,0,150)':"
+            "g='clip(80*sin(6.28*Y/18+6.28*T/4)+60*sin(6.28*X/48-6.28*T/6)+40,0,200)':"
+            "b='clip(240*sin(6.28*X/96+6.28*T/3)*sin(6.28*Y/54+6.28*T/7)+100,0,255)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=5[bg];"
+            f"{wv}:colors=0x44CCFFFF|0xFFFFFFFF|0x8888FFFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "golden_luxury":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x080400[tiny];"
+            "[tiny]geq="
+            "r='clip(200*sin(6.28*Y/54+6.28*T/8)+60*cos(6.28*X/48+6.28*T/12)+80,0,255)':"
+            "g='clip(150*sin(6.28*Y/27+6.28*T/9)+40*sin(6.28*X/72-6.28*T/14)+50,0,220)':"
+            "b='clip(20*sin(6.28*(X+Y)/80+6.28*T/16)+10,0,60)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=7[bg];"
+            f"{wv}:colors=0xFFCC00FF|0xFF9900FF|0xFFE066FF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "cherry_blossom":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x0A0208[tiny];"
+            "[tiny]geq="
+            "r='clip(200*sin(6.28*Y/54+6.28*T/10)+80*sin(6.28*X/72+6.28*T/7)+100,0,255)':"
+            "g='clip(80*sin(6.28*Y/27+6.28*T/12)+40*cos(6.28*X/48-6.28*T/15)+40,0,160)':"
+            "b='clip(160*sin(6.28*X/96+6.28*T/8)+60*sin(6.28*(X+Y)/60+6.28*T/11)+70,0,240)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=8[bg];"
+            f"{wv}:colors=0xFF88AAFF|0xFFCCDDFF|0xFF66AAFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    elif style == "cyber_punk":
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x050010[tiny];"
+            "[tiny]geq="
+            "r='clip(160*sin(6.28*X/48+6.28*T/3)+80*sin(6.28*Y/27-6.28*T/5)+60,0,255)':"
+            "g='clip(20*sin(6.28*(X-Y)/60+6.28*T/8)+15,0,80)':"
+            "b='clip(100*sin(6.28*Y/54+6.28*T/4)+60*cos(6.28*X/72+6.28*T/6)+50,0,200)'"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=5[bg];"
+            f"{wv}:colors=0xFF0066FF|0x00FFFFFF|0xFF33CCFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
+        )
+    else:
+        return (
+            f"color=s=96x54:r={fps}:d={duration}:c=0x030310[tiny];"
             "[tiny]geq="
             "r='clip("
             "50*sin(6.28*X/96+6.28*T/12)*sin(6.28*Y/54+6.28*T/8)"
@@ -485,13 +575,61 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
             "+80*sin(6.28*X/96-6.28*T/11)"
             "+50*sin(6.28*(X+Y)/80+6.28*T/17)"
             "+80,0,255)'"
-            "[tiny_aurora];"
-            "[tiny_aurora]scale=640:360:flags=bilinear[aurora];"
-            "[aurora]gblur=sigma=6[bg_blurred];"
-            f"[1:a]showwaves=s=640x40:mode=cline:rate={FPS}:"
-            "colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF:scale=sqrt[wv];"
-            "[bg_blurred][wv]overlay=0:320[out]"
+            f"[t];[t]scale={W}:{H}:flags=bilinear[a];[a]gblur=sigma=6[bg];"
+            f"{wv}:colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF[wv];"
+            f"[bg][wv]overlay=0:{wv_y}[out]"
         )
+
+BG_STYLES = [
+    "aurora", "neon_pulse", "fire_storm", "ocean_deep", "galaxy",
+    "sunset_vibes", "matrix_rain", "electric_storm", "golden_luxury",
+    "cherry_blossom", "cyber_punk",
+]
+
+
+def _bg_filter_only(style: str, fps: int, duration: float,
+                    w: int = 640, h: int = 360) -> str:
+    full = _bg_filter(style, fps, duration)
+    cut = full.split("[1:a]showwaves")[0]
+    cut = cut.replace("scale=640:360", f"scale={w}:{h}")
+    if cut.endswith("[bg];"):
+        cut = cut[:-len("[bg];")] + "[bg_blurred];"
+    elif cut.endswith(";"):
+        cut = cut.rstrip(";") + ";"
+        cut = cut.replace("[bg];", "[bg_blurred];")
+    return cut
+
+
+def _bg_waveform_colors(style: str) -> str:
+    full = _bg_filter(style, 25, 10)
+    import re
+    m = re.search(r'colors=(0x[0-9A-Fa-f|]+)', full)
+    return m.group(1) if m else "0x00FFFFFF|0xFF44CCFF|0x9333EAFF"
+
+
+# ---------------------------------------------------------------------------
+# PIPELINE — Background pre-render (runs while user reviews transcript)
+# ---------------------------------------------------------------------------
+async def _prererender_bg(job_id: str, no_vocals: Path, duration: float,
+                          bg_style: str = "aurora"):
+    global HAS_NVENC
+    """
+    Renders the background + waveform + audio to a temp video file
+    while the user is reading / editing the transcript.
+    """
+    event = _prerender_events.get(job_id)
+    try:
+        if job_id in _cancelled_jobs:
+            return
+        jdir = JOBS_DIR / job_id
+        if not jdir.exists():
+            return
+        out  = jdir / "bg_prerender.mp4"
+        if out.exists():
+            return
+
+        FPS = 25
+        aurora = _bg_filter(bg_style, FPS, duration)
 
         import shutil as _shutil
         nice_cmd = ["nice", "-n", "10"] if _shutil.which("nice") else []
@@ -544,7 +682,8 @@ async def _prererender_bg(job_id: str, no_vocals: Path, duration: float):
                     out.unlink()
             else:
                 sz = out.stat().st_size / (1024*1024)
-                print(f"[prererender] Background ready → {out.name} ({sz:.1f} MB, 360p)")
+                print(f"[prererender] Background ready → {out.name} ({sz:.1f} MB, 360p, style={bg_style})")
+                (jdir / "bg_style_prerendered.txt").write_text(bg_style)
     finally:
         if event:
             event.set()
@@ -605,9 +744,25 @@ async def render_job(job_id: str):
 
         video_p = jdir / "karaoke.mp4"
 
+        bg_style_f = jdir / "bg_style.txt"
+        bg_style = bg_style_f.read_text().strip() if bg_style_f.exists() else "aurora"
+        _phase_log(f"bg_style={bg_style}")
+
         bg_prerender = jdir / "bg_prerender.mp4"
+        saved_style_f = jdir / "bg_style_prerendered.txt"
+        prerendered_style = saved_style_f.read_text().strip() if saved_style_f.exists() else "aurora"
+        if bg_prerender.exists() and prerendered_style != bg_style:
+            _phase_log(f"Style mismatch (prerendered={prerendered_style}, want={bg_style}), removing stale prerender")
+            bg_prerender.unlink(missing_ok=True)
+            _prerender_events.pop(job_id, None)
+
         prerender_event = _prerender_events.get(job_id)
-        if prerender_event and not prerender_event.is_set():
+        if not bg_prerender.exists() and not prerender_event:
+            _phase_log(f"No prerender — generating with style={bg_style}")
+            update_job(job_id, progress=75, status="rendering")
+            _prerender_events[job_id] = asyncio.Event()
+            await _prererender_bg(job_id, no_vocals_p, duration, bg_style=bg_style)
+        elif prerender_event and not prerender_event.is_set():
             _phase_log("Waiting for prerender event (max 180s)...")
             update_job(job_id, progress=75, status="rendering")
             try:
@@ -673,22 +828,26 @@ async def render_job(job_id: str):
                     bg_prerender.unlink(missing_ok=True)
                     rc, err = await _render_video(
                         no_vocals_p, ass_p, video_p, duration,
-                        avatar_p if has_avatar else None)
+                        avatar_p if has_avatar else None,
+                        bg_style=bg_style)
             elif use_prerender and not HAS_NVENC:
                 _phase_log("Skipping fast render on CPU (too slow), using full render directly")
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
-                    avatar_p if has_avatar else None)
+                    avatar_p if has_avatar else None,
+                    bg_style=bg_style)
             else:
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
-                    avatar_p if has_avatar else None)
+                    avatar_p if has_avatar else None,
+                    bg_style=bg_style)
             if rc != 0 and HAS_NVENC and _is_nvenc_error(err):
                 print("[render] NVENC failed at runtime — disabling and retrying with CPU")
                 HAS_NVENC = False
                 rc, err = await _render_video(
                     no_vocals_p, ass_p, video_p, duration,
-                    avatar_p if has_avatar else None)
+                    avatar_p if has_avatar else None,
+                    bg_style=bg_style)
         finally:
             render_done.set()
             tracker.cancel()
@@ -1167,36 +1326,19 @@ async def _render_video_fast(bg: Path, ass: Path,
 # ---------------------------------------------------------------------------
 async def _render_video(no_vocals: Path, ass: Path,
                         out: Path, duration: float,
-                        avatar: Path | None = None) -> tuple[int, str]:
+                        avatar: Path | None = None,
+                        bg_style: str = "aurora") -> tuple[int, str]:
     ass_path   = str(ass).replace("\\", "/")
     fonts_path = str(FONTS_DIR).replace("\\", "/")
 
-    FPS = 20   # 20 fps — adequate for karaoke text, 33% fewer frames than 30
+    FPS = 20
 
-    aurora_expr = (
-        f"color=s=96x54:r={FPS}:d={duration}:c=0x030310[tiny];"
-        "[tiny]geq="
-        "r='clip("
-        "50*sin(6.28*X/96+6.28*T/12)*sin(6.28*Y/54+6.28*T/8)"
-        "+45*sin(6.28*(X+Y)/120+6.28*T/15)"
-        "+20,0,255)':"
-        "g='clip("
-        "18*sin(6.28*X/72-6.28*T/14)*cos(6.28*Y/54+6.28*T/11)"
-        "+15*sin(6.28*(X-Y)/100+6.28*T/22)"
-        "+8,0,160)':"
-        "b='clip("
-        "170*sin(6.28*Y/54+6.28*T/9)"
-        "+80*sin(6.28*X/96-6.28*T/11)"
-        "+50*sin(6.28*(X+Y)/80+6.28*T/17)"
-        "+80,0,255)'"
-        "[tiny_aurora];"
-        "[tiny_aurora]scale=1280:720:flags=bilinear[aurora];"
-        "[aurora]gblur=sigma=6[bg_blurred];"
-    )
+    aurora_expr = _bg_filter_only(bg_style, FPS, duration, 1280, 720)
+    wv_colors = _bg_waveform_colors(bg_style)
 
     wave_expr = (
         f"[0:a]showwaves=s=1280x80:mode=cline:rate={FPS}:"
-        "colors=0x00FFFFFF|0xFF44CCFF|0x9333EAFF:scale=sqrt[wv];"
+        f"colors={wv_colors}:scale=sqrt[wv];"
     )
 
     wm_path = str(WATERMARK).replace("\\", "/")
@@ -1895,6 +2037,11 @@ async def delete_job(jid: str):
     return DeleteResponse(ok=True)
 
 
+@app.get("/processor/bg-styles")
+async def list_bg_styles():
+    return {"styles": BG_STYLES}
+
+
 @app.put("/processor/jobs/{jid}/lyrics")
 async def update_lyrics_and_render(
     jid: str,
@@ -1907,14 +2054,23 @@ async def update_lyrics_and_render(
     if jobs[jid]["status"] not in allowed:
         raise HTTPException(409, f"Cannot edit lyrics while status is '{jobs[jid]['status']}'")
     words = [w.model_dump() for w in body.words]
-    # Persist corrected transcription — this is the source of truth going forward
     (JOBS_DIR / jid / "words.json").write_text(
         json.dumps(words, ensure_ascii=False, indent=2))
-    # Remove old video so render_job produces a fresh one with the new lyrics
     old_video = JOBS_DIR / jid / "karaoke.mp4"
     if old_video.exists():
         old_video.unlink(missing_ok=True)
-    update_job(jid, words=words, status="rendering", progress=72)
+
+    chosen_style = body.bg_style if body.bg_style in BG_STYLES else "aurora"
+    jdir = JOBS_DIR / jid
+    (jdir / "bg_style.txt").write_text(chosen_style)
+
+    old_bg = jdir / "bg_prerender.mp4"
+    saved_style_f = jdir / "bg_style_prerendered.txt"
+    prerendered_style = saved_style_f.read_text().strip() if saved_style_f.exists() else "aurora"
+    if chosen_style != prerendered_style:
+        old_bg.unlink(missing_ok=True)
+
+    update_job(jid, words=words, status="rendering", progress=72, bg_style=chosen_style)
     background_tasks.add_task(render_job, jid)
     return Job(**jobs[jid])
 

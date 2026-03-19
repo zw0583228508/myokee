@@ -80,7 +80,7 @@ Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
 ## Video Generation Visual Style
 - **Fonts**: Montserrat (Latin, bold cinematic look), Noto Sans Hebrew (RTL), Noto Sans CJK SC (CJK). All in `artifacts/karaoke-processor/fonts/`.
 - **ASS Subtitle Layout**: Sentence-based 2-line display (active line + next upcoming line). Active line at y=330 with cyan \\kf word sweep; upcoming line at y=420 dimmed. Same font size (54px) for both. No small-font context lines. 2 styles: Active, Upcoming. -0.15s timing offset for sync.
-- **Background**: Aurora nebula (geq sine waves with clip(), purple/cyan/blue), gaussian blur σ=6, pre-rendered at 96×54 upscaled to 640×360 (tiny source + blur = fast + smooth).
-- **Waveform**: 3-color (cyan/magenta/purple) cline mode, sqrt scale.
+- **Background**: 11 selectable styles — aurora (default), neon_pulse, fire_storm, ocean_deep, galaxy, sunset_vibes, matrix_rain, electric_storm, golden_luxury, cherry_blossom, cyber_punk. All generated via FFmpeg geq sine waves with clip(), gaussian blur, pre-rendered at 96×54 upscaled to 640×360 (tiny source + blur = fast + smooth). User picks style in TranscriptEditor before confirming video. Style stored in `bg_style.txt` per job; prerender regenerated if style changes. `_bg_filter()` defines all styles, `_bg_filter_only()` extracts background-only portion for full render, `_bg_waveform_colors()` extracts style-specific waveform colors.
+- **Waveform**: Style-specific colors (extracted from `_bg_filter`) in cline mode, sqrt scale.
 - **Avatar**: Only explicitly uploaded photos — Google profile photos are NOT auto-sent.
 - **Encoding**: NVENC: cq=30, maxrate 2.5M, profile high; CPU: libx264 ultrafast, crf=23 (no tune/profile — speed over size on CPU). Audio: AAC 96k. Prerender: ultrafast crf=28. FFmpeg timeout: 600s.
