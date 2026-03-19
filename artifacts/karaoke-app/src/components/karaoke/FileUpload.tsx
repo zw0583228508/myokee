@@ -39,18 +39,26 @@ async function uploadAvatarToJob(jobId: string, avatarFile: File | string) {
 
 const LANGUAGE_OPTIONS = [
   { value: "auto",       label: "זיהוי אוטומטי",     flag: "🌐" },
+  { value: "he",         label: "עברית",              flag: "🇮🇱" },
   { value: "en",         label: "English",            flag: "🇺🇸" },
+  { value: "sacred_he",  label: "לשון הקודש",         flag: "🕎" },
+  { value: "yi",         label: "ייִדיש",              flag: "🇮🇱" },
+  { value: "ar",         label: "عربي",               flag: "🇸🇦" },
   { value: "ja",         label: "日本語",              flag: "🇯🇵" },
   { value: "zh",         label: "中文",                flag: "🇨🇳" },
   { value: "ko",         label: "한국어",              flag: "🇰🇷" },
+  { value: "ru",         label: "Русский",            flag: "🇷🇺" },
+  { value: "es",         label: "Español",            flag: "🇪🇸" },
+  { value: "fr",         label: "Français",           flag: "🇫🇷" },
+  { value: "de",         label: "Deutsch",            flag: "🇩🇪" },
+  { value: "pt",         label: "Português",          flag: "🇧🇷" },
+  { value: "it",         label: "Italiano",           flag: "🇮🇹" },
+  { value: "tr",         label: "Türkçe",             flag: "🇹🇷" },
+  { value: "hi",         label: "हिन्दी",               flag: "🇮🇳" },
   { value: "th",         label: "ไทย",                flag: "🇹🇭" },
   { value: "vi",         label: "Tiếng Việt",         flag: "🇻🇳" },
   { value: "tl",         label: "Filipino",           flag: "🇵🇭" },
   { value: "id",         label: "Indonesia",          flag: "🇮🇩" },
-  { value: "ar",         label: "عربي",               flag: "🇸🇦" },
-  { value: "ru",         label: "Русский",            flag: "🇷🇺" },
-  { value: "es",         label: "Español",            flag: "🇪🇸" },
-  { value: "fr",         label: "Français",           flag: "🇫🇷" },
 ] as const;
 
 export function FileUpload() {
