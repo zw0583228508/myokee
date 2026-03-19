@@ -493,14 +493,20 @@ export default function LoginPage() {
 
   return (
     <div className="fixed inset-0 grid place-items-center overflow-auto" dir={t.dir}>
+      {/* Premium Background */}
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
         <img
-          src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"
+          src="/images/hero-bg.jpg"
           alt=""
-          className="w-full h-full object-cover opacity-[0.12]"
-          style={{ filter: "saturate(0.6)" }}
+          className="w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/8" />
+        <div className="absolute inset-0 bg-[#06060f]/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/15" />
+        
+        {/* Animated orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/25 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/20 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[200px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
       </div>
 
       <div className="fixed top-4 right-4 z-50" dir="ltr">
@@ -529,12 +535,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
-                <Mic2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-2xl blur-xl opacity-60 animate-pulse" style={{ animationDuration: '3s' }} />
+                <div className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-2xl shadow-primary/40 border border-white/20">
+                  <Mic2 className="h-8 w-8 sm:h-10 sm:w-10 text-white drop-shadow-lg" />
+                </div>
               </div>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold mb-1">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">MY</span>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-cyan-400 animate-shimmer bg-[length:200%_100%]">MY</span>
               <span className="text-white">OUKEE</span>
             </h1>
             {(mode === "login" || mode === "register") && (
