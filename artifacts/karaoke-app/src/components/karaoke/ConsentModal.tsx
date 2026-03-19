@@ -109,7 +109,6 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
   const [showModal, setShowModal] = useState(false);
 
   const isSharedPage = window.location.pathname.startsWith("/shared/");
-
   useEffect(() => {
     if (consented || isSharedPage) return;
     const t = setTimeout(() => setShowModal(true), 300);
