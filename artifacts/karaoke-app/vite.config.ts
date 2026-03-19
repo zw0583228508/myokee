@@ -7,17 +7,12 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 // PORT is only needed for dev/preview servers, not for static builds.
 const isBuild = process.argv.includes("build");
 
-const rawPort = process.env.PORT;
+const rawPort = process.env.PORT || process.env.VITE_PORT;
 
-if (!rawPort && !isBuild) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
+// Use a default port if not in build mode and no PORT is provided
+const port = rawPort ? Number(rawPort) : (isBuild ? 3000 : 5173);
 
-const port = rawPort ? Number(rawPort) : 3000;
-
-if (!isBuild && (Number.isNaN(port) || port <= 0)) {
+if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
