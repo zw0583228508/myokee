@@ -9,6 +9,7 @@ import { useAwardXP } from "@/hooks/use-gamification";
 import { THEME_LIST, getTheme } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
+import { trackPartyCreated, trackPartyJoined } from "@/lib/analytics";
 
 export default function Party() {
   const pt = usePartyTranslations();
@@ -40,6 +41,7 @@ export default function Party() {
         theme: selectedTheme,
       });
       awardXP.mutate({ action: "party_hosted" });
+      trackPartyCreated();
       navigate(`/party/${room.id}`);
     } catch (e: any) {
       setError(e.message);
@@ -55,6 +57,7 @@ export default function Party() {
         displayName: displayName || undefined,
       });
       awardXP.mutate({ action: "party_joined" });
+      trackPartyJoined();
       navigate(`/party/${room.id}`);
     } catch (e: any) {
       setError(e.message);

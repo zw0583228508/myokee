@@ -11,6 +11,7 @@ import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { Mic2 } from "lucide-react";
 import { FloatingShareFab } from "@/components/FloatingShareFab";
+import { RouteTracker } from "@/components/RouteTracker";
 import NotFound from "@/pages/not-found";
 
 const Home = lazy(() => import("@/pages/Home"));
@@ -153,6 +154,7 @@ function App() {
           <TooltipProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <ConsentGate>
+                <RouteTracker />
                 <Router />
               </ConsentGate>
             </WouterRouter>

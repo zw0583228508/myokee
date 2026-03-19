@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import { LoginModal } from "./LoginModal";
 import { ConsentModal, useConsent } from "./ConsentModal";
 import { useLang } from "@/contexts/LanguageContext";
+import { trackSongProcessed, trackFileUpload } from "@/lib/analytics";
 
 const CONSENT_KEY = "myoukee-consent-v1";
 
@@ -190,6 +191,16 @@ export function FileUpload() {
         } catch (e) {
           console.warn("Failed to upload avatar:", e);
         }
+      }
+
+      trackSongProcessed({
+        source: tab === "file" ? "upload" : "youtube",
+      });
+      if (tab === "file" && file) {
+        trackFileUpload({
+          fileType: file.type,
+          fileSizeMb: Math.round((file.size / 1024 / 1024) * 100) / 100,
+        });
       }
 
       setLocation(`/job/${job.id}`);

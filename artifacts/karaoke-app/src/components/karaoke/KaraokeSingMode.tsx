@@ -8,6 +8,7 @@ import { useSavePerformance, usePublishPerformance } from "@/hooks/use-performan
 import { useAwardXP } from "@/hooks/use-gamification";
 import { useCloudRecording } from "@/hooks/use-cloud-recording";
 import { apiUrl, authFetchOptions, AUTH_TOKEN_KEY } from "@/lib/api";
+import { trackPerformanceCompleted } from "@/lib/analytics";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface WordTimestamp { word: string; start: number; end: number; }
@@ -421,6 +422,11 @@ export function KaraokeSingMode({
             totalWords:   updated.totalWords,
           }, { onSuccess: (data: any) => setSavedPerfId(data?.id ?? null) });
           awardXP.mutate({ action: "karaoke_created" });
+          trackPerformanceCompleted({
+            score: updated.score,
+            timingScore: updated.timingScore,
+            pitchScore: updated.pitchScore,
+          });
           return updated;
         });
       } catch (err) {

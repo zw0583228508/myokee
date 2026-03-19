@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLang } from "@/contexts/LanguageContext";
+import { trackReferralShared, trackReferralApplied } from "@/lib/analytics";
 
 interface ReferralStats {
   referralCode: string;
@@ -37,6 +38,7 @@ export function ReferralPanel() {
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
+      trackReferralShared();
       setTimeout(() => setCopied(false), 2000);
     } catch {}
   };
@@ -65,6 +67,7 @@ export function ReferralPanel() {
       }
       const data = await res.json();
       if (data.success) {
+        trackReferralApplied();
         toast({
           title: t.referral.success,
           description: `+${data.creditsAwarded} ${t.pricing.credits}!`,

@@ -10,6 +10,7 @@ import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal } from "@/hooks/u
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
+import { trackCreditPurchase } from "@/lib/analytics";
 
 type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | "error" | null;
 
@@ -58,6 +59,9 @@ export default function Home() {
         fulfillPayment.mutate(sessionId, {
           onSuccess: (data) => {
             setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+            if (!data.alreadyFulfilled && data.credits) {
+              trackCreditPurchase({ gateway: "stripe", credits: data.credits });
+            }
             queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
             sessionStorage.removeItem("pending_stripe_session");
           },
@@ -80,6 +84,9 @@ export default function Home() {
         fulfillPayPal.mutate(paypalOrderId, {
           onSuccess: (data) => {
             setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+            if (!data.alreadyFulfilled && data.credits) {
+              trackCreditPurchase({ gateway: "paypal", credits: data.credits });
+            }
             queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
           },
           onError: (err) => {

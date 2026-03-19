@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEmailLogin, useEmailRegister, useForgotPassword, useResetPassword, consumeAuthErrorFromUrl } from "@/hooks/use-auth";
 import { useLang, type SupportedLang } from "@/contexts/LanguageContext";
+import { trackLogin, trackSignUp } from "@/lib/analytics";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,6 +85,7 @@ export default function LoginPage() {
           localStorage.setItem("myoukee_auth_token", e.data.token);
         }
         cleanup();
+        trackLogin("google");
         queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       }
     };
@@ -126,8 +128,10 @@ export default function LoginPage() {
     try {
       if (mode === "register") {
         await emailRegister.mutateAsync({ email, password, displayName: displayName || undefined });
+        trackSignUp("email");
       } else {
         await emailLogin.mutateAsync({ email, password });
+        trackLogin("email");
       }
     } catch (err: any) {
       setError(err.message || "Authentication failed");

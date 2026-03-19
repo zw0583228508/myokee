@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Share2, X, Copy, Check, MessageCircle, Mail, Send } from "lucide-react";
+import { trackShare } from "@/lib/analytics";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -80,6 +81,7 @@ export function FloatingShareFab() {
     try {
       await navigator.clipboard.writeText(APP_URL);
       setCopied(true);
+      trackShare({ contentType: "app_link", method: "clipboard" });
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {}
@@ -89,6 +91,7 @@ export function FloatingShareFab() {
     if (navigator.share) {
       try {
         await navigator.share({ title: "MYOUKEE", text: SHARE_TEXT, url: APP_URL });
+        trackShare({ contentType: "app_link", method: "native_share" });
         setOpen(false);
       } catch {}
     }
@@ -100,42 +103,42 @@ export function FloatingShareFab() {
       label: "WhatsApp",
       icon: <MessageCircle className="w-5 h-5" />,
       color: "bg-green-600 hover:bg-green-500",
-      action: () => openExternal(`https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT}\n${APP_URL}`)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "whatsapp" }); openExternal(`https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT}\n${APP_URL}`)}`); },
     },
     {
       id: "telegram",
       label: "Telegram",
       icon: <Send className="w-5 h-5" />,
       color: "bg-sky-600 hover:bg-sky-500",
-      action: () => openExternal(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(SHARE_TEXT)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "telegram" }); openExternal(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(SHARE_TEXT)}`); },
     },
     {
       id: "x",
       label: "X",
       icon: <XIcon className="w-5 h-5" />,
       color: "bg-neutral-700 hover:bg-neutral-600",
-      action: () => openExternal(`https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(APP_URL)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "x" }); openExternal(`https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(APP_URL)}`); },
     },
     {
       id: "facebook",
       label: "Facebook",
       icon: <FacebookIcon className="w-5 h-5" />,
       color: "bg-blue-700 hover:bg-blue-600",
-      action: () => openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "facebook" }); openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`); },
     },
     {
       id: "linkedin",
       label: "LinkedIn",
       icon: <LinkedInIcon className="w-5 h-5" />,
       color: "bg-blue-800 hover:bg-blue-700",
-      action: () => openExternal(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(APP_URL)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "linkedin" }); openExternal(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(APP_URL)}`); },
     },
     {
       id: "email",
       label: "Email",
       icon: <Mail className="w-5 h-5" />,
       color: "bg-orange-600 hover:bg-orange-500",
-      action: () => openExternal(`mailto:?subject=${encodeURIComponent("MYOUKEE — AI Karaoke")}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${APP_URL}`)}`),
+      action: () => { trackShare({ contentType: "app_link", method: "email" }); openExternal(`mailto:?subject=${encodeURIComponent("MYOUKEE — AI Karaoke")}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${APP_URL}`)}`); },
     },
     {
       id: "copy",
