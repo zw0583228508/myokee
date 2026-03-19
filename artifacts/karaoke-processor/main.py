@@ -1383,6 +1383,56 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
         initial_prompt = "Lirik lagu bahasa Indonesia. Karaoke："
         print(f"[whisper] Language mode: Indonesian (id)")
 
+    elif hint == "he":
+        whisper_lang   = "he"
+        initial_prompt = "מילות שיר בעברית. שיר קריוקי:"
+        print(f"[whisper] Language mode: Hebrew (he)")
+
+    elif hint == "ar":
+        whisper_lang   = "ar"
+        initial_prompt = "كلمات أغنية بالعربية. كاريوكي:"
+        print(f"[whisper] Language mode: Arabic (ar)")
+
+    elif hint == "ru":
+        whisper_lang   = "ru"
+        initial_prompt = "Слова песни на русском языке. Караоке:"
+        print(f"[whisper] Language mode: Russian (ru)")
+
+    elif hint == "fr":
+        whisper_lang   = "fr"
+        initial_prompt = "Paroles de chanson en français. Karaoké:"
+        print(f"[whisper] Language mode: French (fr)")
+
+    elif hint == "es":
+        whisper_lang   = "es"
+        initial_prompt = "Letra de canción en español. Karaoke:"
+        print(f"[whisper] Language mode: Spanish (es)")
+
+    elif hint == "de":
+        whisper_lang   = "de"
+        initial_prompt = "Liedtext auf Deutsch. Karaoke:"
+        print(f"[whisper] Language mode: German (de)")
+
+    elif hint == "pt":
+        whisper_lang   = "pt"
+        initial_prompt = "Letra de música em português. Karaokê:"
+        print(f"[whisper] Language mode: Portuguese (pt)")
+
+    elif hint == "it":
+        whisper_lang   = "it"
+        initial_prompt = "Testo di una canzone in italiano. Karaoke:"
+        print(f"[whisper] Language mode: Italian (it)")
+
+    elif hint == "tr":
+        whisper_lang   = "tr"
+        initial_prompt = "Türkçe şarkı sözleri. Karaoke:"
+        print(f"[whisper] Language mode: Turkish (tr)")
+
+    elif hint == "hi":
+        whisper_lang   = "hi"
+        initial_prompt = "हिंदी गाने के बोल। कराओके:"
+        print(f"[whisper] Language mode: Hindi (hi)")
+
     elif hint in ("auto", ""):
         whisper_lang   = None
         initial_prompt = "Song lyrics:"
@@ -1437,6 +1487,32 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
     dur = max(info.duration, audio_dur, 1.0)
     print(f"[whisper] Detected language: {detected_lang} "
           f"(prob={info.language_probability:.2f}), duration={dur:.1f}s")
+
+    # ── Auto-detect re-run: if auto mode detected a non-English language,
+    #    re-run with proper native-script prompt to avoid romanization ──────────
+    _native_prompts = {
+        "he": "מילות שיר בעברית. שיר קריוקי:",
+        "ar": "كلمات أغنية بالعربية. كاريوكي:",
+        "ru": "Слова песни на русском языке. Караоке:",
+        "ja": "日本語の歌詞。カラオケの歌の言葉：",
+        "zh": "中文歌词。卡拉OK歌曲的歌词：",
+        "ko": "한국어 가사. 노래방 노래 가사：",
+        "th": "เนื้อเพลงภาษาไทย คาราโอเกะ：",
+        "hi": "हिंदी गाने के बोल। कराओके:",
+    }
+    if whisper_lang is None and detected_lang in _native_prompts and info.language_probability >= 0.40:
+        native_prompt = _native_prompts[detected_lang]
+        print(f"[whisper] Auto-detected {detected_lang} — re-running with native prompt")
+        common_kwargs["initial_prompt"] = native_prompt
+        segments_gen, info = wmodel.transcribe(
+            str(audio_path),
+            language=detected_lang,
+            **common_kwargs,
+        )
+        detected_lang = info.language or detected_lang
+        dur = max(info.duration, audio_dur, 1.0)
+        print(f"[whisper] Re-run result: lang={detected_lang} "
+              f"(prob={info.language_probability:.2f}), duration={dur:.1f}s")
 
     # ── Smart Yiddish fallback: if auto-detected Hebrew with low confidence,
     #    re-run with language="yi" and pick whichever has higher avg log-prob ──
