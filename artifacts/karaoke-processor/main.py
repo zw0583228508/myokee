@@ -980,9 +980,11 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
         line_end   = line[-1]["end"]
 
         if is_rtl:
-            # ── RTL: position each word individually right-to-left ─────
-            # libass BiDi is unreliable across FFmpeg builds, so we
-            # manually place each word at its correct RTL x-position.
+            # ── RTL: reverse chars + position words right-to-left ──────
+            # libass without fribidi renders ALL characters LTR, which
+            # reverses Hebrew words visually. Fix: reverse each word's
+            # characters so LTR rendering produces correct visual glyphs,
+            # and position words from right (first spoken) to left.
             word_data = [(w, _word_px(w["word"])) for w in line]
             total_px = sum(px for _, px in word_data) + _GAP_PX * max(0, len(word_data) - 1)
 
@@ -991,17 +993,18 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
             for w, wpx in word_data:
                 wcx = x_cursor - wpx // 2    # word center x
                 x_cursor -= wpx + _GAP_PX
+                vis = w["word"][::-1]         # reverse chars for LTR renderer
 
                 events.append(
                     f"Dialogue: 1,{ts(line_start)},{ts(line_end)},"
                     f"Active,,0,0,0,,{{\\an5}}{{\\pos({wcx},{Y_ACTIVE})}}"
-                    f"{{\\1c{C_UNSUNSG}\\2c{C_UNSUNSG}}}{w['word']}\n"
+                    f"{{\\1c{C_UNSUNSG}\\2c{C_UNSUNSG}}}{vis}\n"
                 )
                 word_cs = max(1, round((w["end"] - w["start"]) * 100))
                 events.append(
                     f"Dialogue: 2,{ts(w['start'])},{ts(line_end)},"
                     f"Active,,0,0,0,,{{\\an5}}{{\\pos({wcx},{Y_ACTIVE})}}"
-                    f"{{\\kf{word_cs}}}{w['word']}\n"
+                    f"{{\\kf{word_cs}}}{vis}\n"
                 )
 
             next_idx = line_idx + 1
@@ -1015,7 +1018,7 @@ def _build_ass(words: list[dict], out: Path, language: str = "en"):
                     nx -= wpx + _GAP_PX
                     events.append(
                         f"Dialogue: 0,{ts(line_start)},{ts(line_end)},"
-                        f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos({ncx},{Y_UPCOMING})}}{w['word']}\n"
+                        f"Upcoming,,0,0,0,,{{\\an5}}{{\\pos({ncx},{Y_UPCOMING})}}{w['word'][::-1]}\n"
                     )
         else:
             # ── LTR: single event per line with \kf sweep ─────────────
