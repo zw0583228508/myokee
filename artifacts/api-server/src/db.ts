@@ -1,6 +1,11 @@
 import { Pool } from "pg";
 
-if (!process.env.DATABASE_URL) {
+// Neon database connection - fallback to direct connection string if env var not set
+const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_EgBy8bjNse6R@ep-autumn-boat-anrkj96m-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require";
+
+const databaseUrl = process.env.DATABASE_URL || NEON_DATABASE_URL;
+
+if (!databaseUrl) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
@@ -16,7 +21,7 @@ function sanitizeDbUrl(url: string): string {
   }
 }
 
-const connectionString = sanitizeDbUrl(process.env.DATABASE_URL);
+const connectionString = sanitizeDbUrl(databaseUrl);
 
 export const pool = new Pool({
   connectionString,
