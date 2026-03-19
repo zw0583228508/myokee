@@ -64,6 +64,8 @@ export function trackSongProcessed(params: {
     song_duration: params.songDuration,
     credits_used: params.creditsUsed,
     source: params.source,
+    value: params.creditsUsed || 1,
+    currency: "USD",
   });
 }
 
