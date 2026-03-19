@@ -1388,40 +1388,36 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
 
     # VAD parameters tuned for music:
     # - Songs often have 0.5-2 s gaps between lines → min_silence_duration_ms=500
-    # - Pad detected speech regions by 400 ms so word edges aren't clipped
+    # - Pad detected speech regions generously so intros/outros aren't clipped
+    # - Low threshold catches quiet singing that might be missed
     vad_params = {
-        "min_silence_duration_ms": 500,
-        "speech_pad_ms": 400,
-        "threshold": 0.35,        # lower = more sensitive (picks up quiet singing)
+        "min_silence_duration_ms": 600,
+        "speech_pad_ms": 600,
+        "threshold": 0.25,        # lower = more sensitive (picks up quiet singing)
     }
 
     # ── Common transcription kwargs ───────────────────────────────────────────
-    # Speed optimisations applied here (vs original):
-    #   beam_size 10→8:  still very accurate, ~20% faster beam search per segment
-    #   patience  1.5→1.0: default patience; removes 50% extra beam exploration
-    #   best_of   5→2:  only matters during temperature fallback (rare for clear vocals)
-    # Net effect: ~25-35% faster Whisper without perceptible accuracy loss.
     common_kwargs = dict(
         word_timestamps=True,
-        beam_size=8,                         # was 10 → still high quality, ~20% faster
-        best_of=2,                           # was 5 → fewer fallback candidates (rare path)
-        patience=1.0,                        # was 1.5 → default patience → ~25% faster beam
+        beam_size=8,
+        best_of=2,
+        patience=1.0,
         length_penalty=1.0,
-        temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],   # full fallback cascade
-        compression_ratio_threshold=2.4,    # discard repetitive / garbled segments
+        temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+        compression_ratio_threshold=2.4,
         log_prob_threshold=-1.0,
-        no_speech_threshold=0.35,           # tighter: was 0.5 — less noise mis-transcribed
-        condition_on_previous_text=True,    # use prior segment as context → better lyric flow
-        prompt_reset_on_temperature=0.5,    # reset prompt context when temp rises (fallback)
+        no_speech_threshold=0.4,            # was 0.35 — slightly more permissive to avoid skipping quiet vocal sections
+        condition_on_previous_text=False,   # was True — prevents hallucination cascades where a bad first segment poisons the rest
+        prompt_reset_on_temperature=0.5,
         initial_prompt=initial_prompt,
-        repetition_penalty=1.1,             # mild anti-loop penalty
-        no_repeat_ngram_size=0,             # 0 = off (songs legitimately repeat)
-        vad_filter=True,                    # SAFE: Demucs is done, no PyTorch conflict
+        repetition_penalty=1.1,
+        no_repeat_ngram_size=0,
+        vad_filter=True,
         vad_parameters=vad_params,
-        hallucination_silence_threshold=2.0,  # silence > 2 s with text → likely hallucination
+        hallucination_silence_threshold=3.0,  # was 2.0 — less aggressive: avoids discarding real lyrics in quiet intros
         suppress_blank=True,
-        language_detection_segments=3,      # use 3 segments for language detection (was 1)
-        language_detection_threshold=0.3,   # lower threshold → more robust lang detection
+        language_detection_segments=3,
+        language_detection_threshold=0.3,
     )
 
     segments_gen, info = wmodel.transcribe(
