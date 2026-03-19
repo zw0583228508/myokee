@@ -504,7 +504,7 @@ export function KaraokeSingMode({
         });
       }
 
-      if (++colorTick >= 25) {
+      if (++colorTick >= 10) {
         colorTick = 0;
         const map = new Map<number, "pitched" | "sang" | "missed">();
         words.forEach((w, idx) => {
@@ -1295,20 +1295,41 @@ export function KaraokeSingMode({
         .kw-active   {
           color: #fff;
           background: linear-gradient(135deg, rgba(168,85,247,.85), rgba(59,130,246,.75));
-          padding: 2px 6px;
-          border-radius: 6px;
+          padding: 2px 8px;
+          border-radius: 8px;
           text-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 40px rgba(59,130,246,.5);
-          transform: scale(1.15);
+          transform: scale(1.18);
           display: inline-block;
           animation: kw-pulse 0.6s ease-in-out infinite alternate;
+          box-shadow: 0 0 20px rgba(168,85,247,.4), 0 0 40px rgba(59,130,246,.2);
         }
         @keyframes kw-pulse {
-          from { text-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 40px rgba(59,130,246,.5); }
-          to   { text-shadow: 0 0 30px rgba(168,85,247,1), 0 0 60px rgba(59,130,246,.7), 0 0 80px rgba(168,85,247,.4); }
+          from { text-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 40px rgba(59,130,246,.5); box-shadow: 0 0 20px rgba(168,85,247,.4); }
+          to   { text-shadow: 0 0 30px rgba(168,85,247,1), 0 0 60px rgba(59,130,246,.7), 0 0 80px rgba(168,85,247,.4); box-shadow: 0 0 35px rgba(168,85,247,.6); }
         }
-        .kw-pitched  { color: #4ade80; text-shadow: 0 0 12px rgba(74,222,128,.5); }
-        .kw-sang     { color: #facc15; text-shadow: 0 0 8px rgba(250,204,21,.3); }
-        .kw-missed   { color: rgba(255,255,255,.18); }
+        .kw-pitched  {
+          color: #22c55e;
+          text-shadow: 0 0 18px rgba(34,197,94,.7), 0 0 36px rgba(34,197,94,.3);
+          background: rgba(34,197,94,.12);
+          padding: 1px 4px;
+          border-radius: 4px;
+          border-bottom: 2px solid rgba(34,197,94,.6);
+        }
+        .kw-sang {
+          color: #eab308;
+          text-shadow: 0 0 14px rgba(234,179,8,.6), 0 0 28px rgba(234,179,8,.2);
+          background: rgba(234,179,8,.1);
+          padding: 1px 4px;
+          border-radius: 4px;
+          border-bottom: 2px solid rgba(234,179,8,.5);
+        }
+        .kw-missed   {
+          color: rgba(239,68,68,.55);
+          text-shadow: 0 0 6px rgba(239,68,68,.2);
+          text-decoration: line-through;
+          text-decoration-color: rgba(239,68,68,.3);
+          opacity: 0.5;
+        }
         .kw-upcoming { color: rgba(255,255,255,.85); }
         .kw-past     { color: rgba(255,255,255,.35); }
         .sing-bg     { background: radial-gradient(ellipse at 50% 40%, rgba(88,28,135,.20) 0%, transparent 70%); }
@@ -1469,6 +1490,13 @@ export function KaraokeSingMode({
         {/* ══ SINGING ═══════════════════════════════════════════════════════ */}
         {phase === "singing" && (
           <div className="relative z-10 flex-1 flex flex-col">
+            {hasMic && (
+              <div className="flex items-center justify-center gap-4 sm:gap-6 pt-3 sm:pt-4 text-[10px] sm:text-xs font-medium select-none" dir="ltr">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,.6)]" /><span className="text-green-400/80">✓</span></span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,.6)]" /><span className="text-yellow-400/80">~</span></span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400/60 shadow-[0_0_6px_rgba(239,68,68,.4)]" /><span className="text-red-400/60">✗</span></span>
+              </div>
+            )}
             {/* Lyrics — 2 lines: current + next */}
             <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-10 gap-5 sm:gap-6 text-center select-none">
               {words.length === 0
