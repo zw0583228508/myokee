@@ -15,6 +15,57 @@ type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | "error" | n
 
 const SMALL_CARD_ICONS = [Trophy, Swords, Users, Video, Download, Star, Share2, FileText];
 
+// Animated particles component
+function ParticlesBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-1 rounded-full bg-purple-500/30"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animation: `float ${5 + Math.random() * 5}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 5}s`,
+          }}
+        />
+      ))}
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={`blue-${i}`}
+          className="absolute w-0.5 h-0.5 rounded-full bg-blue-500/40"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 3}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Sound wave visualizer
+function SoundWaveVisualizer() {
+  return (
+    <div className="flex items-end gap-1 h-16">
+      {[...Array(12)].map((_, i) => (
+        <div
+          key={i}
+          className="w-1.5 rounded-full bg-gradient-to-t from-purple-500 to-blue-500"
+          style={{
+            animation: `sound-wave 1s ease-in-out infinite`,
+            animationDelay: `${i * 0.1}s`,
+            height: `${20 + Math.random() * 40}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const fulfillPayment = useFulfillPayment();
   const fulfillPayPal  = useFulfillPayPal();
@@ -159,41 +210,71 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col relative">
 
-      {/* ── Payment Banners ─────────────────────────────────────── */}
+      {/* ── Payment Banners with Premium Styling ─────────────────────────────────────── */}
       {paymentBanner === "success" && (
-        <div className="w-full bg-green-500/10 border-b border-green-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
-          <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
-          <span className="text-green-400 font-medium">{lang === "he" ? "הרכישה הצליחה! הקרדיטים נוספו לחשבונך." : "Purchase successful! Credits added to your account."}</span>
-          <button onClick={() => setPaymentBanner(null)} className="text-green-600 hover:text-green-400 ml-2">✕</button>
+        <div className="w-full bg-gradient-to-r from-green-500/10 via-green-500/15 to-green-500/10 border-b border-green-500/30 px-4 py-4 flex items-center justify-center gap-3 text-sm backdrop-blur-xl">
+          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4 text-green-400" />
+          </div>
+          <span className="text-green-300 font-medium">{lang === "he" ? "הרכישה הצליחה! הקרדיטים נוספו לחשבונך." : "Purchase successful! Credits added to your account."}</span>
+          <button onClick={() => setPaymentBanner(null)} className="ml-4 w-6 h-6 rounded-full bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center justify-center">X</button>
         </div>
       )}
       {paymentBanner === "cancelled" && (
-        <div className="w-full bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
-          <XCircle className="w-4 h-4 text-yellow-400 shrink-0" />
-          <span className="text-yellow-400">{lang === "he" ? "הרכישה בוטלה. ניתן לרכוש בכל עת." : "Purchase cancelled. You can buy at any time."}</span>
-          <button onClick={() => setPaymentBanner(null)} className="text-yellow-600 hover:text-yellow-400 ml-2">✕</button>
+        <div className="w-full bg-gradient-to-r from-yellow-500/10 via-yellow-500/15 to-yellow-500/10 border-b border-yellow-500/30 px-4 py-4 flex items-center justify-center gap-3 text-sm backdrop-blur-xl">
+          <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <XCircle className="w-4 h-4 text-yellow-400" />
+          </div>
+          <span className="text-yellow-300">{lang === "he" ? "הרכישה בוטלה. ניתן לרכוש בכל עת." : "Purchase cancelled. You can buy at any time."}</span>
+          <button onClick={() => setPaymentBanner(null)} className="ml-4 w-6 h-6 rounded-full bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors flex items-center justify-center">X</button>
         </div>
       )}
       {paymentBanner === "error" && (
-        <div className="w-full bg-red-500/10 border-b border-red-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
-          <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-          <span className="text-red-400">{lang === "he" ? "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה." : "Payment processing error. Credits will be added automatically on next login."}</span>
-          <button onClick={() => setPaymentBanner(null)} className="text-red-600 hover:text-red-400 ml-2">✕</button>
+        <div className="w-full bg-gradient-to-r from-red-500/10 via-red-500/15 to-red-500/10 border-b border-red-500/30 px-4 py-4 flex items-center justify-center gap-3 text-sm backdrop-blur-xl">
+          <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+            <XCircle className="w-4 h-4 text-red-400" />
+          </div>
+          <span className="text-red-300">{lang === "he" ? "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה." : "Payment processing error. Credits will be added automatically on next login."}</span>
+          <button onClick={() => setPaymentBanner(null)} className="ml-4 w-6 h-6 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors flex items-center justify-center">X</button>
         </div>
       )}
 
-      {/* ── Sticky Tabs ─────────────────────────────────────────── */}
-      <div className="sticky top-16 z-40 bg-background/80 backdrop-blur-2xl border-b border-white/8">
+      {/* ── Premium Sticky Tabs ─────────────────────────────────────────── */}
+      <div className="sticky top-16 z-40 glass-panel border-b border-purple-500/10">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-stretch gap-0 overflow-x-auto scrollbar-none" dir={dir}>
             {TABS.map(({ id, label, icon: Icon, href }: any) => {
               const isActive = activeTab === id;
-              const cls = "flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all border-b-2 shrink-0 " +
-                (isActive ? "text-white border-primary" : "text-white/40 border-transparent hover:text-white/70 hover:border-white/15");
               return href ? (
-                <Link key={id} href={href}><button className={cls}><Icon className="w-3.5 h-3.5" />{label}</button></Link>
+                <Link key={id} href={href}>
+                  <button className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
+                    isActive 
+                      ? "text-purple-300" 
+                      : "text-white/40 hover:text-white/70"
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </button>
+                </Link>
               ) : (
-                <button key={id} className={cls} onClick={() => scrollTo(id)}><Icon className="w-3.5 h-3.5" />{label}</button>
+                <button 
+                  key={id} 
+                  className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
+                    isActive 
+                      ? "text-purple-300" 
+                      : "text-white/40 hover:text-white/70"
+                  }`}
+                  onClick={() => scrollTo(id)}
+                >
+                  {isActive && (
+                    <>
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500" />
+                      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-purple-500/20 to-transparent" />
+                    </>
+                  )}
+                  <Icon className={`w-4 h-4 ${isActive ? "text-purple-400" : ""}`} />
+                  {label}
+                </button>
               );
             })}
           </div>
@@ -201,91 +282,131 @@ export default function Home() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          1. HERO
+          1. ULTRA PREMIUM HERO
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-[70vh] sm:min-h-[94vh] flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-[95vh] flex flex-col items-center justify-center overflow-hidden hero-bg">
+        <ParticlesBackground />
+        
+        {/* Multiple layered backgrounds for depth */}
         <div className="absolute inset-0 -z-10">
           <img
-            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&h=1080&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-50"
-            style={{ filter: "saturate(0.75)" }}
+            src="/images/hero-bg.jpg"
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-[#06060f]/50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/10" />
-          <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-primary/15 blur-[140px]" />
-          <div className="absolute top-1/2 right-1/5 w-60 h-60 rounded-full bg-accent/10 blur-[100px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-blue-900/20" />
+          
+          {/* Animated glow orbs */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500/20 blur-[150px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-500/15 blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-pink-500/10 blur-[180px] animate-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-8 sm:pb-12">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/6 border border-white/10 text-sm text-white/60 mb-6 sm:mb-10 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            {t.home.hero.badge}
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-8 sm:pb-12">
+          {/* Premium badge with glow */}
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full glass-panel-glow border-purple-500/30 text-sm text-white/80 mb-8 sm:mb-12">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+            </span>
+            <span className="animated-gradient-text font-semibold">{t.home.hero.badge}</span>
+            <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
 
-          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-6">
-            {t.home.hero.headline1}
+          {/* Main headline with intense glow */}
+          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black font-display leading-[0.85] tracking-tight mb-6 sm:mb-8">
+            <span className="text-white drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+              {t.home.hero.headline1}
+            </span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-blue-400">
+            <span className="animated-gradient-text text-glow-intense">
               {t.home.hero.headline2}
             </span>
+            <br />
             <span className="text-white">{t.home.hero.headline3}</span>
           </h1>
 
-          <p className="text-base sm:text-xl text-white/50 max-w-lg mx-auto mb-3 leading-relaxed">
+          {/* Sound wave visualizer */}
+          <div className="flex justify-center mb-6">
+            <SoundWaveVisualizer />
+          </div>
+
+          <p className="text-lg sm:text-2xl text-white/60 max-w-2xl mx-auto mb-3 leading-relaxed font-light">
             {t.home.hero.sub}
           </p>
-          <p className="text-sm text-white/35 max-w-sm mx-auto mb-6 sm:mb-10">
+          <p className="text-sm sm:text-base text-white/40 max-w-xl mx-auto mb-8 sm:mb-12">
             {t.home.hero.sub2}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10">
-            {t.home.hero.chips.map(f => (
-              <span key={f} className="px-3 py-1.5 rounded-full bg-white/6 border border-white/10 text-sm text-white/55 backdrop-blur-sm">
+          {/* Premium feature chips */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
+            {t.home.hero.chips.map((f, i) => (
+              <span 
+                key={f} 
+                className="px-4 py-2 rounded-full glass-panel border-purple-500/20 text-sm text-white/70 shimmer"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              >
                 {f}
               </span>
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+          {/* Premium CTA buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Link href="/upload">
-              <button
-                className="flex items-center gap-2.5 px-9 py-4 rounded-2xl text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_rgba(124,58,237,0.4)]"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-                <Mic className="w-5 h-5" />
-                {t.home.hero.ctaCreate}
+              <button className="group relative flex items-center gap-3 px-10 py-5 rounded-2xl text-white font-bold text-lg transition-all duration-300 hover:scale-105 active:scale-95 btn-neon overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-500 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <Mic className="relative w-6 h-6 mic-pulse" />
+                <span className="relative">{t.home.hero.ctaCreate}</span>
+                <ArrowRight className="relative w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
             <Link href="/leaderboard">
-              <button className="flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-white/7 border border-white/12 text-white/75 hover:bg-white/12 hover:text-white transition-all font-semibold text-base">
-                <Trophy className="w-5 h-5 text-yellow-400" />
+              <button className="group flex items-center gap-3 px-8 py-5 rounded-2xl glass-panel-glow border-yellow-500/20 text-white/80 hover:text-white hover:border-yellow-500/40 transition-all duration-300 font-semibold text-lg">
+                <Trophy className="w-6 h-6 text-yellow-400 group-hover:scale-110 transition-transform" />
                 {t.home.hero.ctaLeaderboard}
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
           </div>
         </div>
 
-        <button onClick={() => scrollTo("how-it-works")}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/20 hover:text-white/45 transition-colors">
-          <ChevronDown className="w-5 h-5 animate-bounce" />
+        {/* Scroll indicator with glow */}
+        <button 
+          onClick={() => scrollTo("how-it-works")}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 hover:text-purple-400 transition-colors"
+        >
+          <span className="text-xs uppercase tracking-widest">Scroll</span>
+          <ChevronDown className="w-6 h-6 animate-bounce" />
         </button>
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          2. PRODUCT VALUE STRIP
+          2. PREMIUM VALUE STRIP
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-10 sm:py-16 border-y border-white/5 bg-white/[0.01]">
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/8 rounded-3xl overflow-hidden border border-white/8">
+      <section className="relative py-16 sm:py-24 border-y border-purple-500/10">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-blue-500/5" />
+        
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { icon: Music, title: t.home.valueStrip.title1, desc: t.home.valueStrip.desc1, color: "text-violet-400" },
-              { icon: Zap,   title: t.home.valueStrip.title2, desc: t.home.valueStrip.desc2, color: "text-blue-400"   },
-              { icon: Globe, title: t.home.valueStrip.title3, desc: t.home.valueStrip.desc3, color: "text-green-400"  },
-            ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} className="bg-background/60 backdrop-blur-sm px-8 py-8">
-                <Icon className={`w-6 h-6 ${color} mb-4`} />
-                <h3 className="font-bold text-white text-base mb-2">{title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
+              { icon: Music, title: t.home.valueStrip.title1, desc: t.home.valueStrip.desc1, gradient: "from-purple-500 to-violet-600" },
+              { icon: Zap,   title: t.home.valueStrip.title2, desc: t.home.valueStrip.desc2, gradient: "from-blue-500 to-cyan-500" },
+              { icon: Globe, title: t.home.valueStrip.title3, desc: t.home.valueStrip.desc3, gradient: "from-green-500 to-emerald-500" },
+            ].map(({ icon: Icon, title, desc, gradient }, i) => (
+              <div 
+                key={title} 
+                className="card-premium rounded-3xl p-8 text-center group"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className={`relative inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent" />
+                  <Icon className="w-8 h-8 text-white relative" />
+                </div>
+                <h3 className="font-bold text-white text-xl mb-3">{title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -293,58 +414,68 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          3. HOW IT WORKS
+          3. HOW IT WORKS - PREMIUM
       ══════════════════════════════════════════════════════════ */}
-      <section ref={howRef} id="how-it-works" className="relative scroll-mt-32 py-14 sm:py-28 overflow-hidden">
+      <section ref={howRef} id="how-it-works" className="relative scroll-mt-32 py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <img
             src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1920&h=800&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover opacity-45"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-30"
             style={{ filter: "saturate(1.2)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/10 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/30 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-transparent to-background/90" />
         </div>
 
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-10 sm:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent font-medium mb-4">
-              <Play className="w-3 h-3" />{t.home.howItWorks.badge}
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-blue-500/30 text-sm text-blue-300 font-medium mb-6">
+              <Play className="w-4 h-4" />
+              {t.home.howItWorks.badge}
             </div>
-            <h2 className="text-3xl sm:text-5xl font-display font-bold mb-3">{t.home.howItWorks.title}</h2>
-            <p className="text-white/35 text-base">{t.home.howItWorks.subtitle}</p>
+            <h2 className="text-4xl sm:text-6xl font-display font-black mb-4">
+              <span className="text-white">{t.home.howItWorks.title}</span>
+            </h2>
+            <p className="text-white/40 text-lg max-w-md mx-auto">{t.home.howItWorks.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative">
-            <div className="hidden sm:block absolute top-10 left-[16%] right-[16%] h-px bg-gradient-to-r from-primary/40 via-accent/60 to-primary/40" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 relative">
+            {/* Connecting line */}
+            <div className="hidden sm:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-purple-500/50 via-blue-500/50 to-pink-500/50" />
 
             {[
-              { num: "01", icon: Upload,   step: t.home.howItWorks.step1, gradient: "from-violet-600 to-primary" },
-              { num: "02", icon: Sparkles, step: t.home.howItWorks.step2, gradient: "from-blue-500 to-cyan-500"  },
-              { num: "03", icon: Mic,      step: t.home.howItWorks.step3, gradient: "from-accent to-pink-500"    },
-            ].map(({ num, icon: Icon, step, gradient }) => (
+              { num: "01", icon: Upload,   step: t.home.howItWorks.step1, gradient: "from-purple-500 to-violet-600", glow: "shadow-purple-500/30" },
+              { num: "02", icon: Sparkles, step: t.home.howItWorks.step2, gradient: "from-blue-500 to-cyan-500", glow: "shadow-blue-500/30" },
+              { num: "03", icon: Mic,      step: t.home.howItWorks.step3, gradient: "from-pink-500 to-rose-500", glow: "shadow-pink-500/30" },
+            ].map(({ num, icon: Icon, step, gradient, glow }) => (
               <div key={num} className="relative text-center group" dir={dir}>
-                <div className="relative inline-flex mb-6">
-                  <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.2)] group-hover:shadow-[0_0_60px_rgba(124,58,237,0.3)] transition-all`}>
-                    <Icon className="w-9 h-9 text-white" />
+                <div className="relative inline-flex mb-8">
+                  {/* Glow effect */}
+                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${gradient} blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
+                  
+                  <div className={`relative w-24 h-24 rounded-3xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-2xl ${glow} group-hover:scale-110 transition-all duration-300`}>
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/20 to-transparent" />
+                    <Icon className="w-10 h-10 text-white relative" />
                   </div>
-                  <span className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-background border border-white/15 flex items-center justify-center text-[11px] font-bold text-white/50">
+                  
+                  {/* Step number */}
+                  <span className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-background border-2 border-purple-500/50 flex items-center justify-center text-xs font-bold text-purple-300">
                     {num}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed max-w-[220px] mx-auto">{step.desc}</p>
+                
+                <h3 className="text-2xl font-bold text-white mb-3">{step.title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed max-w-[250px] mx-auto">{step.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-14 text-center">
+          <div className="mt-16 text-center">
             <Link href="/upload">
-              <button
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all hover:scale-105"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.3)" }}>
-                <Mic className="w-4 h-4" />
+              <button className="group inline-flex items-center gap-3 px-10 py-4 rounded-2xl btn-neon text-white font-bold text-lg transition-all duration-300 hover:scale-105">
+                <Mic className="w-5 h-5" />
                 {t.home.howItWorks.cta}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
           </div>
@@ -352,94 +483,107 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          4. CORE FEATURES
+          4. CORE FEATURES - ULTRA PREMIUM BENTO
       ══════════════════════════════════════════════════════════ */}
-      <section ref={featuresRef} id="features" className="relative scroll-mt-32 py-14 sm:py-28 overflow-hidden">
+      <section ref={featuresRef} id="features" className="relative scroll-mt-32 py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <img
             src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&h=1000&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover opacity-45"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-25"
             style={{ filter: "saturate(1.1)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/20 to-background/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
         </div>
 
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-10 sm:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium mb-4">
-              <Sparkles className="w-3 h-3" />{t.home.features.badge}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-purple-500/30 text-sm text-purple-300 font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              {t.home.features.badge}
             </div>
-            <h2 className="text-3xl sm:text-5xl font-display font-bold mb-3">{t.home.features.title}</h2>
-            <p className="text-white/35 text-base max-w-md mx-auto">{t.home.features.subtitle}</p>
+            <h2 className="text-4xl sm:text-6xl font-display font-black mb-4">
+              <span className="text-white">{t.home.features.title}</span>
+            </h2>
+            <p className="text-white/40 text-lg max-w-lg mx-auto">{t.home.features.subtitle}</p>
           </div>
 
-          {/* Bento grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
+          {/* Premium Bento grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr">
 
             {/* Hero card: Real-time singing */}
-            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-violet-500/15 to-purple-600/5 border border-violet-500/20 overflow-hidden hover:border-violet-400/35 transition-all">
-              <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-violet-500/8 blur-3xl" />
-              <div className="flex items-start justify-between mb-3 sm:mb-5">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-violet-500/20 border border-violet-400/20 flex items-center justify-center">
-                  <Mic className="w-5 h-5 sm:w-7 sm:h-7 text-violet-300" />
+            <div className="col-span-2 sm:col-span-2 relative rounded-3xl p-6 sm:p-10 card-premium overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-purple-600/5 to-transparent" />
+              <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-purple-500/20 blur-[80px] group-hover:bg-purple-500/30 transition-colors" />
+              
+              <div className="relative">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <span className="px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold">{t.home.features.singBadge}</span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-300 text-xs font-semibold">{t.home.features.singBadge}</span>
-              </div>
-              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">{t.home.features.sing}</h3>
-              <p className="text-white/45 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5">{t.home.features.singDesc}</p>
-              <div className="flex flex-wrap gap-2">
-                {t.home.features.singTags.map(tag => (
-                  <span key={tag} className="px-2.5 py-1 rounded-full bg-white/8 text-white/55 text-xs">{tag}</span>
-                ))}
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.home.features.sing}</h3>
+                <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-6">{t.home.features.singDesc}</p>
+                <div className="flex flex-wrap gap-2">
+                  {t.home.features.singTags.map(tag => (
+                    <span key={tag} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs">{tag}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Hero card: AI Separation */}
-            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-blue-500/15 to-cyan-600/5 border border-blue-500/20 overflow-hidden hover:border-blue-400/35 transition-all">
-              <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-blue-500/8 blur-3xl" />
-              <div className="flex items-start justify-between mb-3 sm:mb-5">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-blue-500/20 border border-blue-400/20 flex items-center justify-center">
-                  <Headphones className="w-5 h-5 sm:w-7 sm:h-7 text-blue-300" />
+            <div className="col-span-2 sm:col-span-2 relative rounded-3xl p-6 sm:p-10 card-premium overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-cyan-600/5 to-transparent" />
+              <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-blue-500/20 blur-[80px] group-hover:bg-blue-500/30 transition-colors" />
+              
+              <div className="relative">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <Headphones className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <span className="px-3 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold">{t.home.features.aiBadge}</span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">{t.home.features.aiBadge}</span>
-              </div>
-              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">{t.home.features.ai}</h3>
-              <p className="text-white/45 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5">{t.home.features.aiDesc}</p>
-              <div className="flex flex-wrap gap-2">
-                {t.home.features.aiTags.map(tag => (
-                  <span key={tag} className="px-2.5 py-1 rounded-full bg-white/8 text-white/55 text-xs">{tag}</span>
-                ))}
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.home.features.ai}</h3>
+                <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-6">{t.home.features.aiDesc}</p>
+                <div className="flex flex-wrap gap-2">
+                  {t.home.features.aiTags.map(tag => (
+                    <span key={tag} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs">{tag}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* NEW: Avatar animation card — full width */}
-            <div className="col-span-2 lg:col-span-4 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/8 to-pink-600/5 border border-fuchsia-500/25 overflow-hidden hover:border-fuchsia-400/40 transition-all">
-              <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-fuchsia-500/8 blur-[80px]" />
-              <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-pink-500/8 blur-3xl" />
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            {/* Avatar animation card — full width */}
+            <div className="col-span-2 lg:col-span-4 relative rounded-3xl p-6 sm:p-10 card-premium overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/15 via-purple-600/5 to-transparent" />
+              <div className="absolute -right-32 -top-32 w-96 h-96 rounded-full bg-pink-500/15 blur-[100px] group-hover:bg-pink-500/25 transition-colors" />
+              <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-purple-500/15 blur-[80px]" />
+              
+              <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-8">
                 <div className="flex items-start justify-between sm:justify-start gap-4 w-full sm:w-auto">
-                  <div className="w-14 h-14 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-400/20 flex items-center justify-center shrink-0">
-                    <Camera className="w-7 h-7 text-fuchsia-300" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shrink-0 shadow-lg shadow-pink-500/30">
+                    <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-xs font-semibold sm:hidden">{t.home.features.avatarBadge}</span>
+                  <span className="px-3 py-1.5 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold sm:hidden">{t.home.features.avatarBadge}</span>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-2xl font-bold text-white">{t.home.features.avatar}</h3>
-                    <span className="hidden sm:inline px-2.5 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-xs font-semibold">{t.home.features.avatarBadge}</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white">{t.home.features.avatar}</h3>
+                    <span className="hidden sm:inline px-3 py-1.5 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold">{t.home.features.avatarBadge}</span>
                   </div>
-                  <p className="text-white/45 text-sm leading-relaxed mb-4 max-w-2xl">{t.home.features.avatarDesc}</p>
+                  <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-5 max-w-2xl">{t.home.features.avatarDesc}</p>
                   <div className="flex flex-wrap gap-2">
                     {t.home.features.avatarTags.map(tag => (
-                      <span key={tag} className="px-2.5 py-1 rounded-full bg-white/8 text-white/55 text-xs">{tag}</span>
+                      <span key={tag} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs">{tag}</span>
                     ))}
                   </div>
                 </div>
                 <Link href="/upload" className="shrink-0">
-                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-300 hover:bg-fuchsia-500/30 transition-colors text-sm font-semibold whitespace-nowrap">
+                  <button className="group/btn flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500/20 to-rose-500/10 border border-pink-500/30 text-pink-300 hover:bg-pink-500/30 transition-all text-sm font-semibold whitespace-nowrap">
                     <Upload className="w-4 h-4" />
                     {t.nav.createKaraoke}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </Link>
               </div>
@@ -449,27 +593,31 @@ export default function Home() {
             {t.home.features.cards.map((f, i) => {
               const Icon = SMALL_CARD_ICONS[i];
               const colors = [
-                { color: "text-yellow-400", bg: "from-yellow-500/12 to-amber-600/5",   border: "border-yellow-500/20" },
-                { color: "text-orange-400", bg: "from-orange-500/12 to-red-600/5",     border: "border-orange-500/20" },
-                { color: "text-green-400",  bg: "from-green-500/12 to-teal-600/5",    border: "border-green-500/20"  },
-                { color: "text-red-400",    bg: "from-red-500/12 to-orange-600/5",     border: "border-red-500/20"    },
-                { color: "text-indigo-400", bg: "from-indigo-500/12 to-violet-600/5",  border: "border-indigo-500/20" },
-                { color: "text-pink-400",   bg: "from-pink-500/12 to-rose-600/5",      border: "border-pink-500/20"   },
-                { color: "text-sky-400",    bg: "from-sky-500/12 to-blue-600/5",       border: "border-sky-500/20"    },
-                { color: "text-purple-400", bg: "from-purple-500/12 to-pink-600/5",    border: "border-purple-500/20" },
+                { gradient: "from-yellow-500 to-amber-600", glow: "shadow-yellow-500/20", bg: "from-yellow-500/10 to-amber-600/5" },
+                { gradient: "from-orange-500 to-red-600", glow: "shadow-orange-500/20", bg: "from-orange-500/10 to-red-600/5" },
+                { gradient: "from-green-500 to-emerald-600", glow: "shadow-green-500/20", bg: "from-green-500/10 to-emerald-600/5" },
+                { gradient: "from-red-500 to-rose-600", glow: "shadow-red-500/20", bg: "from-red-500/10 to-rose-600/5" },
+                { gradient: "from-indigo-500 to-violet-600", glow: "shadow-indigo-500/20", bg: "from-indigo-500/10 to-violet-600/5" },
+                { gradient: "from-pink-500 to-rose-600", glow: "shadow-pink-500/20", bg: "from-pink-500/10 to-rose-600/5" },
+                { gradient: "from-sky-500 to-blue-600", glow: "shadow-sky-500/20", bg: "from-sky-500/10 to-blue-600/5" },
+                { gradient: "from-purple-500 to-violet-600", glow: "shadow-purple-500/20", bg: "from-purple-500/10 to-violet-600/5" },
               ][i];
               return (
-                <div key={i} className={`relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-gradient-to-br ${colors.bg} border ${colors.border} overflow-hidden hover:scale-[1.02] transition-all`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center shrink-0">
-                      <Icon className={`w-5 h-5 ${colors.color}`} />
+                <div key={i} className={`relative rounded-3xl p-5 sm:p-7 card-premium overflow-hidden group`}>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${colors.bg}`} />
+                  
+                  <div className="relative">
+                    <div className="flex items-start justify-between mb-5">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colors.gradient} flex items-center justify-center shadow-lg ${colors.glow}`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      {f.badge && (
+                        <span className="px-2.5 py-1 rounded-full bg-white/10 text-white/70 text-[10px] font-bold">{f.badge}</span>
+                      )}
                     </div>
-                    {f.badge && (
-                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-white/60 text-[10px] font-semibold">{f.badge}</span>
-                    )}
+                    <h3 className="font-bold text-white text-base mb-2">{f.title}</h3>
+                    <p className="text-white/45 text-sm leading-relaxed">{f.desc}</p>
                   </div>
-                  <h3 className="font-bold text-white text-sm mb-1.5">{f.title}</h3>
-                  <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                 </div>
               );
             })}
@@ -478,84 +626,92 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          5. AI TECHNOLOGY
+          5. AI TECHNOLOGY - PREMIUM
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-24 overflow-hidden">
+      <section className="relative py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <img
             src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&h=700&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover opacity-40"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-25"
             style={{ filter: "saturate(0.7)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/30 to-background" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/5 blur-[120px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-blue-500/10 blur-[150px]" />
         </div>
 
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-8 sm:mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400 font-medium mb-4">
-              <Sparkles className="w-3 h-3" />{t.home.aiTech.badge}
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-blue-500/30 text-sm text-blue-300 font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              {t.home.aiTech.badge}
             </div>
-            <h2 className="text-3xl sm:text-5xl font-display font-bold mb-3">
-              {t.home.aiTech.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{t.home.aiTech.titleHighlight}</span>
+            <h2 className="text-4xl sm:text-6xl font-display font-black mb-4">
+              {t.home.aiTech.title} <span className="animated-gradient-text">{t.home.aiTech.titleHighlight}</span>
             </h2>
-            <p className="text-white/35 text-base max-w-md mx-auto">{t.home.aiTech.subtitle}</p>
+            <p className="text-white/40 text-lg max-w-lg mx-auto">{t.home.aiTech.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/10 to-indigo-600/5 border border-blue-500/20 p-5 sm:p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
-                  <Scissors className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">{t.home.aiTech.demucsTitle}</h3>
-                  <p className="text-blue-400/70 text-sm">{t.home.aiTech.demucsSub}</p>
-                </div>
-              </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-6">{t.home.aiTech.demucsDesc}</p>
-              <div className="space-y-2">
-                {t.home.aiTech.demucsBullets.map(f => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-white/45">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                    {f}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+            <div className="card-premium rounded-3xl p-8 sm:p-10 group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/5 rounded-3xl" />
+              <div className="relative">
+                <div className="flex items-center gap-5 mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <Scissors className="w-8 h-8 text-white" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{t.home.aiTech.demucsTitle}</h3>
+                    <p className="text-blue-400/80 text-sm">{t.home.aiTech.demucsSub}</p>
+                  </div>
+                </div>
+                <p className="text-white/55 text-base leading-relaxed mb-8">{t.home.aiTech.demucsDesc}</p>
+                <div className="space-y-3">
+                  {t.home.aiTech.demucsBullets.map(f => (
+                    <div key={f} className="flex items-center gap-3 text-sm text-white/50">
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-violet-500/10 to-purple-600/5 border border-violet-500/20 p-5 sm:p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-violet-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">{t.home.aiTech.whisperTitle}</h3>
-                  <p className="text-violet-400/70 text-sm">{t.home.aiTech.whisperSub}</p>
-                </div>
-              </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-6">{t.home.aiTech.whisperDesc}</p>
-              <div className="space-y-2">
-                {t.home.aiTech.whisperBullets.map(f => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-white/45">
-                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                    {f}
+            <div className="card-premium rounded-3xl p-8 sm:p-10 group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-violet-600/5 rounded-3xl" />
+              <div className="relative">
+                <div className="flex items-center gap-5 mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <FileText className="w-8 h-8 text-white" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{t.home.aiTech.whisperTitle}</h3>
+                    <p className="text-purple-400/80 text-sm">{t.home.aiTech.whisperSub}</p>
+                  </div>
+                </div>
+                <p className="text-white/55 text-base leading-relaxed mb-8">{t.home.aiTech.whisperDesc}</p>
+                <div className="space-y-3">
+                  {t.home.aiTech.whisperBullets.map(f => (
+                    <div key={f} className="flex items-center gap-3 text-sm text-white/50">
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Stats with glow */}
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
             {[
               { num: "+100", label: dir === "rtl" ? "שפות נתמכות" : "+100 Languages" },
               { num: "<5m",  label: dir === "rtl" ? "זמן עיבוד"   : "Processing Time" },
               { num: "AI",   label: dir === "rtl" ? "פירוד ווקאל" : "Vocal Separation" },
-              { num: "0₪",   label: dir === "rtl" ? "40 שניות ראשונות" : "First 40 Seconds" },
-            ].map(s => (
-              <div key={s.label} className="text-center rounded-2xl bg-white/4 border border-white/8 py-5">
-                <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-1">{s.num}</p>
-                <p className="text-white/35 text-xs">{s.label}</p>
+              { num: "0$",   label: dir === "rtl" ? "40 שניות ראשונות" : "First 40 Seconds" },
+            ].map((s, i) => (
+              <div key={s.label} className="text-center card-premium rounded-2xl py-8">
+                <p className="text-4xl sm:text-5xl font-black animated-gradient-text mb-2">{s.num}</p>
+                <p className="text-white/40 text-sm">{s.label}</p>
               </div>
             ))}
           </div>
@@ -563,52 +719,57 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          6. SOCIAL EXPERIENCE
+          6. SOCIAL EXPERIENCE - PREMIUM
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-12 sm:py-24 overflow-hidden">
+      <section className="relative py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <img
             src="https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=1920&h=800&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover opacity-40"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-25"
             style={{ filter: "saturate(1.5)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] rounded-full bg-amber-500/5 blur-[120px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] rounded-full bg-amber-500/10 blur-[150px]" />
         </div>
 
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-8 sm:mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-medium mb-4">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-amber-500/30 text-sm text-amber-300 font-medium mb-6">
+              <Trophy className="w-4 h-4" />
               {t.home.compete.badge}
             </div>
-            <h2 className="text-3xl sm:text-5xl font-display font-bold mb-3">{t.home.compete.title}</h2>
-            <p className="text-white/35 text-base max-w-md mx-auto">{t.home.compete.subtitle}</p>
+            <h2 className="text-4xl sm:text-6xl font-display font-black mb-4 text-white">{t.home.compete.title}</h2>
+            <p className="text-white/40 text-lg max-w-lg mx-auto">{t.home.compete.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
-              { emoji: "🏆", title: dir === "rtl" ? "לידרבורד גלובלי"  : "Global Leaderboard", desc: dir === "rtl" ? "ביצועים מכל העולם, דירוג שבועי ותגי הישג בלעדיים." : "Performances from around the world, weekly rankings and exclusive achievement badges.", badge: dir === "rtl" ? "גלובלי" : "Global",  color: "from-yellow-500/12 to-amber-600/5", border: "border-yellow-500/18" },
-              { emoji: "⚔️", title: "Battle Mode",                       desc: dir === "rtl" ? "אתגר חבר ישירות — הוא רואה את הציון שלך וצריך לנצח." : "Challenge a friend directly — they see your score and need to win.", badge: dir === "rtl" ? "ויראלי" : "Viral", color: "from-orange-500/12 to-red-600/5",   border: "border-orange-500/18" },
-              { emoji: "⭐", title: dir === "rtl" ? "דירוג כוכבים" : "Star Rating",    desc: dir === "rtl" ? "ניתוח תזמון + מנגינה + כיסוי → ציון 0-100 ו-1-5 כוכבים." : "Timing + pitch + coverage analysis → score 0-100 and 1-5 stars.", badge: "",  color: "from-pink-500/12 to-rose-600/5",   border: "border-pink-500/18" },
-              { emoji: "🔥", title: dir === "rtl" ? "אתגרי השבוע" : "Weekly Challenges", desc: dir === "rtl" ? "השלם אתגרים שבועיים, צבור נקודות ועלה בדירוג." : "Complete weekly challenges, earn points and climb the rankings.", badge: dir === "rtl" ? "שבועי" : "Weekly", color: "from-red-500/12 to-orange-600/5",  border: "border-red-500/18" },
-              { emoji: "📱", title: dir === "rtl" ? "שיתוף מיידי" : "Instant Sharing",   desc: dir === "rtl" ? "WhatsApp, Instagram — עם ציון, כוכבים ולינק לשיר." : "WhatsApp, Instagram — with score, stars and song link.", badge: "",  color: "from-sky-500/12 to-blue-600/5",   border: "border-sky-500/18" },
+              { emoji: "🏆", title: dir === "rtl" ? "לידרבורד גלובלי"  : "Global Leaderboard", desc: dir === "rtl" ? "ביצועים מכל העולם, דירוג שבועי ותגי הישג בלעדיים." : "Performances from around the world, weekly rankings and exclusive achievement badges.", badge: dir === "rtl" ? "גלובלי" : "Global",  gradient: "from-yellow-500 to-amber-600" },
+              { emoji: "⚔️", title: "Battle Mode", desc: dir === "rtl" ? "אתגר חבר ישירות — הוא רואה את הציון שלך וצריך לנצח." : "Challenge a friend directly — they see your score and need to win.", badge: dir === "rtl" ? "ויראלי" : "Viral", gradient: "from-orange-500 to-red-600" },
+              { emoji: "⭐", title: dir === "rtl" ? "דירוג כוכבים" : "Star Rating", desc: dir === "rtl" ? "ניתוח תזמון + מנגינה + כיסוי → ציון 0-100 ו-1-5 כוכבים." : "Timing + pitch + coverage analysis → score 0-100 and 1-5 stars.", badge: "", gradient: "from-pink-500 to-rose-600" },
+              { emoji: "🔥", title: dir === "rtl" ? "אתגרי השבוע" : "Weekly Challenges", desc: dir === "rtl" ? "השלם אתגרים שבועיים, צבור נקודות ועלה בדירוג." : "Complete weekly challenges, earn points and climb the rankings.", badge: dir === "rtl" ? "שבועי" : "Weekly", gradient: "from-red-500 to-orange-600" },
+              { emoji: "📱", title: dir === "rtl" ? "שיתוף מיידי" : "Instant Sharing", desc: dir === "rtl" ? "WhatsApp, Instagram — עם ציון, כוכבים ולינק לשיר." : "WhatsApp, Instagram — with score, stars and song link.", badge: "", gradient: "from-sky-500 to-blue-600" },
             ].map(ch => (
-              <div key={ch.title} className={`relative rounded-xl sm:rounded-2xl bg-gradient-to-br ${ch.color} border ${ch.border} p-4 sm:p-6 hover:scale-[1.02] transition-all`}>
+              <div key={ch.title} className="card-premium rounded-2xl sm:rounded-3xl p-5 sm:p-7 overflow-hidden group">
+                <div className={`absolute inset-0 bg-gradient-to-br ${ch.gradient.replace('from-', 'from-').replace(' to-', '/10 to-')}/5`} />
                 {ch.badge && (
-                  <span className="absolute top-4 left-4 px-2 py-0.5 rounded-full bg-black/30 text-white/40 text-[10px] font-medium">{ch.badge}</span>
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/40 text-white/60 text-[10px] font-bold border border-white/10">{ch.badge}</span>
                 )}
-                <div className="text-2xl sm:text-3xl mb-2 sm:mb-4">{ch.emoji}</div>
-                <h3 className="font-bold text-white text-xs sm:text-sm mb-1">{ch.title}</h3>
-                <p className="text-white/40 text-[10px] sm:text-xs leading-relaxed">{ch.desc}</p>
+                <div className="relative">
+                  <div className="text-3xl sm:text-4xl mb-4 sm:mb-5">{ch.emoji}</div>
+                  <h3 className="font-bold text-white text-sm sm:text-base mb-2">{ch.title}</h3>
+                  <p className="text-white/45 text-xs sm:text-sm leading-relaxed">{ch.desc}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/leaderboard">
-              <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/18 transition-colors font-medium text-sm">
-                <Trophy className="w-4 h-4" />{t.home.compete.ctaLeaderboard}
-                <ChevronRight className="w-3.5 h-3.5" />
+              <button className="group flex items-center gap-3 px-8 py-4 rounded-2xl glass-panel-glow border-yellow-500/30 text-yellow-300 hover:border-yellow-500/50 transition-all font-semibold">
+                <Trophy className="w-5 h-5" />
+                {t.home.compete.ctaLeaderboard}
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
           </div>
@@ -616,40 +777,55 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          7. WHY MYOUKEE
+          7. WHY MYOUKEE - PREMIUM
       ══════════════════════════════════════════════════════════ */}
-      <section ref={whyRef} id="why-myoukee" className="relative scroll-mt-32 py-12 sm:py-24 overflow-hidden">
+      <section ref={whyRef} id="why-myoukee" className="relative scroll-mt-32 py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <img
             src="https://images.unsplash.com/photo-1614680376739-414d95ff43df?w=1920&h=800&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover opacity-40"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-25"
             style={{ filter: "saturate(0.8)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
         </div>
 
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-8 sm:mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400 font-medium mb-4">
-              <Sparkles className="w-3 h-3" />{t.home.why.badge}
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-yellow-500/30 text-sm text-yellow-300 font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              {t.home.why.badge}
             </div>
-            <h2 className="text-3xl sm:text-5xl font-display font-bold mb-3">{t.home.why.title}</h2>
-            <p className="text-white/35 text-base">{t.home.why.subtitle}</p>
+            <h2 className="text-4xl sm:text-6xl font-display font-black mb-4 text-white">{t.home.why.title}</h2>
+            <p className="text-white/40 text-lg">{t.home.why.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
             {t.home.why.items.map(({ title, desc }, i) => {
               const icons = [Music, Zap, Video, Camera, Trophy, Mic];
               const Icon = icons[i] ?? Star;
               const highlight = i === 0;
+              const gradients = [
+                "from-purple-500 to-violet-600",
+                "from-blue-500 to-cyan-500",
+                "from-green-500 to-emerald-500",
+                "from-pink-500 to-rose-500",
+                "from-yellow-500 to-amber-500",
+                "from-indigo-500 to-purple-500",
+              ];
               return (
-                <div key={i} className={`flex items-start gap-4 rounded-2xl p-6 border transition-all hover:border-white/15 ${highlight ? "bg-gradient-to-br from-primary/10 to-accent/5 border-primary/25" : "bg-white/3 border-white/8"}`}>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${highlight ? "bg-primary/20" : "bg-white/8"}`}>
-                    <Icon className={`w-5 h-5 ${highlight ? "text-primary" : "text-white/60"}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-sm mb-1">{title}</h3>
-                    <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
+                <div 
+                  key={i} 
+                  className={`card-premium rounded-2xl p-7 group ${highlight ? "ring-1 ring-purple-500/30" : ""}`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${highlight ? "from-purple-500/10 to-blue-500/5" : "from-white/[0.02] to-transparent"} rounded-2xl`} />
+                  <div className="relative flex items-start gap-5">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i]} flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-base mb-2">{title}</h3>
+                      <p className="text-white/45 text-sm leading-relaxed">{desc}</p>
+                    </div>
                   </div>
                 </div>
               );
@@ -659,39 +835,60 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          8. FOOTER / SUPPORT
+          8. PREMIUM FOOTER
       ══════════════════════════════════════════════════════════ */}
-      <footer className="relative py-12 border-t border-white/8 bg-white/[0.01]">
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-                <Mic className="h-4 w-4 text-white" />
+      <footer className="relative py-16 border-t border-purple-500/10">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/5 to-transparent" />
+        
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative" dir={dir}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+            {/* Logo */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 blur-lg opacity-50" />
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600">
+                  <Mic className="h-6 w-6 text-white" />
+                </div>
               </div>
-              <span className="font-display font-bold text-white/70">MYOUKEE</span>
+              <div>
+                <span className="font-display font-bold text-xl text-white">MYOUKEE</span>
+                <p className="text-xs text-purple-400/60 tracking-wide">Karaoke Studio</p>
+              </div>
             </div>
 
-            <a
-              href="https://mail.google.com/mail/?view=cm&to=windot100@gmail.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-white/80 hover:bg-white/10 transition-all text-sm"
-            >
-              <Mail className="w-4 h-4 text-primary" />
-              {t.home.support.label}
-            </a>
+            {/* Links */}
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+              <Link href="/upload" className="text-white/50 hover:text-purple-300 transition-colors">{t.nav.createKaraoke}</Link>
+              <Link href="/leaderboard" className="text-white/50 hover:text-purple-300 transition-colors">{t.nav.leaderboard}</Link>
+              <Link href="/party" className="text-white/50 hover:text-purple-300 transition-colors">Party</Link>
+              <Link href="/xp" className="text-white/50 hover:text-purple-300 transition-colors">XP</Link>
+            </div>
 
-            <div className="flex items-center gap-4 text-xs text-white/25">
-              <Link href="/privacy"><span className="hover:text-white/50 cursor-pointer transition-colors">{t.consent.privacyLink}</span></Link>
-              <span className="w-px h-3 bg-white/15" />
-              <Link href="/terms"><span className="hover:text-white/50 cursor-pointer transition-colors">{t.consent.termsLink}</span></Link>
-              <span className="w-px h-3 bg-white/15" />
-              <span>MYOUKEE © 2026</span>
+            {/* Support */}
+            <div className="flex items-center gap-4">
+              <a 
+                href="mailto:support@myoukee.com" 
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-panel border-purple-500/20 text-white/60 hover:text-purple-300 hover:border-purple-500/40 transition-all text-sm"
+              >
+                <Mail className="w-4 h-4" />
+                {lang === "he" ? "תמיכה" : "Support"}
+              </a>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-white/30 text-sm">
+              {new Date().getFullYear()} MYOUKEE. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6 text-xs">
+              <Link href="/privacy" className="text-white/30 hover:text-white/60 transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-white/30 hover:text-white/60 transition-colors">Terms</Link>
+              <Link href="/copyright" className="text-white/30 hover:text-white/60 transition-colors">Copyright</Link>
             </div>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }

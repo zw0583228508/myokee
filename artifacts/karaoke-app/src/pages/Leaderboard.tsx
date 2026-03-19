@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowLeft, Trophy, Star, Loader2, Music2, RefreshCw, Mic, Zap, Crown, User } from "lucide-react";
+import { ArrowLeft, Trophy, Star, Loader2, Music2, RefreshCw, Mic, Crown, User, Sparkles, Flame } from "lucide-react";
 import { useLeaderboard, useMyPerformances } from "@/hooks/use-performances";
 import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
@@ -11,6 +11,28 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 function formatDate(iso: string, lang: string) {
   return new Date(iso).toLocaleDateString(lang === "he" ? "he-IL" : lang === "ar" ? "ar-SA" : lang, { day: "numeric", month: "short" });
+}
+
+// Animated confetti particles
+function Confetti() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 50}%`,
+            backgroundColor: ['#a855f7', '#3b82f6', '#f59e0b', '#ec4899', '#10b981'][Math.floor(Math.random() * 5)],
+            animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 3}s`,
+            opacity: 0.4,
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default function Leaderboard() {
@@ -27,68 +49,100 @@ export default function Leaderboard() {
   const doRefetch = tab === "global" ? refetchGlobal : tab === "me" ? refetchMe : refetchXP;
 
   return (
-    <div className="min-h-screen flex flex-col" dir={t.dir}>
-
-      <div className="relative overflow-hidden py-12 sm:py-20 text-center">
+    <div className="min-h-screen flex flex-col page-bg-leaderboard" dir={t.dir}>
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden py-16 sm:py-24 text-center">
+        <Confetti />
+        
+        {/* Multi-layered background */}
         <img
-          src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1920&h=600&fit=crop&q=80"
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.22]"
-          style={{ filter: "saturate(1.2)" }}
+          src="/images/leaderboard-bg.jpg"
+          className="absolute inset-0 w-full h-full object-cover"
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/20 to-background/90" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] rounded-full bg-yellow-500/5 blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-900/10 via-transparent to-yellow-900/10" />
+        
+        {/* Animated glow orbs */}
+        <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-yellow-500/15 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-purple-500/10 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
 
         <div className="relative z-10">
           <Link href="/">
-            <button className="inline-flex items-center gap-1.5 text-sm text-white/35 hover:text-white/70 transition-colors mb-8">
-              <ArrowLeft className="w-3.5 h-3.5" />{t.leaderboard.backToHome}
+            <button className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/80 transition-colors mb-10 glass-panel rounded-full px-4 py-2 border-white/10">
+              <ArrowLeft className="w-4 h-4" />{t.leaderboard.backToHome}
             </button>
           </Link>
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/25 flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-yellow-400" />
+          
+          {/* Trophy with glow */}
+          <div className="flex items-center justify-center gap-4 mb-5">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-500 blur-xl opacity-50" />
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 flex items-center justify-center shadow-2xl shadow-yellow-500/30">
+                <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </div>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold">{t.leaderboard.title}</h1>
           </div>
-          <p className="text-white/35 text-sm">{t.leaderboard.subtitle}</p>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-black mb-4">
+            <span className="text-white">{t.leaderboard.title}</span>
+          </h1>
+          <p className="text-white/40 text-lg max-w-md mx-auto">{t.leaderboard.subtitle}</p>
         </div>
       </div>
 
-      <div className="w-full max-w-2xl mx-auto px-4 flex items-center justify-between mb-5 gap-4">
-        <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/8">
+      {/* Premium Tab Navigation */}
+      <div className="w-full max-w-3xl mx-auto px-4 flex items-center justify-between mb-8 gap-4">
+        <div className="flex gap-2 p-1.5 rounded-2xl glass-panel-glow border-purple-500/20">
           {(["global", "me", "xp"] as const).map(tabKey => (
             <button
               key={tabKey}
               onClick={() => setTab(tabKey)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`relative px-5 py-3 rounded-xl text-sm font-semibold transition-all ${
                 tab === tabKey
-                  ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,.3)]"
+                  ? "text-white"
                   : "text-white/40 hover:text-white/70"
               }`}
             >
-              {tabKey === "global" ? `🌍 ${t.leaderboard.global}` : tabKey === "me" ? `👤 ${t.leaderboard.mine}` : `⚡ XP`}
+              {tab === tabKey && (
+                <>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500" />
+                  <div className="absolute inset-0 rounded-xl bg-purple-500/50 blur-xl" />
+                </>
+              )}
+              <span className="relative flex items-center gap-2">
+                {tabKey === "global" ? (
+                  <>🌍 {t.leaderboard.global}</>
+                ) : tabKey === "me" ? (
+                  <>👤 {t.leaderboard.mine}</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" /> XP</>
+                )}
+              </span>
             </button>
           ))}
         </div>
+        
         <button
           onClick={() => doRefetch()}
-          className="w-8 h-8 rounded-full bg-white/5 border border-white/8 flex items-center justify-center text-white/35 hover:text-white hover:bg-white/10 transition-all">
-          <RefreshCw className="w-3.5 h-3.5" />
+          className="w-10 h-10 rounded-xl glass-panel border-purple-500/20 flex items-center justify-center text-white/40 hover:text-purple-400 hover:border-purple-500/40 transition-all"
+        >
+          <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="w-full max-w-2xl mx-auto px-4 flex-1 pb-20">
+      <div className="w-full max-w-3xl mx-auto px-4 flex-1 pb-20">
+        {/* XP Mode Switcher */}
         {tab === "xp" && (
-          <div className="flex gap-2 mb-5">
+          <div className="flex gap-2 mb-6">
             {(["all", "weekly"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setXpMode(mode)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   xpMode === mode
-                    ? "bg-white/10 text-white border border-white/15"
-                    : "text-white/40 hover:text-white/70"
+                    ? "glass-panel-glow text-purple-300 border-purple-500/30"
+                    : "text-white/40 hover:text-white/70 border border-transparent"
                 }`}
               >
                 {mode === "all" ? gt.leaderboard.allTime : gt.leaderboard.thisWeek}
@@ -100,71 +154,84 @@ export default function Leaderboard() {
         {tab !== "xp" && (
           <>
             {isLoading ? (
-              <div className="flex items-center justify-center py-24 gap-3 text-white/30">
-                <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="flex flex-col items-center justify-center py-28 gap-4 text-white/30">
+                <div className="w-16 h-16 rounded-2xl glass-panel-glow flex items-center justify-center">
+                  <Loader2 className="w-7 h-7 animate-spin text-purple-400" />
+                </div>
                 <span className="text-sm">{t.leaderboard.loading}</span>
               </div>
             ) : (tab === "global" ? (globalData ?? []) : (myData ?? [])).length === 0 ? (
-              <div className="text-center py-24 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto">
-                  <Music2 className="w-8 h-8 text-white/20" />
+              <div className="text-center py-28 space-y-6">
+                <div className="w-20 h-20 rounded-2xl glass-panel-glow flex items-center justify-center mx-auto">
+                  <Music2 className="w-10 h-10 text-white/20" />
                 </div>
-                <p className="text-white/35 text-sm">{t.leaderboard.empty}</p>
+                <p className="text-white/40 text-base">{t.leaderboard.empty}</p>
                 <Link href="/">
-                  <button className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold transition-all hover:scale-105"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-                    <Mic className="w-4 h-4" />
+                  <button className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl btn-neon text-white font-bold text-base transition-all hover:scale-105">
+                    <Mic className="w-5 h-5" />
                     {t.leaderboard.singNow}
                   </button>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {(tab === "global" ? (globalData ?? []) : (myData ?? [])).map((row: any, i: number) => {
                   const stars = toStars(row.score);
                   const rankEmoji = i < 3 ? MEDALS[i] : `#${i + 1}`;
                   const isPodium = i < 3;
+                  
                   return (
                     <div
                       key={row.id}
-                      className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 rounded-2xl border transition-all hover:scale-[1.005] ${
+                      className={`relative flex items-center gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-5 rounded-2xl transition-all hover:scale-[1.01] overflow-hidden ${
                         i === 0
-                          ? "bg-yellow-500/8 border-yellow-500/25 shadow-[0_0_30px_rgba(234,179,8,0.06)]"
+                          ? "card-premium podium-gold"
                           : i === 1
-                          ? "bg-zinc-300/5 border-zinc-300/15"
+                          ? "card-premium podium-silver"
                           : i === 2
-                          ? "bg-amber-600/5 border-amber-600/15"
-                          : "bg-white/3 border-white/7 hover:bg-white/5"
+                          ? "card-premium podium-bronze"
+                          : "card-premium"
                       }`}
                     >
-                      <span className={`text-lg w-8 text-center shrink-0 ${isPodium ? "" : "text-white/30 text-sm font-bold"}`}>
+                      {/* Gradient overlay for podium positions */}
+                      {i === 0 && <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/5" />}
+                      {i === 1 && <div className="absolute inset-0 bg-gradient-to-r from-gray-400/10 to-gray-300/5" />}
+                      {i === 2 && <div className="absolute inset-0 bg-gradient-to-r from-amber-700/10 to-orange-600/5" />}
+
+                      <span className={`relative text-2xl w-10 text-center shrink-0 ${isPodium ? "" : "text-white/30 text-sm font-bold"}`}>
                         {rankEmoji}
                       </span>
 
                       {row.picture ? (
-                        <img src={row.picture} alt={row.display_name}
-                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
+                        <div className="relative shrink-0">
+                          {isPodium && <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 blur opacity-50" />}
+                          <img src={row.picture} alt={row.display_name}
+                            className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ${
+                              i === 0 ? "ring-yellow-400/50" : i === 1 ? "ring-gray-300/50" : i === 2 ? "ring-amber-600/50" : "ring-purple-500/30"
+                            }`} 
+                          />
+                        </div>
                       ) : (
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center shrink-0 text-white">
+                        <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shrink-0 text-white">
                           <User className="w-5 h-5" />
                         </div>
                       )}
 
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white truncate text-sm">{row.display_name}</p>
-                        <p className="text-white/35 text-xs truncate" dir="auto">{row.song_name}</p>
-                        <div className="flex items-center gap-0.5 mt-1">
+                      <div className="relative flex-1 min-w-0">
+                        <p className="font-bold text-white truncate text-base">{row.display_name}</p>
+                        <p className="text-white/40 text-sm truncate" dir="auto">{row.song_name}</p>
+                        <div className="flex items-center gap-1 mt-1.5">
                           {Array.from({ length: 5 }).map((_, si) => (
-                            <Star key={si} className={`w-2.5 h-2.5 ${si < stars ? "text-yellow-400 fill-yellow-400" : "text-white/12"}`} />
+                            <Star key={si} className={`w-3 h-3 ${si < stars ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
                           ))}
                         </div>
                       </div>
 
-                      <div className={`shrink-0 ${t.dir === "rtl" ? "text-left" : "text-right"}`}>
-                        <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
+                      <div className={`relative shrink-0 ${t.dir === "rtl" ? "text-left" : "text-right"}`}>
+                        <p className="text-3xl font-black animated-gradient-text leading-none">
                           {row.score}
                         </p>
-                        <p className="text-white/25 text-[10px] mt-1">{formatDate(row.created_at, lang)}</p>
+                        <p className="text-white/30 text-xs mt-1.5">{formatDate(row.created_at, lang)}</p>
                       </div>
                     </div>
                   );
@@ -174,17 +241,21 @@ export default function Leaderboard() {
           </>
         )}
 
+        {/* XP Leaderboard */}
         {tab === "xp" && (
           <>
             {loadingXP ? (
-              <div className="flex items-center justify-center py-24 gap-3 text-white/30">
-                <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="flex flex-col items-center justify-center py-28 gap-4 text-white/30">
+                <div className="w-16 h-16 rounded-2xl glass-panel-glow flex items-center justify-center">
+                  <Loader2 className="w-7 h-7 animate-spin text-purple-400" />
+                </div>
               </div>
             ) : xpData?.leaderboard?.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {xpData.yourRank && (
-                  <div className="mb-4 px-4 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-sm text-white/70">
-                    {gt.leaderboard.yourRank}: <span className="font-bold text-white">#{xpData.yourRank}</span>
+                  <div className="mb-6 px-5 py-4 rounded-2xl glass-panel-glow border-purple-500/30 text-sm text-white/70 flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-purple-400" />
+                    {gt.leaderboard.yourRank}: <span className="font-bold text-purple-300 text-lg">#{xpData.yourRank}</span>
                   </div>
                 )}
 
@@ -193,72 +264,83 @@ export default function Leaderboard() {
                   return (
                     <div
                       key={entry.userId}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all ${
+                      className={`relative flex items-center gap-4 px-5 py-4 rounded-2xl transition-all overflow-hidden ${
                         entry.isYou
-                          ? "bg-primary/8 border-primary/25 ring-1 ring-primary/10"
+                          ? "card-premium ring-2 ring-purple-500/30"
                           : entry.rank === 1
-                          ? "bg-yellow-500/8 border-yellow-500/25"
+                          ? "card-premium podium-gold"
                           : entry.rank === 2
-                          ? "bg-zinc-300/5 border-zinc-300/15"
+                          ? "card-premium podium-silver"
                           : entry.rank === 3
-                          ? "bg-amber-600/5 border-amber-600/15"
-                          : "bg-white/[0.02] border-white/7"
+                          ? "card-premium podium-bronze"
+                          : "card-premium"
                       }`}
                     >
-                      <span className={`text-lg w-8 text-center shrink-0 ${!isPodium ? "text-white/30 text-sm font-bold" : ""}`}>
+                      {entry.rank === 1 && <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/5" />}
+
+                      <span className={`relative text-2xl w-10 text-center shrink-0 ${!isPodium ? "text-white/30 text-sm font-bold" : ""}`}>
                         {isPodium ? MEDALS[entry.rank - 1] : `#${entry.rank}`}
                       </span>
 
                       {entry.picture ? (
-                        <img src={entry.picture} alt={entry.displayName}
-                          className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20 shrink-0" />
+                        <div className="relative shrink-0">
+                          {isPodium && <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 blur opacity-50" />}
+                          <img src={entry.picture} alt={entry.displayName}
+                            className="relative w-11 h-11 rounded-full object-cover ring-2 ring-purple-500/30 shrink-0" 
+                          />
+                        </div>
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/70 to-accent/70 flex items-center justify-center shrink-0 text-white">
+                        <div className="relative w-11 h-11 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shrink-0 text-white">
                           <User className="w-5 h-5" />
                         </div>
                       )}
 
-                      <div className="flex-1 min-w-0">
+                      <div className="relative flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-white truncate text-sm">
+                          <p className="font-bold text-white truncate text-base">
                             {entry.displayName}
-                            {entry.isYou && <span className="text-primary text-xs ml-1">(you)</span>}
+                            {entry.isYou && <span className="text-purple-400 text-xs ml-2">(you)</span>}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-white/30">Lv.{entry.level}</span>
-                          <span className="text-[10px] text-white/20">{entry.levelTitle}</span>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-purple-400/80 font-medium">Lv.{entry.level}</span>
+                          <span className="text-xs text-white/30">{entry.levelTitle}</span>
                           {entry.streakDays >= 3 && (
-                            <span className="text-[10px] text-orange-400">🔥{entry.streakDays}</span>
+                            <span className="flex items-center gap-1 text-xs text-orange-400">
+                              <Flame className="w-3 h-3" />
+                              {entry.streakDays}
+                            </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="shrink-0 text-right">
-                        <p className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
+                      <div className="relative shrink-0 text-right">
+                        <p className="text-2xl font-black animated-gradient-text leading-none">
                           {(xpMode === "weekly" ? entry.weeklyXP : entry.totalXP).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-white/25 mt-0.5">XP</p>
+                        <p className="text-xs text-purple-400/60 mt-1 font-medium">XP</p>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-20 space-y-3">
-                <Crown className="w-12 h-12 text-white/15 mx-auto" />
-                <p className="text-white/35 text-sm">{gt.leaderboard.empty}</p>
+              <div className="text-center py-24 space-y-5">
+                <div className="w-20 h-20 rounded-2xl glass-panel-glow flex items-center justify-center mx-auto">
+                  <Crown className="w-10 h-10 text-white/20" />
+                </div>
+                <p className="text-white/40 text-base">{gt.leaderboard.empty}</p>
               </div>
             )}
           </>
         )}
 
+        {/* CTA Button */}
         {tab !== "xp" && (tab === "global" ? (globalData ?? []) : (myData ?? [])).length > 0 && (
-          <div className="mt-10 text-center">
+          <div className="mt-12 text-center">
             <Link href="/">
-              <button className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-white font-semibold text-sm transition-all hover:scale-105"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 30px rgba(124,58,237,.25)" }}>
-                <Mic className="w-4 h-4" />
+              <button className="group inline-flex items-center gap-3 px-10 py-5 rounded-2xl btn-neon text-white font-bold text-lg transition-all hover:scale-105">
+                <Mic className="w-5 h-5" />
                 {t.leaderboard.ctaSing}
               </button>
             </Link>

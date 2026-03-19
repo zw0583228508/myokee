@@ -1,14 +1,8 @@
 import app from "./app";
 import { runMigrations } from "./migrate";
 
-const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
+// Default to port 3001 for development
+const rawPort = process.env["PORT"] || "3001";
 const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {

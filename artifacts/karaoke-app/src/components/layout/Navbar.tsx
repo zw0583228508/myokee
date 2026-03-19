@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud, User } from "lucide-react";
+import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, History, Gift, PartyPopper, Cloud, User, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
@@ -25,6 +25,19 @@ function GoogleIcon() {
   );
 }
 
+// Sound wave animation component
+function SoundWave() {
+  return (
+    <div className="sound-wave opacity-70">
+      <span style={{ height: '12px' }} />
+      <span style={{ height: '18px' }} />
+      <span style={{ height: '10px' }} />
+      <span style={{ height: '16px' }} />
+      <span style={{ height: '8px' }} />
+    </div>
+  );
+}
+
 export function Navbar() {
   const { data: authData, isLoading } = useAuth();
   const logout      = useLogout();
@@ -38,67 +51,55 @@ export function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/50 backdrop-blur-2xl"
+        className="sticky top-0 z-50 w-full navbar-premium"
         role="banner"
       >
+        {/* Animated top border glow */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        
         <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group transition-all duration-300" aria-label="MYOUKEE - דף הבית">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-105 transition-all" aria-hidden="true">
-              <Mic2 className="h-5 w-5 text-white" />
+          {/* Logo with glow effect */}
+          <Link href="/" className="flex items-center gap-3 group transition-all duration-300" aria-label="MYOUKEE - דף הבית">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 blur-lg opacity-50 group-hover:opacity-80 transition-opacity" />
+              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Mic2 className="h-5 w-5 text-white mic-pulse" />
+              </div>
             </div>
-            <span className="font-display text-xl font-bold tracking-wide">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">MY</span><span className="text-white">OUKEE</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display text-xl font-bold tracking-wide">
+                <span className="animated-gradient-text">MY</span>
+                <span className="text-white">OUKEE</span>
+              </span>
+              <span className="text-[10px] text-purple-400/60 tracking-widest uppercase hidden sm:block">Karaoke Studio</span>
+            </div>
           </Link>
 
           {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-1" aria-label="ניווט ראשי">
-            <Link href="/upload"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                location === "/upload"
-                  ? "bg-primary/15 text-primary"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
-              }`}
-              aria-current={location === "/upload" ? "page" : undefined}
-            >
-              <Plus className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.createKaraoke}
-            </Link>
-            <Link href="/leaderboard"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                location === "/leaderboard"
-                  ? "bg-primary/15 text-primary"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
-              }`}
-              aria-current={location === "/leaderboard" ? "page" : undefined}
-            >
-              <Trophy className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.leaderboard}
-            </Link>
-            <Link href="/xp"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                location === "/xp"
-                  ? "bg-primary/15 text-primary"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
-              }`}
-              aria-current={location === "/xp" ? "page" : undefined}
-            >
-              <Zap className="w-3.5 h-3.5" aria-hidden="true" />XP
-            </Link>
-            <Link href="/party"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                location.startsWith("/party")
-                  ? "bg-primary/15 text-primary"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
-              }`}
-              aria-current={location.startsWith("/party") ? "page" : undefined}
-            >
-              <PartyPopper className="w-3.5 h-3.5" aria-hidden="true" />Party
-            </Link>
+            <NavLink href="/upload" icon={Plus} isActive={location === "/upload"}>
+              {t.nav.createKaraoke}
+            </NavLink>
+            <NavLink href="/leaderboard" icon={Trophy} isActive={location === "/leaderboard"}>
+              {t.nav.leaderboard}
+            </NavLink>
+            <NavLink href="/xp" icon={Zap} isActive={location === "/xp"}>
+              XP
+            </NavLink>
+            <NavLink href="/party" icon={PartyPopper} isActive={location.startsWith("/party")}>
+              Party
+            </NavLink>
           </nav>
 
           <nav className="flex items-center gap-2" aria-label="כלים">
+            {/* Sound wave indicator */}
+            <div className="hidden lg:block">
+              <SoundWave />
+            </div>
+
             {/* Mobile hamburger */}
             <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all duration-300 neon-border"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="תפריט"
             >
@@ -109,7 +110,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 neon-border"
                   aria-label={`${t.nav.language}: ${allLangs.find(l => l.code === lang)?.name}`}
                   title={t.nav.language}
                 >
@@ -117,102 +118,109 @@ export function Navbar() {
                   <span className="text-base leading-none">{allLangs.find(l => l.code === lang)?.flag}</span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card border-white/10 min-w-[160px]" role="menu" aria-label={t.nav.language}>
+              <DropdownMenuContent align="end" className="glass-panel-glow border-purple-500/20 min-w-[160px]" role="menu" aria-label={t.nav.language}>
                 {allLangs.map(({ code, name, flag }) => (
                   <DropdownMenuItem
                     key={code}
                     onClick={() => setLang(code as SupportedLang)}
-                    className={`cursor-pointer gap-2 ${lang === code ? "text-primary" : ""}`}
+                    className={`cursor-pointer gap-2 transition-colors ${lang === code ? "text-purple-400 bg-purple-500/10" : "hover:bg-white/5"}`}
                     role="menuitemradio"
                     aria-checked={lang === code}
                   >
                     <span aria-hidden="true">{flag}</span>{name}
-                    {lang === code && <span className="ml-auto text-primary text-xs">✓</span>}
+                    {lang === code && <Sparkles className="ml-auto w-3 h-3 text-purple-400" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             {isLoading ? (
-              <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" aria-label="טוען..." />
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                <Loader2 className="w-5 h-5 text-purple-400 animate-spin" aria-label="טוען..." />
+              </div>
             ) : user ? (
               <>
-                {/* Credits badge + buy button */}
+                {/* Credits badge with glow */}
                 <button
                   onClick={() => setShowPricing(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors group focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="relative group flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/30 hover:border-purple-500/60 transition-all duration-300"
                   aria-label={`${user.credits} ${t.nav.credits} — לחץ לרכישה`}
                 >
-                  <Zap className="w-4 h-4 text-primary group-hover:animate-pulse" aria-hidden="true" />
-                  <span className="text-sm font-semibold text-primary">{user.credits}</span>
-                  <span className="text-xs text-muted-foreground hidden sm:block">{t.nav.credits}</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity" />
+                  <Zap className="w-4 h-4 text-purple-400 group-hover:text-purple-300 transition-colors" aria-hidden="true" />
+                  <span className="relative text-sm font-bold text-purple-300">{user.credits}</span>
+                  <span className="relative text-xs text-purple-400/60 hidden sm:block">{t.nav.credits}</span>
                 </button>
 
+                {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="relative group flex items-center gap-2 px-2 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-purple-500/40 transition-all duration-300"
                       aria-label={`תפריט משתמש — ${user.displayName}`}
                     >
+                      <div className="absolute inset-0 rounded-full bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       {user.picture ? (
-                        <img
-                          src={user.picture}
-                          alt={user.displayName}
-                          className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/30"
-                        />
+                        <div className="relative">
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 blur opacity-50" />
+                          <img
+                            src={user.picture}
+                            alt={user.displayName}
+                            className="relative w-8 h-8 rounded-full object-cover ring-2 ring-purple-500/50"
+                          />
+                        </div>
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center" aria-hidden="true">
+                        <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />
                         </div>
                       )}
-                      <span className="text-sm font-medium hidden sm:block max-w-[120px] truncate">
+                      <span className="relative text-sm font-medium hidden sm:block max-w-[100px] truncate text-white/90">
                         {user.displayName}
                       </span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-card border-white/10">
-                    <div className="px-3 py-2 border-b border-white/5 mb-1">
-                      <p className="text-sm font-medium">{user.displayName}</p>
+                  <DropdownMenuContent align="end" className="glass-panel-glow border-purple-500/20 min-w-[200px]">
+                    <div className="px-3 py-3 border-b border-white/5 mb-1">
+                      <p className="text-sm font-semibold text-white">{user.displayName}</p>
                       {user.email && (
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        <p className="text-xs text-purple-400/60 mt-0.5">{user.email}</p>
                       )}
                     </div>
-                    <DropdownMenuItem onClick={() => setShowPricing(true)} className="cursor-pointer">
-                      <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />{t.nav.buyCredits}
+                    <DropdownMenuItem onClick={() => setShowPricing(true)} className="cursor-pointer gap-2 hover:bg-purple-500/10">
+                      <Zap className="w-4 h-4 text-purple-400" aria-hidden="true" />{t.nav.buyCredits}
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/leaderboard" className="cursor-pointer flex items-center w-full">
-                        <Trophy className="w-4 h-4 mr-2 text-yellow-400" aria-hidden="true" />{t.nav.leaderboard}
+                      <Link href="/leaderboard" className="cursor-pointer flex items-center w-full gap-2 hover:bg-purple-500/10">
+                        <Trophy className="w-4 h-4 text-yellow-400" aria-hidden="true" />{t.nav.leaderboard}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/xp" className="cursor-pointer flex items-center w-full">
-                        <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />XP & Badges
+                      <Link href="/xp" className="cursor-pointer flex items-center w-full gap-2 hover:bg-purple-500/10">
+                        <Zap className="w-4 h-4 text-purple-400" aria-hidden="true" />XP & Badges
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/recordings" className="cursor-pointer flex items-center w-full">
-                        <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings"}
+                      <Link href="/recordings" className="cursor-pointer flex items-center w-full gap-2 hover:bg-purple-500/10">
+                        <Cloud className="w-4 h-4 text-cyan-400" aria-hidden="true" />{lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings"}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/referral" className="cursor-pointer flex items-center w-full">
-                        <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />הזמן חברים
+                      <Link href="/referral" className="cursor-pointer flex items-center w-full gap-2 hover:bg-purple-500/10">
+                        <Gift className="w-4 h-4 text-pink-400" aria-hidden="true" />הזמן חברים
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-white/5" />
                     <DropdownMenuItem onClick={() => logout.mutate()}
-                      className="text-muted-foreground hover:text-destructive cursor-pointer">
-                      <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />{t.nav.logout}
+                      className="text-red-400/80 hover:text-red-400 hover:bg-red-500/10 cursor-pointer gap-2">
+                      <LogOut className="w-4 h-4" aria-hidden="true" />{t.nav.logout}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <Button
-                variant="outline"
                 size="sm"
-                className="gap-2 border-white/10 hover:bg-white/5 focus:ring-2 focus:ring-primary"
+                className="btn-neon gap-2 px-5 py-2 rounded-full text-white font-semibold"
                 onClick={() => setShowLogin(true)}
                 aria-label={t.nav.login}
               >
@@ -223,24 +231,31 @@ export function Navbar() {
           </nav>
         </div>
 
-        {/* Mobile slide-down menu */}
+        {/* Mobile slide-down menu with premium styling */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-white/8 bg-background/95 backdrop-blur-2xl">
-            <nav className="w-full max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
+          <div className="md:hidden border-t border-purple-500/20 glass-panel">
+            <nav className="w-full max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2">
               {[
-                { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
-                { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },
-                { href: "/recordings", icon: Cloud,   label: lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings" },
-                { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
-                { href: "/xp",         icon: Zap,     label: "XP" },
+                { href: "/upload",      icon: Plus,        label: t.nav.createKaraoke },
+                { href: "/history",     icon: History,     label: t.nav.history || "היסטוריה" },
+                { href: "/recordings",  icon: Cloud,       label: lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings" },
+                { href: "/leaderboard", icon: Trophy,      label: t.nav.leaderboard },
+                { href: "/xp",          icon: Zap,         label: "XP" },
                 { href: "/party",       icon: PartyPopper, label: "Party" },
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
-                  <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${
-                    location === href ? "bg-primary/15 text-primary" : "text-white/60 hover:text-white hover:bg-white/5"
+                  <button className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    location === href 
+                      ? "bg-gradient-to-r from-purple-500/20 to-blue-500/10 text-purple-300 border border-purple-500/30" 
+                      : "text-white/60 hover:text-white hover:bg-white/5 border border-transparent"
                   }`}>
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-5 h-5 ${location === href ? "text-purple-400" : ""}`} />
                     {label}
+                    {location === href && (
+                      <div className="ml-auto">
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                      </div>
+                    )}
                   </button>
                 </Link>
               ))}
@@ -252,5 +267,40 @@ export function Navbar() {
       <PricingModal open={showPricing} onOpenChange={setShowPricing} />
       <LoginModal open={showLogin} onOpenChange={setShowLogin} />
     </>
+  );
+}
+
+// Reusable NavLink component with premium styling
+function NavLink({ 
+  href, 
+  icon: Icon, 
+  isActive, 
+  children 
+}: { 
+  href: string; 
+  icon: React.ElementType; 
+  isActive: boolean; 
+  children: React.ReactNode;
+}) {
+  return (
+    <Link href={href}>
+      <button
+        className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+          isActive
+            ? "text-purple-300"
+            : "text-white/50 hover:text-white"
+        }`}
+        aria-current={isActive ? "page" : undefined}
+      >
+        {isActive && (
+          <>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/10 border border-purple-500/30" />
+            <div className="absolute inset-0 rounded-xl bg-purple-500/10 blur-xl" />
+          </>
+        )}
+        <Icon className={`relative w-4 h-4 ${isActive ? "text-purple-400" : ""}`} aria-hidden="true" />
+        <span className="relative">{children}</span>
+      </button>
+    </Link>
   );
 }
