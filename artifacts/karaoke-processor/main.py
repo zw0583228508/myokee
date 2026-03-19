@@ -1536,63 +1536,67 @@ _HALLUCINATION_PHRASES = {
 
 def _filter_hallucinations(words: list[dict]) -> list[dict]:
     """
-    Remove common Whisper hallucinations:
-    1. Known single-word and multi-word phrases at the start/end
+    Remove common Whisper hallucinations — only when REPEATED.
+    A single occurrence of a hallucination phrase is kept (could be real lyrics).
+    1. Repeated hallucination phrases (≥2 consecutive) at start/end
     2. Runs of ≥ 3 consecutive identical words collapsed to 1
-    3. Known hallucination bigrams in the interior of the transcript
     """
     if not words:
         return words
 
-    single_set = set()
-    bigram_set = set()
+    phrases: list[tuple[str, ...]] = []
     for p in _HALLUCINATION_PHRASES:
-        parts = p.lower().split()
-        if len(parts) == 1:
-            single_set.add(parts[0])
-        elif len(parts) == 2:
-            bigram_set.add((parts[0], parts[1]))
-            single_set.add(parts[0])
-            single_set.add(parts[1])
+        parts = tuple(p.lower().split())
+        phrases.append(parts)
 
     def _wl(w: dict) -> str:
         return w["word"].lower().strip()
 
-    def _matches_boundary(idx: int, wlist: list[dict]) -> int:
-        """Check if position idx starts a hallucination phrase.
-        Returns number of words consumed (0 if no match)."""
-        w0 = _wl(wlist[idx])
-        if idx + 1 < len(wlist):
-            w1 = _wl(wlist[idx + 1])
-            if (w0, w1) in bigram_set:
-                return 2
-        if w0 in single_set:
-            return 1
+    def _match_phrase_at(idx: int, wlist: list[dict], phrase: tuple[str, ...]) -> bool:
+        if idx + len(phrase) > len(wlist):
+            return False
+        return all(_wl(wlist[idx + j]) == phrase[j] for j in range(len(phrase)))
+
+    def _find_repeated_hallucination_at_start(wlist: list[dict]) -> int:
+        """Find how many words to skip at the start due to repeated hallucinations.
+        Only removes if the SAME phrase repeats ≥2 times consecutively."""
+        for phrase in phrases:
+            plen = len(phrase)
+            if not _match_phrase_at(0, wlist, phrase):
+                continue
+            count = 0
+            pos = 0
+            while _match_phrase_at(pos, wlist, phrase):
+                count += 1
+                pos += plen
+            if count >= 2:
+                return pos
         return 0
 
-    # Pass 1: Remove leading hallucination words/phrases
-    start = 0
-    while start < len(words):
-        consumed = _matches_boundary(start, words)
-        if consumed == 0:
-            break
-        start += consumed
+    def _find_repeated_hallucination_at_end(wlist: list[dict]) -> int:
+        """Find how many words to trim from the end due to repeated hallucinations.
+        Only removes if the SAME phrase repeats ≥2 times consecutively at the end."""
+        for phrase in phrases:
+            plen = len(phrase)
+            count = 0
+            pos = len(wlist) - plen
+            while pos >= 0 and _match_phrase_at(pos, wlist, phrase):
+                count += 1
+                pos -= plen
+            if count >= 2:
+                return len(wlist) - (pos + plen)
+        return 0
 
-    # Pass 2: Remove trailing hallucination words/phrases
-    end = len(words)
-    while end > start:
-        w0 = _wl(words[end - 1])
-        if w0 in single_set:
-            end -= 1
-            continue
-        if end - 2 >= start:
-            w_prev = _wl(words[end - 2])
-            if (w_prev, w0) in bigram_set:
-                end -= 2
-                continue
-        break
+    # Pass 1: Remove repeated hallucination phrases from the start
+    skip_start = _find_repeated_hallucination_at_start(words)
 
-    filtered = words[start:end]
+    # Pass 2: Remove repeated hallucination phrases from the end
+    trimmed = words[skip_start:]
+    skip_end = _find_repeated_hallucination_at_end(trimmed)
+    if skip_end > 0:
+        trimmed = trimmed[:-skip_end]
+
+    filtered = trimmed
 
     # Pass 3: Collapse runs of ≥ 3 consecutive identical words to 1
     if len(filtered) > 2:
@@ -1603,26 +1607,11 @@ def _filter_hallucinations(words: list[dict]) -> list[dict]:
             run_end = i + 1
             while run_end < len(filtered) and _wl(filtered[run_end]) == w_lower:
                 run_end += 1
-            run_len = run_end - i
-            if run_len >= 3:
+            if run_end - i >= 3:
                 result.append(filtered[i])
             else:
                 result.extend(filtered[i:run_end])
             i = run_end
-        filtered = result
-
-    # Pass 4: Remove known hallucination bigrams in interior
-    if len(filtered) > 2:
-        result = []
-        i = 0
-        while i < len(filtered):
-            if i + 1 < len(filtered):
-                pair = (_wl(filtered[i]), _wl(filtered[i + 1]))
-                if pair in bigram_set:
-                    i += 2
-                    continue
-            result.append(filtered[i])
-            i += 1
         filtered = result
 
     removed = len(words) - len(filtered)
