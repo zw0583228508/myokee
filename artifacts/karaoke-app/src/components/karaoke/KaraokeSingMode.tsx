@@ -1883,9 +1883,16 @@ export function KaraokeSingMode({
                 </div>
               )}
               {publishPerf.isSuccess && (
-                <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
-                  <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
-                </div>
+                <>
+                  <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
+                    <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
+                  </div>
+                  <button onClick={restart}
+                    className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
+                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
+                    <Mic className="w-4 h-4" />הקלט שוב 🎤
+                  </button>
+                </>
               )}
               <button onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/8 border border-white/12 text-white hover:bg-white/15 transition-colors text-sm">
