@@ -38,12 +38,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://myoukee.com/recordings</loc>
-    <lastmod>2026-03-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://myoukee.com/xp</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>weekly</changefreq>
