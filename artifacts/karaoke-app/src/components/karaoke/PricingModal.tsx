@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Zap, Star, AlertCircle } from "lucide-react";
-import { usePackages, usePayPalPurchase } from "@/hooks/use-payments";
+import { Loader2, Zap, Star, AlertCircle, CreditCard } from "lucide-react";
+import { usePackages, usePayPalPurchase, useLemonSqueezyPurchase } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginModal } from "./LoginModal";
 import { useLang } from "@/contexts/LanguageContext";
@@ -11,6 +11,8 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+type PaymentMethod = "paypal" | "card";
 
 function PayPalIcon({ className }: { className?: string }) {
   return (
@@ -26,9 +28,11 @@ export function PricingModal({ open, onOpenChange }: Props) {
   const user = authData?.user ?? null;
   const { data: packages, isLoading: loadingPackages } = usePackages();
   const paypalPurchase = usePayPalPurchase();
+  const lsPurchase = useLemonSqueezyPurchase();
   const [showLogin, setShowLogin] = useState(false);
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
 
   function handleBuy(packageId: string) {
     if (!user) {
@@ -38,7 +42,9 @@ export function PricingModal({ open, onOpenChange }: Props) {
     setError(null);
     setBuyingId(packageId);
 
-    paypalPurchase.mutate(packageId, {
+    const mutation = paymentMethod === "card" ? lsPurchase : paypalPurchase;
+
+    mutation.mutate(packageId, {
       onSuccess: (url) => {
         window.location.href = url;
       },
@@ -83,10 +89,28 @@ export function PricingModal({ open, onOpenChange }: Props) {
           )}
 
           <div className="flex items-center justify-center gap-2 mb-5">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-[#0070ba]/15 border border-[#0070ba]/40 text-[#0070ba]">
+            <button
+              onClick={() => { setPaymentMethod("card"); setError(null); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                paymentMethod === "card"
+                  ? "bg-violet-500/20 border-2 border-violet-500/60 text-violet-300"
+                  : "bg-white/5 border border-white/15 text-white/50 hover:text-white/70 hover:border-white/25"
+              }`}
+            >
+              <CreditCard className="w-4 h-4" />
+              Credit Card
+            </button>
+            <button
+              onClick={() => { setPaymentMethod("paypal"); setError(null); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                paymentMethod === "paypal"
+                  ? "bg-[#0070ba]/20 border-2 border-[#0070ba]/60 text-[#0070ba]"
+                  : "bg-white/5 border border-white/15 text-white/50 hover:text-white/70 hover:border-white/25"
+              }`}
+            >
               <PayPalIcon className="w-4 h-4" />
               PayPal
-            </div>
+            </button>
           </div>
 
           {loadingPackages ? (
@@ -153,7 +177,9 @@ export function PricingModal({ open, onOpenChange }: Props) {
           )}
 
           <p className="text-xs text-center text-muted-foreground mt-4">
-            {t.pricing.securePaypal}
+            {paymentMethod === "card"
+              ? t.pricing.secureCard ?? "Secure payment by credit card"
+              : t.pricing.securePaypal}
           </p>
         </DialogContent>
       </Dialog>

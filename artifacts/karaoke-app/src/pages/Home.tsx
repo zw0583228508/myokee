@@ -6,7 +6,7 @@ import {
   Share2, Download, Swords, Play, ChevronRight, Headphones, ArrowRight,
   Camera, Mail,
 } from "lucide-react";
-import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal } from "@/hooks/use-payments";
+import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal, useVerifyLemonSqueezy } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
@@ -18,6 +18,7 @@ const SMALL_CARD_ICONS = [Trophy, Swords, Users, Video, Download, Star, Share2, 
 export default function Home() {
   const fulfillPayment = useFulfillPayment();
   const fulfillPayPal  = useFulfillPayPal();
+  const verifyLS       = useVerifyLemonSqueezy();
   const queryClient   = useQueryClient();
   const [, navigate]  = useLocation();
   const { t, lang }   = useLang();
@@ -94,6 +95,32 @@ export default function Home() {
         });
       };
       attemptCapture();
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (payment === "ls_success") {
+      const attemptVerify = (attempt = 0) => {
+        verifyLS.mutate(undefined, {
+          onSuccess: (data: any) => {
+            if (data.fulfilled) {
+              setPaymentBanner("success");
+              queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+            } else if (attempt < 4) {
+              setTimeout(() => attemptVerify(attempt + 1), 3000 * (attempt + 1));
+            } else {
+              setPaymentBanner("success");
+              queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+            }
+          },
+          onError: () => {
+            if (attempt < 2) {
+              setTimeout(() => attemptVerify(attempt + 1), 3000);
+            } else {
+              setPaymentBanner("success");
+              queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+            }
+          },
+        });
+      };
+      attemptVerify();
       window.history.replaceState({}, "", window.location.pathname);
     } else if (payment === "cancelled") {
       setPaymentBanner("cancelled");

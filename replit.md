@@ -65,7 +65,8 @@ Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
     - Transcription: faster-whisper `large-v3`
 - **Database**: PostgreSQL
 - **Payment Gateways**:
-    - PayPal (direct REST API v2) — sole payment method
+    - PayPal (direct REST API v2)
+    - Lemon Squeezy (credit card payments, Merchant of Record — works with Israeli businesses)
 - **Authentication**:
     - Google OAuth
     - Email/Password (bcrypt)
