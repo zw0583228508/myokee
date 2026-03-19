@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense, lazy } from "react";
 import { Switch, Route, Router as WouterRouter, useRoute } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,27 +12,36 @@ import { apiUrl, authFetchOptions } from "@/lib/api";
 import { Mic2 } from "lucide-react";
 import { FloatingShareFab } from "@/components/FloatingShareFab";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import JobDetails from "@/pages/JobDetails";
-import History from "@/pages/History";
-import Leaderboard from "@/pages/Leaderboard";
-import LoginPage from "@/pages/LoginPage";
 
-import Upload from "@/pages/Upload";
-import Privacy from "@/pages/Privacy";
-import Terms from "@/pages/Terms";
-import Copyright from "@/pages/Copyright";
-import Referral from "@/pages/Referral";
-import Party from "@/pages/Party";
-import PartyRoom from "@/pages/PartyRoom";
-import PartyDisplay from "@/pages/PartyDisplay";
-import GamificationProfile from "@/pages/GamificationProfile";
-import MyRecordings from "@/pages/MyRecordings";
-import SharedView from "@/pages/SharedView";
+const Home = lazy(() => import("@/pages/Home"));
+const JobDetails = lazy(() => import("@/pages/JobDetails"));
+const History = lazy(() => import("@/pages/History"));
+const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const Upload = lazy(() => import("@/pages/Upload"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const Terms = lazy(() => import("@/pages/Terms"));
+const Copyright = lazy(() => import("@/pages/Copyright"));
+const Referral = lazy(() => import("@/pages/Referral"));
+const Party = lazy(() => import("@/pages/Party"));
+const PartyRoom = lazy(() => import("@/pages/PartyRoom"));
+const PartyDisplay = lazy(() => import("@/pages/PartyDisplay"));
+const GamificationProfile = lazy(() => import("@/pages/GamificationProfile"));
+const SharedView = lazy(() => import("@/pages/SharedView"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
+
+function PageLoader() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 animate-pulse">
+        <Mic2 className="h-6 w-6 text-white" />
+      </div>
+    </div>
+  );
+}
 
 function useAutoApplyReferral() {
   const { data: authData } = useAuth();
@@ -59,7 +68,11 @@ function Router() {
   const [isSharedRoute, sharedParams] = useRoute("/shared/:id");
 
   if (isSharedRoute && sharedParams?.id) {
-    return <SharedView jobId={sharedParams.id} />;
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <SharedView jobId={sharedParams.id} />
+      </Suspense>
+    );
   }
 
   if (isLoading) {
@@ -75,7 +88,11 @@ function Router() {
   }
 
   if (!user) {
-    return <LoginPage />;
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <LoginPage />
+      </Suspense>
+    );
   }
 
   return (
@@ -88,41 +105,36 @@ function Router() {
       </a>
 
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
-        <img
-          src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"
-          alt=""
-          className="w-full h-full object-cover opacity-[0.08]"
-          style={{ filter: "saturate(0.6)" }}
-        />
+        <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5" />
       </div>
       <Navbar />
       <main id="main-content" className="flex-1 w-full" tabIndex={-1}>
-        <Switch>
-          <Route path="/"            component={Home}        />
-          <Route path="/upload"      component={Upload}      />
-          <Route path="/history"     component={History}     />
-          <Route path="/leaderboard" component={Leaderboard} />
-          <Route path="/xp"          component={GamificationProfile} />
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
+            <Route path="/"            component={Home}        />
+            <Route path="/upload"      component={Upload}      />
+            <Route path="/history"     component={History}     />
+            <Route path="/leaderboard" component={Leaderboard} />
+            <Route path="/xp"          component={GamificationProfile} />
 
-          <Route path="/job/:id"     component={JobDetails}  />
-          <Route path="/party"       component={Party}       />
-          <Route path="/party/:id"   component={PartyRoom}   />
-          <Route path="/party/:id/display" component={PartyDisplay} />
-          <Route path="/privacy"     component={Privacy}     />
-          <Route path="/terms"       component={Terms}       />
-          <Route path="/copyright"   component={Copyright}   />
-          <Route path="/referral"   component={Referral}    />
-          <Route path="/recordings" component={MyRecordings} />
-          <Route component={NotFound} />
-        </Switch>
+            <Route path="/job/:id"     component={JobDetails}  />
+            <Route path="/party"       component={Party}       />
+            <Route path="/party/:id"   component={PartyRoom}   />
+            <Route path="/party/:id/display" component={PartyDisplay} />
+            <Route path="/privacy"     component={Privacy}     />
+            <Route path="/terms"       component={Terms}       />
+            <Route path="/copyright"   component={Copyright}   />
+            <Route path="/referral"   component={Referral}    />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
       </main>
       <FloatingShareFab />
     </div>
   );
 }
 
-// Pick up auth_token from URL on first load (popup redirect fallback)
 consumeAuthTokenFromUrl();
 
 function App() {

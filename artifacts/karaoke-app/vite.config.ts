@@ -58,6 +58,16 @@ export default defineConfig({
     emptyOutDir: true,
     target: ["es2020", "chrome87", "safari14", "firefox78"],
     cssTarget: ["chrome87", "safari14", "firefox78"],
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tooltip', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-slot'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-motion': ['framer-motion'],
+        },
+      },
+    },
   },
   server: {
     port,
