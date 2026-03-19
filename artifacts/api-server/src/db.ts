@@ -1,13 +1,10 @@
 import { Pool } from "pg";
 
-// Neon database connection - fallback to direct connection string if env var not set
+// Neon database connection string - direct connection for v0 environment
 const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_EgBy8bjNse6R@ep-autumn-boat-anrkj96m-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require";
 
+// Use environment variable or fallback to Neon direct connection
 const databaseUrl = process.env.DATABASE_URL || NEON_DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL environment variable is required");
-}
 
 // node-postgres does not support the `channel_binding` libpq parameter.
 // Strip it so the connection string is valid for pg's pure-JS implementation.
@@ -25,7 +22,7 @@ const connectionString = sanitizeDbUrl(databaseUrl);
 
 export const pool = new Pool({
   connectionString,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 10_000,
