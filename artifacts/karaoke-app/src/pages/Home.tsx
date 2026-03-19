@@ -166,21 +166,21 @@ export default function Home() {
       {paymentBanner === "success" && (
         <div className="w-full bg-green-500/10 border-b border-green-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
           <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
-          <span className="text-green-400 font-medium">{lang === "he" ? "הרכישה הצליחה! הקרדיטים נוספו לחשבונך." : "Purchase successful! Credits added to your account."}</span>
+          <span className="text-green-400 font-medium">{t.nav.paymentSuccess}</span>
           <button onClick={() => setPaymentBanner(null)} className="text-green-600 hover:text-green-400 ml-2">✕</button>
         </div>
       )}
       {paymentBanner === "cancelled" && (
         <div className="w-full bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
           <XCircle className="w-4 h-4 text-yellow-400 shrink-0" />
-          <span className="text-yellow-400">{lang === "he" ? "הרכישה בוטלה. ניתן לרכוש בכל עת." : "Purchase cancelled. You can buy at any time."}</span>
+          <span className="text-yellow-400">{t.nav.paymentCancelled}</span>
           <button onClick={() => setPaymentBanner(null)} className="text-yellow-600 hover:text-yellow-400 ml-2">✕</button>
         </div>
       )}
       {paymentBanner === "error" && (
         <div className="w-full bg-red-500/10 border-b border-red-500/20 px-4 py-3 flex items-center justify-center gap-3 text-sm">
           <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-          <span className="text-red-400">{lang === "he" ? "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה." : "Payment processing error. Credits will be added automatically on next login."}</span>
+          <span className="text-red-400">{t.nav.paymentError}</span>
           <button onClick={() => setPaymentBanner(null)} className="text-red-600 hover:text-red-400 ml-2">✕</button>
         </div>
       )}

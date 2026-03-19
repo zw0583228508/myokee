@@ -42,7 +42,7 @@ export function Navbar() {
         role="banner"
       >
         <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group transition-all duration-300" aria-label="MYOUKEE - דף הבית">
+          <Link href="/" className="flex items-center gap-2 group transition-all duration-300" aria-label="MYOUKEE">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-105 transition-all" aria-hidden="true">
               <Mic2 className="h-5 w-5 text-white" />
             </div>
@@ -52,7 +52,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="ניווט ראשי">
+          <nav className="hidden md:flex items-center gap-1" aria-label="main navigation">
             <Link href="/upload"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                 location === "/upload"
@@ -81,7 +81,7 @@ export function Navbar() {
               }`}
               aria-current={location === "/xp" ? "page" : undefined}
             >
-              <Zap className="w-3.5 h-3.5" aria-hidden="true" />XP
+              <Zap className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.xpBadges}
             </Link>
             <Link href="/party"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
@@ -91,16 +91,16 @@ export function Navbar() {
               }`}
               aria-current={location.startsWith("/party") ? "page" : undefined}
             >
-              <PartyPopper className="w-3.5 h-3.5" aria-hidden="true" />Party
+              <PartyPopper className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.party}
             </Link>
           </nav>
 
-          <nav className="flex items-center gap-2" aria-label="כלים">
+          <nav className="flex items-center gap-2" aria-label="tools">
             {/* Mobile hamburger */}
             <button
               className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="תפריט"
+              aria-label="menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -134,14 +134,14 @@ export function Navbar() {
             </DropdownMenu>
 
             {isLoading ? (
-              <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" aria-label="טוען..." />
+              <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" aria-label="loading" />
             ) : user ? (
               <>
                 {/* Credits badge + buy button */}
                 <button
                   onClick={() => setShowPricing(true)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors group focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label={`${user.credits} ${t.nav.credits} — לחץ לרכישה`}
+                  aria-label={`${user.credits} ${t.nav.credits}`}
                 >
                   <Zap className="w-4 h-4 text-primary group-hover:animate-pulse" aria-hidden="true" />
                   <span className="text-sm font-semibold text-primary">{user.credits}</span>
@@ -152,7 +152,7 @@ export function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <button
                       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label={`תפריט משתמש — ${user.displayName}`}
+                      aria-label={`${user.displayName}`}
                     >
                       {user.picture ? (
                         <img
@@ -187,17 +187,17 @@ export function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/xp" className="cursor-pointer flex items-center w-full">
-                        <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />XP & Badges
+                        <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />{t.nav.xpBadges}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/recordings" className="cursor-pointer flex items-center w-full">
-                        <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings"}
+                        <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{t.nav.myRecordings}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/referral" className="cursor-pointer flex items-center w-full">
-                        <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />הזמן חברים
+                        <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />{t.nav.inviteFriends}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-white/5" />
@@ -229,11 +229,11 @@ export function Navbar() {
             <nav className="w-full max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
               {[
                 { href: "/upload",      icon: Plus,    label: t.nav.createKaraoke },
-                { href: "/history",     icon: History, label: t.nav.history || "היסטוריה" },
-                { href: "/recordings", icon: Cloud,   label: lang === "he" ? "ההקלטות שלי" : lang === "ar" ? "تسجيلاتي" : "My Recordings" },
+                { href: "/history",     icon: History, label: t.nav.history },
+                { href: "/recordings", icon: Cloud,   label: t.nav.myRecordings },
                 { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
-                { href: "/xp",         icon: Zap,     label: "XP" },
-                { href: "/party",       icon: PartyPopper, label: "Party" },
+                { href: "/xp",         icon: Zap,     label: t.nav.xpBadges },
+                { href: "/party",       icon: PartyPopper, label: t.nav.party },
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${

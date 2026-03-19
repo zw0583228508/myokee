@@ -15,6 +15,13 @@ export interface Translations {
     credits: string;
     buyCredits: string;
     language: string;
+    myRecordings: string;
+    xpBadges: string;
+    party: string;
+    inviteFriends: string;
+    paymentSuccess: string;
+    paymentCancelled: string;
+    paymentError: string;
   };
   upload: {
     title: string;
@@ -196,7 +203,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "לידרבורד", history: "היסטוריה",
       createKaraoke: "יצירת קריוקי", login: "התחברות", logout: "יציאה",
-      credits: "קרדיטים", buyCredits: "רכישת קרדיטים", language: "שפה",
+      credits: "קרדיטים", buyCredits: "רכישת קרדיטים", language: "שפה", myRecordings: "ההקלטות שלי", xpBadges: "XP ותגים", party: "מסיבה", inviteFriends: "הזמן חברים", paymentSuccess: "הרכישה הצליחה! הקרדיטים נוספו לחשבונך.", paymentCancelled: "הרכישה בוטלה. ניתן לרכוש בכל עת.", paymentError: "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה.",
     },
     upload: {
       title: "יצירת קריוקי חדש",
@@ -359,12 +366,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "העלה תמונת פרופיל ו-AI מוחק את הרקע ומוסיף הילה ניאון סגולה — את/ה מופיע/ה ברקע הסרטון בזמן השירה.",
         avatarTags: ["הסרת רקע", "הילה ניאון", "אנימציה בוידאו"],
         cards: [
-          { title: "Mode Pesta", desc: "Ruangan dengan kode, 5 tema, antrean lagu dan papan peringkat.", badge: "Baru" },
-          { title: "Battle & Duet", desc: "Layar terpisah dengan pemenang, atau lirik berwarna untuk berdua.", badge: "" },
-          { title: "30 Level + Lencana", desc: "XP, 22 lencana, 8 pencapaian dan papan peringkat global.", badge: "" },
-          { title: "Ekspor MP4", desc: "Video dengan lirik dan animasi — siap dibagikan.", badge: "" },
-          { title: "Analisis Performa", desc: "Timing, nada dan skor 0–100 dengan bintang.", badge: "" },
-          { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh.", badge: "" },
+          { title: "מצב מסיבה", desc: "חדר עם קוד, 5 ערכות עיצוב, תור שירה ולידרבורד.", badge: "חדש" },
+          { title: "באטל ודואט", desc: "מסך מפוצל עם הכרזת מנצח, או שירה לשניים בצבעים.", badge: "" },
+          { title: "30 רמות + תגים", desc: "XP, 22 תגים, 8 הישגים ולידרבורד גלובלי.", badge: "" },
+          { title: "יצוא MP4", desc: "וידאו עם מילים ואנימציה — מוכן לשיתוף.", badge: "" },
+          { title: "ניתוח ביצוע", desc: "תזמון, מנגינה וציון 0–100 עם כוכבים.", badge: "" },
+          { title: "עורך מילים", desc: "ערוך סנכרון ידנית — שליטה מלאה.", badge: "" },
         ],
       },
       support: { label: "תמיכה: windot100@gmail.com" },
@@ -375,7 +382,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Leaderboard", history: "History",
       createKaraoke: "Create Karaoke", login: "Sign In", logout: "Sign Out",
-      credits: "Credits", buyCredits: "Buy Credits", language: "Language",
+      credits: "Credits", buyCredits: "Buy Credits", language: "Language", myRecordings: "My Recordings", xpBadges: "XP & Badges", party: "Party", inviteFriends: "Invite Friends", paymentSuccess: "Purchase successful! Credits added to your account.", paymentCancelled: "Purchase cancelled. You can buy at any time.", paymentError: "Payment processing error. Credits will be added automatically on next login.",
     },
     upload: {
       title: "Create New Karaoke",
@@ -538,13 +545,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Upload a profile photo and AI removes the background, adds a neon purple glow — you appear in the video background while singing.",
         avatarTags: ["Background Removal", "Neon Glow", "Video Animation"],
         cards: [
-          { title: "Global Leaderboard", desc: "Every performance is ranked. Climb the worldwide scoreboard.", badge: "" },
-          { title: "Battle Mode", desc: "Challenge a friend directly — they see your score and try to win.", badge: "Viral" },
-          { title: "Export MP4", desc: "Full video with lyrics, animation and design — ready to share.", badge: "" },
-          { title: "Viral Clip", desc: "AI finds the best 30 seconds of your performance.", badge: "" },
-          { title: "Performance Analysis", desc: "Timing, pitch, % similarity to original artist — detailed score.", badge: "" },
-          { title: "Social Sharing", desc: "WhatsApp, Instagram and more — with score, stars and link.", badge: "" },
-          { title: "Lyrics Editor", desc: "Edit sync manually — full control over every word.", badge: "" },
+          { title: "Party Mode", desc: "Room with code, 5 themes, song queue and leaderboard.", badge: "New" },
+          { title: "Battle & Duet", desc: "Split screen with winner, or color-coded lyrics for two.", badge: "" },
+          { title: "30 Levels + Badges", desc: "XP, 22 badges, 8 achievements and global leaderboard.", badge: "" },
+          { title: "Export MP4", desc: "Video with lyrics and animation — ready to share.", badge: "" },
+          { title: "Performance Analysis", desc: "Timing, pitch and score 0–100 with stars.", badge: "" },
+          { title: "Lyrics Editor", desc: "Edit sync manually — full control.", badge: "" },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -555,7 +561,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "المتصدرين", history: "السجل",
       createKaraoke: "إنشاء كاريوكي", login: "تسجيل الدخول", logout: "تسجيل الخروج",
-      credits: "رصيد", buyCredits: "شراء رصيد", language: "اللغة",
+      credits: "رصيد", buyCredits: "شراء رصيد", language: "اللغة", myRecordings: "تسجيلاتي", xpBadges: "XP والشارات", party: "حفلة", inviteFriends: "دعوة أصدقاء", paymentSuccess: "تمت عملية الشراء بنجاح! تمت إضافة الرصيد.", paymentCancelled: "تم إلغاء عملية الشراء. يمكنك الشراء في أي وقت.", paymentError: "خطأ في معالجة الدفع. سيتم إضافة الرصيد تلقائياً عند تسجيل الدخول التالي.",
     },
     upload: {
       title: "إنشاء كاريوكي جديد",
@@ -718,13 +724,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "ارفع صورة ملفك الشخصي ويزيل الذكاء الاصطناعي الخلفية ويضيف هالة نيون — تظهر في الفيديو أثناء الغناء.",
         avatarTags: ["إزالة الخلفية", "هالة نيون", "الرسوم المتحركة"],
         cards: [
-          { title: "المتصدرون العالميون", desc: "كل أداء يُصنَّف. تسلق لوحة النتائج العالمية.", badge: "" },
-          { title: "Battle Mode", desc: "تحدى صديقاً مباشرة — يرى نقاطك ويحاول الفوز.", badge: "فيروسي" },
-          { title: "تصدير MP4", desc: "فيديو كامل مع كلمات وأنيميشن وتصميم — جاهز للمشاركة.", badge: "" },
-          { title: "مقطع فيروسي", desc: "الذكاء الاصطناعي يجد أفضل 30 ثانية من أدائك.", badge: "" },
-          { title: "تحليل الأداء", desc: "التوقيت، النغمة، % التشابه مع الفنان الأصلي — نقاط مفصلة.", badge: "" },
-          { title: "المشاركة الاجتماعية", desc: "واتساب، إنستغرام والمزيد — مع النقاط والنجوم والرابط.", badge: "" },
-          { title: "محرر الكلمات", desc: "عدّل المزامنة يدوياً — تحكم كامل في كل كلمة.", badge: "" },
+          { title: "وضع الحفلة", desc: "غرفة برمز، 5 تصاميم، قائمة أغانٍ ولوحة متصدرين.", badge: "جديد" },
+          { title: "المعركة والدويتو", desc: "شاشة مقسمة مع فائز، أو كلمات ملونة لاثنين.", badge: "" },
+          { title: "30 مستوى + شارات", desc: "XP, 22 شارة, 8 إنجازات ولوحة متصدرين عالمية.", badge: "" },
+          { title: "تصدير MP4", desc: "فيديو بكلمات وأنيميشن — جاهز للمشاركة.", badge: "" },
+          { title: "تحليل الأداء", desc: "التوقيت، النغمة ودرجة 0–100 مع نجوم.", badge: "" },
+          { title: "محرر الكلمات", desc: "عدّل المزامنة يدوياً — تحكم كامل.", badge: "" },
         ],
       },
       support: { label: "الدعم: windot100@gmail.com" },
@@ -735,7 +740,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Рейтинг", history: "История",
       createKaraoke: "Создать Karaoke", login: "Войти", logout: "Выйти",
-      credits: "Кредиты", buyCredits: "Купить кредиты", language: "Язык",
+      credits: "Кредиты", buyCredits: "Купить кредиты", language: "Язык", myRecordings: "Мои записи", xpBadges: "XP и значки", party: "Вечеринка", inviteFriends: "Пригласить друзей", paymentSuccess: "Покупка успешна! Кредиты добавлены.", paymentCancelled: "Покупка отменена. Можно купить в любое время.", paymentError: "Ошибка платежа. Кредиты будут добавлены автоматически при следующем входе.",
     },
     upload: {
       title: "Создать новое Karaoke",
@@ -898,12 +903,11 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Загрузите фото профиля, ИИ удалит фон и добавит неоновый ореол — вы появляетесь на фоне видео во время пения.",
         avatarTags: ["Удаление фона", "Неоновый ореол", "Анимация в видео"],
         cards: [
-          { title: "Глобальный рейтинг", desc: "Каждое выступление оценивается. Поднимайтесь в мировом рейтинге.", badge: "" },
-          { title: "Battle Mode", desc: "Бросьте вызов другу — он видит вашу оценку и пытается победить.", badge: "Вирусный" },
-          { title: "Экспорт MP4", desc: "Полное видео с текстом, анимацией и дизайном — готово к публикации.", badge: "" },
-          { title: "Вирусный клип", desc: "ИИ находит лучшие 30 секунд вашего выступления.", badge: "" },
-          { title: "Анализ выступления", desc: "Тайминг, тон, % сходства с оригиналом — подробная оценка.", badge: "" },
-          { title: "Публикация в соцсетях", desc: "WhatsApp, Instagram и другие — с оценкой, звёздами и ссылкой.", badge: "" },
+          { title: "Режим вечеринки", desc: "Комната с кодом, 5 тем, очередь песен и таблица лидеров.", badge: "Новое" },
+          { title: "Баттл и Дуэт", desc: "Разделённый экран с победителем или цветные слова для двоих.", badge: "" },
+          { title: "30 уровней + значки", desc: "XP, 22 значка, 8 достижений и глобальный рейтинг.", badge: "" },
+          { title: "Экспорт MP4", desc: "Видео с текстом и анимацией — готово к публикации.", badge: "" },
+          { title: "Анализ выступления", desc: "Ритм, тональность и оценка 0–100 со звёздами.", badge: "" },
           { title: "Редактор текста", desc: "Редактируйте синхронизацию вручную — полный контроль.", badge: "" },
         ],
       },
@@ -915,7 +919,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Clasificación", history: "Historial",
       createKaraoke: "Crear Karaoke", login: "Iniciar sesión", logout: "Cerrar sesión",
-      credits: "Créditos", buyCredits: "Comprar créditos", language: "Idioma",
+      credits: "Créditos", buyCredits: "Comprar créditos", language: "Idioma", myRecordings: "Mis Grabaciones", xpBadges: "XP e Insignias", party: "Fiesta", inviteFriends: "Invitar amigos", paymentSuccess: "¡Compra exitosa! Créditos añadidos.", paymentCancelled: "Compra cancelada. Puedes comprar en cualquier momento.", paymentError: "Error de pago. Los créditos se añadirán automáticamente en el próximo inicio de sesión.",
     },
     upload: {
       title: "Crear nuevo Karaoke",
@@ -1078,13 +1082,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Sube una foto de perfil e IA elimina el fondo y añade un halo neón púrpura — apareces en el video mientras cantas.",
         avatarTags: ["Eliminación de fondo", "Halo neón", "Animación en video"],
         cards: [
-          { title: "Clasificación global", desc: "Cada actuación es clasificada. Sube en el marcador mundial.", badge: "" },
-          { title: "Battle Mode", desc: "Desafía a un amigo directamente — ve tu puntuación e intenta ganar.", badge: "Viral" },
-          { title: "Exportar MP4", desc: "Video completo con letras, animación y diseño — listo para compartir.", badge: "" },
-          { title: "Clip viral", desc: "IA encuentra los mejores 30 segundos de tu actuación.", badge: "" },
-          { title: "Análisis de actuación", desc: "Timing, tono, % similitud con artista original — puntuación detallada.", badge: "" },
-          { title: "Compartir en redes", desc: "WhatsApp, Instagram y más — con puntuación, estrellas y enlace.", badge: "" },
-          { title: "Editor de letras", desc: "Edita la sincronización manualmente — control total de cada palabra.", badge: "" },
+          { title: "Modo Fiesta", desc: "Sala con código, 5 temas, cola de canciones y ranking.", badge: "Nuevo" },
+          { title: "Batalla y Dúo", desc: "Pantalla dividida con ganador, o letras a colores para dos.", badge: "" },
+          { title: "30 Niveles + Insignias", desc: "XP, 22 insignias, 8 logros y ranking global.", badge: "" },
+          { title: "Exportar MP4", desc: "Video con letras y animación — listo para compartir.", badge: "" },
+          { title: "Análisis de Rendimiento", desc: "Tiempo, tono y puntuación 0–100 con estrellas.", badge: "" },
+          { title: "Editor de Letras", desc: "Edita la sincronización manualmente — control total.", badge: "" },
         ],
       },
       support: { label: "Soporte: windot100@gmail.com" },
@@ -1095,7 +1098,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Classement", history: "Historique",
       createKaraoke: "Créer Karaoké", login: "Se connecter", logout: "Se déconnecter",
-      credits: "Crédits", buyCredits: "Acheter des crédits", language: "Langue",
+      credits: "Crédits", buyCredits: "Acheter des crédits", language: "Langue", myRecordings: "Mes Enregistrements", xpBadges: "XP et Badges", party: "Fête", inviteFriends: "Inviter des amis", paymentSuccess: "Achat réussi ! Crédits ajoutés.", paymentCancelled: "Achat annulé. Vous pouvez acheter à tout moment.", paymentError: "Erreur de paiement. Les crédits seront ajoutés à la prochaine connexion.",
     },
     upload: {
       title: "Créer un nouveau Karaoké",
@@ -1258,13 +1261,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Téléchargez une photo de profil et l'IA supprime l'arrière-plan et ajoute un halo néon violet — vous apparaissez dans la vidéo en chantant.",
         avatarTags: ["Suppression fond", "Halo néon", "Animation vidéo"],
         cards: [
-          { title: "Classement mondial", desc: "Chaque performance est classée. Montez dans le tableau mondial.", badge: "" },
-          { title: "Battle Mode", desc: "Défiez un ami directement — il voit votre score et essaie de gagner.", badge: "Viral" },
-          { title: "Export MP4", desc: "Vidéo complète avec paroles, animation et design — prête à partager.", badge: "" },
-          { title: "Clip viral", desc: "L'IA trouve les 30 meilleures secondes de votre performance.", badge: "" },
-          { title: "Analyse de performance", desc: "Timing, tonalité, % similitude avec l'artiste original — score détaillé.", badge: "" },
-          { title: "Partage social", desc: "WhatsApp, Instagram et plus — avec score, étoiles et lien.", badge: "" },
-          { title: "Éditeur de paroles", desc: "Modifiez la synchronisation manuellement — contrôle total.", badge: "" },
+          { title: "Mode Fête", desc: "Salle avec code, 5 thèmes, file de chansons et classement.", badge: "Nouveau" },
+          { title: "Battle et Duo", desc: "Écran partagé avec gagnant, ou paroles colorées pour deux.", badge: "" },
+          { title: "30 Niveaux + Badges", desc: "XP, 22 badges, 8 succès et classement mondial.", badge: "" },
+          { title: "Export MP4", desc: "Vidéo avec paroles et animation — prêt à partager.", badge: "" },
+          { title: "Analyse de Performance", desc: "Timing, justesse et score 0–100 avec étoiles.", badge: "" },
+          { title: "Éditeur de Paroles", desc: "Modifiez la synchronisation — contrôle total.", badge: "" },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -1275,7 +1277,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Rangliste", history: "Verlauf",
       createKaraoke: "Karaoke erstellen", login: "Anmelden", logout: "Abmelden",
-      credits: "Guthaben", buyCredits: "Guthaben kaufen", language: "Sprache",
+      credits: "Guthaben", buyCredits: "Guthaben kaufen", language: "Sprache", myRecordings: "Meine Aufnahmen", xpBadges: "XP & Abzeichen", party: "Party", inviteFriends: "Freunde einladen", paymentSuccess: "Kauf erfolgreich! Guthaben gutgeschrieben.", paymentCancelled: "Kauf abgebrochen. Jederzeit kaufen möglich.", paymentError: "Zahlungsfehler. Guthaben wird beim nächsten Login gutgeschrieben.",
     },
     upload: {
       title: "Neues Karaoke erstellen",
@@ -1438,13 +1440,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Profilfoto hochladen und KI entfernt den Hintergrund und fügt ein lila Neon-Halo hinzu — du erscheinst im Video beim Singen.",
         avatarTags: ["Hintergrundentfernung", "Neon-Halo", "Video-Animation"],
         cards: [
-          { title: "Globale Rangliste", desc: "Jede Aufführung wird bewertet. Steig in der Weltrangliste auf.", badge: "" },
-          { title: "Battle Mode", desc: "Fordern Sie einen Freund direkt heraus — er sieht Ihre Punktzahl und versucht zu gewinnen.", badge: "Viral" },
-          { title: "MP4 exportieren", desc: "Vollständiges Video mit Text, Animation und Design — bereit zum Teilen.", badge: "" },
-          { title: "Viraler Clip", desc: "KI findet die besten 30 Sekunden Ihrer Aufführung.", badge: "" },
-          { title: "Aufführungsanalyse", desc: "Timing, Tonhöhe, % Ähnlichkeit mit Original-Künstler — detaillierte Bewertung.", badge: "" },
-          { title: "Social Sharing", desc: "WhatsApp, Instagram und mehr — mit Punktzahl, Sternen und Link.", badge: "" },
-          { title: "Liedtext-Editor", desc: "Synchronisierung manuell bearbeiten — volle Kontrolle über jedes Wort.", badge: "" },
+          { title: "Party-Modus", desc: "Raum mit Code, 5 Themen, Warteschlange und Bestenliste.", badge: "Neu" },
+          { title: "Battle & Duett", desc: "Geteilter Bildschirm mit Gewinner, oder farbige Texte für zwei.", badge: "" },
+          { title: "30 Level + Abzeichen", desc: "XP, 22 Abzeichen, 8 Erfolge und globale Bestenliste.", badge: "" },
+          { title: "MP4 Export", desc: "Video mit Text und Animation — bereit zum Teilen.", badge: "" },
+          { title: "Leistungsanalyse", desc: "Timing, Tonhöhe und Punktzahl 0–100 mit Sternen.", badge: "" },
+          { title: "Text-Editor", desc: "Synchronisation manuell bearbeiten — volle Kontrolle.", badge: "" },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -1455,7 +1456,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "ランキング", history: "履歴",
       createKaraoke: "カラオケ作成", login: "ログイン", logout: "ログアウト",
-      credits: "クレジット", buyCredits: "クレジット購入", language: "言語",
+      credits: "クレジット", buyCredits: "クレジット購入", language: "言語", myRecordings: "マイ録音", xpBadges: "XP＆バッジ", party: "パーティー", inviteFriends: "友達を招待", paymentSuccess: "購入成功！クレジットが追加されました。", paymentCancelled: "購入がキャンセルされました。いつでも購入可能。", paymentError: "支払いエラー。次回ログイン時に自動追加されます。",
     },
     upload: {
       title: "新しいカラオケを作成",
@@ -1618,14 +1619,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "プロフィール写真をアップロードすると、AIが背景を削除しネオンパープルのグローを追加 — 歌唱中に動画の背景にあなたが表示されます。",
         avatarTags: ["背景除去", "ネオングロー", "動画アニメーション"],
         cards: [
-          { title: "グローバルランキング", desc: "すべてのパフォーマンスがランク付け。世界のスコアボードを駆け上がろう。", badge: "" },
-          { title: "バトルモード", desc: "友達に直接挑戦 — あなたのスコアを見て勝とうとする。", badge: "バイラル" },
-          { title: "パーティーモード", desc: "イベント用の曲キューを管理。TV画面対応。", badge: "" },
-          { title: "MP4エクスポート", desc: "歌詞、アニメーション、デザイン付きの完全な動画 — すぐにシェア可能。", badge: "" },
-          { title: "バイラルクリップ", desc: "AIがあなたのパフォーマンスのベスト30秒を見つけます。", badge: "" },
-          { title: "パフォーマンス分析", desc: "タイミング、ピッチ、オリジナルアーティストとの類似度% — 詳細スコア。", badge: "" },
-          { title: "SNSシェア", desc: "WhatsApp、Instagramなど — スコア、星、リンク付き。", badge: "" },
-          { title: "歌詞エディター", desc: "同期を手動で編集 — すべての単語を完全にコントロール。", badge: "" },
+          { title: "パーティーモード", desc: "コード付きルーム、5テーマ、曲キュー、リーダーボード。", badge: "新機能" },
+          { title: "バトル＆デュエット", desc: "分割画面で勝者決定、またはカラー歌詞で二人歌唱。", badge: "" },
+          { title: "30レベル+バッジ", desc: "XP、22バッジ、8実績、グローバルランキング。", badge: "" },
+          { title: "MP4エクスポート", desc: "歌詞とアニメーション付き動画 — シェア可能。", badge: "" },
+          { title: "パフォーマンス分析", desc: "タイミング、ピッチ、0–100スコアと星評価。", badge: "" },
+          { title: "歌詞エディタ", desc: "手動で同期を編集 — 完全コントロール。", badge: "" },
         ],
       },
       support: { label: "サポート: windot100@gmail.com" },
@@ -1636,7 +1635,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "排行榜", history: "历史",
       createKaraoke: "创建卡拉OK", login: "登录", logout: "退出",
-      credits: "积分", buyCredits: "购买积分", language: "语言",
+      credits: "积分", buyCredits: "购买积分", language: "语言", myRecordings: "我的录音", xpBadges: "XP和徽章", party: "派对", inviteFriends: "邀请好友", paymentSuccess: "购买成功！积分已添加。", paymentCancelled: "购买已取消。随时可以购买。", paymentError: "支付错误。积分将在下次登录时自动添加。",
     },
     upload: {
       title: "创建新卡拉OK",
@@ -1799,14 +1798,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "上传头像，AI去除背景并添加霓虹紫光效 — 演唱时你出现在视频背景中。",
         avatarTags: ["背景去除", "霓虹光效", "视频动画"],
         cards: [
-          { title: "全球排行榜", desc: "每次表演都会排名。攀登世界积分榜。", badge: "" },
-          { title: "对战模式", desc: "直接挑战好友 — 他们看到你的分数并尝试超越。", badge: "病毒式" },
-          { title: "派对模式", desc: "为活动管理歌曲队列，内置电视屏幕。", badge: "" },
-          { title: "导出MP4", desc: "带歌词、动画和设计的完整视频 — 可直接分享。", badge: "" },
-          { title: "病毒式短片", desc: "AI为你找到表演中最精彩的30秒。", badge: "" },
-          { title: "表演分析", desc: "节奏、音准、与原唱的相似度% — 详细评分。", badge: "" },
-          { title: "社交分享", desc: "微信、Instagram等 — 附带评分、星级和链接。", badge: "" },
-          { title: "歌词编辑器", desc: "手动编辑同步 — 完全控制每一个字。", badge: "" },
+          { title: "派对模式", desc: "带密码房间，5种主题，歌曲排队和排行榜。", badge: "新功能" },
+          { title: "对战与二重唱", desc: "分屏显示决出胜者，或彩色歌词双人演唱。", badge: "" },
+          { title: "30级+徽章", desc: "XP、22枚徽章、8项成就和全球排行榜。", badge: "" },
+          { title: "导出MP4", desc: "带歌词和动画的视频 — 可分享。", badge: "" },
+          { title: "表演分析", desc: "时间、音准和0–100评分含星级。", badge: "" },
+          { title: "歌词编辑器", desc: "手动编辑同步 — 完全掌控。", badge: "" },
         ],
       },
       support: { label: "客服: windot100@gmail.com" },
@@ -1817,7 +1814,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "순위", history: "기록",
       createKaraoke: "노래방 만들기", login: "로그인", logout: "로그아웃",
-      credits: "크레딧", buyCredits: "크레딧 구매", language: "언어",
+      credits: "크레딧", buyCredits: "크레딧 구매", language: "언어", myRecordings: "내 녹음", xpBadges: "XP & 배지", party: "파티", inviteFriends: "친구 초대", paymentSuccess: "구매 성공! 크레딧이 추가되었습니다.", paymentCancelled: "구매가 취소되었습니다. 언제든 구매 가능.", paymentError: "결제 오류. 다음 로그인 시 자동 추가됩니다.",
     },
     upload: {
       title: "새 노래방 만들기",
@@ -1980,14 +1977,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "프로필 사진을 업로드하면 AI가 배경을 제거하고 네온 퍼플 글로우를 추가 — 노래하는 동안 영상 배경에 당신이 나타납니다.",
         avatarTags: ["배경 제거", "네온 글로우", "영상 애니메이션"],
         cards: [
-          { title: "글로벌 리더보드", desc: "모든 공연이 순위에 올라갑니다. 세계 점수판에서 올라가세요.", badge: "" },
-          { title: "배틀 모드", desc: "친구에게 직접 도전 — 당신의 점수를 보고 이기려고 합니다.", badge: "바이럴" },
-          { title: "파티 모드", desc: "이벤트용 노래 대기열 관리. 내장 TV 화면.", badge: "" },
-          { title: "MP4 내보내기", desc: "가사, 애니메이션, 디자인이 포함된 완전한 영상 — 바로 공유 가능.", badge: "" },
-          { title: "바이럴 클립", desc: "AI가 당신의 공연에서 최고의 30초를 찾아줍니다.", badge: "" },
-          { title: "공연 분석", desc: "타이밍, 음정, 원곡 아티스트와의 유사도% — 상세 점수.", badge: "" },
-          { title: "소셜 공유", desc: "WhatsApp, Instagram 등 — 점수, 별, 링크 포함.", badge: "" },
-          { title: "가사 편집기", desc: "수동으로 동기화 편집 — 모든 단어를 완전히 제어.", badge: "" },
+          { title: "파티 모드", desc: "코드가 있는 방, 5개 테마, 노래 대기열, 리더보드.", badge: "신규" },
+          { title: "배틀 & 듀엣", desc: "분할 화면으로 승자 발표, 또는 컬러 가사로 듀엣.", badge: "" },
+          { title: "30레벨 + 배지", desc: "XP, 22개 배지, 8개 업적, 글로벌 리더보드.", badge: "" },
+          { title: "MP4 내보내기", desc: "가사와 애니메이션이 있는 영상 — 공유 가능.", badge: "" },
+          { title: "퍼포먼스 분석", desc: "타이밍, 음정, 0–100 점수와 별점.", badge: "" },
+          { title: "가사 편집기", desc: "수동으로 싱크 편집 — 완전한 제어.", badge: "" },
         ],
       },
       support: { label: "고객지원: windot100@gmail.com" },
@@ -1998,7 +1993,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "อันดับ", history: "ประวัติ",
       createKaraoke: "สร้างคาราโอเกะ", login: "เข้าสู่ระบบ", logout: "ออกจากระบบ",
-      credits: "เครดิต", buyCredits: "ซื้อเครดิต", language: "ภาษา",
+      credits: "เครดิต", buyCredits: "ซื้อเครดิต", language: "ภาษา", myRecordings: "การบันทึกของฉัน", xpBadges: "XP และเหรียญ", party: "ปาร์ตี้", inviteFriends: "เชิญเพื่อน", paymentSuccess: "ซื้อสำเร็จ! เครดิตถูกเพิ่มแล้ว", paymentCancelled: "การซื้อถูกยกเลิก สามารถซื้อได้ทุกเมื่อ", paymentError: "ข้อผิดพลาดการชำระเงิน เครดิตจะถูกเพิ่มเมื่อเข้าสู่ระบบครั้งถัดไป",
     },
     upload: {
       title: "สร้างคาราโอเกะใหม่",
@@ -2161,14 +2156,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "อัปโหลดรูปโปรไฟล์ AI จะลบพื้นหลังและเพิ่มแสงนีออนม่วง — คุณจะปรากฏในพื้นหลังวิดีโอขณะร้องเพลง",
         avatarTags: ["ลบพื้นหลัง", "แสงนีออน", "แอนิเมชันวิดีโอ"],
         cards: [
-          { title: "กระดานผู้นำทั่วโลก", desc: "ทุกการแสดงถูกจัดอันดับ ไต่อันดับกระดานคะแนนโลก", badge: "" },
-          { title: "โหมดแบทเทิล", desc: "ท้าเพื่อนโดยตรง — เขาเห็นคะแนนคุณแล้วพยายามชนะ", badge: "ไวรัล" },
-          { title: "โหมดปาร์ตี้", desc: "จัดคิวเพลงสำหรับงานอีเวนต์ พร้อมหน้าจอทีวี", badge: "" },
-          { title: "ส่งออก MP4", desc: "วิดีโอเต็มพร้อมเนื้อเพลง แอนิเมชัน และดีไซน์ — พร้อมแชร์", badge: "" },
-          { title: "คลิปไวรัล", desc: "AI ค้นหา 30 วินาทีที่ดีที่สุดจากการแสดงของคุณ", badge: "" },
-          { title: "วิเคราะห์การแสดง", desc: "จังหวะ ระดับเสียง % ความเหมือนกับศิลปินต้นฉบับ — คะแนนละเอียด", badge: "" },
-          { title: "แชร์โซเชียล", desc: "WhatsApp, Instagram และอื่นๆ — พร้อมคะแนน ดาว และลิงก์", badge: "" },
-          { title: "แก้ไขเนื้อเพลง", desc: "แก้ไขการซิงค์ด้วยตนเอง — ควบคุมทุกคำอย่างเต็มที่", badge: "" },
+          { title: "โหมดปาร์ตี้", desc: "ห้องพร้อมรหัส, 5 ธีม, คิวเพลง และลีดเดอร์บอร์ด", badge: "ใหม่" },
+          { title: "แบทเทิลและดูเอ็ท", desc: "หน้าจอแบ่งครึ่งประกาศผู้ชนะ หรือเนื้อเพลงสีสำหรับสองคน", badge: "" },
+          { title: "30 เลเวล + แบดจ์", desc: "XP, 22 แบดจ์, 8 ความสำเร็จ และลีดเดอร์บอร์ดโลก", badge: "" },
+          { title: "ส่งออก MP4", desc: "วิดีโอพร้อมเนื้อเพลงและแอนิเมชัน — พร้อมแชร์", badge: "" },
+          { title: "วิเคราะห์การแสดง", desc: "จังหวะ ทำนอง และคะแนน 0–100 พร้อมดาว", badge: "" },
+          { title: "แก้ไขเนื้อเพลง", desc: "แก้ไขการซิงค์ด้วยตนเอง — ควบคุมเต็มที่", badge: "" },
         ],
       },
       support: { label: "ฝ่ายสนับสนุน: windot100@gmail.com" },
@@ -2179,7 +2172,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Bảng xếp hạng", history: "Lịch sử",
       createKaraoke: "Tạo Karaoke", login: "Đăng nhập", logout: "Đăng xuất",
-      credits: "Điểm", buyCredits: "Mua điểm", language: "Ngôn ngữ",
+      credits: "Điểm", buyCredits: "Mua điểm", language: "Ngôn ngữ", myRecordings: "Bản ghi của tôi", xpBadges: "XP & Huy hiệu", party: "Tiệc", inviteFriends: "Mời bạn bè", paymentSuccess: "Mua thành công! Tín dụng đã được thêm.", paymentCancelled: "Đã hủy mua. Bạn có thể mua bất cứ lúc nào.", paymentError: "Lỗi thanh toán. Tín dụng sẽ được thêm tự động khi đăng nhập lần sau.",
     },
     upload: {
       title: "Tạo Karaoke mới",
@@ -2342,14 +2335,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Tải ảnh đại diện, AI xóa nền và thêm ánh sáng neon tím — bạn xuất hiện trong nền video khi hát.",
         avatarTags: ["Xóa nền", "Ánh neon", "Hoạt hình video"],
         cards: [
-          { title: "Bảng xếp hạng toàn cầu", desc: "Mỗi phần trình diễn được xếp hạng. Leo lên bảng điểm thế giới.", badge: "" },
-          { title: "Chế độ đối kháng", desc: "Thách đấu bạn bè trực tiếp — họ thấy điểm của bạn và cố gắng thắng.", badge: "Viral" },
-          { title: "Chế độ tiệc", desc: "Quản lý hàng đợi bài hát cho sự kiện với màn hình TV tích hợp.", badge: "" },
-          { title: "Xuất MP4", desc: "Video đầy đủ với lời bài hát, hoạt hình và thiết kế — sẵn sàng chia sẻ.", badge: "" },
-          { title: "Clip viral", desc: "AI tìm 30 giây hay nhất trong phần trình diễn của bạn.", badge: "" },
-          { title: "Phân tích trình diễn", desc: "Nhịp, cao độ, % giống nghệ sĩ gốc — điểm chi tiết.", badge: "" },
-          { title: "Chia sẻ mạng xã hội", desc: "WhatsApp, Instagram và nhiều hơn — kèm điểm, sao và liên kết.", badge: "" },
-          { title: "Trình sửa lời", desc: "Chỉnh đồng bộ thủ công — kiểm soát hoàn toàn từng từ.", badge: "" },
+          { title: "Chế độ Tiệc", desc: "Phòng có mã, 5 chủ đề, hàng đợi bài hát và bảng xếp hạng.", badge: "Mới" },
+          { title: "Battle & Song đôi", desc: "Chia đôi màn hình chọn người thắng, hoặc lời màu cho hai người.", badge: "" },
+          { title: "30 Cấp + Huy hiệu", desc: "XP, 22 huy hiệu, 8 thành tựu và bảng xếp hạng toàn cầu.", badge: "" },
+          { title: "Xuất MP4", desc: "Video có lời và hiệu ứng — sẵn sàng chia sẻ.", badge: "" },
+          { title: "Phân tích biểu diễn", desc: "Nhịp, cao độ và điểm 0–100 với sao.", badge: "" },
+          { title: "Trình chỉnh sửa lời", desc: "Chỉnh đồng bộ thủ công — kiểm soát hoàn toàn.", badge: "" },
         ],
       },
       support: { label: "Hỗ trợ: windot100@gmail.com" },
@@ -2360,7 +2351,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Ranggo", history: "Kasaysayan",
       createKaraoke: "Gumawa ng Karaoke", login: "Mag-sign in", logout: "Mag-sign out",
-      credits: "Credits", buyCredits: "Bumili ng Credits", language: "Wika",
+      credits: "Credits", buyCredits: "Bumili ng Credits", language: "Wika", myRecordings: "Mga Recording Ko", xpBadges: "XP at Badges", party: "Party", inviteFriends: "Mag-imbita ng kaibigan", paymentSuccess: "Matagumpay ang pagbili! Na-add na ang credits.", paymentCancelled: "Na-cancel ang pagbili. Pwede kang bumili kahit kailan.", paymentError: "Error sa pagbayad. Awtomatikong madadagdag ang credits sa susunod na login.",
     },
     upload: {
       title: "Gumawa ng Bagong Karaoke",
@@ -2523,13 +2514,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Mag-upload ng profile photo at aalisin ng AI ang background, magdadagdag ng neon purple glow — makikita ka sa background ng video habang kumakanta.",
         avatarTags: ["Background Removal", "Neon Glow", "Video Animation"],
         cards: [
-          { title: "Global Leaderboard", desc: "Bawat performance ay nira-rank. Umakyat sa worldwide scoreboard.", badge: "" },
-          { title: "Battle Mode", desc: "Hamunin ang kaibigan — makikita niya ang score mo at susubukan niyang manalo.", badge: "Viral" },
-          { title: "I-export sa MP4", desc: "Buong video na may lyrics, animation at design — handa nang i-share.", badge: "" },
-          { title: "Viral Clip", desc: "Hahanapin ng AI ang pinakamahusay na 30 segundo ng performance mo.", badge: "" },
-          { title: "Performance Analysis", desc: "Timing, pitch, % pagkakatulad sa original artist — detalyadong score.", badge: "" },
-          { title: "Social Sharing", desc: "WhatsApp, Instagram at iba pa — may score, stars at link.", badge: "" },
-          { title: "Lyrics Editor", desc: "I-edit ang sync nang manual — buong kontrol sa bawat salita.", badge: "" },
+          { title: "Party Mode", desc: "Room na may code, 5 tema, song queue at leaderboard.", badge: "Bago" },
+          { title: "Battle at Duet", desc: "Split screen na may panalo, o kulay-kulay na lyrics para sa dalawa.", badge: "" },
+          { title: "30 Level + Badge", desc: "XP, 22 badge, 8 achievement at global leaderboard.", badge: "" },
+          { title: "I-export MP4", desc: "Video na may lyrics at animation — handa nang i-share.", badge: "" },
+          { title: "Performance Analysis", desc: "Timing, pitch at score 0–100 na may star.", badge: "" },
+          { title: "Lyrics Editor", desc: "I-edit ang sync nang mano-mano — full control.", badge: "" },
         ],
       },
       support: { label: "Support: windot100@gmail.com" },
@@ -2540,7 +2530,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Peringkat", history: "Riwayat",
       createKaraoke: "Buat Karaoke", login: "Masuk", logout: "Keluar",
-      credits: "Kredit", buyCredits: "Beli Kredit", language: "Bahasa",
+      credits: "Kredit", buyCredits: "Beli Kredit", language: "Bahasa", myRecordings: "Rekaman Saya", xpBadges: "XP & Lencana", party: "Pesta", inviteFriends: "Undang teman", paymentSuccess: "Pembelian berhasil! Kredit telah ditambahkan.", paymentCancelled: "Pembelian dibatalkan. Anda bisa membeli kapan saja.", paymentError: "Kesalahan pembayaran. Kredit akan ditambahkan otomatis saat login berikutnya.",
     },
     upload: {
       title: "Buat Karaoke Baru",
@@ -2703,14 +2693,12 @@ const LANGS: Record<SupportedLang, Translations> = {
         avatarDesc: "Unggah foto profil dan AI menghapus latar belakang, menambahkan cahaya neon ungu — Anda muncul di latar video saat bernyanyi.",
         avatarTags: ["Hapus Latar", "Cahaya Neon", "Animasi Video"],
         cards: [
-          { title: "Papan Peringkat Global", desc: "Setiap penampilan diberi peringkat. Naiki papan skor dunia.", badge: "" },
-          { title: "Mode Pertarungan", desc: "Tantang teman langsung — mereka melihat skor Anda dan berusaha menang.", badge: "Viral" },
-          { title: "Mode Pesta", desc: "Kelola antrean lagu untuk acara dengan layar TV bawaan.", badge: "" },
-          { title: "Ekspor MP4", desc: "Video lengkap dengan lirik, animasi dan desain — siap dibagikan.", badge: "" },
-          { title: "Klip Viral", desc: "AI menemukan 30 detik terbaik dari penampilan Anda.", badge: "" },
-          { title: "Analisis Penampilan", desc: "Timing, nada, % kemiripan dengan artis asli — skor detail.", badge: "" },
-          { title: "Berbagi Sosial", desc: "WhatsApp, Instagram dan lainnya — dengan skor, bintang dan tautan.", badge: "" },
-          { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh atas setiap kata.", badge: "" },
+          { title: "Mode Pesta", desc: "Ruangan dengan kode, 5 tema, antrean lagu dan papan peringkat.", badge: "Baru" },
+          { title: "Battle & Duet", desc: "Layar terpisah dengan pemenang, atau lirik berwarna untuk berdua.", badge: "" },
+          { title: "30 Level + Lencana", desc: "XP, 22 lencana, 8 pencapaian dan papan peringkat global.", badge: "" },
+          { title: "Ekspor MP4", desc: "Video dengan lirik dan animasi — siap dibagikan.", badge: "" },
+          { title: "Analisis Performa", desc: "Timing, nada dan skor 0–100 dengan bintang.", badge: "" },
+          { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh.", badge: "" },
         ],
       },
       support: { label: "Dukungan: windot100@gmail.com" },
