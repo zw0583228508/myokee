@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 
-// Neon database connection string - direct connection for v0 environment
-const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_EgBy8bjNse6R@ep-autumn-boat-anrkj96m-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require";
+// Neon database connection string - fallback for v0 environment
+const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_2gLNhTb1IcGU@ep-broad-bird-ankjanug-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require";
 
 // Use environment variable or fallback to Neon direct connection
 const databaseUrl = process.env.DATABASE_URL || NEON_DATABASE_URL;
