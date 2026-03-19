@@ -603,7 +603,7 @@ def _bg_filter_only(style: str, fps: int, duration: float,
 def _bg_waveform_colors(style: str) -> str:
     full = _bg_filter(style, 25, 10)
     import re
-    m = re.search(r'colors=(0x[0-9A-Fa-f|]+)', full)
+    m = re.search(r'colors=([0-9A-Fa-fx|]+)', full)
     return m.group(1) if m else "0x00FFFFFF|0xFF44CCFF|0x9333EAFF"
 
 
@@ -2061,14 +2061,17 @@ async def update_lyrics_and_render(
         old_video.unlink(missing_ok=True)
 
     chosen_style = body.bg_style if body.bg_style in BG_STYLES else "aurora"
+    print(f"[lyrics] job={jid[:8]} bg_style={chosen_style} (from body: {body.bg_style!r})")
     jdir = JOBS_DIR / jid
     (jdir / "bg_style.txt").write_text(chosen_style)
 
     old_bg = jdir / "bg_prerender.mp4"
     saved_style_f = jdir / "bg_style_prerendered.txt"
     prerendered_style = saved_style_f.read_text().strip() if saved_style_f.exists() else "aurora"
+    print(f"[lyrics] prerendered_style={prerendered_style}, chosen={chosen_style}, prerender_exists={old_bg.exists()}")
     if chosen_style != prerendered_style:
         old_bg.unlink(missing_ok=True)
+        print(f"[lyrics] Deleted old prerender (style mismatch)")
 
     update_job(jid, words=words, status="rendering", progress=72, bg_style=chosen_style)
     background_tasks.add_task(render_job, jid)
