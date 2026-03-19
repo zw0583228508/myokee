@@ -1678,7 +1678,7 @@ async def _download_youtube_and_process(job_id: str, url: str,
         # --get-title writes to stdout; run_cmd only returns stderr → use run_cmd_stdout
         title_rc, title_out = await run_cmd_stdout(
             "yt-dlp", "--no-playlist",
-            "--js-runtimes", "node", "--remote-components", "ejs:github",
+            "--js-runtimes", "node",
             "--cache-dir", "/tmp/yt-dlp-cache",
             "--print", "%(title)s", "--simulate", url)
         raw_title = title_out.strip().splitlines()[-1] if title_out.strip() else ""
@@ -1694,7 +1694,7 @@ async def _download_youtube_and_process(job_id: str, url: str,
         proc = await asyncio.create_subprocess_exec(
             "yt-dlp",
             "--no-playlist",
-            "--js-runtimes", "node", "--remote-components", "ejs:github",
+            "--js-runtimes", "node",
             "--cache-dir", "/tmp/yt-dlp-cache",
             "-f", "bestaudio/best",
             "-x",
