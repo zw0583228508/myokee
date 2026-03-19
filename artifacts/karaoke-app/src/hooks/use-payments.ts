@@ -106,40 +106,6 @@ export function useRecoverPayPal(isLoggedIn: boolean = false) {
   });
 }
 
-export function useLemonSqueezyPurchase() {
-  return useMutation({
-    mutationFn: async (packageId: string): Promise<string> => {
-      const res = await fetch(apiUrl("/api/lemonsqueezy/checkout"), authFetchOptions({
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId }),
-      }));
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error((err as any).error ?? "Failed to create checkout");
-      }
-      const data = await res.json();
-      return data.url as string;
-    },
-  });
-}
-
-export function useVerifyLemonSqueezy() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      const res = await fetch(apiUrl("/api/lemonsqueezy/verify"), authFetchOptions());
-      if (!res.ok) return { fulfilled: false };
-      return res.json();
-    },
-    onSuccess: (data: any) => {
-      if (data.fulfilled) {
-        queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-      }
-    },
-  });
-}
-
 export function useFulfillPayment() {
   const queryClient = useQueryClient();
   return useMutation({
