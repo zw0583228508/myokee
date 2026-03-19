@@ -9,15 +9,10 @@ const isBuild = process.argv.includes("build");
 
 const rawPort = process.env.PORT;
 
-if (!rawPort && !isBuild) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
+// Default to 3000 if PORT is not provided (for v0 sandbox compatibility)
 const port = rawPort ? Number(rawPort) : 3000;
 
-if (!isBuild && (Number.isNaN(port) || port <= 0)) {
+if (!isBuild && Number.isNaN(port)) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
