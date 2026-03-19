@@ -76,6 +76,39 @@ export function useConfirmLyrics(jobId: string) {
   });
 }
 
+export function useChangeBackground(jobId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (bg_style: string) => {
+      const lyricsRes = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions());
+      if (!lyricsRes.ok) throw new Error("Failed to fetch current lyrics");
+      const lyricsData = await lyricsRes.json();
+      const words = lyricsData.words || [];
+
+      const res = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions({
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ words, bg_style }),
+      }));
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Failed to change background: ${errorText}`);
+      }
+      return res.json() as Promise<Job>;
+    },
+    onSuccess: (updatedJob) => {
+      queryClient.setQueryData(getGetJobQueryKey(jobId), (old: any) => ({
+        ...(old ?? {}),
+        ...updatedJob,
+        status: updatedJob.status ?? 'rendering',
+      }));
+      queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(jobId) });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/mine'] });
+    },
+  });
+}
+
 async function claimJob(jobId: string) {
   try {
     await fetch(apiUrl(`/api/jobs/${jobId}/claim`), authFetchOptions({ method: 'POST' }));

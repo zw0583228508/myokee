@@ -11,6 +11,7 @@ import { ArrowLeft, Music2, FileVideo, AlertTriangle, Loader2, Mic, CreditCard, 
 import { ShareButtons } from "@/components/ShareButtons";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { KaraokeSingMode } from "@/components/karaoke/KaraokeSingMode";
+import { BackgroundChanger } from "@/components/karaoke/BackgroundChanger";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
@@ -470,6 +471,11 @@ export default function JobDetails() {
                 onTimeUpdate={setCurrentTime}
               />
             </div>
+
+            <BackgroundChanger
+              jobId={job.id}
+              currentBgStyle={(job as any).bg_style || "aurora"}
+            />
 
             <button
               onClick={() => setSingMode(true)}
