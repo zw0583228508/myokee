@@ -54,6 +54,13 @@ A dedicated analytics dashboard at `/analytics/` provides real-time insights int
 API routes: `artifacts/api-server/src/routes/analytics.ts` (10 endpoints under `/api/analytics/`)
 Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
 
+### International SEO (i18n)
+Language-specific SEO landing pages at `/lang/{code}` (14 languages: he, en, ar, ru, es, fr, de, ja, zh, ko, th, vi, tl, id). Each has:
+- Static HTML in `public/lang/{code}/index.html` with localized title, meta description, OG tags, and structured data (JSON-LD) — crawlable by search engines without JS
+- Full hreflang cluster in sitemap.xml linking all language variants
+- React route in App.tsx (`LangLanding` component) sets the language via `LanguageContext` and redirects to `/`
+- `robots.txt` allows `/lang/` crawling; `_redirects` preserves static file serving
+
 ## External Dependencies
 
 - **Cloud Deployment**:

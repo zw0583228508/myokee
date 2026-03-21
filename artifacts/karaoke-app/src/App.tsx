@@ -29,6 +29,7 @@ const PartyRoom = lazy(() => import("@/pages/PartyRoom"));
 const PartyDisplay = lazy(() => import("@/pages/PartyDisplay"));
 const GamificationProfile = lazy(() => import("@/pages/GamificationProfile"));
 const SharedView = lazy(() => import("@/pages/SharedView"));
+const LangLanding = lazy(() => import("@/pages/LangLanding"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -67,6 +68,15 @@ function Router() {
   const { data: authData, isLoading } = useAuth();
   const user = authData?.user ?? null;
   const [isSharedRoute, sharedParams] = useRoute("/shared/:id");
+  const [isLangRoute] = useRoute("/lang/:lang");
+
+  if (isLangRoute) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <LangLanding />
+      </Suspense>
+    );
+  }
 
   if (isSharedRoute && sharedParams?.id) {
     return (

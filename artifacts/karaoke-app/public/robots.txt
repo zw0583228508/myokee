@@ -1,16 +1,19 @@
 User-agent: *
 Allow: /
+Allow: /lang/
 Disallow: /api/
 Disallow: /job/
 
 User-agent: Googlebot
 Allow: /
+Allow: /lang/
 Disallow: /api/
 Disallow: /job/
 Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Allow: /lang/
 Disallow: /api/
 Disallow: /job/
 Crawl-delay: 2
