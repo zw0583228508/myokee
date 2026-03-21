@@ -71,7 +71,6 @@ processor_image = (
     volumes={JOBS_MOUNT: jobs_volume},
     timeout=900,
     memory=32768,
-    secrets=[modal.Secret.from_name("myoukee-secrets")],
     min_containers=0,
     max_containers=2,
     scaledown_window=120,
