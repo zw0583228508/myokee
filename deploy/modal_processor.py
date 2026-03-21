@@ -67,15 +67,16 @@ processor_image = (
 # ── ASGI endpoint — full FastAPI app served with H100 GPU ─────────────────────
 @app.function(
     image=processor_image,
-    gpu="H100",                          # Fastest GPU available on Modal
-    volumes={JOBS_MOUNT: jobs_volume},   # Shared job storage
-    timeout=900,                         # 15 min max (handles very long songs)
-    memory=32768,                        # 32 GB RAM
+    gpu="H100",
+    volumes={JOBS_MOUNT: jobs_volume},
+    timeout=900,
+    memory=32768,
     secrets=[modal.Secret.from_name("myoukee-secrets")],
-    keep_warm=0,                         # Scale to 0 when idle — no cost when unused
-    scaledown_window=120,                # Keep alive 2 min after last request
-    allow_concurrent_inputs=4,           # Process up to 4 jobs per H100 instance
+    min_containers=0,
+    max_containers=2,
+    scaledown_window=120,
 )
+@modal.concurrent(max_inputs=4)
 @modal.asgi_app()
 def serve():
     """Run the MYOUKEE FastAPI processor with H100 GPU and CUDA acceleration."""
