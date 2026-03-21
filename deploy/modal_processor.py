@@ -50,7 +50,7 @@ processor_image = (
         "yt-dlp",
     )
     # Copy processor source into the image
-    .copy_local_dir("artifacts/karaoke-processor", "/app")
+    .add_local_dir("artifacts/karaoke-processor", remote_path="/app")
     # Pre-bake model weights — eliminates cold-start model download
     .run_commands(
         "cd /app && python -c \""
