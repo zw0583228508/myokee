@@ -331,9 +331,10 @@ export function useRemoveJob() {
   });
 }
 
-export function getDownloadUrls(jobId: string) {
+export function getDownloadUrls(jobId: string, cacheBust?: number) {
+  const suffix = cacheBust ? `?v=${cacheBust}` : "";
   return {
-    videoUrl: apiUrl(`/api/processor/jobs/${jobId}/video`),
-    audioUrl: apiUrl(`/api/processor/jobs/${jobId}/instrumental`),
+    videoUrl: apiUrl(`/api/processor/jobs/${jobId}/video`) + suffix,
+    audioUrl: apiUrl(`/api/processor/jobs/${jobId}/instrumental`) + suffix,
   };
 }

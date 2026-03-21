@@ -2224,6 +2224,7 @@ async def get_video(jid: str, request: Request):
                         yield data
 
             from starlette.responses import StreamingResponse
+            mtime = int(p.stat().st_mtime)
             return StreamingResponse(
                 stream_range(),
                 status_code=206,
@@ -2232,17 +2233,20 @@ async def get_video(jid: str, request: Request):
                     "Content-Range": f"bytes {start}-{end}/{file_size}",
                     "Accept-Ranges": "bytes",
                     "Content-Length": str(chunk_size),
-                    "Cache-Control": "public, max-age=3600",
+                    "Cache-Control": "no-cache, must-revalidate",
+                    "ETag": f'"{jid[:8]}-{mtime}"',
                 },
             )
 
+    mtime = int(p.stat().st_mtime)
     return FileResponse(str(p), media_type="video/mp4",
                         filename=f"karaoke_{jid[:8]}.mp4",
                         headers={
                             "Content-Disposition": f'inline; filename="karaoke_{jid[:8]}.mp4"',
                             "Accept-Ranges": "bytes",
                             "Content-Length": str(file_size),
-                            "Cache-Control": "public, max-age=3600",
+                            "Cache-Control": "no-cache, must-revalidate",
+                            "ETag": f'"{jid[:8]}-{mtime}"',
                         })
 
 

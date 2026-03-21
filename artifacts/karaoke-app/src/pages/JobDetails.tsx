@@ -99,6 +99,7 @@ export default function JobDetails() {
         } catch { /* non-critical */ }
       }
     } else if (curr === "done") {
+      setVideoCacheBust(Date.now());
       toast({
         title: "🎤 הקריוקי מוכן!",
         description: `${job.filename} — ניתן לשיר עכשיו!`,
@@ -296,7 +297,8 @@ export default function JobDetails() {
     );
   }
 
-  const { videoUrl, audioUrl } = getDownloadUrls(job.id);
+  const [videoCacheBust, setVideoCacheBust] = useState(0);
+  const { videoUrl, audioUrl } = getDownloadUrls(job.id, videoCacheBust || undefined);
   const isDone = job.status === 'done';
   const isAwaitingReview = job.status === 'awaiting_review';
 
