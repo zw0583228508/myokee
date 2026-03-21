@@ -72,7 +72,8 @@ processor_image = (
     timeout=900,                         # 15 min max (handles very long songs)
     memory=32768,                        # 32 GB RAM
     secrets=[modal.Secret.from_name("myoukee-secrets", required=False)],
-    keep_warm=1,                         # 1 warm instance → zero cold start
+    keep_warm=0,                         # Scale to 0 when idle — no cost when unused
+    scaledown_window=120,                # Keep alive 2 min after last request
     allow_concurrent_inputs=4,           # Process up to 4 jobs per H100 instance
 )
 @modal.asgi_app()

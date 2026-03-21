@@ -51,9 +51,9 @@ app = modal.App("karaoke-processor", image=image)
     volumes={
         "/tmp/karaoke_jobs": jobs_volume,
     },
-    min_containers=1,
-    max_containers=1,
-    scaledown_window=300,
+    min_containers=0,
+    max_containers=2,
+    scaledown_window=120,
     timeout=600,
     secrets=[
         modal.Secret.from_dict({
