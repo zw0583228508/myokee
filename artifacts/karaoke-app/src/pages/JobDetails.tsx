@@ -40,6 +40,7 @@ export default function JobDetails() {
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [videoCacheBust, setVideoCacheBust] = useState(0);
 
   const isJobStuck = useMemo(() => {
     if (!job) return false;
@@ -297,7 +298,6 @@ export default function JobDetails() {
     );
   }
 
-  const [videoCacheBust, setVideoCacheBust] = useState(0);
   const { videoUrl, audioUrl } = getDownloadUrls(job.id, videoCacheBust || undefined);
   const isDone = job.status === 'done';
   const isAwaitingReview = job.status === 'awaiting_review';
