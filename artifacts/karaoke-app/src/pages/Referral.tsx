@@ -3,8 +3,10 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
+import { useNoIndex } from "@/hooks/use-noindex";
 
 export default function Referral() {
+  useNoIndex();
   const { t } = useLang();
   const { data: authData } = useAuth();
 

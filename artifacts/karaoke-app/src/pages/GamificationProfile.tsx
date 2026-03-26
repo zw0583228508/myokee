@@ -7,10 +7,12 @@ import { useLang } from "@/contexts/LanguageContext";
 import { XPProfileCard } from "@/components/gamification/XPProfileCard";
 import { BadgeGrid } from "@/components/gamification/BadgeGrid";
 import { AchievementList } from "@/components/gamification/AchievementList";
+import { useNoIndex } from "@/hooks/use-noindex";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 export default function GamificationProfile() {
+  useNoIndex();
   const { t: { dir } } = useLang();
   const gt = useGamificationTranslations();
   const [tab, setTab] = useState<"profile" | "leaderboard">("profile");

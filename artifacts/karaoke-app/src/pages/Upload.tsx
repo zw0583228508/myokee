@@ -1,8 +1,10 @@
 import { Upload as UploadIcon, Zap } from "lucide-react";
 import { FileUpload } from "@/components/karaoke/FileUpload";
 import { useLang } from "@/contexts/LanguageContext";
+import { useNoIndex } from "@/hooks/use-noindex";
 
 export default function Upload() {
+  useNoIndex();
   const { t } = useLang();
 
   return (

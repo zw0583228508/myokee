@@ -3,11 +3,13 @@ import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Music, ArrowRight, ArrowLeft, Trash2, Video, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { useNoIndex } from "@/hooks/use-noindex";
 import { JobStatusBadge } from "@/components/karaoke/JobStatusBadge";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/contexts/LanguageContext";
 
 export default function History() {
+  useNoIndex();
   const { t } = useLang();
   const { data: jobs, isLoading } = useKaraokeJobs();
   const removeJob = useRemoveJob();

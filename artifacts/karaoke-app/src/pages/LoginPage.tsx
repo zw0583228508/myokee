@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Globe } from "lucide-react";
+import { useNoIndex } from "@/hooks/use-noindex";
 
 function GoogleIcon() {
   return (
@@ -27,6 +28,7 @@ function GoogleIcon() {
 type PageMode = "login" | "register" | "forgot" | "reset" | "reset-success";
 
 export default function LoginPage() {
+  useNoIndex();
   const queryClient = useQueryClient();
   const { t, lang, setLang, allLangs } = useLang();
   const emailLogin = useEmailLogin();

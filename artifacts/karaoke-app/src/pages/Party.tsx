@@ -10,8 +10,10 @@ import { THEME_LIST, getTheme } from "@/lib/party-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { trackPartyCreated, trackPartyJoined } from "@/lib/analytics";
+import { useNoIndex } from "@/hooks/use-noindex";
 
 export default function Party() {
+  useNoIndex();
   const pt = usePartyTranslations();
   const { t: { dir } } = useLang();
   const [, navigate] = useLocation();
