@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import { LoginModal } from "./LoginModal";
 import { ConsentModal, useConsent } from "./ConsentModal";
 import { useLang } from "@/contexts/LanguageContext";
+import { useUITranslations } from "@/contexts/uiTranslations";
 import { trackSongProcessed, trackFileUpload } from "@/lib/analytics";
 
 const CONSENT_KEY = "myoukee-consent-v1";
@@ -38,7 +39,7 @@ async function uploadAvatarToJob(jobId: string, avatarFile: File | string) {
 }
 
 const LANGUAGE_OPTIONS = [
-  { value: "auto",       label: "זיהוי אוטומטי",     flag: "🌐" },
+  { value: "auto",       label: "__auto__",            flag: "🌐" },
   { value: "he",         label: "עברית",              flag: "🇮🇱" },
   { value: "en",         label: "English",            flag: "🇺🇸" },
   { value: "sacred_he",  label: "לשון הקודש",         flag: "🕎" },
@@ -75,6 +76,7 @@ export function FileUpload() {
   const [, setLocation] = useLocation();
   const { data: authData } = useAuth();
   const user = authData?.user ?? null;
+  const uiT = useUITranslations();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
@@ -303,7 +305,7 @@ export function FileUpload() {
               `}
             >
               <span>{opt.flag}</span>
-              <span>{opt.label}</span>
+              <span>{opt.label === "__auto__" ? uiT.autoDetect : opt.label}</span>
             </button>
           ))}
         </div>

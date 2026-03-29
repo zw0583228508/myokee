@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Share2, X, Copy, Check, MessageCircle, Mail, Send } from "lucide-react";
 import { trackShare } from "@/lib/analytics";
+import { useUITranslations } from "@/contexts/uiTranslations";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -27,7 +28,6 @@ function LinkedInIcon({ className }: { className?: string }) {
 }
 
 const APP_URL = "https://myoukee.com";
-const SHARE_TEXT = "MYOUKEE — צור קריוקי AI מכל שיר תוך שניות! 🎤🎶";
 const MENU_ID = "share-fab-menu";
 
 function openExternal(url: string) {
@@ -49,6 +49,7 @@ export function FloatingShareFab() {
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const uiT = useUITranslations();
 
   useEffect(() => {
     return () => {
@@ -90,12 +91,14 @@ export function FloatingShareFab() {
   const handleNativeShare = useCallback(async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "MYOUKEE", text: SHARE_TEXT, url: APP_URL });
+        await navigator.share({ title: "MYOUKEE", text: uiT.share.text, url: APP_URL });
         trackShare({ contentType: "app_link", method: "native_share" });
         setOpen(false);
       } catch {}
     }
-  }, []);
+  }, [uiT.share.text]);
+
+  const shareText = uiT.share.text;
 
   const options: ShareOption[] = [
     {
@@ -103,21 +106,21 @@ export function FloatingShareFab() {
       label: "WhatsApp",
       icon: <MessageCircle className="w-5 h-5" />,
       color: "bg-green-600 hover:bg-green-500",
-      action: () => { trackShare({ contentType: "app_link", method: "whatsapp" }); openExternal(`https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT}\n${APP_URL}`)}`); },
+      action: () => { trackShare({ contentType: "app_link", method: "whatsapp" }); openExternal(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${APP_URL}`)}`); },
     },
     {
       id: "telegram",
       label: "Telegram",
       icon: <Send className="w-5 h-5" />,
       color: "bg-sky-600 hover:bg-sky-500",
-      action: () => { trackShare({ contentType: "app_link", method: "telegram" }); openExternal(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(SHARE_TEXT)}`); },
+      action: () => { trackShare({ contentType: "app_link", method: "telegram" }); openExternal(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(shareText)}`); },
     },
     {
       id: "x",
       label: "X",
       icon: <XIcon className="w-5 h-5" />,
       color: "bg-neutral-700 hover:bg-neutral-600",
-      action: () => { trackShare({ contentType: "app_link", method: "x" }); openExternal(`https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(APP_URL)}`); },
+      action: () => { trackShare({ contentType: "app_link", method: "x" }); openExternal(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(APP_URL)}`); },
     },
     {
       id: "facebook",
@@ -138,11 +141,11 @@ export function FloatingShareFab() {
       label: "Email",
       icon: <Mail className="w-5 h-5" />,
       color: "bg-orange-600 hover:bg-orange-500",
-      action: () => { trackShare({ contentType: "app_link", method: "email" }); openExternal(`mailto:?subject=${encodeURIComponent("MYOUKEE — AI Karaoke")}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${APP_URL}`)}`); },
+      action: () => { trackShare({ contentType: "app_link", method: "email" }); openExternal(`mailto:?subject=${encodeURIComponent("MYOUKEE — AI Karaoke")}&body=${encodeURIComponent(`${shareText}\n\n${APP_URL}`)}`); },
     },
     {
       id: "copy",
-      label: copied ? "הועתק!" : "העתק קישור",
+      label: copied ? uiT.share.copied : uiT.share.copyLink,
       icon: copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />,
       color: copied ? "bg-green-600" : "bg-white/10 hover:bg-white/20",
       action: handleCopy,
@@ -153,7 +156,7 @@ export function FloatingShareFab() {
   if ("share" in navigator) {
     options.unshift({
       id: "native",
-      label: "שתף...",
+      label: uiT.share.shareNative,
       icon: <Share2 className="w-5 h-5" />,
       color: "bg-gradient-to-r from-primary to-accent hover:opacity-90",
       action: handleNativeShare,
@@ -189,7 +192,7 @@ export function FloatingShareFab() {
       <button
         ref={triggerRef}
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "סגור תפריט שיתוף" : "שתף את האפליקציה"}
+        aria-label={open ? uiT.share.closeMenu : uiT.share.shareApp}
         aria-expanded={open}
         aria-controls={MENU_ID}
         className={`flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 ${

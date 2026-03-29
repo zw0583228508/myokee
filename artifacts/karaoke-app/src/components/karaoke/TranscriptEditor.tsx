@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, RotateCcw, FileText } from "lucide-react";
 import type { WordTimestamp } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useConfirmLyrics } from "@/hooks/use-karaoke";
 import { BG_STYLES } from "@/lib/bg-styles";
+import { useUITranslations, getBgLabel } from "@/contexts/uiTranslations";
 
 interface TranscriptEditorProps {
   jobId: string;
@@ -19,6 +20,7 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
   const [text, setText] = useState(initialText);
   const [selectedBg, setSelectedBg] = useState(initialBgStyle || "aurora");
   const confirmLyrics = useConfirmLyrics(jobId);
+  const uiT = useUITranslations();
 
   const handleReset = () => setText(initialText);
 
@@ -54,22 +56,22 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
         <div>
           <h3 className="text-lg font-semibold flex items-center gap-2 mb-1">
             <FileText className="w-5 h-5 text-accent" />
-            בדיקת תמלול
+            {uiT.transcript.title}
           </h3>
           <p className="text-sm text-muted-foreground">
-            ערוך את הטקסט ישירות. שינויים בשמות/מילים ישמרו את התזמון המקורי.
+            {uiT.transcript.desc}
           </p>
         </div>
         {isDirty && (
           <Button variant="ghost" size="sm" onClick={handleReset} className="text-muted-foreground shrink-0">
             <RotateCcw className="w-4 h-4 mr-1" />
-            איפוס
+            {uiT.transcript.reset}
           </Button>
         )}
       </div>
 
       <textarea
-        dir="rtl"
+        dir="auto"
         value={text}
         onChange={e => setText(e.target.value)}
         rows={6}
@@ -77,12 +79,12 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
                    text-base leading-relaxed resize-none outline-none
                    focus:border-primary/50 focus:ring-1 focus:ring-primary/30
                    placeholder:text-muted-foreground transition-colors"
-        placeholder="לא זוהה ווקאל בקובץ..."
+        placeholder={uiT.transcript.placeholder}
         spellCheck={false}
       />
 
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">🎨 בחר רקע לסרטון</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">{uiT.bg.chooseBg}</h4>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
           {BG_STYLES.map((bg) => (
             <button
@@ -101,7 +103,7 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
                 }}
               />
               <span className="text-xs leading-tight text-center">
-                {bg.emoji} {bg.label}
+                {bg.emoji} {getBgLabel(uiT, bg.id)}
               </span>
               {selectedBg === bg.id && (
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
@@ -115,8 +117,8 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
 
       <div className="flex items-center justify-between gap-4 pt-1 border-t border-white/5">
         <p className="text-xs text-muted-foreground">
-          {wordCount} מילים
-          {isDirty && <span className="ml-2 text-accent">• נערך</span>}
+          {wordCount} {uiT.transcript.words}
+          {isDirty && <span className="ml-2 text-accent">• {uiT.transcript.edited}</span>}
         </p>
         <Button
           onClick={handleConfirm}
@@ -124,16 +126,16 @@ export function TranscriptEditor({ jobId, words: initialWords, onConfirmed, onCo
           className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
         >
           {confirmLyrics.isPending ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />מתחיל עיבוד…</>
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{uiT.transcript.processing}</>
           ) : (
-            <><CheckCircle2 className="w-4 h-4 mr-2" />אישור ויצירת וידאו</>
+            <><CheckCircle2 className="w-4 h-4 mr-2" />{uiT.transcript.confirmCreate}</>
           )}
         </Button>
       </div>
 
       {confirmLyrics.isError && (
         <p className="text-sm text-destructive">
-          שגיאה: {(confirmLyrics.error as Error).message}
+          {uiT.transcript.error} {(confirmLyrics.error as Error).message}
         </p>
       )}
     </Card>

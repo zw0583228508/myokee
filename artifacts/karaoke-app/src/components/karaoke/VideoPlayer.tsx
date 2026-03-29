@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUITranslations } from "@/contexts/uiTranslations";
 
 interface VideoPlayerProps {
   src: string;
@@ -12,6 +13,7 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const uiT = useUITranslations();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
@@ -177,7 +179,7 @@ export function VideoPlayer({ src, poster, autoPlay, onTimeUpdate, onEnded }: Vi
           className="absolute top-3 end-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white text-xs font-medium border border-white/20 animate-pulse hover:bg-black/90 transition-colors z-10"
         >
           <VolumeX className="w-3.5 h-3.5" />
-          לחץ להפעלת שמע
+          {uiT.clickToEnableAudio}
         </button>
       )}
     </div>

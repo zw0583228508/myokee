@@ -9,6 +9,7 @@ import { useAwardXP } from "@/hooks/use-gamification";
 import { useCloudRecording } from "@/hooks/use-cloud-recording";
 import { apiUrl, authFetchOptions, AUTH_TOKEN_KEY } from "@/lib/api";
 import { trackPerformanceCompleted } from "@/lib/analytics";
+import { useUITranslations } from "@/contexts/uiTranslations";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface WordTimestamp { word: string; start: number; end: number; }
@@ -277,6 +278,7 @@ export function KaraokeSingMode({
   const rawVocalRef   = useRef<Float32Array | null>(null);
   const instrBufRef   = useRef<AudioBuffer | null>(null);
   const [hasVocal, setHasVocal] = useState(false);
+  const uiT = useUITranslations();
   const [result, setResult]       = useState<PerformanceResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const serverScoredRef = useRef(false);
@@ -1231,8 +1233,8 @@ export function KaraokeSingMode({
   const handleShare = async () => {
     const url  = `${window.location.origin}/job/${jobId}`;
     const text = result
-      ? `שרתי "${songName}" ב-MYOUKEE וקיבלתי ציון ${result.score}/100! 🎤 כמה תשיגו?`
-      : `הכנסתי "${songName}" לקריוקי ב-MYOUKEE!`;
+      ? uiT.sing.shareTextWithScore(songName, result.score)
+      : uiT.sing.shareTextNoScore(songName);
     try {
       if (navigator.share) await navigator.share({ title: "MYOUKEE", text, url });
       else { await navigator.clipboard.writeText(`${text}\n${url}`); setCopied(true); setTimeout(() => setCopied(false), 2500); }
@@ -1242,7 +1244,7 @@ export function KaraokeSingMode({
 
   const handleChallenge = async () => {
     if (!result) return;
-    const name = encodeURIComponent(window.document.title.split("–")[0]?.trim() ?? "מישהו");
+    const name = encodeURIComponent(window.document.title.split("–")[0]?.trim() ?? uiT.sing.someoneDefault);
     const url  = `${window.location.origin}/job/${jobId}?challenger=${name}&score=${result.score}`;
     await navigator.clipboard.writeText(url).catch(() => {});
     setCopied(true);
@@ -1387,8 +1389,8 @@ export function KaraokeSingMode({
           <div className="relative z-10 mx-6 mt-2 px-4 py-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-3">
             <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
-              <p className="text-amber-400 text-sm font-semibold">{challengerName} קיבל ציון {challengerScore}</p>
-              <p className="text-white/45 text-xs">האם תצליח להכות אותם?</p>
+              <p className="text-amber-400 text-sm font-semibold">{uiT.sing.challengerGotScore(challengerName!, challengerScore!)}</p>
+              <p className="text-white/45 text-xs">{uiT.sing.canYouBeat}</p>
             </div>
           </div>
         )}
@@ -1400,9 +1402,9 @@ export function KaraokeSingMode({
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center mx-auto mb-2">
                 <Music className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">מוכן לשיר?</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">{uiT.sing.readyToSing}</h2>
               <p className="text-white/45 max-w-xs mx-auto text-sm leading-relaxed">
-                MYOUKEE תפעיל את הפלייבק, תקשיב לקול שלך, תנתח בזמן אמת ותנתן ציון מפורט
+                {uiT.sing.description}
               </p>
             </div>
 
@@ -1410,14 +1412,14 @@ export function KaraokeSingMode({
               className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center gap-2 text-white transition-all hover:scale-105 active:scale-95"
               style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 70px rgba(124,58,237,.55),0 0 30px rgba(59,130,246,.3)" }}>
               <Mic className="w-10 h-10" />
-              <span className="text-xs font-semibold tracking-wide">התחל</span>
+              <span className="text-xs font-semibold tracking-wide">{uiT.sing.startBtn}</span>
             </button>
 
             {/* Volume sliders — mic + backing track */}
             <div className="w-full max-w-xs space-y-3">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs text-white/40">
-                  <span className="flex items-center gap-1"><Volume2 className="w-3 h-3" />עוצמת מיק</span>
+                  <span className="flex items-center gap-1"><Volume2 className="w-3 h-3" />{uiT.sing.micVolume}</span>
                   <span className="text-white/60 font-medium">{fx.preGain}%</span>
                 </div>
                 <input type="range" min={0} max={250} value={fx.preGain}
@@ -1426,7 +1428,7 @@ export function KaraokeSingMode({
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs text-white/40">
-                  <span className="flex items-center gap-1"><Music className="w-3 h-3" />עוצמת ליווי (אוזניות)</span>
+                  <span className="flex items-center gap-1"><Music className="w-3 h-3" />{uiT.sing.backingVolume}</span>
                   <span className="text-white/60 font-medium">{fx.instrGain}%</span>
                 </div>
                 <input type="range" min={0} max={300} value={fx.instrGain}
@@ -1440,7 +1442,7 @@ export function KaraokeSingMode({
               <button
                 onClick={() => setShowEffects(v => !v)}
                 className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/6 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
-                <span className="flex items-center gap-2"><SlidersHorizontal className="w-3.5 h-3.5" />אפקטים קוליים</span>
+                <span className="flex items-center gap-2"><SlidersHorizontal className="w-3.5 h-3.5" />{uiT.sing.vocalEffects}</span>
                 {showEffects ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
 
@@ -1451,9 +1453,9 @@ export function KaraokeSingMode({
                   <div>
                     <p className="text-[11px] font-semibold text-white/50 uppercase tracking-widest mb-3">Equalizer</p>
                     <div className="space-y-3">
-                      <SliderRow label="בס (Bass)" value={fx.eqBass} min={-12} max={12} onChange={v => fxSet("eqBass", v)} />
-                      <SliderRow label="אמצע (Mid)" value={fx.eqMid} min={-12} max={12} onChange={v => fxSet("eqMid", v)} />
-                      <SliderRow label="טרבל (Treble)" value={fx.eqHigh} min={-12} max={12} onChange={v => fxSet("eqHigh", v)} />
+                      <SliderRow label={uiT.sing.bass} value={fx.eqBass} min={-12} max={12} onChange={v => fxSet("eqBass", v)} />
+                      <SliderRow label={uiT.sing.mid} value={fx.eqMid} min={-12} max={12} onChange={v => fxSet("eqMid", v)} />
+                      <SliderRow label={uiT.sing.treble} value={fx.eqHigh} min={-12} max={12} onChange={v => fxSet("eqHigh", v)} />
                     </div>
                   </div>
 
@@ -1461,8 +1463,8 @@ export function KaraokeSingMode({
                   <div>
                     <p className="text-[11px] font-semibold text-white/50 uppercase tracking-widest mb-3">Reverb</p>
                     <div className="space-y-3">
-                      <SliderRow label="עומק (Wet)" value={fx.reverbWet} min={0} max={100} onChange={v => fxSet("reverbWet", v)} />
-                      <SliderRow label="אורך (Decay)" value={fx.reverbDecay} min={0} max={100} onChange={v => fxSet("reverbDecay", v)} />
+                      <SliderRow label={uiT.sing.reverbWet} value={fx.reverbWet} min={0} max={100} onChange={v => fxSet("reverbWet", v)} />
+                      <SliderRow label={uiT.sing.reverbDecay} value={fx.reverbDecay} min={0} max={100} onChange={v => fxSet("reverbDecay", v)} />
                     </div>
                   </div>
 
@@ -1470,16 +1472,16 @@ export function KaraokeSingMode({
                   <div>
                     <p className="text-[11px] font-semibold text-white/50 uppercase tracking-widest mb-3">Delay (Echo)</p>
                     <div className="space-y-3">
-                      <SliderRow label="עומק (Wet)" value={fx.delayWet} min={0} max={100} onChange={v => fxSet("delayWet", v)} />
-                      <SliderRow label="זמן (Time)" value={fx.delayTime} min={0} max={100} onChange={v => fxSet("delayTime", v)} />
-                      <SliderRow label="משוב (Feedback)" value={fx.delayFeedback} min={0} max={95} onChange={v => fxSet("delayFeedback", v)} />
+                      <SliderRow label={uiT.sing.delayWet} value={fx.delayWet} min={0} max={100} onChange={v => fxSet("delayWet", v)} />
+                      <SliderRow label={uiT.sing.delayTime} value={fx.delayTime} min={0} max={100} onChange={v => fxSet("delayTime", v)} />
+                      <SliderRow label={uiT.sing.delayFeedback} value={fx.delayFeedback} min={0} max={95} onChange={v => fxSet("delayFeedback", v)} />
                     </div>
                   </div>
 
                   {/* Reset */}
                   <button onClick={() => setFx({ ...DEFAULT_EFFECTS })}
                     className="w-full text-xs text-white/30 hover:text-white/60 transition-colors py-1">
-                    איפוס לברירת מחדל
+                    {uiT.sing.resetDefaults}
                   </button>
                 </div>
               )}
@@ -1532,7 +1534,7 @@ export function KaraokeSingMode({
             <div className="pb-4 sm:pb-8 px-4 sm:px-6 flex flex-col items-center gap-3 sm:gap-4">
               {hasMic === false && (
                 <div className="flex items-center gap-2 text-yellow-400/80 text-xs bg-yellow-400/10 border border-yellow-400/20 rounded-full px-3 py-1">
-                  <MicOff className="w-3.5 h-3.5" />מיקרופון לא זמין
+                  <MicOff className="w-3.5 h-3.5" />{uiT.sing.micUnavailable}
                 </div>
               )}
 
@@ -1546,14 +1548,14 @@ export function KaraokeSingMode({
 
               {/* Quick effects rows during singing — mic gain + backing track */}
               <div className="w-full max-w-sm flex items-center gap-3">
-                <Volume2 className="w-3.5 h-3.5 text-white/30 shrink-0" title="עוצמת מיק" />
+                <Volume2 className="w-3.5 h-3.5 text-white/30 shrink-0" title={uiT.sing.micVolume} />
                 <input type="range" min={0} max={250} value={fx.preGain}
                   onChange={e => fxSet("preGain", Number(e.target.value))}
                   className="flex-1 accent-primary cursor-pointer" />
                 <span className="text-white/30 text-xs w-10 text-right">{fx.preGain}%</span>
               </div>
               <div className="w-full max-w-sm flex items-center gap-3">
-                <Music className="w-3.5 h-3.5 text-violet-400/50 shrink-0" title="עוצמת ליווי" />
+                <Music className="w-3.5 h-3.5 text-violet-400/50 shrink-0" title={uiT.sing.backingVolume} />
                 <input type="range" min={0} max={300} value={fx.instrGain}
                   onChange={e => fxSet("instrGain", Number(e.target.value))}
                   className="flex-1 accent-violet-400 cursor-pointer" />
@@ -1573,7 +1575,7 @@ export function KaraokeSingMode({
               {videoUrl && (
                 <button onClick={() => setShowVideo(v => !v)}
                   className="text-[11px] text-white/25 hover:text-white/55 transition-colors">
-                  {showVideo ? "הסתר וידאו" : "הצג וידאו"} ברקע
+                  {showVideo ? uiT.sing.hideVideo : uiT.sing.showVideo} {uiT.sing.inBackground}
                 </button>
               )}
 
@@ -1589,7 +1591,7 @@ export function KaraokeSingMode({
                 className="w-16 h-16 rounded-full border-2 border-red-400/50 bg-red-500/12 hover:bg-red-500/25 flex items-center justify-center text-red-400 transition-colors">
                 <Square className="w-5 h-5 fill-current" />
               </button>
-              <p className="text-white/25 text-[11px]">לחץ לסיים ולשמור</p>
+              <p className="text-white/25 text-[11px]">{uiT.sing.clickToFinish}</p>
             </div>
           </div>
         )}
@@ -1603,8 +1605,8 @@ export function KaraokeSingMode({
               <div className="w-full max-w-xs bg-primary/10 border border-primary/30 rounded-2xl px-4 py-3 flex items-center gap-3">
                 <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
                 <div>
-                  <p className="text-primary text-sm font-semibold">AI מנתח את הביצוע…</p>
-                  <p className="text-white/40 text-[11px]">ניתוח מתקדם: דיוק, תזמון, יציבות, ביטוי</p>
+                  <p className="text-primary text-sm font-semibold">{uiT.sing.aiAnalyzing}</p>
+                  <p className="text-white/40 text-[11px]">{uiT.sing.aiAnalyzingDesc}</p>
                 </div>
               </div>
             )}
@@ -1624,22 +1626,22 @@ export function KaraokeSingMode({
                   </span>
                 )}
               </div>
-              <p className="text-white/35 text-sm">נקודות</p>
+              <p className="text-white/35 text-sm">{uiT.sing.points}</p>
             </div>
 
             <div className="w-full max-w-xs grid grid-cols-3 gap-2">
               {[
-                { label: "דיוק צלילים", value: `${result.pitchScore}%`,   color: "text-blue-400",   icon: "🎵" },
-                { label: "תזמון",       value: `${result.timingScore}%`,  color: "text-green-400",  icon: "⏱" },
+                { label: uiT.sing.pitchAccuracy, value: `${result.pitchScore}%`,   color: "text-blue-400",   icon: "🎵" },
+                { label: uiT.sing.timing,       value: `${result.timingScore}%`,  color: "text-green-400",  icon: "⏱" },
                 ...(result.stabilityScore !== undefined
-                  ? [{ label: "יציבות", value: `${result.stabilityScore}%`, color: "text-amber-400", icon: "📊" }]
+                  ? [{ label: uiT.sing.stability, value: `${result.stabilityScore}%`, color: "text-amber-400", icon: "📊" }]
                   : []),
-                { label: "מילים",       value: `${result.wordsCovered}/${result.totalWords}`, color: "text-purple-400", icon: "📝" },
+                { label: uiT.sing.wordsLabel,       value: `${result.wordsCovered}/${result.totalWords}`, color: "text-purple-400", icon: "📝" },
                 ...(result.contourScore !== undefined
-                  ? [{ label: "קו מנגינה", value: `${result.contourScore}%`, color: "text-cyan-400", icon: "〰️" }]
+                  ? [{ label: uiT.sing.melodyContour, value: `${result.contourScore}%`, color: "text-cyan-400", icon: "〰️" }]
                   : []),
                 ...(result.expressionScore !== undefined
-                  ? [{ label: "ביטוי", value: `${result.expressionScore}%`, color: "text-pink-400", icon: "🎭" }]
+                  ? [{ label: uiT.sing.expression, value: `${result.expressionScore}%`, color: "text-pink-400", icon: "🎭" }]
                   : []),
               ].map(s => (
                 <div key={s.label} className="bg-white/6 border border-white/10 rounded-xl p-2.5 text-center">
@@ -1653,20 +1655,20 @@ export function KaraokeSingMode({
             <div className="w-full max-w-xs bg-gradient-to-r from-primary/15 to-accent/15 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
               <span className="text-2xl shrink-0">🎙️</span>
               <div>
-                <p className="text-white text-sm font-semibold">השוואה לאמן המקורי</p>
+                <p className="text-white text-sm font-semibold">{uiT.sing.artistComparison}</p>
                 <p className="text-3xl font-black" style={{ background: "linear-gradient(135deg,#c084fc,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   {result.artistMatch}%
                 </p>
-                <p className="text-white/35 text-xs">{result.serverScored ? "ניתוח AI: דיוק, מנגינה, יציבות וביטוי" : "התאמה לסגנון המקורי"}</p>
+                <p className="text-white/35 text-xs">{result.serverScored ? uiT.sing.aiAnalysisDetail : uiT.sing.styleMatch}</p>
               </div>
             </div>
 
             {challengerName && challengerScore !== undefined && (
               <div className={`w-full max-w-xs rounded-2xl p-4 border text-center ${result.score > challengerScore ? "bg-green-500/15 border-green-500/30" : "bg-red-500/15 border-red-500/30"}`}>
                 <p className="text-sm font-bold text-white">
-                  {result.score > challengerScore ? `🏆 ניצחת את ${challengerName}!` : `😤 ${challengerName} עדיין מוביל...`}
+                  {result.score > challengerScore ? uiT.sing.challengeWin(challengerName!) : uiT.sing.challengeLose(challengerName!)}
                 </p>
-                <p className="text-white/45 text-xs mt-1">הציון שלך: {result.score} | שלהם: {challengerScore}</p>
+                <p className="text-white/45 text-xs mt-1">{uiT.sing.yourScoreLabel}: {result.score} | {uiT.sing.theirScoreLabel}: {challengerScore}</p>
               </div>
             )}
 
@@ -1674,7 +1676,7 @@ export function KaraokeSingMode({
               <div className="w-full max-w-xs bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
                 <span className="text-xl">✂️</span>
                 <div>
-                  <p className="text-white text-xs font-medium">הרגע הטוב ביותר שלך</p>
+                  <p className="text-white text-xs font-medium">{uiT.sing.bestMoment}</p>
                   <p className="text-white/45 text-[11px]">
                     {String(Math.floor(result.highlightStart / 60)).padStart(2, "0")}:{String(Math.floor(result.highlightStart % 60)).padStart(2, "0")}
                     {" – "}
@@ -1692,14 +1694,14 @@ export function KaraokeSingMode({
                   {/* Header */}
                   <div className="flex items-center gap-1.5 text-xs text-white/70">
                     <Sliders className="w-3.5 h-3.5" />
-                    <span className="font-semibold">כיול מיקס</span>
-                    <span className="text-white/35 mr-auto text-[10px]">שמע + כייל לפני ייצוא</span>
+                    <span className="font-semibold">{uiT.sing.mixCalibration}</span>
+                    <span className="text-white/35 mr-auto text-[10px]">{uiT.sing.listenCalibrate}</span>
                   </div>
 
                   {/* Vocal gain */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] text-white/50">
-                      <span>🎤 קול</span>
+                      <span>{uiT.sing.vocal}</span>
                       <span className="font-mono text-white/70">{Math.round(mixVocalGain * 100)}%</span>
                     </div>
                     <input
@@ -1713,7 +1715,7 @@ export function KaraokeSingMode({
                   {/* Instrumental gain */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] text-white/50">
-                      <span>🎵 ליווי</span>
+                      <span>{uiT.sing.backing}</span>
                       <span className="font-mono text-white/70">{Math.round(mixInstrGain * 100)}%</span>
                     </div>
                     <input
@@ -1729,13 +1731,13 @@ export function KaraokeSingMode({
                     <button
                       onClick={() => setShowSyncSlider(!showSyncSlider)}
                       className="flex items-center justify-between w-full text-[10px] text-white/40 hover:text-white/60 transition-colors">
-                      <span>⏱ סנכרון קול ({syncOffsetMs > 0 ? '+' : ''}{syncOffsetMs}ms)</span>
+                      <span>{uiT.sing.syncVocal} ({syncOffsetMs > 0 ? '+' : ''}{syncOffsetMs}ms)</span>
                       {showSyncSlider ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </button>
                     {showSyncSlider && (
                       <div className="space-y-1 mt-2">
                         <div className="flex justify-between text-[10px] text-white/50">
-                          <span>כיוון עדין</span>
+                          <span>{uiT.sing.fineTune}</span>
                           <span className={`font-mono ${syncOffsetMs === DEFAULT_SYNC_OFFSET ? 'text-white/40' : syncOffsetMs > 0 ? 'text-blue-400' : 'text-amber-400'}`}>
                             {syncOffsetMs > 0 ? `+${syncOffsetMs}` : syncOffsetMs}ms
                           </span>
@@ -1747,13 +1749,13 @@ export function KaraokeSingMode({
                           className="w-full accent-emerald-400 cursor-pointer h-1"
                         />
                         <div className="flex justify-between text-[10px] text-white/25">
-                          <span>קול מוקדם ←</span>
-                          <span>→ קול מאוחר</span>
+                          <span>{uiT.sing.earlyVocal}</span>
+                          <span>{uiT.sing.lateVocal}</span>
                         </div>
                         <button
                           onClick={() => updatePreviewSyncOffset(DEFAULT_SYNC_OFFSET)}
                           className="w-full text-[10px] text-white/30 hover:text-white/50 transition-colors text-center">
-                          איפוס לברירת מחדל ({DEFAULT_SYNC_OFFSET}ms)
+                          {uiT.sing.resetDefault(DEFAULT_SYNC_OFFSET)}
                         </button>
                       </div>
                     )}
@@ -1768,8 +1770,8 @@ export function KaraokeSingMode({
                         : 'bg-white/8 border-white/15 text-white/80 hover:bg-white/15'
                     }`}>
                     {isPreviewPlaying
-                      ? <><StopCircle className="w-3.5 h-3.5" />עצור תצוגה מקדימה</>
-                      : <><PlayCircle className="w-3.5 h-3.5" />האזן למיקס</>
+                      ? <><StopCircle className="w-3.5 h-3.5" />{uiT.sing.stopPreview}</>
+                      : <><PlayCircle className="w-3.5 h-3.5" />{uiT.sing.listenMix}</>
                     }
                   </button>
 
@@ -1779,7 +1781,7 @@ export function KaraokeSingMode({
                     disabled={isMixing}
                     className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-violet-600/25 border border-violet-500/35 text-violet-300 hover:bg-violet-600/35 transition-colors text-xs font-medium disabled:opacity-40">
                     <Download className="w-3 h-3" />
-                    {isMixing ? 'מייצר...' : 'ייצא עם הגדרות אלה'}
+                    {isMixing ? uiT.sing.mixingLabel : uiT.sing.exportSettings}
                   </button>
                 </div>
               )}
@@ -1791,14 +1793,14 @@ export function KaraokeSingMode({
                   disabled={isMixing}
                   className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/6 border border-white/10 text-white/55 hover:bg-white/12 hover:text-white/80 transition-colors text-xs disabled:opacity-40">
                   <RefreshCw className={`w-3 h-3 ${isMixing ? 'animate-spin' : ''}`} />
-                  {isMixing ? 'מחשב...' : `ייצא עם תזמון ${syncOffsetMs > 0 ? '+' : ''}${syncOffsetMs}ms`}
+                  {isMixing ? uiT.sing.computing : uiT.sing.exportSync(syncOffsetMs)}
                 </button>
               )}
 
               {isMixing && !dlUrl && (
                 <div className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white/70 text-sm border border-white/10 bg-white/5">
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  מעבד הקלטה...
+                  {uiT.sing.processingRecording}
                 </div>
               )}
               {dlUrl && (
@@ -1806,7 +1808,7 @@ export function KaraokeSingMode({
                   <a href={dlUrl} download={`${songName.replace(/\.[^.]+$/, "")}-cover.wav`}
                     className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
                     style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
-                    <Download className="w-4 h-4" />הורד את הביצוע שלך (WAV)
+                    <Download className="w-4 h-4" />{uiT.sing.downloadPerformance}
                   </a>
                   <button
                     disabled={cloudRecording.status === "uploading" || cloudRecording.status === "done"}
@@ -1826,13 +1828,13 @@ export function KaraokeSingMode({
                       boxShadow: "0 0 30px rgba(6,182,212,.3)",
                     }}>
                     {cloudRecording.status === "uploading" ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" />שומר בענן... {cloudRecording.progress}%</>
+                      <><Loader2 className="w-4 h-4 animate-spin" />{uiT.sing.savingCloud} {cloudRecording.progress}%</>
                     ) : cloudRecording.status === "done" ? (
-                      <><CheckCircle2 className="w-4 h-4" />נשמר בענן ✓</>
+                      <><CheckCircle2 className="w-4 h-4" />{uiT.sing.savedCloud}</>
                     ) : cloudRecording.status === "error" ? (
-                      <><Cloud className="w-4 h-4" />{cloudRecording.error || "שגיאה — נסה שוב"}</>
+                      <><Cloud className="w-4 h-4" />{cloudRecording.error || uiT.sing.cloudError}</>
                     ) : (
-                      <><Cloud className="w-4 h-4" />שמור בענן ☁️</>
+                      <><Cloud className="w-4 h-4" />{uiT.sing.saveCloud}</>
                     )}
                   </button>
                 </>
@@ -1859,7 +1861,7 @@ export function KaraokeSingMode({
                       }
                     } catch (err: any) {
                       console.error('[Leaderboard] publish failed:', err);
-                      alert(err?.message || "שגיאה בשיתוף ללידרבורד — נסה שוב");
+                      alert(err?.message || uiT.sing.leaderboardError);
                     }
                   }
                 };
@@ -1870,41 +1872,41 @@ export function KaraokeSingMode({
                     className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 hover:from-yellow-500/30 hover:to-amber-500/30 transition-all text-sm font-semibold"
                   >
                     {publishPerf.isPending ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" />שולח...</>
+                      <><Loader2 className="w-4 h-4 animate-spin" />{uiT.sing.sending}</>
                     ) : (
-                      <><Trophy className="w-4 h-4" />שתף בלידרבורד 🏆</>
+                      <><Trophy className="w-4 h-4" />{uiT.sing.shareLeaderboard}</>
                     )}
                   </button>
                 );
               })()}
               {publishPerf.isError && (
                 <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-red-500/15 border border-red-500/25 text-red-400 text-xs font-semibold">
-                  שגיאה בשיתוף — נסה שוב
+                  {uiT.sing.shareError}
                 </div>
               )}
               {publishPerf.isSuccess && (
                 <>
                   <div className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-green-500/15 border border-green-500/25 text-green-400 text-sm font-semibold">
-                    <CheckCircle2 className="w-4 h-4" />שותף בלידרבורד! ✓
+                    <CheckCircle2 className="w-4 h-4" />{uiT.sing.sharedLeaderboard}
                   </div>
                   <button onClick={restart}
                     className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
                     style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
-                    <Mic className="w-4 h-4" />הקלט שוב 🎤
+                    <Mic className="w-4 h-4" />{uiT.sing.recordAgain}
                   </button>
                 </>
               )}
               <button onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/8 border border-white/12 text-white hover:bg-white/15 transition-colors text-sm">
-                <Share2 className="w-4 h-4" />{copied ? "הועתק! ✓" : "שתף תוצאה"}
+                <Share2 className="w-4 h-4" />{copied ? uiT.sing.copiedResult : uiT.sing.shareResult}
               </button>
               <button onClick={handleChallenge}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/25 text-amber-400 hover:bg-amber-500/25 transition-colors text-sm">
-                <Trophy className="w-4 h-4" />אתגר חבר 🏆
+                <Trophy className="w-4 h-4" />{uiT.sing.challengeFriend}
               </button>
               <button onClick={restart}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/6 border border-white/10 text-white/55 hover:text-white hover:bg-white/12 transition-colors text-sm">
-                <RefreshCw className="w-4 h-4" />שיר שוב
+                <RefreshCw className="w-4 h-4" />{uiT.sing.singAgain}
               </button>
             </div>
           </div>

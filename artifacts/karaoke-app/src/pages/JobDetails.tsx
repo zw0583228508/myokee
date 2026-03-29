@@ -16,6 +16,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { PricingModal } from "@/components/karaoke/PricingModal";
+import { useUITranslations } from "@/contexts/uiTranslations";
+import { useLang } from "@/contexts/LanguageContext";
 
 type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
@@ -27,6 +29,8 @@ export default function JobDetails() {
   const { data: lyricsData } = useJobLyrics(id || "", job?.status === "done");
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const uiT = useUITranslations();
+  const { lang } = useLang();
 
   const retryJob = useRetryJob(id || "");
   const [currentTime, setCurrentTime] = useState(0);
@@ -87,13 +91,13 @@ export default function JobDetails() {
 
     if (curr === "awaiting_review") {
       toast({
-        title: "✅ התמלול מוכן לבדיקה!",
-        description: `${job.filename} — גלול למטה לבדיקת המילים`,
+        title: uiT.jobPage.toastReviewTitle,
+        description: `${job.filename} — ${uiT.jobPage.toastReviewDesc}`,
       });
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          new Notification("MYOUKEE — תמלול מוכן!", {
-            body: `${job.filename} — לחץ לבדיקת המילים`,
+          new Notification(uiT.jobPage.notifReviewTitle, {
+            body: `${job.filename} — ${uiT.jobPage.notifReviewBody}`,
             icon: "/favicon.svg",
             tag: `job-awaiting-${job.id}`,
           });
@@ -102,13 +106,13 @@ export default function JobDetails() {
     } else if (curr === "done") {
       setVideoCacheBust(Date.now());
       toast({
-        title: "🎤 הקריוקי מוכן!",
-        description: `${job.filename} — ניתן לשיר עכשיו!`,
+        title: uiT.jobPage.toastDoneTitle,
+        description: `${job.filename} — ${uiT.jobPage.toastDoneDesc}`,
       });
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          new Notification("MYOUKEE — קריוקי מוכן! 🎤", {
-            body: `${job.filename} — לחץ לשירה`,
+          new Notification(uiT.jobPage.notifDoneTitle, {
+            body: `${job.filename} — ${uiT.jobPage.notifDoneBody}`,
             icon: "/favicon.svg",
             tag: `job-done-${job.id}`,
           });
@@ -214,13 +218,13 @@ export default function JobDetails() {
         if (data.success === true) {
           if (data.creditsCharged === 0) {
             setChargeState("free");
-            toast({ title: "שיר חינמי!", description: "שיר קצר מ-40 שניות — ללא עלות." });
+            toast({ title: uiT.jobPage.toastFreeTitle, description: uiT.jobPage.toastFreeDesc });
           } else {
             setChargeState("charged");
             setCreditsCharged(data.creditsCharged);
             toast({
-              title: `נוצלו ${data.creditsCharged} קרדיטים`,
-              description: `יתרה חדשה: ${data.newBalance} קרדיטים`,
+              title: uiT.jobPage.toastChargedTitle(data.creditsCharged),
+              description: uiT.jobPage.toastChargedDesc(data.newBalance),
             });
             queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
           }
@@ -243,7 +247,7 @@ export default function JobDetails() {
     setChargeState("error");
     chargingInProgressRef.current = false;
     chargeTriggeredRef.current = false;
-    toast({ title: "שגיאה בחיוב", description: "לא הצלחנו לעבד את החיוב. נסה שוב.", variant: "destructive" });
+    toast({ title: uiT.jobPage.toastChargeError, description: uiT.jobPage.toastChargeErrorDesc, variant: "destructive" });
   };
 
   useEffect(() => {
@@ -280,7 +284,7 @@ export default function JobDetails() {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-xl font-display animate-pulse">טוען פרטי עבודה...</p>
+        <p className="text-xl font-display animate-pulse">{uiT.jobPage.loading}</p>
       </div>
     );
   }
@@ -289,10 +293,10 @@ export default function JobDetails() {
     return (
       <div className="w-full max-w-7xl mx-auto px-4 py-20 text-center">
         <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-6" />
-        <h2 className="text-3xl font-display font-bold mb-4">העבודה לא נמצאה</h2>
-        <p className="text-muted-foreground mb-8">הטראק שאתה מחפש לא קיים או נמחק.</p>
+        <h2 className="text-3xl font-display font-bold mb-4">{uiT.jobPage.notFound}</h2>
+        <p className="text-muted-foreground mb-8">{uiT.jobPage.notFoundDesc}</p>
         <Link href="/">
-          <Button variant="gradient"><ArrowLeft className="mr-2 w-4 h-4"/> חזרה לסטודיו</Button>
+          <Button variant="gradient"><ArrowLeft className="mr-2 w-4 h-4"/> {uiT.jobPage.backToStudio}</Button>
         </Link>
       </div>
     );
@@ -321,11 +325,11 @@ export default function JobDetails() {
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">
           <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" /> חזרה לסטודיו
+            <ArrowLeft className="w-4 h-4 mr-2" /> {uiT.jobPage.backToStudio}
           </Link>
           <span className="text-muted-foreground/40">|</span>
           <Link href="/history" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
-            <Music2 className="w-4 h-4 mr-2" /> חזרה לגלריה
+            <Music2 className="w-4 h-4 mr-2" /> {uiT.jobPage.backToGallery}
           </Link>
         </div>
         
@@ -335,7 +339,7 @@ export default function JobDetails() {
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <JobStatusBadge status={job.status} />
               <span>•</span>
-              <span>{new Date(job.created_at).toLocaleString('he-IL')}</span>
+              <span>{new Date(job.created_at).toLocaleString(lang === 'he' ? 'he-IL' : lang === 'ar' ? 'ar' : lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-CN' : lang === 'ko' ? 'ko-KR' : 'en-US')}</span>
             </div>
           </div>
           
@@ -345,13 +349,13 @@ export default function JobDetails() {
                 <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                   <a href={audioUrl} download>
                     <Music2 className="w-3.5 h-3.5 mr-1.5" />
-                    ללא ווקאל
+                    {uiT.jobPage.noVocal}
                   </a>
                 </Button>
                 <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                   <a href={videoUrl} download>
                     <FileVideo className="w-3.5 h-3.5 mr-1.5" />
-                    וידאו קריוקי
+                    {uiT.jobPage.karaokeVideo}
                   </a>
                 </Button>
               </div>
@@ -361,14 +365,14 @@ export default function JobDetails() {
           {isDone && chargeState === "pending" && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-              <span>מעבד חיוב...</span>
+              <span>{uiT.jobPage.processingCharge}</span>
             </div>
           )}
           {isDone && chargeState === "insufficient" && (
             <div className="flex items-center gap-3">
               <Button variant="gradient" onClick={() => navigate("/")}>
                 <CreditCard className="w-4 h-4 mr-2" />
-                קנה קרדיטים להורדה
+                {uiT.jobPage.buyCreditsDownload}
               </Button>
             </div>
           )}
@@ -390,13 +394,13 @@ export default function JobDetails() {
             {isJobStuck && !job.error && (
               <div className="mt-8 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-200 text-sm w-full max-w-2xl text-center">
                 <AlertTriangle className="w-5 h-5 inline-block ml-2 mb-0.5" />
-                <strong>נראה שהעיבוד נתקע.</strong>{" "}
-                לחץ על "נסה שוב" כדי להפעיל מחדש.
+                <strong>{uiT.jobPage.stuck}</strong>{" "}
+                {uiT.jobPage.stuckRetry}
               </div>
             )}
             {job.error && (
               <div className="mt-8 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm w-full max-w-2xl">
-                <strong>פרטי שגיאה:</strong> {job.error}
+                <strong>{uiT.jobPage.errorDetails}</strong> {job.error}
               </div>
             )}
           </Card>
@@ -418,8 +422,8 @@ export default function JobDetails() {
       {isDone && chargeState === "pending" && (
         <Card className="p-8 mb-6 flex flex-col items-center justify-center min-h-[200px]">
           <div className="animate-spin rounded-full h-8 w-8 border-3 border-primary border-t-transparent mb-4" />
-          <h3 className="font-semibold mb-1">מאמת חיוב...</h3>
-          <p className="text-sm text-muted-foreground">רגע, מעבדים את החיוב ומכינים את ההורדה.</p>
+          <h3 className="font-semibold mb-1">{uiT.jobPage.verifyingCharge}</h3>
+          <p className="text-sm text-muted-foreground">{uiT.jobPage.verifyingChargeDesc}</p>
         </Card>
       )}
 
@@ -428,14 +432,14 @@ export default function JobDetails() {
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
             <CreditCard className="w-8 h-8 text-destructive shrink-0" />
             <div>
-              <h3 className="font-semibold text-destructive mb-1">שגיאה בעיבוד החיוב</h3>
-              <p className="text-sm text-muted-foreground">לא הצלחנו לעבד את החיוב. לחץ על "נסה שוב" כדי לנסות מחדש.</p>
+              <h3 className="font-semibold text-destructive mb-1">{uiT.jobPage.chargeError}</h3>
+              <p className="text-sm text-muted-foreground">{uiT.jobPage.chargeErrorDesc}</p>
               {chargeError && <p className="text-xs text-muted-foreground/60 mt-1 font-mono" dir="ltr">{chargeError}</p>}
             </div>
             <Button variant="gradient" className="shrink-0" onClick={() => {
               if (id) attemptCharge(id);
             }}>
-              נסה שוב
+              {uiT.jobPage.retry}
             </Button>
           </div>
         </Card>
@@ -446,17 +450,17 @@ export default function JobDetails() {
           <div className="flex items-center gap-4">
             <CreditCard className="w-8 h-8 text-destructive shrink-0" />
             <div>
-              <h3 className="font-semibold text-destructive mb-1">אין מספיק קרדיטים</h3>
-              <p className="text-sm text-muted-foreground">השיר עובד בהצלחה! כדי להוריד, נדרש לרכוש קרדיטים. חזור לדף הראשי וקנה חבילה.</p>
+              <h3 className="font-semibold text-destructive mb-1">{uiT.jobPage.insufficientCredits}</h3>
+              <p className="text-sm text-muted-foreground">{uiT.jobPage.insufficientCreditsDesc}</p>
             </div>
             <div className="flex gap-2 ml-auto shrink-0">
               <Button variant="outline" onClick={() => {
                 if (id) attemptCharge(id);
               }}>
-                נסה שוב
+                {uiT.jobPage.retry}
               </Button>
               <Button variant="gradient" onClick={() => navigate("/")}>
-                קנה קרדיטים
+                {uiT.jobPage.buyCredits}
               </Button>
             </div>
           </div>
@@ -493,15 +497,15 @@ export default function JobDetails() {
                   </div>
                   <div className="text-right">
                     <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-primary-foreground transition-colors">
-                      שר עכשיו
+                      {uiT.jobPage.singNowTitle}
                     </div>
                     <div className="text-sm text-muted-foreground mt-0.5">
-                      הקלט את עצמך שר על הקריוקי
+                      {uiT.jobPage.singNowDesc}
                     </div>
                   </div>
                 </div>
                 <div className="hidden sm:flex items-center gap-1.5 text-primary/70 group-hover:text-primary group-hover:translate-x-[-4px] transition-all duration-300">
-                  <span className="text-sm font-medium">התחל</span>
+                  <span className="text-sm font-medium">{uiT.jobPage.start}</span>
                   <ArrowLeft className="w-5 h-5" />
                 </div>
               </div>
@@ -520,15 +524,15 @@ export default function JobDetails() {
                     </div>
                     <div className="text-right">
                       <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-accent transition-colors">
-                        רכישת קרדיטים
+                        {uiT.jobPage.buyCreditsTitle}
                       </div>
                       <div className="text-sm text-muted-foreground mt-0.5">
-                        עבד על שירים מלאים ללא הגבלת זמן
+                        {uiT.jobPage.buyCreditsDesc}
                       </div>
                     </div>
                   </div>
                   <div className="hidden sm:flex items-center gap-1.5 text-accent/70 group-hover:text-accent group-hover:translate-x-[-4px] transition-all duration-300">
-                    <span className="text-sm font-medium">קנה עכשיו</span>
+                    <span className="text-sm font-medium">{uiT.jobPage.buyNow}</span>
                     <ArrowLeft className="w-5 h-5" />
                   </div>
                 </div>
@@ -538,27 +542,27 @@ export default function JobDetails() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Music2 className="w-5 h-5 text-accent" />
-                פרטי טראק
+                {uiT.jobPage.trackDetails}
               </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground block mb-1">סטטוס</span>
-                  <span className="text-green-400 font-medium">עובד בהצלחה</span>
+                  <span className="text-muted-foreground block mb-1">{uiT.jobPage.statusLabel}</span>
+                  <span className="text-green-400 font-medium">{uiT.jobPage.statusSuccess}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1">מילים</span>
-                  <span className="font-medium">{lyricsData?.words?.length ?? jobWords.length} מילים תומללו</span>
+                  <span className="text-muted-foreground block mb-1">{uiT.jobPage.wordsLabel}</span>
+                  <span className="font-medium">{lyricsData?.words?.length ?? jobWords.length} {uiT.jobPage.wordsTranscribed}</span>
                 </div>
                 {chargeState === "free" && (
                   <div>
-                    <span className="text-muted-foreground block mb-1">עלות</span>
-                    <span className="text-green-400 font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5" /> חינם (עד 40 שניות)</span>
+                    <span className="text-muted-foreground block mb-1">{uiT.jobPage.costLabel}</span>
+                    <span className="text-green-400 font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5" /> {uiT.jobPage.freeUnder40}</span>
                   </div>
                 )}
                 {chargeState === "charged" && (
                   <div>
-                    <span className="text-muted-foreground block mb-1">קרדיטים שנוצלו</span>
-                    <span className="font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /> {creditsCharged} קרדיטים</span>
+                    <span className="text-muted-foreground block mb-1">{uiT.jobPage.creditsUsed}</span>
+                    <span className="font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /> {creditsCharged} {uiT.jobPage.creditsUnit}</span>
                   </div>
                 )}
               </div>
@@ -571,7 +575,7 @@ export default function JobDetails() {
               <div className="p-4 border-b border-white/5 bg-background/50 backdrop-blur-md z-10">
                 <h3 className="font-display font-semibold flex items-center gap-2">
                   <Mic className="w-4 h-4 text-primary" />
-                  מילות השיר
+                  {uiT.jobPage.lyricsTitle}
                 </h3>
               </div>
               
@@ -582,10 +586,10 @@ export default function JobDetails() {
               >
                 {!lyricsData?.words || lyricsData.words.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12">
-                    לא זוהה ווקאל בטראק זה.
+                    {uiT.jobPage.noVocalDetected}
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-x-2 gap-y-3 leading-loose text-lg" dir="rtl">
+                  <div className="flex flex-wrap gap-x-2 gap-y-3 leading-loose text-lg" dir="auto">
                     {lyricsData.words.map((w, i) => {
                       const isActive = currentTime >= w.start && currentTime <= w.end + 0.2;
                       const isPast = currentTime > w.end + 0.2;
@@ -593,7 +597,7 @@ export default function JobDetails() {
                       return (
                         <span 
                           key={i}
-                          dir="rtl"
+                          dir="auto"
                           className={`
                             lyric-word transition-all duration-200
                             ${isActive ? 'text-accent font-bold scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 

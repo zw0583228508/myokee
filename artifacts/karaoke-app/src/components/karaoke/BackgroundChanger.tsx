@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Palette, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { BG_STYLES } from "@/lib/bg-styles";
 import { useChangeBackground } from "@/hooks/use-karaoke";
+import { useUITranslations, getBgLabel } from "@/contexts/uiTranslations";
 
 interface BackgroundChangerProps {
   jobId: string;
@@ -14,6 +15,7 @@ export function BackgroundChanger({ jobId, currentBgStyle = "aurora" }: Backgrou
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBg, setSelectedBg] = useState(currentBgStyle);
   const changeBackground = useChangeBackground(jobId);
+  const uiT = useUITranslations();
 
   const handleApply = async () => {
     if (selectedBg === currentBgStyle || changeBackground.isPending) return;
@@ -33,7 +35,7 @@ export function BackgroundChanger({ jobId, currentBgStyle = "aurora" }: Backgrou
             <Palette className="w-5 h-5 text-primary" />
           </div>
           <div className="text-right">
-            <div className="font-medium text-sm">שינוי רקע</div>
+            <div className="font-medium text-sm">{uiT.bg.changeBackground}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1.5">
               <span
                 className="inline-block w-3 h-3 rounded-full border border-white/20"
@@ -41,7 +43,7 @@ export function BackgroundChanger({ jobId, currentBgStyle = "aurora" }: Backgrou
                   background: `linear-gradient(135deg, ${currentStyle.colors[0]}, ${currentStyle.colors[1]}, ${currentStyle.colors[2]})`,
                 }}
               />
-              {currentStyle.emoji} {currentStyle.label}
+              {currentStyle.emoji} {getBgLabel(uiT, currentStyle.id)}
             </div>
           </div>
         </div>
@@ -72,7 +74,7 @@ export function BackgroundChanger({ jobId, currentBgStyle = "aurora" }: Backgrou
                   }}
                 />
                 <div className="text-[10px] leading-tight truncate">
-                  {bg.emoji} {bg.label}
+                  {bg.emoji} {getBgLabel(uiT, bg.id)}
                 </div>
               </button>
             ))}
@@ -88,12 +90,12 @@ export function BackgroundChanger({ jobId, currentBgStyle = "aurora" }: Backgrou
               {changeBackground.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  מרנדר מחדש...
+                  {uiT.bg.reRendering}
                 </>
               ) : (
                 <>
                   <Palette className="w-4 h-4 mr-2" />
-                  החל רקע חדש
+                  {uiT.bg.applyNew}
                 </>
               )}
             </Button>

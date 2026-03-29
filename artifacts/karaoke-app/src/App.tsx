@@ -11,6 +11,7 @@ import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
 import { apiUrl, authFetchOptions } from "@/lib/api";
 import { Mic2 } from "lucide-react";
 import { FloatingShareFab } from "@/components/FloatingShareFab";
+import { useUITranslations } from "@/contexts/uiTranslations";
 import { RouteTracker } from "@/components/RouteTracker";
 import NotFound from "@/pages/not-found";
 
@@ -67,6 +68,7 @@ function Router() {
   useAutoApplyReferral();
   const { data: authData, isLoading } = useAuth();
   const user = authData?.user ?? null;
+  const uiT = useUITranslations();
   const [isSharedRoute, sharedParams] = useRoute("/shared/:id");
   const [isLangRoute] = useRoute("/lang/:lang");
 
@@ -112,7 +114,7 @@ function Router() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[300] bg-primary text-white px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-white"
       >
-        דלג לתוכן הראשי
+        {uiT.skipToContent}
       </a>
 
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
