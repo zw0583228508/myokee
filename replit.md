@@ -56,10 +56,12 @@ Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
 
 ### International SEO (i18n)
 Language-specific SEO landing pages at `/lang/{code}` (14 languages: he, en, ar, ru, es, fr, de, ja, zh, ko, th, vi, tl, id). Each has:
-- Static HTML in `public/lang/{code}/index.html` with localized title, meta description, OG tags, and structured data (JSON-LD) — crawlable by search engines without JS
+- Full marketing content rendered at the URL (hero, how-it-works, features sections) using the translation system — no redirect
+- Dynamic SEO meta tags (title, description, canonical, OG, Twitter) set via `useEffect` per language, with per-language `SEO_META` map in `LangLanding.tsx`
+- Invalid language codes redirect to `/`; valid codes render content and set the language context
 - Full hreflang cluster in sitemap.xml linking all language variants
-- React route in App.tsx (`LangLanding` component) sets the language via `LanguageContext` and redirects to `/`
-- `robots.txt` allows `/lang/` crawling; `_redirects` preserves static file serving
+- `robots.txt` allows `/lang/` crawling
+- UI translations managed via `uiTranslations.ts` (14 languages) with `useUITranslations()` hook for component-level UI strings
 
 ## External Dependencies
 
