@@ -94,7 +94,7 @@ export default function LangLanding() {
     if (!isValid) return;
 
     const seo = SEO_META[urlLang] ?? SEO_META.en;
-    const langUrl = `https://myoukee.com/lang/${urlLang}`;
+    const langUrl = `https://myoukee.com/lang/${urlLang}/`;
 
     document.title = seo.title;
 
