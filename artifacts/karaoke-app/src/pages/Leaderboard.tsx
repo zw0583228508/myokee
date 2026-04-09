@@ -5,8 +5,6 @@ import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
-import { useNoIndex } from "@/hooks/use-noindex";
-
 const toStars = (s: number) => s >= 90 ? 5 : s >= 75 ? 4 : s >= 60 ? 3 : s >= 40 ? 2 : 1;
 const MEDALS = ["🥇", "🥈", "🥉"];
 
@@ -15,7 +13,6 @@ function formatDate(iso: string, lang: string) {
 }
 
 export default function Leaderboard() {
-  useNoIndex();
   const { t, lang } = useLang();
   const gt = useGamificationTranslations();
   const [tab, setTab] = useState<"global" | "me" | "xp">("global");

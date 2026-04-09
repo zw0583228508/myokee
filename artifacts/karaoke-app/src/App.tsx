@@ -35,6 +35,7 @@ const Challenges = lazy(() => import("@/pages/Challenges"));
 const Feed = lazy(() => import("@/pages/Feed"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const VocalCoachPage = lazy(() => import("@/pages/VocalCoachPage"));
+const FeatureLanding = lazy(() => import("@/pages/FeatureLanding"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -75,6 +76,7 @@ function Router() {
   const uiT = useUITranslations();
   const [isSharedRoute, sharedParams] = useRoute("/shared/:id");
   const [isLangRoute] = useRoute("/lang/:lang");
+  const [isFeatureRoute] = useRoute("/features/:slug");
 
   if (isLangRoute) {
     return (
@@ -88,6 +90,14 @@ function Router() {
     return (
       <Suspense fallback={<PageLoader />}>
         <SharedView jobId={sharedParams.id} />
+      </Suspense>
+    );
+  }
+
+  if (isFeatureRoute) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <FeatureLanding />
       </Suspense>
     );
   }

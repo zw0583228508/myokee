@@ -67,6 +67,25 @@ Language-specific SEO landing pages at `/lang/{code}` (14 languages: he, en, ar,
 - `robots.txt` allows `/lang/` crawling
 - UI translations managed via `uiTranslations.ts` (14 languages) with `useUITranslations()` hook for component-level UI strings
 
+### SEO Feature Landing Pages
+5 public feature landing pages at `/features/:slug` bypass consent gate and auth:
+- `/features/vocal-remover` — AI Vocal Remover (cyan/blue)
+- `/features/karaoke-from-any-song` — Karaoke Generator (violet/purple)
+- `/features/party-mode` — Party Mode (pink/rose)
+- `/features/lyrics-sync` — Auto Lyrics Sync (emerald/teal)
+- `/features/singing-score` — AI Singing Score & Vocal Coach (amber/orange)
+
+Each page includes: hero with icon + h1 + subtitle + CTA, key features grid, FAQ accordion (with FAQPage JSON-LD), BreadcrumbList JSON-LD, dynamic meta tags. English + Hebrew content. Component: `FeatureLanding.tsx`. Routes handled pre-auth in `App.tsx`.
+
+### SEO Infrastructure
+- `robots.txt`: Allows `/leaderboard`, `/xp`, `/challenges`, `/feed`, `/features/`, `/shared/`, `/lang/`; blocks `/api/`, `/login`, `/upload`, `/party`, `/history`
+- `sitemap.xml`: All 14 language variants + 5 feature pages + leaderboard/challenges/feed/xp/vocal-coach + legal pages
+- `index.html` JSON-LD graph: WebSite, Organization, FAQPage, SoftwareApplication, HowTo, VideoObject, ItemList (features)
+- SharedView: Dynamic VideoObject JSON-LD injected per shared karaoke video with song title, video URL, upload date
+- ConsentGate: Bypassed for `/shared/`, `/features/`, `/lang/` routes
+- Leaderboard/GamificationProfile: noindex removed (indexable pages)
+- Hidden SEO content section in index.html with multilingual feature links for crawler discoverability
+
 ## External Dependencies
 
 - **Cloud Deployment**:

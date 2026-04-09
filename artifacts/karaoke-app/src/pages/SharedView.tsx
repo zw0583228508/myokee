@@ -1,9 +1,73 @@
+import { useEffect } from "react";
 import { useGetJob } from "@workspace/api-client-react";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, AlertTriangle, Mic2, Sparkles } from "lucide-react";
 import { apiUrl } from "@/lib/api";
+
+function useSharedSEO(job: any, jobId: string) {
+  useEffect(() => {
+    if (!job) return;
+    const title = `${job.filename || "Karaoke"} — AI Karaoke by MYOUKEE`;
+    const desc = `Listen to "${job.filename || "this song"}" as AI-generated karaoke on MYOUKEE. Remove vocals, sync lyrics, and sing along to any song.`;
+    const url = `https://myoukee.com/shared/${jobId}`;
+    const videoUrl = `https://myoukee.com/api/processor/jobs/${jobId}/video`;
+    const thumb = "https://myoukee.com/opengraph.jpg";
+
+    document.title = title;
+    const update = (sel: string, attr: string, val: string) => {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el) (el as any)[attr] = val;
+    };
+    update('meta[name="description"]', "content", desc);
+    update('link[rel="canonical"]', "href", url);
+    update('meta[property="og:title"]', "content", title);
+    update('meta[property="og:description"]', "content", desc);
+    update('meta[property="og:url"]', "content", url);
+    update('meta[property="og:type"]', "content", "video.other");
+    update('meta[name="twitter:title"]', "content", title);
+    update('meta[name="twitter:description"]', "content", desc);
+
+    let videoSchema = document.getElementById("seo-video-shared");
+    if (!videoSchema) {
+      videoSchema = document.createElement("script");
+      videoSchema.id = "seo-video-shared";
+      videoSchema.type = "application/ld+json";
+      document.head.appendChild(videoSchema);
+    }
+    videoSchema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": `${job.filename || "Karaoke Video"} — AI Karaoke`,
+      "description": desc,
+      "thumbnailUrl": thumb,
+      "contentUrl": videoUrl,
+      "embedUrl": url,
+      "uploadDate": job.created_at ? new Date(job.created_at).toISOString().split("T")[0] : "2026-01-01",
+      "publisher": {
+        "@type": "Organization",
+        "name": "MYOUKEE",
+        "logo": { "@type": "ImageObject", "url": "https://myoukee.com/opengraph.jpg" },
+      },
+    });
+
+    return () => {
+      videoSchema?.remove();
+      const defTitle = "Turn Any Song into Karaoke in Seconds | Free AI Vocal Remover & Lyrics Sync | Myoukee";
+      const defDesc = "Turn any song into karaoke instantly — free online tool. Remove vocals with AI, get auto-synced lyrics, and sing along.";
+      document.title = defTitle;
+      update('meta[name="description"]', "content", defDesc);
+      update('link[rel="canonical"]', "href", "https://myoukee.com/");
+      update('meta[property="og:title"]', "content", defTitle);
+      update('meta[property="og:description"]', "content", defDesc);
+      update('meta[property="og:url"]', "content", "https://myoukee.com/");
+      update('meta[property="og:type"]', "content", "website");
+      update('meta[name="twitter:title"]', "content", defTitle);
+      update('meta[name="twitter:description"]', "content", defDesc);
+    };
+  }, [job, jobId]);
+}
 
 export default function SharedView({ jobId }: { jobId: string }) {
   const { data: job, isLoading, error } = useGetJob(jobId, {
@@ -17,6 +81,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
     },
   });
 
+  useSharedSEO(job, jobId);
   const homeUrl = window.location.origin;
 
   if (isLoading) {
