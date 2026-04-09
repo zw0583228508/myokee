@@ -16,6 +16,7 @@ export class StripeService {
     priceData: { currency: string; unitAmount: number; productName: string };
     userId: string;
     credits: number;
+    lang?: string;
     successUrl: string;
     cancelUrl: string;
   }) {
@@ -27,6 +28,7 @@ export class StripeService {
       metadata: {
         userId: params.userId,
         credits: String(params.credits),
+        lang: params.lang || "en",
       },
     });
   }

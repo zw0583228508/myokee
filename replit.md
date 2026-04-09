@@ -22,6 +22,7 @@ The project uses a monorepo structure with pnpm workspaces for the React fronten
 - **Watermarking**: MYOUKEE logo on all generated videos.
 - **Party Mode**: Features party rooms, a song queue with host controls, scoring and leaderboards, duet/battle modes, theme packs, social clip sharing, YouTube/gallery song picker, auto-playing videos, and a fullscreen party display, all with full i18n support.
 - **Gamification System**: XP-based progression with 30 level tiers, 22 badges across 5 tiers, 8 progress-based achievements, a global XP leaderboard (opt-in for performance sharing), and daily login streaks, with full i18n and anti-farming rate limiting.
+- **Purchase Receipt Emails**: Automatic email receipt sent after credit purchase via Stripe. Supports all 14 languages (en, he, ar, ru, es, fr, de, ja, zh, ko, th, vi, tl, id). Language is passed from frontend to Stripe metadata and used in email template. Email sending is non-blocking — failures don't affect credit fulfillment.
 - **Cloud Recording Save**: (Removed from UI) Mixed karaoke recordings feature was deprecated.
 - **Gallery Upload in Party**: Enables direct audio/video uploads from phone galleries within party rooms, processing them into the queue.
 - **Public Shared View**: `/shared/:id` page shows karaoke video publicly without authentication. Bypasses both consent gate and auth gate. Share buttons generate `/shared/:id` URLs. Includes CTA to create own karaoke.

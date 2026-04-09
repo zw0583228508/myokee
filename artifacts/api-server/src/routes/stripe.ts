@@ -88,7 +88,7 @@ router.get("/packages", (_req, res) => {
 router.post("/checkout", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   const user = req.user as any;
-  const { packageId } = req.body;
+  const { packageId, lang } = req.body;
 
   if (!packageId) {
     return res.status(400).json({ error: "packageId is required" });
@@ -116,6 +116,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
       },
       userId: user.id,
       credits: pkg.credits,
+      lang: lang || "en",
       successUrl: `${host}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${host}/?payment=cancelled`,
     });
@@ -178,6 +179,8 @@ router.post("/credits/fulfill", async (req: Request, res: Response) => {
       id: sessionId,
       payment_status: session.payment_status,
       metadata: session.metadata,
+      amount_total: session.amount_total,
+      currency: session.currency,
     });
 
     if (!result.success) {
@@ -224,6 +227,8 @@ router.post("/stripe/webhook", async (req: Request, res: Response) => {
         payment_status: session.payment_status,
         metadata: session.metadata ?? {},
         customer: session.customer,
+        amount_total: session.amount_total,
+        currency: session.currency,
       });
       console.log(`[Stripe Webhook] Result: success=${result.success}, creditsAdded=${result.creditsAdded}`);
     }

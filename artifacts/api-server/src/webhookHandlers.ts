@@ -1,5 +1,6 @@
 import { storage } from "./storage";
 import { query, pool } from "./db";
+import { sendPurchaseConfirmationEmail } from "./emailService";
 
 export class WebhookHandlers {
   static async processCheckoutCompleted(session: {
@@ -7,6 +8,8 @@ export class WebhookHandlers {
     payment_status: string;
     metadata: Record<string, string>;
     customer?: string | null;
+    amount_total?: number | null;
+    currency?: string | null;
   }): Promise<{ success: boolean; creditsAdded: number }> {
     const sessionId = session.id;
     const userId = session.metadata?.userId;
@@ -62,6 +65,30 @@ export class WebhookHandlers {
       }
       await client.query("COMMIT");
       console.log(`[CreditFulfill] Fulfilled session ${sessionId}: +${creditsToAdd} credits for user ${userId}, new balance: ${updateResult.rows[0].credits}`);
+
+      try {
+        const userRow = await query("SELECT email FROM users WHERE id = $1", [userId]);
+        if (userRow.rows.length > 0 && userRow.rows[0].email) {
+          const userEmail = userRow.rows[0].email;
+          const userLang = session.metadata?.lang || "en";
+          const amountDollars = session.amount_total != null
+            ? (session.amount_total / 100).toFixed(2)
+            : "0.00";
+
+          await sendPurchaseConfirmationEmail(
+            userEmail,
+            {
+              credits: creditsToAdd,
+              amount: amountDollars,
+              orderId: sessionId,
+              method: "Stripe",
+            },
+            userLang
+          );
+        }
+      } catch (emailErr: any) {
+        console.error(`[CreditFulfill] Failed to send receipt email for session ${sessionId}:`, emailErr.message);
+      }
     } catch (err: any) {
       await client.query("ROLLBACK");
       console.error(`[CreditFulfill] Transaction error for session ${sessionId}:`, err.message, err.stack);

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUrl, authFetchOptions } from "@/lib/api";
+import { useLang } from "@/contexts/LanguageContext";
 
 export interface CreditPackage {
   id: string;
@@ -26,12 +27,13 @@ export function usePackages() {
 }
 
 export function usePurchase() {
+  const { lang } = useLang();
   return useMutation({
     mutationFn: async (packageId: string): Promise<string> => {
       const res = await fetch(apiUrl("/api/checkout"), authFetchOptions({
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId }),
+        body: JSON.stringify({ packageId, lang }),
       }));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
