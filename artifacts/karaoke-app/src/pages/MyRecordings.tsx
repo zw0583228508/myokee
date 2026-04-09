@@ -1,8 +1,8 @@
 import { Link } from "wouter";
-import { ArrowLeft, Mic2, Loader2, Play, Pause, Trash2, Download, Music2, Cloud } from "lucide-react";
+import { ArrowLeft, Mic2, Loader2, Play, Pause, Trash2, Download, Music2, Cloud, Users, Lock } from "lucide-react";
 import { useRecordings, useDeleteRecording } from "@/hooks/use-recordings";
 import { useLang } from "@/contexts/LanguageContext";
-import { useMyPerformances } from "@/hooks/use-performances";
+import { useMyPerformances, usePublishPerformance, useUnpublishPerformance } from "@/hooks/use-performances";
 import { apiUrl } from "@/lib/api";
 import { useState, useRef } from "react";
 
@@ -36,6 +36,10 @@ const LABELS: Record<string, Record<string, string>> = {
     confirmDelete: "למחוק את ההקלטה?",
     score: "ציון",
     noPerf: "אין ביצועים עדיין",
+    shareToCommunity: "שתף לקהילה",
+    makePrivate: "הסתר מהקהילה",
+    shared: "משותף",
+    private: "פרטי",
   },
   en: {
     title: "My Recordings",
@@ -53,6 +57,10 @@ const LABELS: Record<string, Record<string, string>> = {
     confirmDelete: "Delete this recording?",
     score: "Score",
     noPerf: "No performances yet",
+    shareToCommunity: "Share to Community",
+    makePrivate: "Make Private",
+    shared: "Shared",
+    private: "Private",
   },
   ar: {
     title: "تسجيلاتي",
@@ -70,6 +78,10 @@ const LABELS: Record<string, Record<string, string>> = {
     confirmDelete: "حذف هذا التسجيل؟",
     score: "النتيجة",
     noPerf: "لا يوجد أداء بعد",
+    shareToCommunity: "شارك مع المجتمع",
+    makePrivate: "اجعل خاص",
+    shared: "مشارك",
+    private: "خاص",
   },
 };
 
@@ -83,6 +95,8 @@ export default function MyRecordings() {
   const { data: recordings, isLoading: loadingRec } = useRecordings();
   const { data: performances, isLoading: loadingPerf } = useMyPerformances();
   const deleteRec = useDeleteRecording();
+  const publishPerf = usePublishPerformance();
+  const unpublishPerf = useUnpublishPerformance();
   const [tab, setTab] = useState<"recordings" | "performances">("recordings");
   const [playingId, setPlayingId] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -261,28 +275,64 @@ export default function MyRecordings() {
             ) : (
               <div className="space-y-2">
                 {performances.map((perf) => (
-                  <Link key={perf.id} href={perf.job_id ? `/job/${perf.job_id}` : "#"}>
-                    <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white/[0.03] border-white/7 hover:bg-white/5 transition-all cursor-pointer">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center shrink-0">
-                        <Music2 className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white truncate text-sm" dir="auto">
-                          {perf.song_name || "—"}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-white/25">{formatDate(perf.created_at, lang)}</span>
-                          {perf.is_public && <span className="text-[10px] text-green-400">🏆</span>}
+                  <div key={perf.id} className="rounded-2xl border bg-white/[0.03] border-white/7 hover:bg-white/5 transition-all">
+                    <Link href={perf.job_id ? `/job/${perf.job_id}` : "#"}>
+                      <div className="flex items-center gap-3 px-4 pt-3.5 pb-2 cursor-pointer">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 flex items-center justify-center shrink-0">
+                          <Music2 className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white truncate text-sm" dir="auto">
+                            {perf.song_name || "—"}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-white/25">{formatDate(perf.created_at, lang)}</span>
+                          </div>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
+                            {perf.score}
+                          </p>
+                          <p className="text-[10px] text-white/25 mt-0.5">{l.score}</p>
                         </div>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-blue-400 leading-none">
-                          {perf.score}
-                        </p>
-                        <p className="text-[10px] text-white/25 mt-0.5">{l.score}</p>
+                    </Link>
+                    <div className="px-4 pb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        {perf.is_public ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-2.5 py-0.5">
+                            <Users className="w-3 h-3" />{l.shared}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-white/30 bg-white/5 border border-white/8 rounded-full px-2.5 py-0.5">
+                            <Lock className="w-3 h-3" />{l.private}
+                          </span>
+                        )}
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (perf.is_public) {
+                            unpublishPerf.mutate(perf.id);
+                          } else {
+                            publishPerf.mutate(perf.id);
+                          }
+                        }}
+                        disabled={publishPerf.isPending || unpublishPerf.isPending}
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-all ${
+                          perf.is_public
+                            ? "text-red-400/80 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20"
+                            : "text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20"
+                        }`}
+                      >
+                        {perf.is_public ? (
+                          <><Lock className="w-3 h-3" />{l.makePrivate}</>
+                        ) : (
+                          <><Users className="w-3 h-3" />{l.shareToCommunity}</>
+                        )}
+                      </button>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}

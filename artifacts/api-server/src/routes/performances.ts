@@ -109,6 +109,25 @@ router.post("/performances/:id/publish", authRequired, async (req: Request, res:
   }
 });
 
+// POST /api/performances/:id/unpublish — make a performance private again
+router.post("/performances/:id/unpublish", authRequired, async (req: Request, res: Response) => {
+  const user = req.user as any;
+  await ensureTable();
+  try {
+    const result = await query(
+      `UPDATE performances SET is_public = false WHERE id = $1 AND user_id = $2 RETURNING *`,
+      [req.params.id, user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Performance not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("[performances] unpublish error:", err);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
 // GET /api/performances/me — current user's performances
 router.get("/performances/me", authRequired, async (req: Request, res: Response) => {
   const user = req.user as any;

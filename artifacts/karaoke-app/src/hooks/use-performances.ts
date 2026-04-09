@@ -85,3 +85,17 @@ export function usePublishPerformance() {
     },
   });
 }
+
+export function useUnpublishPerformance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (perfId: number) =>
+      apiFetch(`/api/performances/${perfId}/unpublish`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["leaderboard"] });
+      qc.invalidateQueries({ queryKey: ["my-performances"] });
+    },
+  });
+}
