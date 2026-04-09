@@ -1,0 +1,259 @@
+# MYOUKEE — Complete AI Karaoke Platform Documentation
+
+> MYOUKEE (myoukee.com) is a full-featured AI-powered karaoke platform. It uses deep learning to remove vocals from any song, transcribe lyrics with word-level timing, and generate professional karaoke videos — all automatically. The platform supports 14 languages and is available as a web app and mobile app (iOS/Android).
+
+---
+
+## What is MYOUKEE?
+
+MYOUKEE is an online karaoke maker that lets anyone turn any song into karaoke. Users upload an audio file (MP3, WAV, FLAC, etc.), a video file (MP4, WebM, etc.), or paste a YouTube link. The AI then:
+
+1. **Separates vocals from instrumentals** using deep learning models
+2. **Transcribes the lyrics** with word-level timestamps
+3. **Generates a karaoke video** with synchronized scrolling lyrics
+
+The entire process takes about 2-5 minutes per song. Users can then sing along, record their performance, get an AI singing score, and share with friends.
+
+---
+
+## Detailed Feature List
+
+### 1. AI Vocal Remover
+Remove vocals from any song using state-of-the-art AI. The deep learning model separates the vocal track from the instrumental, producing a clean backing track suitable for karaoke singing. Works with any genre — pop, rock, hip-hop, R&B, classical, K-pop, J-pop, Latin, Arabic music, and more.
+
+**Use cases:**
+- Create karaoke versions of any song
+- Practice singing with professional backing tracks
+- Create instrumental versions for DJs and content creators
+- Extract acapella vocals for remixing
+
+### 2. Karaoke from Any Song
+Upload any audio or video file and get a complete karaoke experience. The AI handles everything:
+- Vocal removal to create the backing track
+- Lyrics transcription with automatic language detection
+- Word-level timing synchronization
+- Video generation with animated lyrics display
+
+**Supported input formats:** MP3, WAV, FLAC, OGG, M4A, AAC, MP4, WebM, MOV, AVI, MKV
+
+### 3. YouTube to Karaoke
+Paste any YouTube URL and instantly convert the video into a karaoke version. No need to download the video first — MYOUKEE handles everything automatically. Perfect for:
+- Converting music videos to karaoke
+- Creating karaoke from live performances
+- Making karaoke versions of trending songs
+
+### 4. Lyrics Sync (AI Transcription)
+AI-powered lyrics transcription with word-level timing accuracy. Features include:
+- Automatic language detection for 14 languages
+- Word-level timestamp precision (not just line-by-line)
+- Built-in transcript editor for manual corrections
+- Support for RTL languages (Hebrew, Arabic)
+
+### 5. Singing Score (AI Performance Analysis)
+Real-time AI analysis of singing performances:
+- Pitch accuracy scoring
+- Timing precision analysis
+- Overall performance rating
+- Comparison with other singers on the leaderboard
+
+### 6. AI Vocal Coach
+Personalized singing improvement powered by AI:
+- Performance-specific tips after each song
+- Progress tracking over time with charts
+- Pitch and timing trend analysis
+- Actionable feedback to improve vocal skills
+
+### 7. Background Changer
+Customize the visual appearance of karaoke videos:
+- Multiple built-in themes: Aurora, Neon, Sunset, Ocean, Galaxy, Forest, and more
+- Upload your own image as a custom background
+- Preview backgrounds before applying
+- Re-render video with new background without re-processing audio
+
+### 8. Party Mode (Multiplayer Karaoke)
+Host karaoke parties with friends, online or in-person:
+- **Create a room** with a unique 6-digit join code
+- **Singing modes:** Solo, Duet, Battle
+- **Song queue management:** Add songs from uploads, YouTube, or processed library
+- **TV Display mode:** Dedicated full-screen view optimized for big screens/TVs
+- **Room leaderboard:** Track scores within the party
+- **Real-time sync:** All participants see the same content simultaneously
+
+### 9. Social Feed
+A social network for karaoke lovers:
+- **Discover tab:** Browse public performances from all users
+- **Feed tab:** See performances from users you follow
+- **Like** and **comment** on performances
+- **Follow/unfollow** other singers
+- **User profiles** with performance history and social stats
+
+### 10. Weekly Challenges
+Competitive singing challenges:
+- New challenge every week with a specific song
+- Submit your performance to compete
+- Real-time leaderboard ranking
+- Credit prizes for top performers
+- View past challenges and winners
+
+### 11. XP & Badges (Gamification)
+Engagement and achievement system:
+- Earn XP for singing, sharing, and social interactions
+- Level up as you accumulate XP
+- Unlock badges for specific achievements
+- Daily streak tracking
+- Global XP leaderboard (all-time and weekly)
+
+### 12. Global Leaderboard
+Rankings based on:
+- Singing scores (pitch and timing accuracy)
+- XP accumulation
+- Challenge performance
+
+### 13. Referral Program
+Invite friends and earn rewards:
+- Personal referral link
+- Track successful referrals
+- Earn credits when friends sign up and use the platform
+
+### 14. Recording Library
+Manage your singing recordings:
+- Save recordings from Sing Mode
+- Play back your performances
+- Publish/unpublish to make performances public or private
+- Track your improvement over time
+
+---
+
+## Supported Languages (14)
+
+| Language | Code | Native Name | RTL | Karaoke Page |
+|----------|------|-------------|-----|--------------|
+| English | en | English | No | — |
+| Hebrew | he | עברית | Yes | /features/hebrew-karaoke |
+| Arabic | ar | العربية | Yes | /features/arabic-karaoke |
+| Russian | ru | Русский | No | /features/russian-karaoke |
+| Spanish | es | Español | No | /features/spanish-karaoke |
+| French | fr | Français | No | /features/french-karaoke |
+| German | de | Deutsch | No | /features/german-karaoke |
+| Japanese | ja | 日本語 | No | /features/japanese-karaoke |
+| Chinese | zh | 中文 | No | /features/chinese-karaoke |
+| Korean | ko | 한국어 | No | /features/korean-karaoke |
+| Thai | th | ไทย | No | /features/thai-karaoke |
+| Vietnamese | vi | Tiếng Việt | No | /features/vietnamese-karaoke |
+| Filipino | tl | Filipino | No | /features/filipino-karaoke |
+| Indonesian | id | Bahasa Indonesia | No | /features/indonesian-karaoke |
+
+The entire user interface is translated into all 14 languages. Lyrics transcription supports all languages with automatic detection. RTL (right-to-left) layout is fully supported for Hebrew and Arabic.
+
+---
+
+## Pricing
+
+MYOUKEE uses a credit-based pricing model with no subscriptions or monthly fees. You only pay for what you use.
+
+| Package | Credits | Price (USD) | Per Credit |
+|---------|---------|-------------|------------|
+| Starter | 10 | $4.99 | $0.50 |
+| Popular | 40 | $14.99 | $0.37 |
+| Pro | 120 | $34.99 | $0.29 |
+| Studio | 500 | $99.99 | $0.20 |
+
+**Payment methods:** Stripe (credit/debit cards) and PayPal.
+
+Each song processing typically costs 1 credit. Additional features like background changes may cost additional credits.
+
+---
+
+## How It Works
+
+1. **Upload** — Upload an audio/video file or paste a YouTube link
+2. **AI Processing** — The AI separates vocals, transcribes lyrics, and generates the karaoke video (2-5 minutes)
+3. **Review** — Optionally edit the transcribed lyrics and timing
+4. **Sing** — Sing along with the karaoke video and get scored
+5. **Share** — Share your performances on the social feed or via direct link
+
+---
+
+## Platform Availability
+
+- **Web App:** https://myoukee.com (works on all modern browsers)
+- **Mobile App:** Available for iOS and Android (built with React Native/Expo)
+- **PWA:** Installable as a Progressive Web App on mobile and desktop
+
+---
+
+## Comparisons
+
+### MYOUKEE vs. traditional karaoke apps
+- **Any song:** Unlike traditional karaoke apps with limited song libraries, MYOUKEE works with ANY song
+- **AI-powered:** Real-time vocal removal and lyrics sync, not pre-made tracks
+- **Multilingual:** 14 languages with native UI support, not just English
+- **Social:** Built-in social features, challenges, and leaderboards
+- **Party Mode:** Multiplayer rooms with duet and battle modes
+
+### MYOUKEE vs. vocal remover tools
+- **Complete solution:** Not just vocal removal — full karaoke video generation with lyrics
+- **Sing Mode:** Built-in singing experience with scoring
+- **Social platform:** Share and discover performances
+
+---
+
+## Use Cases
+
+1. **Home karaoke** — Turn your living room into a karaoke bar
+2. **Karaoke parties** — Host multiplayer karaoke events with Party Mode
+3. **Singing practice** — Use AI Vocal Coach to improve your skills
+4. **Content creation** — Create karaoke versions for YouTube, TikTok, etc.
+5. **Music education** — Practice pitch and timing with AI scoring
+6. **DJ/Producer** — Extract instrumentals and vocals for remixing
+7. **Language learning** — Sing along in different languages with synced lyrics
+8. **Team building** — Virtual karaoke events for remote teams
+
+---
+
+## Frequently Asked Questions
+
+**Q: What is MYOUKEE?**
+A: MYOUKEE is an AI-powered karaoke platform that turns any song into karaoke. Upload a song or paste a YouTube link, and the AI removes vocals, transcribes lyrics, and generates a karaoke video automatically.
+
+**Q: How does MYOUKEE work?**
+A: Upload an audio/video file or paste a YouTube link. The AI separates vocals from instrumentals, transcribes lyrics with word-level timing, and generates a professional karaoke video in 2-5 minutes.
+
+**Q: What languages does MYOUKEE support?**
+A: MYOUKEE supports 14 languages: English, Hebrew, Arabic, Russian, Spanish, French, German, Japanese, Chinese, Korean, Thai, Vietnamese, Filipino, and Indonesian. The UI is fully translated and lyrics transcription supports all languages.
+
+**Q: Is MYOUKEE free?**
+A: MYOUKEE uses a credit-based system. You purchase credits to process songs. Packages start at $4.99 for 10 credits. There are no subscriptions or monthly fees.
+
+**Q: Can I use any song?**
+A: Yes! MYOUKEE works with any song in any language. Upload an audio file (MP3, WAV, etc.), a video file (MP4, etc.), or paste a YouTube link.
+
+**Q: What is Party Mode?**
+A: Party Mode lets you create multiplayer karaoke rooms. Share a 6-digit code with friends to join. Supports Solo, Duet, and Battle singing modes with a TV Display option for big screens.
+
+**Q: How accurate is the AI vocal removal?**
+A: MYOUKEE uses state-of-the-art deep learning models for vocal separation. The quality is excellent for most songs across all genres.
+
+**Q: Can I edit the lyrics after AI transcription?**
+A: Yes! MYOUKEE includes a built-in transcript editor where you can correct lyrics and adjust word timing before generating the final karaoke video.
+
+**Q: What is the AI Vocal Coach?**
+A: The AI Vocal Coach analyzes your singing performances and provides personalized tips for improvement. It tracks your progress over time, showing trends in pitch accuracy and timing.
+
+**Q: Is there a mobile app?**
+A: Yes, MYOUKEE is available as a mobile app for iOS and Android, as well as a Progressive Web App (PWA) that can be installed on any device.
+
+**Q: How do Weekly Challenges work?**
+A: Each week there's a new song challenge. Record your performance of that song and compete against other users on the leaderboard. Top performers win credit prizes.
+
+**Q: Can I share my karaoke creations?**
+A: Yes! You can share karaoke videos via a public link, publish performances to the social feed, or share directly with friends.
+
+---
+
+## Contact & Links
+
+- **Website:** https://myoukee.com
+- **Privacy Policy:** https://myoukee.com/privacy
+- **Terms of Use:** https://myoukee.com/terms
+- **Copyright Policy:** https://myoukee.com/copyright

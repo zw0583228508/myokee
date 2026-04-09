@@ -1,0 +1,73 @@
+# MYOUKEE (myoukee.com)
+
+> MYOUKEE is an AI-powered karaoke platform that turns any song into karaoke. Upload any audio or video file, or paste a YouTube link, and the AI removes vocals, transcribes lyrics with word-level timing, and generates a professional karaoke video — all automatically. Supports 14 languages including Hebrew, Arabic, Korean, Japanese, Chinese, Spanish, Russian, French, German, Thai, Vietnamese, Filipino, and Indonesian.
+
+## Core Features
+
+- **AI Vocal Remover**: Removes vocals from any song using deep learning, producing clean instrumental tracks.
+- **Karaoke from Any Song**: Automatically generates karaoke videos with synced lyrics from any audio/video file.
+- **YouTube to Karaoke**: Paste a YouTube link and get an instant karaoke version with lyrics.
+- **Lyrics Sync**: AI-powered word-level lyrics synchronization with manual editing support.
+- **Singing Score**: Real-time AI scoring of vocal performances based on pitch accuracy and timing.
+- **AI Vocal Coach**: Personalized singing tips and progress tracking powered by AI analysis.
+- **Background Changer**: Choose from multiple visual themes (aurora, neon, etc.) or upload your own image as a karaoke video background.
+- **Party Mode**: Multiplayer karaoke rooms with Solo, Duet, and Battle modes. Create or join rooms with a 6-digit code. Includes TV Display mode for big screens.
+- **Social Feed**: Discover and follow other singers, like and comment on performances.
+- **Weekly Challenges**: Competitive singing challenges with leaderboards and credit prizes.
+- **XP & Badges**: Gamification system with levels, achievements, and daily streaks.
+- **Leaderboard**: Global rankings based on singing scores and XP.
+- **Referral Program**: Invite friends and earn rewards.
+- **Recording Library**: Save and manage your singing recordings.
+
+## Supported Languages (14)
+
+English, Hebrew (עברית), Arabic (العربية), Russian (Русский), Spanish (Español), French (Français), German (Deutsch), Japanese (日本語), Chinese (中文), Korean (한국어), Thai (ไทย), Vietnamese (Tiếng Việt), Filipino, Indonesian (Bahasa Indonesia)
+
+RTL support for Hebrew and Arabic.
+
+## Pricing
+
+Credit-based system. No subscription required.
+- Starter: 10 credits — $4.99
+- Popular: 40 credits — $14.99
+- Pro: 120 credits — $34.99
+- Studio: 500 credits — $99.99
+
+Payment via Stripe and PayPal.
+
+## Technology
+
+- AI-powered vocal separation (deep learning)
+- Word-level lyrics transcription and synchronization
+- Real-time singing analysis (pitch and timing)
+- Multi-language support with automatic language detection
+- WebSocket-based real-time party mode
+- Progressive Web App (PWA) with mobile app (iOS/Android via Expo)
+
+## Links
+
+- Website: https://myoukee.com
+- Vocal Remover: https://myoukee.com/features/vocal-remover
+- Karaoke from Any Song: https://myoukee.com/features/karaoke-from-any-song
+- YouTube to Karaoke: https://myoukee.com/features/youtube-to-karaoke
+- Party Mode: https://myoukee.com/features/party-mode
+- Lyrics Sync: https://myoukee.com/features/lyrics-sync
+- Singing Score: https://myoukee.com/features/singing-score
+- Hebrew Karaoke: https://myoukee.com/features/hebrew-karaoke
+- Arabic Karaoke: https://myoukee.com/features/arabic-karaoke
+- Korean Karaoke: https://myoukee.com/features/korean-karaoke
+- Japanese Karaoke: https://myoukee.com/features/japanese-karaoke
+- Chinese Karaoke: https://myoukee.com/features/chinese-karaoke
+- Spanish Karaoke: https://myoukee.com/features/spanish-karaoke
+- Russian Karaoke: https://myoukee.com/features/russian-karaoke
+- French Karaoke: https://myoukee.com/features/french-karaoke
+- German Karaoke: https://myoukee.com/features/german-karaoke
+- Thai Karaoke: https://myoukee.com/features/thai-karaoke
+- Vietnamese Karaoke: https://myoukee.com/features/vietnamese-karaoke
+- Filipino Karaoke: https://myoukee.com/features/filipino-karaoke
+- Indonesian Karaoke: https://myoukee.com/features/indonesian-karaoke
+- Leaderboard: https://myoukee.com/leaderboard
+- Weekly Challenges: https://myoukee.com/challenges
+- Social Feed: https://myoukee.com/feed
+- Privacy Policy: https://myoukee.com/privacy
+- Terms of Use: https://myoukee.com/terms

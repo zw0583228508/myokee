@@ -64,3 +64,8 @@ Disallow: /my-recordings
 Crawl-delay: 2
 
 Sitemap: https://myoukee.com/sitemap.xml
+
+# AI / LLM discovery
+# See https://llmstxt.org for the llms.txt standard
+# llms.txt: concise overview for AI assistants
+# llms-full.txt: comprehensive documentation for AI assistants
