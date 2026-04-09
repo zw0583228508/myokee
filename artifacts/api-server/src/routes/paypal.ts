@@ -4,6 +4,7 @@ import { storage } from "../storage";
 import { query } from "../db";
 import { pool } from "../db";
 import { CREDIT_PACKAGES } from "./stripe";
+import { sendPurchaseConfirmationEmail } from "../emailService";
 
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "https://myoukee.com";
 
@@ -20,7 +21,7 @@ function requireAuth(req: Request, res: Response): boolean {
 router.post("/paypal/checkout", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   const user = req.user as any;
-  const { packageId } = req.body;
+  const { packageId, lang } = req.body;
 
   if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
     console.error("PayPal checkout error: PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET not set");
@@ -38,7 +39,7 @@ router.post("/paypal/checkout", async (req: Request, res: Response) => {
 
   try {
     const amount = (pkg.unitAmount / 100).toFixed(2);
-    const customId = JSON.stringify({ userId: user.id, credits: pkg.credits });
+    const customId = JSON.stringify({ userId: user.id, credits: pkg.credits, lang: lang || "en" });
 
     const mode = process.env.PAYPAL_MODE ?? "sandbox";
     console.log(`[PayPal] Creating order: mode=${mode}, amount=${amount} ${pkg.currency}, userId=${user.id}`);
@@ -87,6 +88,7 @@ async function captureAndFulfill(orderId: string, userId: string, expectedCredit
   }
 
   let creditsToAdd = expectedCredits;
+  let orderLang = "en";
   if (result.customId) {
     try {
       const customData = JSON.parse(result.customId);
@@ -94,6 +96,7 @@ async function captureAndFulfill(orderId: string, userId: string, expectedCredit
         throw new Error("Order does not belong to this user");
       }
       if (customData.credits && customData.credits > 0) creditsToAdd = customData.credits;
+      if (customData.lang) orderLang = customData.lang;
     } catch (e: any) {
       if (e.message === "Order does not belong to this user") throw e;
     }
@@ -132,6 +135,28 @@ async function captureAndFulfill(orderId: string, userId: string, expectedCredit
 
   const newCredits = await storage.getCredits(userId);
   console.log(`[PayPal] Captured order ${orderId}: +${creditsToAdd} credits for user ${userId}, new balance: ${newCredits}`);
+
+  try {
+    const userRow = await query("SELECT email FROM users WHERE id = $1", [userId]);
+    if (userRow.rows.length > 0 && userRow.rows[0].email) {
+      const pkg = CREDIT_PACKAGES.find(p => p.credits === creditsToAdd);
+      const amountDollars = pkg ? (pkg.unitAmount / 100).toFixed(2) : "0.00";
+
+      await sendPurchaseConfirmationEmail(
+        userRow.rows[0].email,
+        {
+          credits: creditsToAdd,
+          amount: amountDollars,
+          orderId: orderId,
+          method: "PayPal",
+        },
+        orderLang
+      );
+    }
+  } catch (emailErr: any) {
+    console.error(`[PayPal] Failed to send receipt email for order ${orderId}:`, emailErr.message);
+  }
+
   return { success: true, creditsAdded: creditsToAdd, alreadyFulfilled: false };
 }
 

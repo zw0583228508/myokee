@@ -46,12 +46,13 @@ export function usePurchase() {
 }
 
 export function usePayPalPurchase() {
+  const { lang } = useLang();
   return useMutation({
     mutationFn: async (packageId: string): Promise<string> => {
       const res = await fetch(apiUrl("/api/paypal/checkout"), authFetchOptions({
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId }),
+        body: JSON.stringify({ packageId, lang }),
       }));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
