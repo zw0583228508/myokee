@@ -208,6 +208,68 @@ export async function runMigrations(): Promise<void> {
         created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_xp_log_user ON xp_log (user_id);
+
+      -- Weekly Challenges
+      CREATE TABLE IF NOT EXISTS challenges (
+        id             SERIAL PRIMARY KEY,
+        title          TEXT NOT NULL,
+        description    TEXT NOT NULL DEFAULT '',
+        song_name      TEXT NOT NULL DEFAULT '',
+        job_id         TEXT,
+        status         TEXT NOT NULL DEFAULT 'upcoming',
+        start_date     TIMESTAMPTZ NOT NULL,
+        end_date       TIMESTAMPTZ NOT NULL,
+        prize_credits  INTEGER NOT NULL DEFAULT 0,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_challenges_status ON challenges (status);
+      CREATE INDEX IF NOT EXISTS idx_challenges_dates ON challenges (start_date, end_date);
+
+      CREATE TABLE IF NOT EXISTS challenge_entries (
+        id              SERIAL PRIMARY KEY,
+        challenge_id    INTEGER NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
+        user_id         TEXT NOT NULL REFERENCES users(id),
+        performance_id  INTEGER NOT NULL REFERENCES performances(id),
+        score           INTEGER NOT NULL DEFAULT 0,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(challenge_id, user_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_challenge_entries_challenge ON challenge_entries (challenge_id, score DESC);
+      CREATE INDEX IF NOT EXISTS idx_challenge_entries_user ON challenge_entries (user_id);
+
+      -- Social: Follows
+      CREATE TABLE IF NOT EXISTS follows (
+        follower_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        following_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (follower_id, following_id),
+        CHECK (follower_id != following_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows (follower_id);
+      CREATE INDEX IF NOT EXISTS idx_follows_following ON follows (following_id);
+
+      -- Social: Likes on performances
+      CREATE TABLE IF NOT EXISTS performance_likes (
+        user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        performance_id  INTEGER NOT NULL REFERENCES performances(id) ON DELETE CASCADE,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (user_id, performance_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_perf_likes_perf ON performance_likes (performance_id);
+
+      -- Social: Comments on performances
+      CREATE TABLE IF NOT EXISTS performance_comments (
+        id              SERIAL PRIMARY KEY,
+        user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        performance_id  INTEGER NOT NULL REFERENCES performances(id) ON DELETE CASCADE,
+        content         TEXT NOT NULL,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_perf_comments_perf ON performance_comments (performance_id);
+
+      -- Add like/comment counts to performances for fast queries
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS like_count INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE performances ADD COLUMN IF NOT EXISTS comment_count INTEGER NOT NULL DEFAULT 0;
     `);
     console.log("[migrate] Tables ensured.");
   } finally {

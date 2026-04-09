@@ -10,6 +10,9 @@ import partyRouter from "./party";
 import gamificationRouter from "./gamification";
 import storageRouter from "./storage";
 import analyticsRouter from "./analytics";
+import challengesRouter from "./challenges";
+import socialRouter from "./social";
+import vocalCoachRouter from "./vocalCoach";
 
 const router: IRouter = Router();
 
@@ -24,5 +27,8 @@ router.use(partyRouter);
 router.use(gamificationRouter);
 router.use(storageRouter);
 router.use(analyticsRouter);
+router.use(challengesRouter);
+router.use(socialRouter);
+router.use(vocalCoachRouter);
 
 export default router;

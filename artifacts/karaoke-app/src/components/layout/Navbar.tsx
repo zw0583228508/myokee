@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud, User } from "lucide-react";
+import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, Music, History, Gift, PartyPopper, Cloud, User, Medal, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
@@ -92,6 +92,26 @@ export function Navbar() {
               aria-current={location.startsWith("/party") ? "page" : undefined}
             >
               <PartyPopper className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.party}
+            </Link>
+            <Link href="/challenges"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                location === "/challenges"
+                  ? "bg-primary/15 text-primary"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              }`}
+              aria-current={location === "/challenges" ? "page" : undefined}
+            >
+              <Medal className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.challenges}
+            </Link>
+            <Link href="/feed"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                location === "/feed" || location.startsWith("/profile/")
+                  ? "bg-primary/15 text-primary"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              }`}
+              aria-current={location === "/feed" ? "page" : undefined}
+            >
+              <Users className="w-3.5 h-3.5" aria-hidden="true" />{t.nav.feed}
             </Link>
           </nav>
 
@@ -234,6 +254,8 @@ export function Navbar() {
                 { href: "/leaderboard", icon: Trophy,  label: t.nav.leaderboard },
                 { href: "/xp",         icon: Zap,     label: t.nav.xpBadges },
                 { href: "/party",       icon: PartyPopper, label: t.nav.party },
+                { href: "/challenges", icon: Medal,        label: t.nav.challenges },
+                { href: "/feed",       icon: Users,        label: t.nav.feed },
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${

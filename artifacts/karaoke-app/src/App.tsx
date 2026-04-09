@@ -31,6 +31,10 @@ const PartyDisplay = lazy(() => import("@/pages/PartyDisplay"));
 const GamificationProfile = lazy(() => import("@/pages/GamificationProfile"));
 const SharedView = lazy(() => import("@/pages/SharedView"));
 const LangLanding = lazy(() => import("@/pages/LangLanding"));
+const Challenges = lazy(() => import("@/pages/Challenges"));
+const Feed = lazy(() => import("@/pages/Feed"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const VocalCoachPage = lazy(() => import("@/pages/VocalCoachPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -138,7 +142,11 @@ function Router() {
             <Route path="/privacy"     component={Privacy}     />
             <Route path="/terms"       component={Terms}       />
             <Route path="/copyright"   component={Copyright}   />
-            <Route path="/referral"   component={Referral}    />
+            <Route path="/referral"    component={Referral}    />
+            <Route path="/challenges"  component={Challenges}  />
+            <Route path="/feed"        component={Feed}        />
+            <Route path="/profile/:userId" component={Profile} />
+            <Route path="/vocal-coach"  component={VocalCoachPage} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>

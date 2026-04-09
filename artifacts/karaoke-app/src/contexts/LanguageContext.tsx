@@ -19,6 +19,8 @@ export interface Translations {
     xpBadges: string;
     party: string;
     inviteFriends: string;
+    challenges: string;
+    feed: string;
     paymentSuccess: string;
     paymentCancelled: string;
     paymentError: string;
@@ -203,7 +205,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "לידרבורד", history: "היסטוריה",
       createKaraoke: "יצירת קריוקי", login: "התחברות", logout: "יציאה",
-      credits: "קרדיטים", buyCredits: "רכישת קרדיטים", language: "שפה", myRecordings: "ההקלטות שלי", xpBadges: "XP ותגים", party: "מסיבה", inviteFriends: "הזמן חברים", paymentSuccess: "הרכישה הצליחה! הקרדיטים נוספו לחשבונך.", paymentCancelled: "הרכישה בוטלה. ניתן לרכוש בכל עת.", paymentError: "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה.",
+      credits: "קרדיטים", buyCredits: "רכישת קרדיטים", language: "שפה", myRecordings: "ההקלטות שלי", xpBadges: "XP ותגים", party: "מסיבה", inviteFriends: "הזמן חברים", challenges: "אתגרים", feed: "קהילה", paymentSuccess: "הרכישה הצליחה! הקרדיטים נוספו לחשבונך.", paymentCancelled: "הרכישה בוטלה. ניתן לרכוש בכל עת.", paymentError: "אירעה שגיאה בעיבוד התשלום. הקרדיטים יתווספו אוטומטית בכניסה הבאה.",
     },
     upload: {
       title: "יצירת קריוקי חדש",
@@ -382,7 +384,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Leaderboard", history: "History",
       createKaraoke: "Create Karaoke", login: "Sign In", logout: "Sign Out",
-      credits: "Credits", buyCredits: "Buy Credits", language: "Language", myRecordings: "My Recordings", xpBadges: "XP & Badges", party: "Party", inviteFriends: "Invite Friends", paymentSuccess: "Purchase successful! Credits added to your account.", paymentCancelled: "Purchase cancelled. You can buy at any time.", paymentError: "Payment processing error. Credits will be added automatically on next login.",
+      credits: "Credits", buyCredits: "Buy Credits", language: "Language", myRecordings: "My Recordings", xpBadges: "XP & Badges", party: "Party", inviteFriends: "Invite Friends", challenges: "Challenges", feed: "Community", paymentSuccess: "Purchase successful! Credits added to your account.", paymentCancelled: "Purchase cancelled. You can buy at any time.", paymentError: "Payment processing error. Credits will be added automatically on next login.",
     },
     upload: {
       title: "Create New Karaoke",
@@ -561,7 +563,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "المتصدرين", history: "السجل",
       createKaraoke: "إنشاء كاريوكي", login: "تسجيل الدخول", logout: "تسجيل الخروج",
-      credits: "رصيد", buyCredits: "شراء رصيد", language: "اللغة", myRecordings: "تسجيلاتي", xpBadges: "XP والشارات", party: "حفلة", inviteFriends: "دعوة أصدقاء", paymentSuccess: "تمت عملية الشراء بنجاح! تمت إضافة الرصيد.", paymentCancelled: "تم إلغاء عملية الشراء. يمكنك الشراء في أي وقت.", paymentError: "خطأ في معالجة الدفع. سيتم إضافة الرصيد تلقائياً عند تسجيل الدخول التالي.",
+      credits: "رصيد", buyCredits: "شراء رصيد", language: "اللغة", myRecordings: "تسجيلاتي", xpBadges: "XP والشارات", party: "حفلة", inviteFriends: "دعوة أصدقاء", challenges: "تحديات", feed: "المجتمع", paymentSuccess: "تمت عملية الشراء بنجاح! تمت إضافة الرصيد.", paymentCancelled: "تم إلغاء عملية الشراء. يمكنك الشراء في أي وقت.", paymentError: "خطأ في معالجة الدفع. سيتم إضافة الرصيد تلقائياً عند تسجيل الدخول التالي.",
     },
     upload: {
       title: "إنشاء كاريوكي جديد",
@@ -740,7 +742,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Рейтинг", history: "История",
       createKaraoke: "Создать Karaoke", login: "Войти", logout: "Выйти",
-      credits: "Кредиты", buyCredits: "Купить кредиты", language: "Язык", myRecordings: "Мои записи", xpBadges: "XP и значки", party: "Вечеринка", inviteFriends: "Пригласить друзей", paymentSuccess: "Покупка успешна! Кредиты добавлены.", paymentCancelled: "Покупка отменена. Можно купить в любое время.", paymentError: "Ошибка платежа. Кредиты будут добавлены автоматически при следующем входе.",
+      credits: "Кредиты", buyCredits: "Купить кредиты", language: "Язык", myRecordings: "Мои записи", xpBadges: "XP и значки", party: "Вечеринка", inviteFriends: "Пригласить друзей", challenges: "Челленджи", feed: "Сообщество", paymentSuccess: "Покупка успешна! Кредиты добавлены.", paymentCancelled: "Покупка отменена. Можно купить в любое время.", paymentError: "Ошибка платежа. Кредиты будут добавлены автоматически при следующем входе.",
     },
     upload: {
       title: "Создать новое Karaoke",
@@ -919,7 +921,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Clasificación", history: "Historial",
       createKaraoke: "Crear Karaoke", login: "Iniciar sesión", logout: "Cerrar sesión",
-      credits: "Créditos", buyCredits: "Comprar créditos", language: "Idioma", myRecordings: "Mis Grabaciones", xpBadges: "XP e Insignias", party: "Fiesta", inviteFriends: "Invitar amigos", paymentSuccess: "¡Compra exitosa! Créditos añadidos.", paymentCancelled: "Compra cancelada. Puedes comprar en cualquier momento.", paymentError: "Error de pago. Los créditos se añadirán automáticamente en el próximo inicio de sesión.",
+      credits: "Créditos", buyCredits: "Comprar créditos", language: "Idioma", myRecordings: "Mis Grabaciones", xpBadges: "XP e Insignias", party: "Fiesta", inviteFriends: "Invitar amigos", challenges: "Desafíos", feed: "Comunidad", paymentSuccess: "¡Compra exitosa! Créditos añadidos.", paymentCancelled: "Compra cancelada. Puedes comprar en cualquier momento.", paymentError: "Error de pago. Los créditos se añadirán automáticamente en el próximo inicio de sesión.",
     },
     upload: {
       title: "Crear nuevo Karaoke",
@@ -1098,7 +1100,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Classement", history: "Historique",
       createKaraoke: "Créer Karaoké", login: "Se connecter", logout: "Se déconnecter",
-      credits: "Crédits", buyCredits: "Acheter des crédits", language: "Langue", myRecordings: "Mes Enregistrements", xpBadges: "XP et Badges", party: "Fête", inviteFriends: "Inviter des amis", paymentSuccess: "Achat réussi ! Crédits ajoutés.", paymentCancelled: "Achat annulé. Vous pouvez acheter à tout moment.", paymentError: "Erreur de paiement. Les crédits seront ajoutés à la prochaine connexion.",
+      credits: "Crédits", buyCredits: "Acheter des crédits", language: "Langue", myRecordings: "Mes Enregistrements", xpBadges: "XP et Badges", party: "Fête", inviteFriends: "Inviter des amis", challenges: "Défis", feed: "Communauté", paymentSuccess: "Achat réussi ! Crédits ajoutés.", paymentCancelled: "Achat annulé. Vous pouvez acheter à tout moment.", paymentError: "Erreur de paiement. Les crédits seront ajoutés à la prochaine connexion.",
     },
     upload: {
       title: "Créer un nouveau Karaoké",
@@ -1277,7 +1279,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Rangliste", history: "Verlauf",
       createKaraoke: "Karaoke erstellen", login: "Anmelden", logout: "Abmelden",
-      credits: "Guthaben", buyCredits: "Guthaben kaufen", language: "Sprache", myRecordings: "Meine Aufnahmen", xpBadges: "XP & Abzeichen", party: "Party", inviteFriends: "Freunde einladen", paymentSuccess: "Kauf erfolgreich! Guthaben gutgeschrieben.", paymentCancelled: "Kauf abgebrochen. Jederzeit kaufen möglich.", paymentError: "Zahlungsfehler. Guthaben wird beim nächsten Login gutgeschrieben.",
+      credits: "Guthaben", buyCredits: "Guthaben kaufen", language: "Sprache", myRecordings: "Meine Aufnahmen", xpBadges: "XP & Abzeichen", party: "Party", inviteFriends: "Freunde einladen", challenges: "Challenges", feed: "Community", paymentSuccess: "Kauf erfolgreich! Guthaben gutgeschrieben.", paymentCancelled: "Kauf abgebrochen. Jederzeit kaufen möglich.", paymentError: "Zahlungsfehler. Guthaben wird beim nächsten Login gutgeschrieben.",
     },
     upload: {
       title: "Neues Karaoke erstellen",
@@ -1456,7 +1458,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "ランキング", history: "履歴",
       createKaraoke: "カラオケ作成", login: "ログイン", logout: "ログアウト",
-      credits: "クレジット", buyCredits: "クレジット購入", language: "言語", myRecordings: "マイ録音", xpBadges: "XP＆バッジ", party: "パーティー", inviteFriends: "友達を招待", paymentSuccess: "購入成功！クレジットが追加されました。", paymentCancelled: "購入がキャンセルされました。いつでも購入可能。", paymentError: "支払いエラー。次回ログイン時に自動追加されます。",
+      credits: "クレジット", buyCredits: "クレジット購入", language: "言語", myRecordings: "マイ録音", xpBadges: "XP＆バッジ", party: "パーティー", inviteFriends: "友達を招待", challenges: "チャレンジ", feed: "コミュニティ", paymentSuccess: "購入成功！クレジットが追加されました。", paymentCancelled: "購入がキャンセルされました。いつでも購入可能。", paymentError: "支払いエラー。次回ログイン時に自動追加されます。",
     },
     upload: {
       title: "新しいカラオケを作成",
@@ -1635,7 +1637,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "排行榜", history: "历史",
       createKaraoke: "创建卡拉OK", login: "登录", logout: "退出",
-      credits: "积分", buyCredits: "购买积分", language: "语言", myRecordings: "我的录音", xpBadges: "XP和徽章", party: "派对", inviteFriends: "邀请好友", paymentSuccess: "购买成功！积分已添加。", paymentCancelled: "购买已取消。随时可以购买。", paymentError: "支付错误。积分将在下次登录时自动添加。",
+      credits: "积分", buyCredits: "购买积分", language: "语言", myRecordings: "我的录音", xpBadges: "XP和徽章", party: "派对", inviteFriends: "邀请好友", challenges: "挑战", feed: "社区", paymentSuccess: "购买成功！积分已添加。", paymentCancelled: "购买已取消。随时可以购买。", paymentError: "支付错误。积分将在下次登录时自动添加。",
     },
     upload: {
       title: "创建新卡拉OK",
@@ -1814,7 +1816,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "순위", history: "기록",
       createKaraoke: "노래방 만들기", login: "로그인", logout: "로그아웃",
-      credits: "크레딧", buyCredits: "크레딧 구매", language: "언어", myRecordings: "내 녹음", xpBadges: "XP & 배지", party: "파티", inviteFriends: "친구 초대", paymentSuccess: "구매 성공! 크레딧이 추가되었습니다.", paymentCancelled: "구매가 취소되었습니다. 언제든 구매 가능.", paymentError: "결제 오류. 다음 로그인 시 자동 추가됩니다.",
+      credits: "크레딧", buyCredits: "크레딧 구매", language: "언어", myRecordings: "내 녹음", xpBadges: "XP & 배지", party: "파티", inviteFriends: "친구 초대", challenges: "챌린지", feed: "커뮤니티", paymentSuccess: "구매 성공! 크레딧이 추가되었습니다.", paymentCancelled: "구매가 취소되었습니다. 언제든 구매 가능.", paymentError: "결제 오류. 다음 로그인 시 자동 추가됩니다.",
     },
     upload: {
       title: "새 노래방 만들기",
@@ -1993,7 +1995,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "อันดับ", history: "ประวัติ",
       createKaraoke: "สร้างคาราโอเกะ", login: "เข้าสู่ระบบ", logout: "ออกจากระบบ",
-      credits: "เครดิต", buyCredits: "ซื้อเครดิต", language: "ภาษา", myRecordings: "การบันทึกของฉัน", xpBadges: "XP และเหรียญ", party: "ปาร์ตี้", inviteFriends: "เชิญเพื่อน", paymentSuccess: "ซื้อสำเร็จ! เครดิตถูกเพิ่มแล้ว", paymentCancelled: "การซื้อถูกยกเลิก สามารถซื้อได้ทุกเมื่อ", paymentError: "ข้อผิดพลาดการชำระเงิน เครดิตจะถูกเพิ่มเมื่อเข้าสู่ระบบครั้งถัดไป",
+      credits: "เครดิต", buyCredits: "ซื้อเครดิต", language: "ภาษา", myRecordings: "การบันทึกของฉัน", xpBadges: "XP และเหรียญ", party: "ปาร์ตี้", inviteFriends: "เชิญเพื่อน", challenges: "ท้าทาย", feed: "ชุมชน", paymentSuccess: "ซื้อสำเร็จ! เครดิตถูกเพิ่มแล้ว", paymentCancelled: "การซื้อถูกยกเลิก สามารถซื้อได้ทุกเมื่อ", paymentError: "ข้อผิดพลาดการชำระเงิน เครดิตจะถูกเพิ่มเมื่อเข้าสู่ระบบครั้งถัดไป",
     },
     upload: {
       title: "สร้างคาราโอเกะใหม่",
@@ -2172,7 +2174,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Bảng xếp hạng", history: "Lịch sử",
       createKaraoke: "Tạo Karaoke", login: "Đăng nhập", logout: "Đăng xuất",
-      credits: "Điểm", buyCredits: "Mua điểm", language: "Ngôn ngữ", myRecordings: "Bản ghi của tôi", xpBadges: "XP & Huy hiệu", party: "Tiệc", inviteFriends: "Mời bạn bè", paymentSuccess: "Mua thành công! Tín dụng đã được thêm.", paymentCancelled: "Đã hủy mua. Bạn có thể mua bất cứ lúc nào.", paymentError: "Lỗi thanh toán. Tín dụng sẽ được thêm tự động khi đăng nhập lần sau.",
+      credits: "Điểm", buyCredits: "Mua điểm", language: "Ngôn ngữ", myRecordings: "Bản ghi của tôi", xpBadges: "XP & Huy hiệu", party: "Tiệc", inviteFriends: "Mời bạn bè", challenges: "Thử thách", feed: "Cộng đồng", paymentSuccess: "Mua thành công! Tín dụng đã được thêm.", paymentCancelled: "Đã hủy mua. Bạn có thể mua bất cứ lúc nào.", paymentError: "Lỗi thanh toán. Tín dụng sẽ được thêm tự động khi đăng nhập lần sau.",
     },
     upload: {
       title: "Tạo Karaoke mới",
@@ -2351,7 +2353,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Ranggo", history: "Kasaysayan",
       createKaraoke: "Gumawa ng Karaoke", login: "Mag-sign in", logout: "Mag-sign out",
-      credits: "Credits", buyCredits: "Bumili ng Credits", language: "Wika", myRecordings: "Mga Recording Ko", xpBadges: "XP at Badges", party: "Party", inviteFriends: "Mag-imbita ng kaibigan", paymentSuccess: "Matagumpay ang pagbili! Na-add na ang credits.", paymentCancelled: "Na-cancel ang pagbili. Pwede kang bumili kahit kailan.", paymentError: "Error sa pagbayad. Awtomatikong madadagdag ang credits sa susunod na login.",
+      credits: "Credits", buyCredits: "Bumili ng Credits", language: "Wika", myRecordings: "Mga Recording Ko", xpBadges: "XP at Badges", party: "Party", inviteFriends: "Mag-imbita ng kaibigan", challenges: "Challenges", feed: "Komunidad", paymentSuccess: "Matagumpay ang pagbili! Na-add na ang credits.", paymentCancelled: "Na-cancel ang pagbili. Pwede kang bumili kahit kailan.", paymentError: "Error sa pagbayad. Awtomatikong madadagdag ang credits sa susunod na login.",
     },
     upload: {
       title: "Gumawa ng Bagong Karaoke",
@@ -2530,7 +2532,7 @@ const LANGS: Record<SupportedLang, Translations> = {
     nav: {
       leaderboard: "Peringkat", history: "Riwayat",
       createKaraoke: "Buat Karaoke", login: "Masuk", logout: "Keluar",
-      credits: "Kredit", buyCredits: "Beli Kredit", language: "Bahasa", myRecordings: "Rekaman Saya", xpBadges: "XP & Lencana", party: "Pesta", inviteFriends: "Undang teman", paymentSuccess: "Pembelian berhasil! Kredit telah ditambahkan.", paymentCancelled: "Pembelian dibatalkan. Anda bisa membeli kapan saja.", paymentError: "Kesalahan pembayaran. Kredit akan ditambahkan otomatis saat login berikutnya.",
+      credits: "Kredit", buyCredits: "Beli Kredit", language: "Bahasa", myRecordings: "Rekaman Saya", xpBadges: "XP & Lencana", party: "Pesta", inviteFriends: "Undang teman", challenges: "Tantangan", feed: "Komunitas", paymentSuccess: "Pembelian berhasil! Kredit telah ditambahkan.", paymentCancelled: "Pembelian dibatalkan. Anda bisa membeli kapan saja.", paymentError: "Kesalahan pembayaran. Kredit akan ditambahkan otomatis saat login berikutnya.",
     },
     upload: {
       title: "Buat Karaoke Baru",
