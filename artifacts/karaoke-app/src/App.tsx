@@ -132,8 +132,8 @@ function Router() {
       </a>
 
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5" />
+        <div className="w-full h-full" style={{ background: "hsl(240 15% 3%)" }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/3" />
       </div>
       <Navbar />
       <main id="main-content" className="flex-1 w-full" tabIndex={-1}>

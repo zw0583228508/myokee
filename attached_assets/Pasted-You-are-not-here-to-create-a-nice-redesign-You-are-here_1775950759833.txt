@@ -1,0 +1,425 @@
+You are not here to create a “nice redesign.”
+You are here to perform a complete visual transformation of my entire karaoke platform into a world-class, unforgettable, premium, futuristic entertainment product.
+
+This must feel like a massive leap.
+Not an improvement.
+Not a polish.
+Not a cleanup.
+A total design evolution.
+
+The current product must be reimagined visually from top to bottom as a bold, immersive, cinematic, music-driven digital universe.
+It should instantly feel more premium, more emotional, more addictive, more energetic, more iconic, and much more advanced.
+
+Important:
+
+Focus on visual design only
+Do not rewrite copy
+Do not change content strategy
+Do not focus on backend or technical architecture
+Do not give me generic SaaS design
+Do not make it minimal in a boring way
+Do not play safe
+Push the visuals to an elite level
+
+I want a complete redesign of all pages, all flows, all states, all major components, and the entire visual language of the platform.
+
+The result should feel like a fusion of:
+
+premium music product
+cinematic AI platform
+viral social entertainment experience
+immersive performance stage
+luxury digital product with mass-market appeal
+
+The platform should feel:
+
+explosive
+premium
+emotionally alive
+futuristic
+visually addictive
+globally ambitious
+polished to an extreme level
+original and brand-defining
+
+This should not look like a standard karaoke website.
+This should look like the future of karaoke, performance, music interaction, and AI entertainment.
+
+Core visual mission
+
+Build a complete visual identity system for the entire product.
+Everything must feel like it belongs to one powerful, coherent, unforgettable universe.
+
+The design language should be based on:
+
+stage energy
+sound waves
+rhythm
+cinematic lighting
+neon atmosphere
+AI magic
+music motion
+glowing performance environments
+social excitement
+premium dark-mode luxury
+digital spectacle with refined restraint
+
+Avoid:
+
+flat SaaS templates
+generic startup gradients
+childish gaming visuals
+random flashy chaos
+cheap nightclub feeling
+inconsistent component styling
+boring section repetition
+empty dark screens with no atmosphere
+
+I want the interface to feel like it is alive.
+
+Global design direction
+
+Use a rich premium dark visual foundation with strategic, unforgettable accent colors.
+The platform should feel immersive and high-energy, but also controlled and refined.
+
+Use:
+
+deep luxurious dark backgrounds
+dramatic contrast
+layered surfaces
+controlled glassmorphism
+cinematic glows
+rich shadows
+subtle reflections
+light bloom
+elegant transparency
+visual depth everywhere
+motion-inspired composition
+dynamic page rhythm
+
+Accent colors can include:
+
+electric purple
+vivid magenta
+laser blue
+vibrant cyan
+occasional premium pink
+selective gold highlights if used tastefully
+
+Accent colors must be used strategically to create emotional impact, highlight actions, and bring the interface to life.
+Do not create visual overload.
+Do not create color noise.
+
+Every important surface, button, panel, player, and interaction should feel custom-designed.
+Nothing should feel default.
+Nothing should feel templated.
+Nothing should feel forgettable.
+
+Typography and hierarchy
+
+The typography must feel premium, modern, high-confidence, and globally appealing.
+It should support the feeling of a major consumer entertainment product.
+
+Create strong hierarchy across all pages:
+
+large cinematic headlines where appropriate
+elegant section titles
+highly readable interface text
+premium spacing rhythm
+clear interactive hierarchy
+visual balance between intensity and usability
+
+Typography should help the product feel elevated, not ordinary.
+
+Motion direction
+
+Think like a high-end motion designer, not just a static UI designer.
+
+The platform should feel fluid, reactive, and alive through motion.
+Use motion to amplify excitement and premium quality.
+
+Incorporate:
+
+hover elevation
+gentle parallax
+glow pulses
+smooth state transitions
+animated gradients
+subtle waveform-inspired movement
+stage-light sweeps
+soft floating motion
+magnetic interactions where relevant
+beautiful loading and progress behaviors
+elegant page transitions
+reactive panels and depth shifts
+
+Motion must never feel cheap or gimmicky.
+It should feel expensive, cinematic, intentional, and addictive.
+
+Redesign the entire platform page by page
+
+You must redesign every major page and every major product flow so the whole platform feels transformed.
+
+1. Landing page / homepage
+
+Completely redesign the homepage into a dramatic, high-conviction visual experience.
+
+Requirements:
+
+a spectacular hero section that immediately communicates music, AI, performance, energy, and premium product quality
+a hero that feels screenshot-worthy and iconic
+dynamic section flow from top to bottom
+varied composition, not stacked repetitive blocks
+immersive backgrounds and visual transitions
+beautiful presentation of product capabilities
+social proof areas designed with energy and authority
+visual storytelling that makes the product feel huge
+
+The homepage should feel like an event, not just a website.
+
+2. Upload page / song submission experience
+
+Redesign the upload flow so it feels exciting, premium, and powerful.
+
+Requirements:
+
+upload zones should feel elegant and futuristic, not like standard file inputs
+drag-and-drop areas should feel branded and immersive
+states for hover, drag, processing, success, and error must all feel polished
+support for different upload types should feel beautifully organized
+the entire upload experience should feel like the user is initiating something magical and high-tech
+
+Uploading a song should feel like entering a production studio of the future.
+
+3. Processing / progress page
+
+Turn the processing experience into something visually stunning.
+
+Requirements:
+
+progress states must feel alive and satisfying
+show the AI pipeline in a premium, animated, music-reactive way
+transform waiting time into a visually engaging experience
+each stage of processing should have a distinct but unified visual treatment
+loading bars, step indicators, glow effects, skeleton states, and animated panels should feel world-class
+
+Do not let this page feel like a dead waiting room.
+It should feel like the system is performing advanced creative magic in real time.
+
+4. Karaoke player page
+
+Redesign the karaoke playback experience into a cinematic music interface.
+
+Requirements:
+
+player layout should feel immersive and premium
+lyrics display should feel elegant, dramatic, and performance-oriented
+timing visuals should feel alive and musical
+background surfaces should support emotion and immersion
+controls should feel custom, tactile, beautiful, and highly polished
+visual balance between lyrics, playback controls, artwork, and performance atmosphere
+every playback state should feel refined
+
+This page should feel like a stage, not just a media player.
+
+5. Recording experience
+
+Redesign the recording flow to feel exciting, serious, high-energy, and premium.
+
+Requirements:
+
+recording states should feel dynamic and emotionally charged
+microphone-related UI should feel powerful and beautiful
+the user should feel like they are stepping into a digital performance booth
+level meters, timing indicators, voice effects areas, and recording controls should all feel custom and immersive
+visual feedback during recording must feel alive and reactive
+
+The recording experience should make the user feel like a performer.
+
+6. Results / export / final output page
+
+Redesign the final result experience so the payoff feels huge.
+
+Requirements:
+
+final outputs should feel celebratory, premium, and satisfying
+video preview, audio preview, export actions, and sharing actions should feel highly elevated
+completion states should feel rewarding
+action buttons should feel irresistible and polished
+this page should visually communicate: “something impressive was just created”
+
+The result page should feel like a reveal moment.
+
+7. Leaderboard / social / challenge pages
+
+Redesign all social and competitive areas into energetic, premium, clean, and addictive spaces.
+
+Requirements:
+
+make leaderboards visually intense but not messy
+rankings should feel important and exciting
+avatars, scores, badges, challenges, and invitations should feel part of a strong design language
+social interactions should feel dynamic and alive
+friend challenges and party-style flows should feel playful but premium
+
+This should feel socially magnetic, not cluttered.
+
+8. User profile / account / personal area
+
+Redesign the user’s personal area to feel prestigious, modern, and engaging.
+
+Requirements:
+
+profile surfaces should feel layered and premium
+achievements, history, saved songs, recordings, and activity should feel beautifully structured
+profile should feel like a personal performance identity hub
+stats, history cards, and personal content areas should feel polished and elevated
+
+The personal area should make users feel invested in their identity inside the platform.
+
+9. Pricing / upgrade / premium pages
+
+Redesign all payment and upgrade areas so they feel premium and desirable, never cheap.
+
+Requirements:
+
+pricing cards should feel luxurious, clean, modern, and high-conviction
+premium plans should feel aspirational
+upgrade CTAs should feel elegant and powerful
+value hierarchy should be visually obvious
+visual treatment should support conversion through quality and confidence, not pressure
+
+The premium experience must look worth paying for before the user even reads the details.
+
+10. Empty states, success states, error states, and system feedback
+
+Do not ignore system states.
+
+Redesign:
+
+empty states
+no results states
+loading states
+success confirmations
+warning states
+errors
+disabled states
+hover/focus/active states
+
+All of them must feel branded, polished, and part of the same visual universe.
+
+Even the smallest state must feel intentional.
+
+Component system redesign
+
+Redesign the entire UI component library and visual system.
+
+This includes:
+
+buttons
+cards
+upload boxes
+forms
+toggles
+tabs
+modals
+drawers
+dropdowns
+tooltips
+badges
+progress bars
+navigation
+media controls
+user chips
+avatars
+score displays
+notification surfaces
+panels
+tables/lists if they exist
+search/filter areas
+icons and icon containers
+
+Every component should feel:
+
+custom
+tactile
+premium
+cohesive
+elegant
+memorable
+visually alive
+
+Buttons should not feel generic.
+Cards should not feel flat.
+Panels should not feel default.
+Everything should feel art-directed.
+
+Backgrounds, surfaces, and atmosphere
+
+Design rich background systems across the product.
+Different pages can have different moods, but they must belong to one unified world.
+
+Use a mix of:
+
+deep gradients
+ambient glows
+subtle particle environments
+waveform textures
+stage-light beams
+blurred energy fields
+elegant overlays
+layered depth
+soft noise/grain if tasteful
+premium dark materials
+
+Every page should have atmosphere.
+No page should feel empty.
+No page should feel visually dead.
+
+Mobile and desktop
+
+The redesign must be extraordinary on both desktop and mobile.
+
+Requirements:
+
+maintain drama and premium feel on smaller screens
+adapt layout intelligently, not just by stacking blocks
+keep motion and energy in mobile-friendly ways
+preserve hierarchy and immersive quality
+make touch interactions feel polished and satisfying
+
+Mobile should still feel like a premium entertainment product, not a stripped-down fallback.
+
+Output requirements
+
+Deliver a full redesign direction for the entire platform.
+
+You must provide:
+
+the complete visual direction
+the color system
+the typography direction
+the spacing rhythm
+the surface and depth system
+the glow and lighting logic
+the motion language
+the component style language
+the iconography direction
+the background treatment system
+the page-by-page redesign approach
+the state-by-state visual behavior
+recommendations for how to make the whole product feel iconic and premium
+
+Do not give a shallow summary.
+Do not give a safe redesign.
+Do not give a generic design system.
+
+I want a full-platform visual reinvention.
+
+Final standard:
+The result should feel like a top-tier global product that could define the future of AI karaoke.
+It must feel ambitious, cinematic, premium, emotional, polished, addictive, and impossible to ignore.
+
+Surprise me.
+Push hard.
+Make it unforgettable.

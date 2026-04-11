@@ -65,13 +65,13 @@ function StageBeams() {
 
 function FloatingOrbs() {
   return (
-    <>
-      <div className="absolute top-[10%] left-[8%] w-80 h-80 bg-violet-600/20 animate-float-slow animate-glow-breathe animate-orb-morph" />
-      <div className="absolute top-[35%] right-[5%] w-64 h-64 bg-blue-500/15 animate-float-medium animate-glow-breathe animate-orb-morph" style={{ animationDelay: "2s" }} />
-      <div className="absolute bottom-[15%] left-[25%] w-48 h-48 bg-fuchsia-500/12 animate-float-reverse animate-glow-breathe animate-orb-morph" style={{ animationDelay: "4s" }} />
-      <div className="absolute top-[55%] right-[30%] w-36 h-36 bg-cyan-400/10 animate-float-slow animate-orb-morph" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-[8%] right-[20%] w-28 h-28 bg-pink-500/10 animate-float-medium animate-orb-morph" style={{ animationDelay: "3s" }} />
-    </>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute top-[10%] left-[8%] w-80 h-80 bg-violet-600/15 animate-float-slow animate-glow-breathe animate-orb-morph" />
+      <div className="absolute top-[35%] right-[10%] w-64 h-64 bg-blue-500/10 animate-float-medium animate-glow-breathe animate-orb-morph" style={{ animationDelay: "2s" }} />
+      <div className="absolute bottom-[15%] left-[25%] w-48 h-48 bg-fuchsia-500/8 animate-float-reverse animate-glow-breathe animate-orb-morph" style={{ animationDelay: "4s" }} />
+      <div className="absolute top-[55%] right-[35%] w-36 h-36 bg-cyan-400/8 animate-float-slow animate-orb-morph" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-[8%] right-[25%] w-28 h-28 bg-pink-500/8 animate-float-medium animate-orb-morph" style={{ animationDelay: "3s" }} />
+    </div>
   );
 }
 
@@ -284,15 +284,16 @@ export default function Home() {
 
       {/* ═══════════ HERO ═══════════ */}
       <section className="relative min-h-[75vh] sm:min-h-[95vh] flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&h=1080&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-30"
-            style={{ filter: "saturate(0.5) brightness(0.5) contrast(1.1)" }}
+            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1920&h=1080&fit=crop&q=80"
+            alt="" className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+            style={{ filter: "saturate(0.7) brightness(0.5) contrast(1.2)" }}
           />
-          <div className="absolute inset-0 bg-[#040410]/70" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-transparent to-accent/6" />
+          <div className="absolute inset-0 bg-[#040410]/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
           <FloatingOrbs />
           <StageBeams />
           <GridPattern />
@@ -300,26 +301,32 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-8 sm:pb-12">
-          <div className="hero-text-line inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-sm text-white/50 mb-6 sm:mb-10 backdrop-blur-xl">
+          <div className="hero-text-line inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-sm text-white/60 mb-6 sm:mb-10 backdrop-blur-xl shadow-lg shadow-black/20">
             <MusicBars />
             {t.home.hero.badge}
           </div>
 
+          <div className="hero-text-line flex justify-center mb-6 sm:mb-8">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-primary via-accent to-pink-500 flex items-center justify-center shadow-[0_0_60px_rgba(147,51,234,0.4),0_0_120px_rgba(147,51,234,0.15)] animate-glow-pulse">
+              <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-white drop-shadow-lg" />
+            </div>
+          </div>
+
           <h1 className="text-5xl sm:text-7xl lg:text-[5.5rem] font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-8">
-            <span className="hero-text-line block text-white drop-shadow-[0_0_40px_rgba(147,51,234,0.15)]">{t.home.hero.headline1}</span>
+            <span className="hero-text-line block text-white drop-shadow-[0_0_40px_rgba(147,51,234,0.2)]">{t.home.hero.headline1}</span>
             <span className="hero-text-line block animated-gradient-text py-1" style={{ fontSize: "inherit", lineHeight: "inherit" }}>
               {t.home.hero.headline2}
             </span>
             <span className="hero-text-line block text-white/90">{t.home.hero.headline3}</span>
           </h1>
 
-          <p className="hero-text-line text-base sm:text-xl text-white/40 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed">
+          <p className="hero-text-line text-base sm:text-xl text-white/50 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed">
             {t.home.hero.sub}
           </p>
 
           <div className="hero-text-line flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-12">
             {t.home.hero.chips.map((f: string) => (
-              <span key={f} className="px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-white/40 backdrop-blur-sm hover:bg-white/[0.08] hover:border-white/15 hover:text-white/70 transition-all duration-300 cursor-default">
+              <span key={f} className="px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-sm text-white/50 backdrop-blur-sm hover:bg-white/[0.1] hover:border-white/20 hover:text-white/80 transition-all duration-300 cursor-default">
                 {f}
               </span>
             ))}
@@ -327,7 +334,7 @@ export default function Home() {
 
           <div className="hero-text-line flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
             <Link href="/upload">
-              <button className="btn-primary gap-2.5 px-10 py-4 rounded-2xl text-base">
+              <button className="btn-primary gap-2.5 px-10 py-4 rounded-2xl text-base shadow-[0_0_50px_rgba(147,51,234,0.3)]">
                 <Mic className="w-5 h-5 relative z-10" />
                 <span className="relative z-10">{t.home.hero.ctaCreate}</span>
               </button>
@@ -342,7 +349,7 @@ export default function Home() {
         </div>
 
         <button onClick={() => scrollTo("how-it-works")}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/15 hover:text-white/40 transition-colors duration-500">
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/20 hover:text-white/50 transition-colors duration-500">
           <ChevronDown className="w-5 h-5 animate-bounce" />
         </button>
       </section>
