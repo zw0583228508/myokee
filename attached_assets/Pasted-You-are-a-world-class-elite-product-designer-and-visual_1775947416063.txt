@@ -1,0 +1,210 @@
+You are a world-class elite product designer and visual design director.
+
+Redesign my karaoke website into a visually unforgettable, premium, explosive, futuristic entertainment experience that feels viral, global, addictive, and emotionally exciting.
+
+Important boundaries:
+
+Focus on graphic design, visual language, motion, layout, hierarchy, depth, color, surfaces, UI polish, and overall visual experience only
+Do not rewrite marketing copy
+Do not focus on SEO, business strategy, or backend
+Do not simplify it into a boring generic SaaS look
+The goal is to create a next-level visual identity that makes users instantly feel: “this is not a normal karaoke site”
+
+Design goals:
+
+Make it feel like a fusion of:
+premium music platform
+cinematic AI product
+viral social entertainment app
+immersive performance stage
+The design should feel:
+bold
+luxurious
+futuristic
+high-energy
+emotionally alive
+addictive
+highly polished
+globally appealing
+It must look like a product that could become huge internationally
+
+Creative direction:
+
+Build a strong visual identity around:
+music
+spotlight performance
+stage energy
+sound waves
+neon glow
+animated rhythm
+cinematic lighting
+AI magic
+party atmosphere
+modern premium UI
+Avoid cheap nightclub chaos
+Avoid childish gaming aesthetics
+Avoid flat boring enterprise design
+Avoid generic startup gradients with no personality
+
+Visual style:
+
+Create an art direction that feels like a “karaoke universe”
+Use layered depth, glassmorphism where appropriate, rich gradients, light bloom, subtle reflections, glow effects, rich shadows, and premium dark surfaces
+The dark theme should feel expensive, not empty
+Add contrast with vibrant accent colors inspired by music energy and performance lighting
+Use color dramatically but with restraint and sophistication
+The interface should feel immersive, like stepping onto a digital performance stage
+
+Color system:
+
+Primary base: deep luxurious dark tones
+Accent palette: electric neon tones used strategically
+Think in terms of:
+electric purple
+hot magenta
+laser blue
+vibrant cyan
+selective gold or pink highlights
+Use accent colors to create emotional peaks, not visual mess
+Ensure the palette feels premium and memorable
+Add glow logic: important elements can emit soft light as if the interface is alive
+
+Layout direction:
+
+Redesign the full landing experience with a dramatic visual flow
+The page should feel dynamic from the first screen to the last
+Create strong section transitions and variety in composition
+Avoid repetitive blocks stacked with identical padding
+Mix:
+large cinematic hero areas
+asymmetric compositions
+layered cards
+floating visual elements
+oversized media containers
+strong depth between sections
+The page should feel like a journey, not a template
+
+Hero section:
+
+Make the hero absolutely insane visually
+It should instantly communicate music, AI, motion, and performance energy
+Include a premium central visual system that could feature:
+animated karaoke screen concept
+glowing microphone/stage energy
+waveform/rhythm visualization
+floating media panels
+cinematic light beams
+music-reactive UI layers
+Hero should feel alive even before interaction
+Build a world-class first impression
+The above-the-fold section must look screenshot-worthy and share-worthy
+
+UI components:
+
+Redesign all UI components to feel custom, premium, and brand-defining
+Buttons should feel tactile, vibrant, and addictive to click
+Cards should have depth, lighting, hierarchy, and refined corners
+Input/upload areas should feel exciting and premium, not like generic file upload boxes
+Progress states should feel beautiful and musical
+Media player areas should feel cinematic and elegant
+Leaderboard / social areas should feel energetic and competitive without becoming messy
+Modals, panels, tabs, toggles, and status badges should all feel part of one cohesive design language
+
+Motion and interaction:
+
+Introduce high-end motion design thinking throughout
+Add tasteful motion, not gimmicks
+Use:
+soft parallax
+glow pulses
+hover elevation
+magnetic interactions
+animated gradients
+waveform-inspired movement
+subtle stage-light sweeps
+smooth transitions between sections
+The site should feel reactive, fluid, and alive
+Every interaction should increase excitement
+Motion should enhance premium quality, not distract from usability
+
+Imagery and graphics:
+
+Create or propose a consistent graphic system
+Use visual motifs such as:
+sound waves
+lyric timing lines
+stage lighting
+floating particles
+abstract audio energy
+performance silhouettes
+cinematic frame overlays
+subtle music equalizer patterns
+Graphics should feel custom-made for this product
+Avoid stock-looking illustrations
+Avoid random icons with mixed styles
+Everything should feel intentional and branded
+
+Depth and polish:
+
+Add micro-details that make the design feel expensive:
+edge highlights
+layered transparency
+ambient glow
+controlled blur
+polished surfaces
+refined spacing rhythm
+perfect visual hierarchy
+elegant icon treatment
+premium loading skeletons
+sophisticated empty states
+The difference should be obvious: this must feel like top 0.1% product design quality
+
+Structure:
+
+Redesign these areas visually:
+homepage / landing page
+upload experience
+processing/progress experience
+karaoke playback area
+recording experience
+social / leaderboard areas
+user profile / personal area
+pricing / upgrade visual treatment
+Make all sections feel like one visual universe
+
+Mobile + desktop:
+
+The design must look exceptional on both desktop and mobile
+Mobile should not be a simplified afterthought
+Preserve premium feel, energy, and immersion on smaller screens
+Ensure spacing, scale, and motion are adapted beautifully
+
+Design references:
+
+Take inspiration from the visual confidence of the best music, entertainment, premium AI, and gaming-adjacent consumer products
+But do not copy any specific brand
+Create an original design language that could become iconic for this karaoke platform
+
+Output requirements:
+
+Produce a complete visual redesign direction
+Define:
+color palette
+typography direction
+spacing system
+card style
+button style
+surface system
+lighting/glow system
+animation direction
+iconography direction
+background treatment
+section-by-section design approach
+Show how the homepage should be structured visually
+Suggest specific visual treatments for hero, features, upload, player, and leaderboard sections
+Make the design feel premium, viral, futuristic, musical, and unforgettable
+
+Final standard:
+This should not look like “a nice website redesign.”
+It should look like a category-defining visual leap.
+It should feel so visually strong that users immediately sense ambition, scale, innovation, and fun.

@@ -38,16 +38,16 @@ export function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/50 backdrop-blur-2xl"
+        className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-background/40 backdrop-blur-2xl"
         role="banner"
       >
         <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group transition-all duration-300" aria-label="MYOUKEE">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-105 transition-all" aria-hidden="true">
+          <Link href="/" className="flex items-center gap-2.5 group transition-all duration-300" aria-label="MYOUKEE">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-110 transition-all duration-300" aria-hidden="true">
               <Mic2 className="h-5 w-5 text-white" />
             </div>
             <span className="font-display text-xl font-bold tracking-wide">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">MY</span><span className="text-white">OUKEE</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary animate-gradient-shift" style={{ backgroundSize: "200% 200%" }}>MY</span><span className="text-white">OUKEE</span>
             </span>
           </Link>
 
