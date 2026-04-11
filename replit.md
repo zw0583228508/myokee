@@ -1,7 +1,7 @@
 # MYOUKEE — AI Karaoke Generator
 
 ## Overview
-MYOUKEE is a full-stack AI karaoke generator that transforms audio or video files into karaoke MP4s with synchronized, animated lyrics. It leverages AI for vocal separation and transcription, supports multiple languages including automatic RTL/LTR layout, and offers a personalized experience with optional animated user avatars. The project aims to provide a high-quality, accessible karaoke creation tool for a global audience. Key capabilities include karaoke generation from user uploads, a comprehensive party mode for group singing, and a gamification system to enhance user engagement.
+MYOUKEE is a full-stack AI karaoke generator that transforms audio or video files into karaoke MP4s with synchronized, animated lyrics. It uses AI for vocal separation and transcription, supports multiple languages including automatic RTL/LTR layout, and offers a personalized experience with optional animated user avatars. The project aims to provide a high-quality, accessible karaoke creation tool for a global audience, featuring karaoke generation, a party mode for group singing, and a gamification system for user engagement.
 
 ## User Preferences
 I want iterative development. I prefer detailed explanations. Ask before making major changes. Do not make changes to the `artifacts/karaoke-mobile/` folder. Do not make changes to the `lib/api-spec/` folder.
@@ -9,82 +9,28 @@ I want iterative development. I prefer detailed explanations. Ask before making 
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motion, supporting PWA functionality and full internationalization for 14 languages. The design prioritizes responsiveness across devices, featuring optimized layouts, mobile-specific fixes, and dynamic viewport handling. Visuals include a cinematic karaoke video style with animated gradients and specific lyric layouts for readability. RTL layout is fully supported with critical fixes to prevent display issues. A full-page login screen offers Google OAuth and email/password options, requiring acceptance of legal terms. The home page has a clean 3-section structure: Hero, How it Works (3 steps), and Features (unified bento grid with singing, AI, avatar hero cards + 6 feature cards for Party Mode, Battle & Duet, Levels/Badges, Export MP4, Performance Analysis, Lyrics Editor). No duplicate content across sections.
+The frontend is built with React, Vite, TailwindCSS, shadcn/ui, and Framer Motion, supporting PWA and full internationalization for 14 languages. It prioritizes responsive design across devices, with optimized layouts and RTL layout support. The visual style is cinematic with animated gradients and specific lyric layouts for readability. A full-page login supports Google OAuth and email/password. The home page features a 3-section structure: Hero, How it Works, and Features (unified bento grid with singing, AI, avatar hero cards + 6 feature cards for Party Mode, Battle & Duet, Levels/Badges, Export MP4, Performance Analysis, Lyrics Editor).
 
 ### Technical Implementations
-The project uses a monorepo structure with pnpm workspaces for the React frontend (`karaoke-app`), Node.js Express API (`api-server`), and Python FastAPI processor (`karaoke-processor`). Authentication is handled via Google OAuth and email/password with `passport.js` and `bcrypt`. Data is managed with a PostgreSQL database and Drizzle ORM. Orval generates API clients and Zod schemas for type safety. A credit-based payment system is integrated with Stripe and PayPal. Advanced audio processing ensures precise vocal synchronization and applies baked-in vocal effects.
+The project uses a monorepo structure with pnpm workspaces for the React frontend (`karaoke-app`), Node.js Express API (`api-server`), and Python FastAPI processor (`karaoke-processor`). Authentication is handled via Google OAuth and email/password with `passport.js` and `bcrypt`. Data is managed with PostgreSQL and Drizzle ORM. Orval generates API clients and Zod schemas. A credit-based payment system is integrated with Stripe and PayPal. Advanced audio processing ensures precise vocal synchronization and applies baked-in vocal effects.
 
 ### Feature Specifications
-- **Karaoke Generation**: Upload audio/video -> AI (Demucs, faster-whisper) processes for vocal separation and transcription -> user edits -> generates MP4 with synchronized, animated lyrics and optional avatar.
+- **Karaoke Generation**: Processes user-uploaded audio/video using AI (Demucs, faster-whisper) for vocal separation and transcription, allowing user edits, and generating MP4s with synchronized, animated lyrics and optional avatars.
 - **Avatar Animation**: User profile photos are background-removed, enhanced, and integrated into videos.
-- **Content Management**: Multilingual legal pages.
-- **Copyright Confirmation**: Required user consent for uploaded audio.
-- **Watermarking**: MYOUKEE logo on all generated videos.
-- **Party Mode**: Features party rooms, a song queue with host controls, scoring and leaderboards, duet/battle modes, theme packs, social clip sharing, YouTube/gallery song picker, auto-playing videos, and a fullscreen party display, all with full i18n support.
-- **Gamification System**: XP-based progression with 30 level tiers, 22 badges across 5 tiers, 8 progress-based achievements, a global XP leaderboard (opt-in for performance sharing), and daily login streaks, with full i18n and anti-farming rate limiting.
-- **Purchase Receipt Emails**: Automatic email receipt sent after credit purchase via Stripe. Supports all 14 languages (en, he, ar, ru, es, fr, de, ja, zh, ko, th, vi, tl, id). Language is passed from frontend to Stripe metadata and used in email template. Email sending is non-blocking — failures don't affect credit fulfillment.
-- **Weekly Challenges & Tournaments**: Weekly challenge system with leaderboards. Tables: `challenges`, `challenge_entries`. API routes: `GET/POST /api/challenges`, `GET /api/challenges/:id`, `POST /api/challenges/:id/enter`. Frontend: `Challenges.tsx` page with challenge list, detail view, leaderboard. i18n for all 14 languages.
-- **Social Feed**: Follow system, performance likes/comments, user profiles. Tables: `follows`, `performance_likes`, `performance_comments`. API routes: `POST/DELETE /api/social/follow/:userId`, `GET /api/social/feed`, `GET /api/social/discover`, `POST/DELETE /api/social/like/:performanceId`, `POST /api/social/comment/:performanceId`, `GET /api/social/comments/:performanceId`, `GET /api/social/profile/:userId`. Frontend: `Feed.tsx` (discover + feed tabs), `Profile.tsx` (user profiles with stats, follow/unfollow). Added `like_count`/`comment_count` columns to `performances` table. Access control enforced: likes/comments require `is_public = true` or ownership.
-- **AI Vocal Coach**: Rule-based vocal coaching tips based on performance metrics (pitch, timing, coverage, overall). API routes: `GET /api/vocal-coach/:performanceId` (tips), `GET /api/vocal-coach/progress/me` (progress tracking). Frontend: `VocalCoach.tsx` component (tips + progress chart), `VocalCoachPage.tsx` (standalone progress page). Tips generated in English + Hebrew.
-- **Cloud Recording Save**: (Removed from UI) Mixed karaoke recordings feature was deprecated.
-- **Gallery Upload in Party**: Enables direct audio/video uploads from phone galleries within party rooms, processing them into the queue.
-- **Public Shared View**: `/shared/:id` page shows karaoke video publicly without authentication. Bypasses both consent gate and auth gate. Share buttons generate `/shared/:id` URLs. Includes CTA to create own karaoke.
-
-### Vocal Scoring Engine v2
-The performance scoring uses a multi-dimensional AI analysis on the server (Modal Labs):
-- **Pitch accuracy (octave-invariant)**: Detects if singer is in a different octave (±12/24 semitones) and auto-corrects before scoring. Uses cents-based error thresholds (50/100/200/300 cents).
-- **DTW temporal alignment**: Banded Dynamic Time Warping aligns the singer's pitch to the reference vocal, handling timing differences and tempo variations. Memory-efficient O(band×n) implementation.
-- **Melody contour matching**: Scores how well the singer follows the up/down shape of the melody, independent of absolute pitch.
-- **Per-note stability with vibrato detection**: Segments voiced regions into notes, measures pitch variance per note. Detects intentional vibrato (4-8 Hz oscillation) and treats it as a positive stability modifier.
-- **Onset timing precision**: Measures how precisely the singer starts each word relative to the reference lyrics.
-- **Expression/dynamics**: Correlates the singer's energy contour with the reference to measure dynamic expression.
-- **Audio preprocessing**: RMS normalization to -20dB + noise gate at -48dB before analysis.
-- **Overall formula**: 40% pitch + 25% timing + 15% stability + 10% contour + 10% expression.
-- **Artist match**: Weighted composite of all dimensions (no random component).
-
-### System Design Choices
-The processing pipeline uses a serial Demucs→Whisper flow to prevent OOM errors, with parallel pre-rendering to reduce wait times and automatic fallback for failed pre-renders. GPU-accelerated encoding (NVENC) is used where available, falling back to CPU. Job state is managed in-memory with temporary file storage. FFmpeg utilizes ASS for complex subtitle rendering. Comprehensive language support includes both RTL and LTR languages for UI and video subtitles. **RTL video subtitles** use per-word `\pos()` placement (right-to-left word order) with character reversal (`word[::-1]`) to compensate for libass rendering all characters LTR; `\kf` sweep on reversed chars produces correct RTL visual sweep. A **Whisper hallucination filter** (`_filter_hallucinations`) removes known phrases (e.g. "תודה רבה", "Thank you") from transcript boundaries, collapses ≥3 consecutive identical words, and strips interior hallucination bigrams. All FFmpeg calls (prerender, fast render, full render) have timeouts to prevent infinite hangs. Render progress uses an asymptotic curve (never stalls). Frontend detects stuck jobs (>5 min without update) and shows a retry button. The retry endpoint accepts stuck jobs (stale >120s). **Fast render (prerender upscale path) is skipped on CPU** — it hangs/times out consistently; full render is used directly instead (5x faster on CPU). Modal Labs deployment: `modal deploy artifacts/karaoke-processor/modal_app.py` (copy to /tmp first to avoid git lock).
-
-### Analytics Dashboard
-A dedicated analytics dashboard at `/analytics/` provides real-time insights into all platform data:
-- **Overview**: KPIs (total users, songs processed, credits purchased, active users, avg duration, performances, party rooms), user registrations & songs over time, revenue breakdown, credits distribution
-- **Users**: Top 50 users by activity with email, credits, job count
-- **Songs**: Recent 100 processed songs with user, duration, credits
-- **Performances**: Score distribution, top scores, performances over time with avg score
-- **Gamification**: XP stats, badge/achievement distribution, XP sources
-- **Referrals**: Total referrals, credits awarded, top referrers
-- **Parties**: Room stats, recent rooms with member/queue counts
-
-API routes: `artifacts/api-server/src/routes/analytics.ts` (10 endpoints under `/api/analytics/`)
-Frontend: `artifacts/analytics/` (React + Vite + Recharts + TanStack Table)
-
-### International SEO (i18n)
-Language-specific SEO landing pages at `/lang/{code}` (14 languages: he, en, ar, ru, es, fr, de, ja, zh, ko, th, vi, tl, id). Each has:
-- Full marketing content rendered at the URL (hero, how-it-works, features sections) using the translation system — no redirect
-- Dynamic SEO meta tags (title, description, canonical, OG, Twitter) set via `useEffect` per language, with per-language `SEO_META` map in `LangLanding.tsx`
-- Invalid language codes redirect to `/`; valid codes render content and set the language context
-- Full hreflang cluster in sitemap.xml linking all language variants
-- `robots.txt` allows `/lang/` crawling
-- UI translations managed via `uiTranslations.ts` (14 languages) with `useUITranslations()` hook for component-level UI strings
-
-### SEO Feature Landing Pages
-5 public feature landing pages at `/features/:slug` bypass consent gate and auth:
-- `/features/vocal-remover` — AI Vocal Remover (cyan/blue)
-- `/features/karaoke-from-any-song` — Karaoke Generator (violet/purple)
-- `/features/party-mode` — Party Mode (pink/rose)
-- `/features/lyrics-sync` — Auto Lyrics Sync (emerald/teal)
-- `/features/singing-score` — AI Singing Score & Vocal Coach (amber/orange)
-
-Each page includes: hero with icon + h1 + subtitle + CTA, key features grid, FAQ accordion (with FAQPage JSON-LD), BreadcrumbList JSON-LD, dynamic meta tags. English + Hebrew content. Component: `FeatureLanding.tsx`. Routes handled pre-auth in `App.tsx`.
-
-### SEO Infrastructure
-- `robots.txt`: Allows `/leaderboard`, `/xp`, `/challenges`, `/feed`, `/features/`, `/shared/`, `/lang/`; blocks `/api/`, `/login`, `/upload`, `/party`, `/history`
-- `sitemap.xml`: All 14 language variants + 5 feature pages + leaderboard/challenges/feed/xp/vocal-coach + legal pages
-- `index.html` JSON-LD graph: WebSite, Organization, FAQPage, SoftwareApplication, HowTo, VideoObject, ItemList (features)
-- SharedView: Dynamic VideoObject JSON-LD injected per shared karaoke video with song title, video URL, upload date
-- ConsentGate: Bypassed for `/shared/`, `/features/`, `/lang/` routes
-- Leaderboard/GamificationProfile: noindex removed (indexable pages)
-- Hidden SEO content section in index.html with multilingual feature links for crawler discoverability
+- **Party Mode**: Offers party rooms, a song queue with host controls, scoring and leaderboards, duet/battle modes, theme packs, social clip sharing, and YouTube/gallery song picker, all with full i18n support.
+- **Gamification System**: Includes XP-based progression (30 level tiers), 22 badges, 8 achievements, a global XP leaderboard, and daily login streaks, with i18n and anti-farming rate limiting.
+- **Purchase Receipt Emails**: Automatic multilingual email receipts sent after credit purchases via Stripe.
+- **Weekly Challenges & Tournaments (Stage 1 Complete)**: Weekly singing challenges with countdown timers, leaderboards, prize credits, performance-picker entry UI, and admin-only challenge creation (`ADMIN_EMAILS` env var). Full i18n for all 14 languages. Routes: `GET/POST /api/challenges`, `GET /api/challenges/:id`, `POST /api/challenges/:id/enter`. Frontend: `/challenges` page with `use-challenges.ts` hooks.
+- **Social Feed (Stage 1 Complete)**: Follow system, performance feed (personal + discover tabs), likes/comments, user profiles with stats. Full i18n for all 14 languages. Routes: `/api/social/follow/:userId`, `/api/social/feed`, `/api/social/like/:performanceId`, `/api/social/comment/:performanceId`, `/api/social/profile/:userId`. Frontend: `/community` feed page, `/profile/:userId` page, `use-social.ts` hooks.
+- **AI Vocal Coach (Stage 1 Complete)**: Rule-based vocal coaching tips per performance (pitch, timing, coverage, overall) with severity levels (praise/suggestion/warning). Progress tracking with score history chart. Tips integrated into VocalCoach page with performance selector. Full i18n for all 14 languages. Routes: `GET /api/vocal-coach/:performanceId`, `GET /api/vocal-coach/progress/me`. Frontend: `/vocal-coach` page, `VocalCoachTips` + `VocalCoachProgress` components, `use-vocal-coach.ts` hooks.
+- **Gallery Upload in Party**: Allows direct audio/video uploads from phone galleries within party rooms.
+- **Public Shared View**: Enables public viewing of karaoke videos via `/shared/:id` URLs without authentication.
+- **Vocal Scoring Engine v2**: Utilizes multi-dimensional AI analysis (Modal Labs) for pitch accuracy, DTW temporal alignment, melody contour matching, per-note stability (with vibrato detection), onset timing precision, and expression/dynamics. Audio preprocessing includes RMS normalization and noise gating.
+- **System Design Choices**: Processing pipeline uses serial Demucs→Whisper flow, parallel pre-rendering, and GPU-accelerated encoding with CPU fallback. Job state is in-memory with temporary file storage. FFmpeg uses ASS for complex subtitle rendering with full language support, including RTL video subtitles with per-word `\pos()` placement and character reversal. A Whisper hallucination filter removes unwanted text from transcript boundaries. FFmpeg calls have timeouts, and frontend detects and allows retrying stuck jobs.
+- **Analytics Dashboard**: Provides real-time insights into platform data at `/analytics/`, including KPIs, user activity, song processing, performances, gamification, referrals, and party room statistics.
+- **International SEO (i18n)**: Language-specific SEO landing pages at `/lang/{code}` with full marketing content, dynamic SEO meta tags, hreflang clusters in `sitemap.xml`, and `robots.txt` configuration.
+- **SEO Feature Landing Pages**: 5 public feature landing pages at `/features/:slug` for Vocal Remover, Karaoke Generator, Party Mode, Auto Lyrics Sync, and AI Singing Score & Vocal Coach, bypassing authentication and featuring dynamic meta tags and JSON-LD.
+- **SEO Infrastructure**: Includes `robots.txt` configuration, a comprehensive `sitemap.xml`, `index.html` JSON-LD graph, dynamic `VideoObject` JSON-LD for shared views, and bypassed consent gate for SEO-critical routes.
 
 ## External Dependencies
 
@@ -98,21 +44,13 @@ Each page includes: hero with icon + h1 + subtitle + CTA, key features grid, FAQ
 - **Database**: PostgreSQL
 - **Payment Gateways**:
     - PayPal (direct REST API v2)
-    - Lemon Squeezy (credit card payments, Merchant of Record — works with Israeli businesses)
+    - Lemon Squeezy (credit card payments, Merchant of Record)
 - **Authentication**:
     - Google OAuth
     - Email/Password (bcrypt)
     - Password Reset via email (Brevo SMTP)
-    - JWT tokens for cross-origin auth
+    - JWT tokens
 - **Email Service**: Brevo SMTP
 - **Other**:
     - FFmpeg (video generation)
     - Google Fonts (Montserrat, Noto Sans Hebrew, Noto Sans CJK SC)
-
-## Video Generation Visual Style
-- **Fonts**: Montserrat (Latin, bold cinematic look), Noto Sans Hebrew (RTL), Noto Sans CJK SC (CJK). All in `artifacts/karaoke-processor/fonts/`.
-- **ASS Subtitle Layout**: Sentence-based 2-line display (active line + next upcoming line). Active line at y=330 with cyan \\kf word sweep; upcoming line at y=420 dimmed. Same font size (54px) for both. No small-font context lines. 2 styles: Active, Upcoming. -0.15s timing offset for sync.
-- **Background**: 11 selectable styles — aurora (default), neon_pulse, fire_storm, ocean_deep, galaxy, sunset_vibes, matrix_rain, electric_storm, golden_luxury, cherry_blossom, cyber_punk. All generated via FFmpeg geq sine waves with clip(), gaussian blur, pre-rendered at 96×54 upscaled to 640×360 (tiny source + blur = fast + smooth). User picks style in TranscriptEditor before confirming video. Style stored in `bg_style.txt` per job; prerender regenerated if style changes. `_bg_filter()` defines all styles, `_bg_filter_only()` extracts background-only portion for full render, `_bg_waveform_colors()` extracts style-specific waveform colors.
-- **Waveform**: Style-specific colors (extracted from `_bg_filter`) in cline mode, sqrt scale.
-- **Avatar**: Only explicitly uploaded photos — Google profile photos are NOT auto-sent.
-- **Encoding**: NVENC: cq=30, maxrate 2.5M, profile high; CPU: libx264 ultrafast, crf=23 (no tune/profile — speed over size on CPU). Audio: AAC 96k. Prerender: ultrafast crf=28. FFmpeg timeout: 600s.

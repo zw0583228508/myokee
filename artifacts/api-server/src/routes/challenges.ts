@@ -145,6 +145,11 @@ router.post("/challenges/:id/enter", async (req: Request, res: Response) => {
 
 router.post("/challenges", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
+  const user = (req as any).user;
+  const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map((e: string) => e.trim().toLowerCase()).filter(Boolean);
+  if (!ADMIN_EMAILS.includes(user.email?.toLowerCase())) {
+    return res.status(403).json({ error: "Only admins can create challenges" });
+  }
   const { title, description, songName, jobId, startDate, endDate, prizeCredits } = req.body;
 
   if (!title || !startDate || !endDate) {

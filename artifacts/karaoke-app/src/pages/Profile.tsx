@@ -26,6 +26,18 @@ const T: Record<string, Record<string, string>> = {
     noPerf: "אין ביצועים פומביים עדיין",
     back: "חזרה",
   },
+  ar: { followers: "متابعون", following: "يتابع", performances: "عروض", follow: "متابعة", unfollow: "إلغاء المتابعة", level: "المستوى", noPerf: "لا توجد عروض عامة بعد", back: "رجوع" },
+  ko: { followers: "팔로워", following: "팔로잉", performances: "공연", follow: "팔로우", unfollow: "언팔로우", level: "레벨", noPerf: "아직 공개 공연이 없습니다", back: "뒤로" },
+  ja: { followers: "フォロワー", following: "フォロー中", performances: "パフォーマンス", follow: "フォロー", unfollow: "フォロー解除", level: "レベル", noPerf: "まだ公開パフォーマンスがありません", back: "戻る" },
+  zh: { followers: "粉丝", following: "关注", performances: "演出", follow: "关注", unfollow: "取消关注", level: "等级", noPerf: "还没有公开演出", back: "返回" },
+  es: { followers: "Seguidores", following: "Siguiendo", performances: "Actuaciones", follow: "Seguir", unfollow: "Dejar de seguir", level: "Nivel", noPerf: "No hay actuaciones públicas aún", back: "Volver" },
+  ru: { followers: "Подписчики", following: "Подписки", performances: "Выступления", follow: "Подписаться", unfollow: "Отписаться", level: "Уровень", noPerf: "Публичных выступлений пока нет", back: "Назад" },
+  fr: { followers: "Abonnés", following: "Abonnements", performances: "Performances", follow: "Suivre", unfollow: "Ne plus suivre", level: "Niveau", noPerf: "Pas encore de performances publiques", back: "Retour" },
+  de: { followers: "Follower", following: "Folgt", performances: "Auftritte", follow: "Folgen", unfollow: "Entfolgen", level: "Level", noPerf: "Noch keine öffentlichen Auftritte", back: "Zurück" },
+  th: { followers: "ผู้ติดตาม", following: "กำลังติดตาม", performances: "การแสดง", follow: "ติดตาม", unfollow: "เลิกติดตาม", level: "ระดับ", noPerf: "ยังไม่มีการแสดงสาธารณะ", back: "กลับ" },
+  vi: { followers: "Người theo dõi", following: "Đang theo dõi", performances: "Biểu diễn", follow: "Theo dõi", unfollow: "Bỏ theo dõi", level: "Cấp độ", noPerf: "Chưa có buổi biểu diễn công khai", back: "Quay lại" },
+  fil: { followers: "Mga Tagasunod", following: "Sinusundan", performances: "Mga Performance", follow: "Sundan", unfollow: "I-unfollow", level: "Antas", noPerf: "Wala pang pampublikong performance", back: "Bumalik" },
+  id: { followers: "Pengikut", following: "Mengikuti", performances: "Penampilan", follow: "Ikuti", unfollow: "Berhenti mengikuti", level: "Level", noPerf: "Belum ada penampilan publik", back: "Kembali" },
 };
 
 export default function Profile() {

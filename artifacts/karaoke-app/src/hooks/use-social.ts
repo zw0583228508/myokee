@@ -9,6 +9,7 @@ export function useFeed(page = 0) {
       if (!res.ok) return { performances: [], page: 0, hasMore: false };
       return res.json();
     },
+    enabled: page >= 0,
   });
 }
 
@@ -20,6 +21,7 @@ export function useDiscover(page = 0) {
       if (!res.ok) return { performances: [], page: 0, hasMore: false };
       return res.json();
     },
+    enabled: page >= 0,
   });
 }
 
