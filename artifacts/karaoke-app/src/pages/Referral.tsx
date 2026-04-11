@@ -24,10 +24,10 @@ export default function Referral() {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto px-4 py-8" dir={t.dir}>
+    <div className="w-full max-w-lg mx-auto px-4 py-10" dir={t.dir}>
       <Link
         href="/"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors mb-6"
+        className="inline-flex items-center text-sm text-white/30 hover:text-white/70 transition-colors mb-6"
       >
         <ArrowLeft className={`w-4 h-4 ${t.dir === "rtl" ? "ml-2" : "mr-2"}`} /> {t.referral.back}
       </Link>

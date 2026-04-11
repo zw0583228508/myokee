@@ -294,7 +294,7 @@ export default function JobDetails() {
       <div className="w-full max-w-7xl mx-auto px-4 py-20 text-center">
         <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-6" />
         <h2 className="text-3xl font-display font-bold mb-4">{uiT.jobPage.notFound}</h2>
-        <p className="text-muted-foreground mb-8">{uiT.jobPage.notFoundDesc}</p>
+        <p className="text-white/30 mb-8">{uiT.jobPage.notFoundDesc}</p>
         <Link href="/">
           <Button variant="gradient"><ArrowLeft className="mr-2 w-4 h-4"/> {uiT.jobPage.backToStudio}</Button>
         </Link>
@@ -316,19 +316,20 @@ export default function JobDetails() {
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <img
           src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1920&h=1080&fit=crop&q=80"
-          alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.07]"
-          style={{ filter: "saturate(0.7) blur(3px)" }}
+          alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.05]"
+          style={{ filter: "saturate(0.4) brightness(0.4) blur(3px)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+        <div className="absolute inset-0 bg-[#040410]/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/95" />
       </div>
     <div className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-8">
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
+          <Link href="/" className="inline-flex items-center text-sm text-white/30 hover:text-white/70 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" /> {uiT.jobPage.backToStudio}
           </Link>
-          <span className="text-muted-foreground/40">|</span>
-          <Link href="/history" className="inline-flex items-center text-sm text-muted-foreground hover:text-white transition-colors">
+          <span className="text-white/15">|</span>
+          <Link href="/history" className="inline-flex items-center text-sm text-white/30 hover:text-white/70 transition-colors">
             <Music2 className="w-4 h-4 mr-2" /> {uiT.jobPage.backToGallery}
           </Link>
         </div>
@@ -336,7 +337,7 @@ export default function JobDetails() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold mb-2 truncate max-w-full sm:max-w-2xl" dir="auto">{job.filename}</h1>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm text-white/30">
               <JobStatusBadge status={job.status} />
               <span>•</span>
               <span>{new Date(job.created_at).toLocaleString(lang === 'he' ? 'he-IL' : lang === 'ar' ? 'ar' : lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-CN' : lang === 'ko' ? 'ko-KR' : 'en-US')}</span>
@@ -363,7 +364,7 @@ export default function JobDetails() {
             </div>
           )}
           {isDone && chargeState === "pending" && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-white/30">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
               <span>{uiT.jobPage.processingCharge}</span>
             </div>
@@ -423,7 +424,7 @@ export default function JobDetails() {
         <Card className="p-8 mb-6 flex flex-col items-center justify-center min-h-[200px]">
           <div className="animate-spin rounded-full h-8 w-8 border-3 border-primary border-t-transparent mb-4" />
           <h3 className="font-semibold mb-1">{uiT.jobPage.verifyingCharge}</h3>
-          <p className="text-sm text-muted-foreground">{uiT.jobPage.verifyingChargeDesc}</p>
+          <p className="text-sm text-white/30">{uiT.jobPage.verifyingChargeDesc}</p>
         </Card>
       )}
 
@@ -433,8 +434,8 @@ export default function JobDetails() {
             <CreditCard className="w-8 h-8 text-destructive shrink-0" />
             <div>
               <h3 className="font-semibold text-destructive mb-1">{uiT.jobPage.chargeError}</h3>
-              <p className="text-sm text-muted-foreground">{uiT.jobPage.chargeErrorDesc}</p>
-              {chargeError && <p className="text-xs text-muted-foreground/60 mt-1 font-mono" dir="ltr">{chargeError}</p>}
+              <p className="text-sm text-white/30">{uiT.jobPage.chargeErrorDesc}</p>
+              {chargeError && <p className="text-xs text-white/20 mt-1 font-mono" dir="ltr">{chargeError}</p>}
             </div>
             <Button variant="gradient" className="shrink-0" onClick={() => {
               if (id) attemptCharge(id);
@@ -451,7 +452,7 @@ export default function JobDetails() {
             <CreditCard className="w-8 h-8 text-destructive shrink-0" />
             <div>
               <h3 className="font-semibold text-destructive mb-1">{uiT.jobPage.insufficientCredits}</h3>
-              <p className="text-sm text-muted-foreground">{uiT.jobPage.insufficientCreditsDesc}</p>
+              <p className="text-sm text-white/30">{uiT.jobPage.insufficientCreditsDesc}</p>
             </div>
             <div className="flex gap-2 ml-auto shrink-0">
               <Button variant="outline" onClick={() => {
@@ -499,7 +500,7 @@ export default function JobDetails() {
                     <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-primary-foreground transition-colors">
                       {uiT.jobPage.singNowTitle}
                     </div>
-                    <div className="text-sm text-muted-foreground mt-0.5">
+                    <div className="text-sm text-white/30 mt-0.5">
                       {uiT.jobPage.singNowDesc}
                     </div>
                   </div>
@@ -526,7 +527,7 @@ export default function JobDetails() {
                       <div className="text-lg sm:text-xl font-display font-bold text-white group-hover:text-accent transition-colors">
                         {uiT.jobPage.buyCreditsTitle}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-0.5">
+                      <div className="text-sm text-white/30 mt-0.5">
                         {uiT.jobPage.buyCreditsDesc}
                       </div>
                     </div>
@@ -546,22 +547,22 @@ export default function JobDetails() {
               </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground block mb-1">{uiT.jobPage.statusLabel}</span>
+                  <span className="text-white/25 block mb-1">{uiT.jobPage.statusLabel}</span>
                   <span className="text-green-400 font-medium">{uiT.jobPage.statusSuccess}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1">{uiT.jobPage.wordsLabel}</span>
+                  <span className="text-white/25 block mb-1">{uiT.jobPage.wordsLabel}</span>
                   <span className="font-medium">{lyricsData?.words?.length ?? jobWords.length} {uiT.jobPage.wordsTranscribed}</span>
                 </div>
                 {chargeState === "free" && (
                   <div>
-                    <span className="text-muted-foreground block mb-1">{uiT.jobPage.costLabel}</span>
+                    <span className="text-white/25 block mb-1">{uiT.jobPage.costLabel}</span>
                     <span className="text-green-400 font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5" /> {uiT.jobPage.freeUnder40}</span>
                   </div>
                 )}
                 {chargeState === "charged" && (
                   <div>
-                    <span className="text-muted-foreground block mb-1">{uiT.jobPage.creditsUsed}</span>
+                    <span className="text-white/25 block mb-1">{uiT.jobPage.creditsUsed}</span>
                     <span className="font-medium flex items-center gap-1"><Coins className="w-3.5 h-3.5 text-accent" /> {creditsCharged} {uiT.jobPage.creditsUnit}</span>
                   </div>
                 )}
@@ -585,7 +586,7 @@ export default function JobDetails() {
                 style={{ scrollbarWidth: 'thin' }}
               >
                 {!lyricsData?.words || lyricsData.words.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-12">
+                  <div className="text-center text-white/25 py-12">
                     {uiT.jobPage.noVocalDetected}
                   </div>
                 ) : (

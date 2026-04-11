@@ -88,7 +88,7 @@ function ChallengeEntryForm({ challengeId, lang }: { challengeId: number; lang: 
   if (!perfs || perfs.length === 0) return <p className="text-white/40 text-sm">{t.noChallenge}</p>;
 
   return (
-    <div className="mt-4 p-4 bg-white/[0.03] border border-white/10 rounded-xl">
+    <div className="mt-4 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl">
       <p className="text-sm text-white/60 mb-3">{t.selectPerformance}</p>
       <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
         {perfs.map((p: any) => (
@@ -133,10 +133,10 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
         <ArrowLeft className="w-4 h-4" />{t.back}
       </button>
 
-      <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
-        <div className="flex items-start justify-between mb-4">
+      <div className="glass-card rounded-2xl p-6 mb-6">
+        <div className="relative flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1">{challenge.title}</h2>
+            <h2 className="text-2xl font-bold text-white mb-1 font-display">{challenge.title}</h2>
             {challenge.description && <p className="text-white/50 text-sm">{challenge.description}</p>}
             {challenge.song_name && <p className="text-primary text-sm mt-1">🎵 {challenge.song_name}</p>}
           </div>
@@ -213,7 +213,7 @@ export default function Challenges() {
 
   if (selectedId) {
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 py-8">
+      <div className="w-full max-w-3xl mx-auto px-4 py-10">
         <ChallengeDetail id={selectedId} onBack={() => setSelectedId(null)} lang={lang} />
       </div>
     );
@@ -225,13 +225,13 @@ export default function Challenges() {
   const ended = challenges.filter((c: any) => c.status === "ended");
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-8" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/20 mb-4">
-          <Trophy className="w-8 h-8 text-white" />
+    <div className="w-full max-w-3xl mx-auto px-4 py-10" dir={isRtl ? "rtl" : "ltr"}>
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/15 mb-4">
+          <Trophy className="w-8 h-8 text-white drop-shadow-lg" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">{t.title}</h1>
-        <p className="text-white/50">{t.subtitle}</p>
+        <h1 className="text-3xl font-bold text-white mb-2 font-display">{t.title}</h1>
+        <p className="text-white/30">{t.subtitle}</p>
       </div>
 
       {isLoading ? (
@@ -258,7 +258,7 @@ export default function Challenges() {
                     <button
                       key={c.id}
                       onClick={() => setSelectedId(c.id)}
-                      className="w-full text-start bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 rounded-2xl p-5 transition-all group"
+                      className="w-full text-start glass-card hover:bg-white/[0.04] rounded-2xl p-5 transition-all duration-300 group"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">{c.title}</h3>

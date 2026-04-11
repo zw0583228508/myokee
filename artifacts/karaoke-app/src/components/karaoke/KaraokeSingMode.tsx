@@ -1409,8 +1409,7 @@ export function KaraokeSingMode({
             </div>
 
             <button onClick={startSinging}
-              className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center gap-2 text-white transition-all hover:scale-105 active:scale-95"
-              style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 70px rgba(124,58,237,.55),0 0 30px rgba(59,130,246,.3)" }}>
+              className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center gap-2 text-white transition-all hover:scale-105 active:scale-95 bg-gradient-to-br from-[var(--magenta)] via-primary to-accent shadow-[0_0_70px_rgba(147,51,234,.45),0_0_30px_rgba(0,210,255,.2)]">
               <Mic className="w-10 h-10" />
               <span className="text-xs font-semibold tracking-wide">{uiT.sing.startBtn}</span>
             </button>
@@ -1806,8 +1805,7 @@ export function KaraokeSingMode({
               {dlUrl && (
                 <>
                   <a href={dlUrl} download={`${songName.replace(/\.[^.]+$/, "")}-cover.wav`}
-                    className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
+                    className="btn-primary gap-2 px-6 py-3.5 rounded-2xl text-sm text-white shadow-[0_0_40px_rgba(147,51,234,.35)]">
                     <Download className="w-4 h-4" />{uiT.sing.downloadPerformance}
                   </a>
                   <button
@@ -1890,8 +1888,7 @@ export function KaraokeSingMode({
                     <CheckCircle2 className="w-4 h-4" />{uiT.sing.sharedLeaderboard}
                   </div>
                   <button onClick={restart}
-                    className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-sm hover:scale-105 transition-transform"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.45)" }}>
+                    className="btn-primary gap-2 px-6 py-3.5 rounded-2xl text-sm text-white shadow-[0_0_40px_rgba(147,51,234,.35)]">
                     <Mic className="w-4 h-4" />{uiT.sing.recordAgain}
                   </button>
                 </>

@@ -139,46 +139,48 @@ export default function MyRecordings() {
       <div className="relative overflow-hidden py-12 sm:py-20 text-center">
         <img
           src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&h=600&fit=crop&q=80"
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.18]"
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+          style={{ filter: "saturate(0.5) brightness(0.5)" }}
           alt=""
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/20 to-background/90" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] rounded-full bg-cyan-500/5 blur-[100px]" />
+        <div className="absolute inset-0 bg-[#040410]/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/10 to-background/95" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] rounded-full bg-cyan-500/[0.03] blur-[120px]" />
 
         <div className="relative z-10">
           <Link href="/">
-            <button className="inline-flex items-center gap-1.5 text-sm text-white/35 hover:text-white/70 transition-colors mb-8">
+            <button className="inline-flex items-center gap-1.5 text-sm text-white/25 hover:text-white/60 transition-colors mb-8">
               <ArrowLeft className="w-3.5 h-3.5" />{l.back}
             </button>
           </Link>
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center">
-              <Mic2 className="w-6 h-6 text-cyan-400" />
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/12 border border-cyan-500/15 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Mic2 className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold">{l.title}</h1>
           </div>
-          <p className="text-white/35 text-sm">{l.subtitle}</p>
+          <p className="text-white/25 text-sm">{l.subtitle}</p>
         </div>
       </div>
 
       <div className="w-full max-w-2xl mx-auto px-4 mb-5">
-        <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/8">
+        <div className="flex gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <button
             onClick={() => setTab("recordings")}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
               tab === "recordings"
-                ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,.3)]"
-                : "text-white/40 hover:text-white/70"
+                ? "bg-primary text-white shadow-[0_0_25px_rgba(147,51,234,.25)]"
+                : "text-white/30 hover:text-white/60"
             }`}
           >
             <Cloud className="w-3.5 h-3.5 inline mr-1.5" />{l.recordings}
           </button>
           <button
             onClick={() => setTab("performances")}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
               tab === "performances"
-                ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,.3)]"
-                : "text-white/40 hover:text-white/70"
+                ? "bg-primary text-white shadow-[0_0_25px_rgba(147,51,234,.25)]"
+                : "text-white/30 hover:text-white/60"
             }`}
           >
             <Music2 className="w-3.5 h-3.5 inline mr-1.5" />{l.performances}
@@ -201,9 +203,8 @@ export default function MyRecordings() {
                 <p className="text-white/35 text-sm">{l.empty}</p>
                 <p className="text-white/25 text-xs">{l.emptyDesc}</p>
                 <Link href="/">
-                  <button className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold transition-all hover:scale-105"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-                    <Mic2 className="w-4 h-4" />{l.goSing}
+                  <button className="btn-primary gap-2 mt-2 px-6 py-2.5 rounded-full text-sm text-white">
+                    <Mic2 className="w-4 h-4 relative z-10" /><span className="relative z-10">{l.goSing}</span>
                   </button>
                 </Link>
               </div>

@@ -31,21 +31,21 @@ export default function VocalCoachPage() {
   const performances = data?.performances || [];
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-8" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/20 mb-4">
-          <Mic className="w-8 h-8 text-white" />
+    <div className="w-full max-w-3xl mx-auto px-4 py-10" dir={isRtl ? "rtl" : "ltr"}>
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/15 mb-4">
+          <Mic className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">{t.title}</h1>
-        <p className="text-white/50">{t.subtitle}</p>
+        <h1 className="text-3xl font-bold text-white mb-2 font-display">{t.title}</h1>
+        <p className="text-white/30">{t.subtitle}</p>
       </div>
 
       <VocalCoachProgress />
 
       {performances.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-lg font-semibold text-white mb-3">{t.recentPerf}</h3>
-          <p className="text-sm text-white/40 mb-3">{t.selectPerf}</p>
+          <h3 className="text-lg font-semibold text-white mb-3 font-display">{t.recentPerf}</h3>
+          <p className="text-sm text-white/30 mb-3">{t.selectPerf}</p>
           <div className="space-y-2 mb-4">
             {performances.slice(-10).reverse().map((p: any) => {
               const scoreColor = p.score >= 90 ? "text-green-400" : p.score >= 70 ? "text-yellow-400" : "text-orange-400";
@@ -53,13 +53,13 @@ export default function VocalCoachPage() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPerfId(selectedPerfId === p.id ? null : p.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all ${
-                    selectedPerfId === p.id ? "bg-primary/15 border border-primary/30" : "bg-white/[0.03] border border-white/10 hover:bg-white/[0.05]"
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all duration-300 ${
+                    selectedPerfId === p.id ? "bg-primary/12 border border-primary/25" : "glass-card hover:bg-white/[0.04]"
                   }`}
                 >
-                  <span className={`text-lg font-bold w-10 text-center ${scoreColor}`}>{p.score}</span>
-                  <span className="text-sm text-white/70 flex-1 truncate">{p.song_name || "Unknown"}</span>
-                  <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${selectedPerfId === p.id ? "rotate-180" : ""}`} />
+                  <span className={`text-lg font-bold w-10 text-center ${scoreColor}`} style={{ filter: "brightness(1.1)" }}>{p.score}</span>
+                  <span className="text-sm text-white/60 flex-1 truncate">{p.song_name || "Unknown"}</span>
+                  <ChevronDown className={`w-4 h-4 text-white/20 transition-transform duration-300 ${selectedPerfId === p.id ? "rotate-180" : ""}`} />
                 </button>
               );
             })}

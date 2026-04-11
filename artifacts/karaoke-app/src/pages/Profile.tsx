@@ -53,7 +53,7 @@ export default function Profile() {
   const like = useLikePerformance();
 
   if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-  if (!data) return <div className="text-center py-20 text-white/40">User not found</div>;
+  if (!data) return <div className="text-center py-20 text-white/30">User not found</div>;
 
   const { user, stats, isFollowing, performances } = data;
   const isMe = me === userId;
@@ -61,79 +61,83 @@ export default function Profile() {
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-8" dir={isRtl ? "rtl" : "ltr"}>
       <Link href="/feed">
-        <button className="flex items-center gap-2 text-white/50 hover:text-white mb-6 transition-colors">
+        <button className="flex items-center gap-2 text-white/30 hover:text-white/70 mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />{t.back}
         </button>
       </Link>
 
-      <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
-        <div className="flex items-center gap-4 mb-6">
-          {user.picture ? (
-            <img src={user.picture} alt="" className="w-20 h-20 rounded-full object-cover ring-4 ring-primary/20" />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+      <div className="glass-card rounded-2xl p-6 mb-6">
+        <div className="relative">
+          <div className="flex items-center gap-4 mb-6">
+            {user.picture ? (
+              <img src={user.picture} alt="" className="w-20 h-20 rounded-full object-cover ring-4 ring-primary/15 shadow-lg shadow-primary/10" />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+                <User className="w-10 h-10 text-white" />
+              </div>
+            )}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white font-display">{user.display_name}</h1>
+              <div className="flex items-center gap-2 text-sm text-white/30 mt-1">
+                <Zap className="w-4 h-4 text-primary drop-shadow-[0_0_6px_rgba(147,51,234,0.5)]" />
+                {t.level} {stats.level}
+                <span className="text-primary/40">•</span>
+                {stats.totalXp} XP
+              </div>
             </div>
-          )}
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white">{user.display_name}</h1>
-            <div className="flex items-center gap-2 text-sm text-white/40 mt-1">
-              <Zap className="w-4 h-4 text-primary" />
-              {t.level} {stats.level}
-              <span className="text-primary">•</span>
-              {stats.totalXp} XP
-            </div>
+            {!isMe && (
+              <button
+                onClick={() => follow.mutate({ userId, follow: !isFollowing })}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  isFollowing
+                    ? "bg-white/[0.06] text-white/60 hover:bg-red-500/15 hover:text-red-400 border border-white/[0.06]"
+                    : "btn-primary text-white"
+                }`}
+              >
+                {isFollowing ? t.unfollow : t.follow}
+              </button>
+            )}
           </div>
-          {!isMe && (
-            <button
-              onClick={() => follow.mutate({ userId, follow: !isFollowing })}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                isFollowing
-                  ? "bg-white/10 text-white/70 hover:bg-red-500/20 hover:text-red-400"
-                  : "bg-primary text-white hover:bg-primary/80"
-              }`}
-            >
-              {isFollowing ? t.unfollow : t.follow}
-            </button>
-          )}
-        </div>
 
-        <div className="grid grid-cols-3 gap-4 text-center">
-          {[
-            { label: t.followers, value: stats.followers, icon: Users },
-            { label: t.following, value: stats.following, icon: Users },
-            { label: t.performances, value: stats.performances, icon: Music },
-          ].map(s => (
-            <div key={s.label} className="bg-white/[0.03] rounded-xl p-3">
-              <div className="text-2xl font-bold text-white">{s.value}</div>
-              <div className="text-xs text-white/40 mt-1">{s.label}</div>
-            </div>
-          ))}
+          <div className="grid grid-cols-3 gap-3 text-center">
+            {[
+              { label: t.followers, value: stats.followers, icon: Users },
+              { label: t.following, value: stats.following, icon: Users },
+              { label: t.performances, value: stats.performances, icon: Music },
+            ].map(s => (
+              <div key={s.label} className="bg-white/[0.02] border border-white/[0.04] rounded-xl p-3">
+                <div className="text-2xl font-bold text-white">{s.value}</div>
+                <div className="text-xs text-white/30 mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold text-white mb-4">{t.performances}</h2>
+      <h2 className="text-lg font-semibold text-white mb-4 font-display">{t.performances}</h2>
 
       {performances.length === 0 ? (
-        <p className="text-center py-8 text-white/30">{t.noPerf}</p>
+        <p className="text-center py-8 text-white/20">{t.noPerf}</p>
       ) : (
         <div className="space-y-3">
           {performances.map((p: any) => {
             const scoreColor = p.score >= 90 ? "text-green-400" : p.score >= 70 ? "text-yellow-400" : "text-orange-400";
             return (
-              <div key={p.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-center gap-3">
-                <div className={`text-2xl font-bold ${scoreColor} w-12 text-center`}>{p.score}</div>
+              <div key={p.id} className="glass-card rounded-xl p-4 flex items-center gap-3 transition-all duration-300 hover:border-white/10">
+                <div className="relative">
+                  <div className={`text-2xl font-bold ${scoreColor} w-12 text-center`} style={{ filter: "brightness(1.1)" }}>{p.score}</div>
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{p.song_name || "Unknown"}</p>
-                  <p className="text-xs text-white/30">{new Date(p.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm text-white/80 truncate">{p.song_name || "Unknown"}</p>
+                  <p className="text-xs text-white/20">{new Date(p.created_at).toLocaleDateString()}</p>
                 </div>
                 <button
                   onClick={() => like.mutate({ performanceId: p.id, like: !p.liked_by_me })}
-                  className={`p-2 transition-colors ${p.liked_by_me ? "text-red-400" : "text-white/30 hover:text-red-400"}`}
+                  className={`p-2 transition-all duration-300 ${p.liked_by_me ? "text-red-400 drop-shadow-[0_0_6px_rgba(248,113,113,0.4)]" : "text-white/20 hover:text-red-400"}`}
                 >
                   <Heart className={`w-4 h-4 ${p.liked_by_me ? "fill-current" : ""}`} />
                 </button>
-                <span className="text-xs text-white/30">{p.like_count || 0}</span>
+                <span className="text-xs text-white/20">{p.like_count || 0}</span>
               </div>
             );
           })}

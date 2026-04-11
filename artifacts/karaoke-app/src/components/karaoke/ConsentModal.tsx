@@ -109,10 +109,8 @@ export function ConsentModal({ open, onAccept, onClose }: ConsentModalProps) {
           <button
             onClick={onAccept}
             autoFocus
-            className="group relative w-full flex items-center justify-center gap-2 h-12 text-base font-bold text-white rounded-2xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] animate-btn-glow"
-            style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}
+            className="btn-primary w-full gap-2 h-12 text-base text-white rounded-2xl hover:scale-[1.02] active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             <CheckCircle className="w-5 h-5 relative z-10" />
             <span className="relative z-10">{t.consent.accept}</span>
           </button>

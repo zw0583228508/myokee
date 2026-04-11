@@ -162,10 +162,9 @@ export default function LangLanding() {
             </span>
           </Link>
           <Link href="/upload">
-            <button className="flex items-center gap-2 px-5 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:scale-105"
-              style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-              <Mic className="w-4 h-4" />
-              {t.nav.createKaraoke}
+            <button className="btn-primary gap-2 px-5 py-2 rounded-xl text-sm text-white">
+              <Mic className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">{t.nav.createKaraoke}</span>
             </button>
           </Link>
         </div>
@@ -215,10 +214,9 @@ export default function LangLanding() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
             <Link href="/upload">
               <button
-                className="flex items-center gap-2.5 px-9 py-4 rounded-2xl text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_rgba(124,58,237,0.4)]"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)" }}>
-                <Mic className="w-5 h-5" />
-                {t.home.hero.ctaCreate}
+                className="btn-primary gap-2.5 px-9 py-4 rounded-2xl font-bold text-base text-white active:scale-95 shadow-[0_0_50px_rgba(147,51,234,0.3)]">
+                <Mic className="w-5 h-5 relative z-10" />
+                <span className="relative z-10">{t.home.hero.ctaCreate}</span>
               </button>
             </Link>
             <Link href="/leaderboard">
@@ -282,10 +280,9 @@ export default function LangLanding() {
           <div className="mt-14 text-center">
             <Link href="/upload">
               <button
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all hover:scale-105"
-                style={{ background: "linear-gradient(135deg,#7c3aed,#3b82f6)", boxShadow: "0 0 40px rgba(124,58,237,.3)" }}>
-                <Mic className="w-4 h-4" />
-                {t.home.howItWorks.cta}
+                className="btn-primary gap-2 px-8 py-3.5 rounded-2xl text-sm text-white shadow-[0_0_40px_rgba(147,51,234,.25)]">
+                <Mic className="w-4 h-4 relative z-10" />
+                <span className="relative z-10">{t.home.howItWorks.cta}</span>
               </button>
             </Link>
           </div>

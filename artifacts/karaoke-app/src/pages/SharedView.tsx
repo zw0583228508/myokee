@@ -98,7 +98,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
         <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-6" />
         <h2 className="text-3xl font-display font-bold mb-4 text-white">Karaoke not found</h2>
-        <p className="text-muted-foreground mb-8 text-center">This karaoke link may have expired or been removed.</p>
+        <p className="text-white/30 mb-8 text-center">This karaoke link may have expired or been removed.</p>
         <a href={homeUrl}>
           <Button variant="gradient">
             <Mic2 className="mr-2 w-4 h-4" />
@@ -119,21 +119,22 @@ export default function SharedView({ jobId }: { jobId: string }) {
         <img
           src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1920&h=1080&fit=crop&q=80"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.07]"
-          style={{ filter: "saturate(0.7) blur(3px)" }}
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.05]"
+          style={{ filter: "saturate(0.4) brightness(0.4) blur(3px)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+        <div className="absolute inset-0 bg-[#040410]/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/95" />
       </div>
 
       <div className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-12">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 mb-4">
-            <Mic2 className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 mb-4">
+            <Mic2 className="w-8 h-8 text-white drop-shadow-lg" />
           </div>
           <h1 className="text-2xl sm:text-4xl font-display font-bold text-white mb-2" dir="auto">
             {job.filename}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/30">
             Shared via MYOUKEE AI Karaoke
           </p>
         </div>
@@ -149,7 +150,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
               <h2 className="text-xl sm:text-2xl font-display font-bold text-white mb-2">
                 Create Your Own Karaoke
               </h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              <p className="text-white/30 mb-6 max-w-md mx-auto">
                 Turn any song into karaoke in seconds. Upload an MP3 or paste a YouTube link — AI removes vocals and generates synced lyrics.
               </p>
               <a href={homeUrl}>
@@ -168,7 +169,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
             <h2 className="text-xl font-display font-bold text-white mb-2">
               Karaoke is being generated...
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-white/30">
               This song is still processing. Check back in a few moments.
             </p>
           </Card>
@@ -180,7 +181,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
             <h2 className="text-xl font-display font-bold text-white mb-2">
               Processing Failed
             </h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-white/30 mb-6">
               Unfortunately, this karaoke could not be generated.
             </p>
             <a href={homeUrl}>
@@ -195,7 +196,7 @@ export default function SharedView({ jobId }: { jobId: string }) {
         <div className="mt-8 text-center">
           <a
             href={homeUrl}
-            className="text-sm text-muted-foreground hover:text-white transition-colors"
+            className="text-sm text-white/25 hover:text-white/60 transition-colors"
           >
             Powered by MYOUKEE — AI Karaoke Generator
           </a>

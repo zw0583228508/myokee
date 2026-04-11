@@ -503,10 +503,10 @@ export default function LoginPage() {
         <img
           src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"
           alt=""
-          className="w-full h-full object-cover opacity-[0.12]"
-          style={{ filter: "saturate(0.6)" }}
+          className="w-full h-full object-cover opacity-[0.08]"
+          style={{ filter: "saturate(0.4) brightness(0.5)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/8" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/6 via-transparent to-accent/4" />
       </div>
 
       <div className="fixed top-4 right-4 z-50" dir="ltr">
@@ -535,8 +535,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
-                <Mic2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
+                <Mic2 className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-lg" />
               </div>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl font-bold mb-1">
@@ -548,7 +548,7 @@ export default function LoginPage() {
                 <h2 className="text-xl sm:text-2xl font-display font-bold mt-4 text-white">
                   {t.login.welcome}
                 </h2>
-                <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
+                <p className="text-white/30 text-sm mt-2 max-w-xs mx-auto">
                   {t.login.subtitle}
                 </p>
               </>

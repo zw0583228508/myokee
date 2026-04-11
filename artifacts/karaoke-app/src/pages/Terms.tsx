@@ -95,7 +95,7 @@ export default function Terms() {
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-12" dir={t.dir}>
-      <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white mb-8 transition-colors">
+      <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-white/70 mb-8 transition-colors">
         <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
         {t.nav.createKaraoke}
       </Link>
@@ -107,7 +107,7 @@ export default function Terms() {
         <h1 className="text-3xl font-display font-bold">{t.consent.termsLink}</h1>
       </div>
 
-      <div className="prose prose-invert prose-sm max-w-none space-y-6 text-muted-foreground leading-relaxed">
+      <div className="prose prose-invert prose-sm max-w-none space-y-6 text-white/30 leading-relaxed">
         {sections.map((s, i) => (
           <section key={i}>
             {s.title && <h2 className="text-white text-lg font-semibold mb-2">{s.title}</h2>}
@@ -120,7 +120,7 @@ export default function Terms() {
           </section>
         ))}
 
-        <p className="text-xs text-muted-foreground/50 pt-4 border-t border-white/5">
+        <p className="text-xs text-white/20 pt-4 border-t border-white/5">
           MYOUKEE &copy; {new Date().getFullYear()}
         </p>
       </div>
