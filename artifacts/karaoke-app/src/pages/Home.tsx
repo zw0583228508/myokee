@@ -63,17 +63,6 @@ function StageBeams() {
   );
 }
 
-function FloatingOrbs() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-[10%] left-[8%] w-80 h-80 bg-violet-600/15 animate-float-slow animate-glow-breathe animate-orb-morph" />
-      <div className="absolute top-[35%] right-[10%] w-64 h-64 bg-blue-500/10 animate-float-medium animate-glow-breathe animate-orb-morph" style={{ animationDelay: "2s" }} />
-      <div className="absolute bottom-[15%] left-[25%] w-48 h-48 bg-fuchsia-500/8 animate-float-reverse animate-glow-breathe animate-orb-morph" style={{ animationDelay: "4s" }} />
-      <div className="absolute top-[55%] right-[35%] w-36 h-36 bg-cyan-400/8 animate-float-slow animate-orb-morph" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-[8%] right-[25%] w-28 h-28 bg-pink-500/8 animate-float-medium animate-orb-morph" style={{ animationDelay: "3s" }} />
-    </div>
-  );
-}
 
 function GridPattern() {
   return (
@@ -286,15 +275,13 @@ export default function Home() {
       <section className="relative min-h-[75vh] sm:min-h-[95vh] flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1920&h=1080&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
-            style={{ filter: "saturate(0.7) brightness(0.5) contrast(1.2)" }}
+            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&h=1080&fit=crop&q=80"
+            alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-40"
+            style={{ filter: "saturate(0.6) brightness(0.7)" }}
           />
-          <div className="absolute inset-0 bg-[#040410]/55" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
+          <div className="absolute inset-0 bg-[#06060f]/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
-          <FloatingOrbs />
           <StageBeams />
           <GridPattern />
           <HeroWaveformSVG />
@@ -357,9 +344,14 @@ export default function Home() {
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section ref={howRef} id="how-it-works" className="relative scroll-mt-32 py-16 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.02] to-background" />
+          <img
+            src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1920&h=800&fit=crop&q=80"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-35"
+            style={{ filter: "saturate(1.2) brightness(0.8)" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
           <GridPattern />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px]" />
         </div>
 
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
@@ -411,7 +403,12 @@ export default function Home() {
       {/* ═══════════ FEATURES ═══════════ */}
       <section ref={featuresRef} id="features" className="relative scroll-mt-32 py-16 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/[0.015] to-background" />
+          <img
+            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&h=1000&fit=crop&q=80"
+            alt="" className="absolute inset-0 w-full h-full object-cover opacity-30"
+            style={{ filter: "saturate(1.1) brightness(0.7)" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/30 to-background/80" />
           <GridPattern />
         </div>
 
