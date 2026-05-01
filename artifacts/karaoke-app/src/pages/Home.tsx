@@ -272,7 +272,7 @@ export default function Home() {
       </div>
 
       {/* ═══════════ HERO ═══════════ */}
-      <section className="relative min-h-[75vh] sm:min-h-[95vh] flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-[calc(100svh-4rem)] sm:min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <img
             src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&h=1080&fit=crop&q=80"
