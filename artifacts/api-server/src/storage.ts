@@ -153,7 +153,7 @@ export class Storage {
       await query(`UPDATE job_ownership SET credits_charged=NULL WHERE job_id=$1 AND credits_charged=-1`, [jobId]);
     }
 
-    const FREE_SECONDS = 40;
+    const FREE_SECONDS = 90;
     const creditsNeeded = Math.max(0, Math.ceil((durationSeconds - FREE_SECONDS) / 60));
 
     if (creditsNeeded === 0) {

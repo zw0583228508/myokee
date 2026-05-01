@@ -66,7 +66,7 @@ router.post("/jobs/:id/claim", async (req: Request, res: Response) => {
 });
 
 // POST /api/jobs/:id/charge — called by frontend when job finishes
-// Deducts credits based on song duration (first 40 seconds free, then 1 credit/min)
+// Deducts credits based on song duration (first 90 seconds free, then 1 credit/min)
 // durationSeconds can be provided in body OR the server fetches it from the processor
 router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
   if (!req.user) {
@@ -121,7 +121,7 @@ router.post("/jobs/:id/charge", async (req: Request, res: Response) => {
     const result = await storage.chargeJob(jobId, user.id, durationSeconds);
     if (!result.success) {
       const balance = await storage.getCredits(user.id);
-      const FREE_SECONDS = 40;
+      const FREE_SECONDS = 90;
       const creditsNeeded = Math.max(0, Math.ceil((durationSeconds - FREE_SECONDS) / 60));
       console.error(`[Charge] INSUFFICIENT: user=${user.id} balance=${balance} needed=${creditsNeeded} duration=${durationSeconds}s job=${jobId}`);
     } else {
