@@ -84,6 +84,31 @@ export default function Home() {
   const [activeTab, setActiveTab]         = useState<string>("home");
   const scrollContainer = useScrollReveal();
 
+  const tabsBarRef = useRef<HTMLDivElement>(null);
+  const [heroMinHeight, setHeroMinHeight] = useState<string>("calc(100dvh - 7rem)");
+
+  useEffect(() => {
+    function measureHero() {
+      const vh = window.innerHeight;
+      const tabsH = tabsBarRef.current?.offsetHeight ?? 48;
+      const navbarEl = document.querySelector("header") as HTMLElement | null;
+      const navbarH = navbarEl?.offsetHeight ?? 64;
+      const target = Math.max(320, vh - tabsH - navbarH);
+      setHeroMinHeight(`${target}px`);
+    }
+    measureHero();
+    window.addEventListener("resize", measureHero);
+    window.addEventListener("orientationchange", measureHero);
+    const t1 = setTimeout(measureHero, 100);
+    const t2 = setTimeout(measureHero, 500);
+    return () => {
+      window.removeEventListener("resize", measureHero);
+      window.removeEventListener("orientationchange", measureHero);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+
   const recovery = useRecoverPayPal(!!authData?.user);
   useEffect(() => {
     if (recovery.data?.recovered && recovery.data.recovered > 0) {
@@ -243,7 +268,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="sticky top-16 z-40 bg-background/50 backdrop-blur-2xl">
+      <div ref={tabsBarRef} className="sticky top-16 z-40 bg-background/50 backdrop-blur-2xl">
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-stretch gap-0 overflow-x-auto scrollbar-none" dir={dir}>
@@ -273,8 +298,8 @@ export default function Home() {
 
       {/* ═══════════ HERO ═══════════ */}
       <section
-        className="relative flex flex-col items-center justify-center overflow-hidden"
-        style={{ minHeight: "calc(100dvh - 7rem)" }}
+        className="relative flex flex-col items-center justify-center overflow-hidden w-full"
+        style={{ minHeight: heroMinHeight }}
       >
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <img
