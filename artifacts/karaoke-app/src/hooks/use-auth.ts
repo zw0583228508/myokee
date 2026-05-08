@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string | null;
   picture: string | null;
   credits: number;
+  isPremium: boolean;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";

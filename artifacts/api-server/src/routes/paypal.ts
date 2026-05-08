@@ -118,7 +118,7 @@ async function captureAndFulfill(orderId: string, userId: string, expectedCredit
       return { success: true, creditsAdded: creditsToAdd, alreadyFulfilled: true };
     }
     await client.query(
-      "UPDATE users SET credits = credits + $1 WHERE id = $2",
+      "UPDATE users SET credits = credits + $1, is_premium = TRUE WHERE id = $2",
       [creditsToAdd, userId]
     );
     await client.query(

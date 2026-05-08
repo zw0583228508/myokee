@@ -53,6 +53,7 @@ export interface KaraokeSingModeProps {
   onClose: () => void;
   challengerName?: string;
   challengerScore?: number;
+  isPremium?: boolean;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -207,7 +208,7 @@ const DEFAULT_EFFECTS: AudioEffects = {
 
 // ── Component ────────────────────────────────────────────────────────────────
 export function KaraokeSingMode({
-  audioUrl, videoUrl, words, songName, jobId, onClose, challengerName, challengerScore,
+  audioUrl, videoUrl, words, songName, jobId, onClose, challengerName, challengerScore, isPremium,
 }: KaraokeSingModeProps) {
   const audioRef     = useRef<HTMLAudioElement>(null);
   const videoRef     = useRef<HTMLVideoElement>(null);
@@ -952,6 +953,11 @@ export function KaraokeSingMode({
   const startSinging = async () => {
     const audio = audioRef.current;
     if (!audio) return;
+    if (isPremium === false) {
+      alert(uiT.sing.premiumRequired);
+      onClose();
+      return;
+    }
     wordSangRef.current    = new Set();
     wordPitchedRef.current = new Set();
     metricsRef.current     = { singingFrames: 0, pitchedFrames: 0, totalFrames: 0 };

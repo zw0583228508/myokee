@@ -7,6 +7,7 @@ export interface User {
   picture: string | null;
   stripe_customer_id: string | null;
   credits: number;
+  is_premium: boolean;
   referral_code: string | null;
   referred_by: string | null;
   created_at: string;
@@ -55,6 +56,10 @@ export class Storage {
       [amount, userId]
     );
     return res.rows[0]?.credits ?? 0;
+  }
+
+  async setPremium(userId: string): Promise<void> {
+    await query(`UPDATE users SET is_premium = TRUE WHERE id = $1`, [userId]);
   }
 
   async deductCredits(userId: string, amount: number): Promise<{ success: boolean; newBalance: number }> {

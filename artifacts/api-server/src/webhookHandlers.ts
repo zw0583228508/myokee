@@ -55,7 +55,7 @@ export class WebhookHandlers {
         return { success: true, creditsAdded: creditsToAdd };
       }
       const updateResult = await client.query(
-        "UPDATE users SET credits = credits + $1 WHERE id = $2 RETURNING credits",
+        "UPDATE users SET credits = credits + $1, is_premium = TRUE WHERE id = $2 RETURNING credits",
         [creditsToAdd, userId]
       );
       if (updateResult.rowCount === 0) {

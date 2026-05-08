@@ -18,6 +18,7 @@ import { apiUrl, authFetchOptions } from "@/lib/api";
 import { PricingModal } from "@/components/karaoke/PricingModal";
 import { useUITranslations } from "@/contexts/uiTranslations";
 import { useLang } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/use-auth";
 
 type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
@@ -44,7 +45,10 @@ export default function JobDetails() {
   const [singMode, setSingMode] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [videoCacheBust, setVideoCacheBust] = useState(0);
+  const { data: authData } = useAuth();
+  const isPremium = !!authData?.user?.isPremium;
 
   const isJobStuck = useMemo(() => {
     if (!job) return false;
@@ -485,7 +489,7 @@ export default function JobDetails() {
             />
 
             <button
-              onClick={() => setSingMode(true)}
+              onClick={() => isPremium ? setSingMode(true) : setShowPremiumGate(true)}
               className="group relative w-full overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 p-5 sm:p-6 transition-all duration-300 hover:border-primary/60 hover:shadow-[0_0_40px_rgba(147,51,234,0.25)] active:scale-[0.99]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -628,10 +632,54 @@ export default function JobDetails() {
           onClose={() => setSingMode(false)}
           challengerName={challengerName}
           challengerScore={challengerScore}
+          isPremium={isPremium}
         />
       )}
     </div>
       <PricingModal open={showPricing} onOpenChange={setShowPricing} />
+      {showPremiumGate && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+          onClick={() => setShowPremiumGate(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl border border-primary/40 bg-gradient-to-br from-zinc-900 via-zinc-900 to-purple-950/50 p-7 sm:p-8 shadow-[0_0_60px_rgba(147,51,234,0.35)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/40">
+              <Mic className="w-8 h-8 text-white" />
+            </div>
+            <div className="mt-6 text-center space-y-3">
+              <h3 className="text-2xl font-display font-bold text-white">
+                {uiT.sing.premiumRequired}
+              </h3>
+              <p className="text-white/65 text-sm leading-relaxed">
+                {uiT.sing.premiumRequiredDesc}
+              </p>
+            </div>
+            <div className="mt-7 flex flex-col gap-2.5">
+              <Button
+                size="lg"
+                className="w-full bg-gradient-to-r from-primary to-accent text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/30"
+                onClick={() => { setShowPremiumGate(false); setShowPricing(true); }}
+              >
+                <CreditCard className="w-4 h-4 me-2" />
+                {uiT.sing.upgrade}
+              </Button>
+              <Button
+                size="lg"
+                variant="ghost"
+                className="w-full text-white/70 hover:text-white hover:bg-white/5"
+                onClick={() => setShowPremiumGate(false)}
+              >
+                {uiT.sing.maybeLater}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

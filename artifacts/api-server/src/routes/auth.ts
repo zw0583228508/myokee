@@ -80,6 +80,7 @@ router.get("/auth/me", async (req: Request, res: Response) => {
         email: u.email,
         picture: u.picture,
         credits: u.credits ?? 0,
+        isPremium: !!u.is_premium,
       }
     });
   } else {
