@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useGetJob } from "@workspace/api-client-react";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Loader2, AlertTriangle, Mic2, Sparkles } from "lucide-react";
 import { apiUrl } from "@/lib/api";
 
@@ -33,7 +31,7 @@ function useSharedSEO(job: any, jobId: string) {
     if (!videoSchema) {
       videoSchema = document.createElement("script");
       videoSchema.id = "seo-video-shared";
-      videoSchema.type = "application/ld+json";
+      (videoSchema as any).type = "application/ld+json";
       document.head.appendChild(videoSchema);
     }
     videoSchema.textContent = JSON.stringify({
@@ -72,13 +70,13 @@ function useSharedSEO(job: any, jobId: string) {
 export default function SharedView({ jobId }: { jobId: string }) {
   const { data: job, isLoading, error } = useGetJob(jobId, {
     query: {
-      refetchInterval: (query) => {
+      refetchInterval: ((query: any) => {
         const status = query.state.data?.status;
         if (!status) return 3000;
         if (status === "done" || status === "error") return false;
         return 3000;
-      },
-    },
+      }) as any,
+    } as any,
   });
 
   useSharedSEO(job, jobId);
@@ -86,25 +84,33 @@ export default function SharedView({ jobId }: { jobId: string }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-xl font-display animate-pulse text-white">Loading shared karaoke...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--ds-bg-app)] relative">
+        <div className="absolute inset-0 -z-10 ds-bg-galaxy opacity-60" />
+        <div className="ds-icon-orb w-16 h-16 rounded-2xl mb-5">
+          <Loader2 className="w-8 h-8 text-white animate-spin" />
+        </div>
+        <p className="text-xl font-display text-white/85 animate-pulse">Loading shared karaoke…</p>
       </div>
     );
   }
 
   if (error || !job) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-        <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-6" />
-        <h2 className="text-3xl font-display font-bold mb-4 text-white">Karaoke not found</h2>
-        <p className="text-white/30 mb-8 text-center">This karaoke link may have expired or been removed.</p>
-        <a href={homeUrl}>
-          <Button variant="gradient">
-            <Mic2 className="mr-2 w-4 h-4" />
-            Create Your Own Karaoke
-          </Button>
-        </a>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--ds-bg-app)] relative px-4">
+        <div className="absolute inset-0 -z-10 ds-bg-galaxy opacity-60" />
+        <div className="ds-card-feature p-10 text-center max-w-md">
+          <div className="ds-icon-orb w-16 h-16 rounded-2xl mx-auto mb-5"
+               style={{ background: "linear-gradient(135deg,#F43F5E,#F59E0B)", boxShadow: "0 0 32px rgba(244,63,94,.5)" }}>
+            <AlertTriangle className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-display font-bold mb-3 text-white">Karaoke not found</h2>
+          <p className="text-white/55 mb-7">This karaoke link may have expired or been removed.</p>
+          <a href={homeUrl}>
+            <button className="ds-btn ds-btn-primary w-full py-3">
+              <Mic2 className="w-4 h-4" />Create Your Own Karaoke
+            </button>
+          </a>
+        </div>
       </div>
     );
   }
@@ -114,90 +120,87 @@ export default function SharedView({ jobId }: { jobId: string }) {
   const isProcessing = !isDone && job.status !== "error";
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <img
-          src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1920&h=1080&fit=crop&q=80"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.05]"
-          style={{ filter: "saturate(0.4) brightness(0.4) blur(3px)" }}
-        />
-        <div className="absolute inset-0 bg-[#040410]/50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/95" />
+    <div className="min-h-screen bg-[var(--ds-bg-app)] relative">
+      <div className="absolute top-0 inset-x-0 h-[500px] -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 ds-bg-galaxy" />
+        <div className="absolute inset-0 ds-bg-aurora opacity-50" />
+        <div className="ds-orb ds-orb-violet absolute -top-32 left-1/4 w-[500px] h-[500px] opacity-55" />
+        <div className="ds-orb ds-orb-cyan absolute -top-24 right-1/4 w-[440px] h-[440px] opacity-45" style={{ animationDelay: "2s" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
       </div>
 
-      <div className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-12">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20 mb-4">
+      <div className="w-full max-w-4xl mx-auto px-4 py-8 sm:py-14">
+        <div className="text-center mb-10 ds-reveal">
+          <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider mb-4">
+            <Sparkles className="w-3 h-3" />Shared Performance
+          </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl ds-icon-orb mb-4">
             <Mic2 className="w-8 h-8 text-white drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl sm:text-4xl font-display font-bold text-white mb-2" dir="auto">
+          <h1 className="ds-page-title font-display font-bold text-white mb-2" dir="auto">
             {job.filename}
           </h1>
-          <p className="text-white/30">
-            Shared via MYOUKEE AI Karaoke
-          </p>
+          <p className="text-white/55">Shared via MYOUKEE AI Karaoke</p>
         </div>
 
         {isDone && (
           <div className="space-y-8">
-            <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-primary/10">
+            <div className="rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-violet-500/15 ds-glass">
               <VideoPlayer src={videoUrl} />
             </div>
 
-            <Card className="p-6 sm:p-8 text-center border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-              <Sparkles className="w-8 h-8 text-primary mx-auto mb-3" />
-              <h2 className="text-xl sm:text-2xl font-display font-bold text-white mb-2">
-                Create Your Own Karaoke
-              </h2>
-              <p className="text-white/30 mb-6 max-w-md mx-auto">
-                Turn any song into karaoke in seconds. Upload an MP3 or paste a YouTube link — AI removes vocals and generates synced lyrics.
-              </p>
-              <a href={homeUrl}>
-                <Button size="lg" variant="gradient" className="text-base px-8">
-                  <Mic2 className="w-5 h-5 mr-2" />
-                  Try MYOUKEE Free
-                </Button>
-              </a>
-            </Card>
+            <div className="ds-card-feature relative p-7 sm:p-9 text-center overflow-hidden">
+              <div className="ds-orb ds-orb-violet absolute -top-16 -right-16 w-52 h-52 opacity-50" />
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl ds-icon-orb mb-4">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-3">
+                  Create Your Own Karaoke
+                </h2>
+                <p className="text-white/60 mb-7 max-w-md mx-auto leading-relaxed">
+                  Turn any song into karaoke in seconds. Upload an MP3 or paste a YouTube link — AI removes vocals and generates synced lyrics.
+                </p>
+                <a href={homeUrl} className="inline-block">
+                  <button className="ds-btn ds-btn-primary px-8 py-3.5 text-base">
+                    <Mic2 className="w-5 h-5" />Try MYOUKEE Free
+                  </button>
+                </a>
+              </div>
+            </div>
           </div>
         )}
 
         {isProcessing && (
-          <Card className="p-8 sm:p-16 flex flex-col items-center justify-center text-center">
-            <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <div className="ds-card p-12 sm:p-16 flex flex-col items-center justify-center text-center">
+            <div className="ds-icon-orb w-14 h-14 rounded-2xl mb-5">
+              <Loader2 className="w-7 h-7 text-white animate-spin" />
+            </div>
             <h2 className="text-xl font-display font-bold text-white mb-2">
-              Karaoke is being generated...
+              Karaoke is being generated…
             </h2>
-            <p className="text-white/30">
-              This song is still processing. Check back in a few moments.
-            </p>
-          </Card>
+            <p className="text-white/55">This song is still processing. Check back in a few moments.</p>
+          </div>
         )}
 
         {job.status === "error" && (
-          <Card className="p-8 sm:p-16 flex flex-col items-center justify-center text-center">
-            <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-            <h2 className="text-xl font-display font-bold text-white mb-2">
-              Processing Failed
-            </h2>
-            <p className="text-white/30 mb-6">
-              Unfortunately, this karaoke could not be generated.
-            </p>
+          <div className="ds-card p-12 sm:p-16 flex flex-col items-center justify-center text-center">
+            <div className="ds-icon-orb w-14 h-14 rounded-2xl mb-5"
+                 style={{ background: "linear-gradient(135deg,#F43F5E,#F59E0B)", boxShadow: "0 0 32px rgba(244,63,94,.5)" }}>
+              <AlertTriangle className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-xl font-display font-bold text-white mb-2">Processing Failed</h2>
+            <p className="text-white/55 mb-6">Unfortunately, this karaoke could not be generated.</p>
             <a href={homeUrl}>
-              <Button variant="gradient">
-                <Mic2 className="mr-2 w-4 h-4" />
-                Create Your Own Karaoke
-              </Button>
+              <button className="ds-btn ds-btn-primary px-6 py-3">
+                <Mic2 className="w-4 h-4" />Create Your Own Karaoke
+              </button>
             </a>
-          </Card>
+          </div>
         )}
 
-        <div className="mt-8 text-center">
-          <a
-            href={homeUrl}
-            className="text-sm text-white/25 hover:text-white/60 transition-colors"
-          >
+        <div className="mt-10 text-center">
+          <a href={homeUrl} className="text-sm text-white/35 hover:text-white/65 transition-colors">
             Powered by MYOUKEE — AI Karaoke Generator
           </a>
         </div>

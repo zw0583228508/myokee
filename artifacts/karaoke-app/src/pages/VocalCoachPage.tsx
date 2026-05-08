@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { VocalCoachProgress, VocalCoachTips } from "@/components/karaoke/VocalCoach";
 import { useVocalProgress } from "@/hooks/use-vocal-coach";
-import { Mic, ChevronDown } from "lucide-react";
+import { Mic, ChevronDown, Sparkles } from "lucide-react";
 
 const T: Record<string, Record<string, string>> = {
   en: { title: "AI Vocal Coach", subtitle: "Track your singing progress and get AI tips", recentPerf: "Get Tips for a Performance", selectPerf: "Select a performance below" },
@@ -31,43 +31,57 @@ export default function VocalCoachPage() {
   const performances = data?.performances || [];
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-10" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/15 mb-4">
-          <Mic className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-2 font-display">{t.title}</h1>
-        <p className="text-white/30">{t.subtitle}</p>
+    <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={isRtl ? "rtl" : "ltr"}>
+      <div className="absolute top-0 inset-x-0 h-[420px] -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 ds-bg-aurora opacity-50" />
+        <div className="ds-orb ds-orb-cyan absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
       </div>
 
-      <VocalCoachProgress />
-
-      {performances.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-white mb-3 font-display">{t.recentPerf}</h3>
-          <p className="text-sm text-white/30 mb-3">{t.selectPerf}</p>
-          <div className="space-y-2 mb-4">
-            {performances.slice(-10).reverse().map((p: any) => {
-              const scoreColor = p.score >= 90 ? "text-green-400" : p.score >= 70 ? "text-yellow-400" : "text-orange-400";
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedPerfId(selectedPerfId === p.id ? null : p.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-start transition-all duration-300 ${
-                    selectedPerfId === p.id ? "bg-primary/12 border border-primary/25" : "glass-card hover:bg-white/[0.04]"
-                  }`}
-                >
-                  <span className={`text-lg font-bold w-10 text-center ${scoreColor}`} style={{ filter: "brightness(1.1)" }}>{p.score}</span>
-                  <span className="text-sm text-white/60 flex-1 truncate">{p.song_name || "Unknown"}</span>
-                  <ChevronDown className={`w-4 h-4 text-white/20 transition-transform duration-300 ${selectedPerfId === p.id ? "rotate-180" : ""}`} />
-                </button>
-              );
-            })}
+      <div className="w-full max-w-3xl mx-auto px-4 py-12 sm:py-16">
+        <div className="text-center mb-10 ds-reveal">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ds-icon-orb"
+               style={{ background: "linear-gradient(135deg,#22D3EE,#3B82F6)", boxShadow: "0 0 40px rgba(59,130,246,.55)" }}>
+            <Mic className="w-8 h-8 text-white drop-shadow-lg" />
           </div>
-
-          {selectedPerfId && <VocalCoachTips performanceId={selectedPerfId} />}
+          <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-3">
+            <Sparkles className="w-3 h-3" />AI Powered
+          </div>
+          <h1 className="ds-page-title font-bold text-white mb-2">{t.title}</h1>
+          <p className="text-white/55 text-base">{t.subtitle}</p>
         </div>
-      )}
+
+        <VocalCoachProgress />
+
+        {performances.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-lg font-bold text-white mb-1">{t.recentPerf}</h3>
+            <p className="text-sm text-white/45 mb-4">{t.selectPerf}</p>
+            <div className="space-y-2 mb-4">
+              {performances.slice(-10).reverse().map((p: any, i: number) => {
+                const scoreColor = p.score >= 90 ? "text-emerald-300" : p.score >= 70 ? "text-amber-300" : "text-orange-300";
+                const sel = selectedPerfId === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedPerfId(sel ? null : p.id)}
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-start transition-all duration-300 ds-reveal ${
+                      sel ? "ds-card border-cyan-400/30 bg-cyan-500/[0.06]" : "ds-card hover:border-white/15"
+                    }`}
+                    style={{ animationDelay: `${i * 30}ms` }}
+                  >
+                    <span className={`text-xl font-black w-12 text-center ${scoreColor} drop-shadow-[0_0_8px_currentColor]`} style={{ filter: "brightness(1.1)" }}>{p.score}</span>
+                    <span className="text-sm text-white/75 flex-1 truncate font-medium" dir="auto">{p.song_name || "Unknown"}</span>
+                    <ChevronDown className={`w-4 h-4 text-white/30 transition-transform duration-300 ${sel ? "rotate-180 text-cyan-300" : ""}`} />
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectedPerfId && <VocalCoachTips performanceId={selectedPerfId} />}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

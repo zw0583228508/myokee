@@ -2,59 +2,11 @@ import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useChallenges, useChallengeDetail, useEnterChallenge } from "@/hooks/use-challenges";
 import { useMyPerformances } from "@/hooks/use-performances";
-import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check } from "lucide-react";
+import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check, Music2, Sparkles } from "lucide-react";
 
 const T: Record<string, Record<string, string>> = {
-  en: {
-    title: "Weekly Challenges",
-    subtitle: "Compete with singers worldwide",
-    active: "Active",
-    upcoming: "Upcoming",
-    ended: "Ended",
-    participants: "participants",
-    prize: "Prize",
-    credits: "credits",
-    enterChallenge: "Enter Challenge",
-    leaderboard: "Leaderboard",
-    noChallenge: "No challenges yet",
-    noDesc: "New challenges are posted every week. Check back soon!",
-    rank: "Rank",
-    singer: "Singer",
-    score: "Score",
-    timeLeft: "Time left",
-    days: "d",
-    hours: "h",
-    mins: "m",
-    entered: "Entered",
-    back: "Back",
-    yourScore: "Your Score",
-    selectPerformance: "Select a performance to submit",
-  },
-  he: {
-    title: "אתגרים שבועיים",
-    subtitle: "התחרו עם זמרים מכל העולם",
-    active: "פעיל",
-    upcoming: "בקרוב",
-    ended: "הסתיים",
-    participants: "משתתפים",
-    prize: "פרס",
-    credits: "קרדיטים",
-    enterChallenge: "הצטרף לאתגר",
-    leaderboard: "טבלת מובילים",
-    noChallenge: "אין אתגרים עדיין",
-    noDesc: "אתגרים חדשים מתפרסמים כל שבוע. חזרו בקרוב!",
-    rank: "דירוג",
-    singer: "זמר",
-    score: "ציון",
-    timeLeft: "זמן נותר",
-    days: "י",
-    hours: "ש",
-    mins: "ד",
-    entered: "נרשמת",
-    back: "חזרה",
-    yourScore: "הציון שלך",
-    selectPerformance: "בחר ביצוע להגשה",
-  },
+  en: { title: "Weekly Challenges", subtitle: "Compete with singers worldwide", active: "Active", upcoming: "Upcoming", ended: "Ended", participants: "participants", prize: "Prize", credits: "credits", enterChallenge: "Enter Challenge", leaderboard: "Leaderboard", noChallenge: "No challenges yet", noDesc: "New challenges are posted every week. Check back soon!", rank: "Rank", singer: "Singer", score: "Score", timeLeft: "Time left", days: "d", hours: "h", mins: "m", entered: "Entered", back: "Back", yourScore: "Your Score", selectPerformance: "Select a performance to submit" },
+  he: { title: "אתגרים שבועיים", subtitle: "התחרו עם זמרים מכל העולם", active: "פעיל", upcoming: "בקרוב", ended: "הסתיים", participants: "משתתפים", prize: "פרס", credits: "קרדיטים", enterChallenge: "הצטרף לאתגר", leaderboard: "טבלת מובילים", noChallenge: "אין אתגרים עדיין", noDesc: "אתגרים חדשים מתפרסמים כל שבוע. חזרו בקרוב!", rank: "דירוג", singer: "זמר", score: "ציון", timeLeft: "זמן נותר", days: "י", hours: "ש", mins: "ד", entered: "נרשמת", back: "חזרה", yourScore: "הציון שלך", selectPerformance: "בחר ביצוע להגשה" },
   ar: { title: "تحديات أسبوعية", subtitle: "تنافس مع مغنين من حول العالم", active: "نشط", upcoming: "قادم", ended: "انتهى", participants: "مشاركين", prize: "جائزة", credits: "رصيد", enterChallenge: "شارك في التحدي", leaderboard: "لوحة المتصدرين", noChallenge: "لا توجد تحديات بعد", noDesc: "تُنشر تحديات جديدة كل أسبوع. عد قريبًا!", rank: "الترتيب", singer: "مغني", score: "النتيجة", timeLeft: "الوقت المتبقي", days: "ي", hours: "س", mins: "د", entered: "مسجل", back: "رجوع", yourScore: "نتيجتك", selectPerformance: "اختر أداءً للإرسال" },
   ko: { title: "주간 챌린지", subtitle: "전 세계 가수들과 경쟁하세요", active: "진행중", upcoming: "예정", ended: "종료", participants: "참가자", prize: "상금", credits: "크레딧", enterChallenge: "챌린지 참가", leaderboard: "리더보드", noChallenge: "아직 챌린지가 없습니다", noDesc: "매주 새로운 챌린지가 게시됩니다. 곧 다시 확인하세요!", rank: "순위", singer: "가수", score: "점수", timeLeft: "남은 시간", days: "일", hours: "시", mins: "분", entered: "참가완료", back: "뒤로", yourScore: "내 점수", selectPerformance: "제출할 공연을 선택하세요" },
   ja: { title: "ウィークリーチャレンジ", subtitle: "世界中の歌手と競争しよう", active: "開催中", upcoming: "近日", ended: "終了", participants: "参加者", prize: "賞品", credits: "クレジット", enterChallenge: "チャレンジに参加", leaderboard: "リーダーボード", noChallenge: "まだチャレンジはありません", noDesc: "毎週新しいチャレンジが公開されます。またチェックしてください！", rank: "順位", singer: "歌手", score: "スコア", timeLeft: "残り時間", days: "日", hours: "時", mins: "分", entered: "参加済み", back: "戻る", yourScore: "あなたのスコア", selectPerformance: "提出するパフォーマンスを選択" },
@@ -72,10 +24,7 @@ const T: Record<string, Record<string, string>> = {
 function getTimeLeft(endDate: string) {
   const diff = new Date(endDate).getTime() - Date.now();
   if (diff <= 0) return null;
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  return { days, hours, mins };
+  return { days: Math.floor(diff / 86400000), hours: Math.floor((diff % 86400000) / 3600000), mins: Math.floor((diff % 3600000) / 60000) };
 }
 
 function ChallengeEntryForm({ challengeId, lang }: { challengeId: number; lang: string }) {
@@ -84,33 +33,37 @@ function ChallengeEntryForm({ challengeId, lang }: { challengeId: number; lang: 
   const enterChallenge = useEnterChallenge();
   const [selectedPerfId, setSelectedPerfId] = useState<number | null>(null);
 
-  if (isLoading) return <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />;
+  if (isLoading) return <div className="w-6 h-6 border-2 border-violet-300 border-t-transparent rounded-full animate-spin mx-auto" />;
   if (!perfs || perfs.length === 0) return <p className="text-white/40 text-sm">{t.noChallenge}</p>;
 
   return (
-    <div className="mt-4 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl">
-      <p className="text-sm text-white/60 mb-3">{t.selectPerformance}</p>
+    <div className="mt-5 p-4 ds-glass rounded-xl">
+      <p className="text-sm text-white/60 mb-3 font-medium">{t.selectPerformance}</p>
       <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-        {perfs.map((p: any) => (
-          <button
-            key={p.id}
-            onClick={() => setSelectedPerfId(p.id)}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg text-start transition-all ${
-              selectedPerfId === p.id ? "bg-primary/20 border border-primary/40" : "bg-white/[0.02] border border-white/5 hover:bg-white/[0.05]"
-            }`}
-          >
-            <span className={`text-lg font-bold ${p.score >= 90 ? "text-green-400" : p.score >= 70 ? "text-yellow-400" : "text-orange-400"}`}>{p.score}</span>
-            <span className="text-sm text-white/70 flex-1 truncate">{p.song_name || "Unknown"}</span>
-            {selectedPerfId === p.id && <Check className="w-4 h-4 text-primary" />}
-          </button>
-        ))}
+        {perfs.map((p: any) => {
+          const sc = p.score >= 90 ? "text-emerald-300" : p.score >= 70 ? "text-amber-300" : "text-orange-300";
+          const sel = selectedPerfId === p.id;
+          return (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPerfId(p.id)}
+              className={`w-full flex items-center gap-3 p-3 rounded-lg text-start transition-all ${
+                sel ? "bg-violet-500/20 border border-violet-400/40" : "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06]"
+              }`}
+            >
+              <span className={`text-lg font-bold ${sc} drop-shadow-[0_0_8px_currentColor]`}>{p.score}</span>
+              <span className="text-sm text-white/70 flex-1 truncate" dir="auto">{p.song_name || "Unknown"}</span>
+              {sel && <Check className="w-4 h-4 text-violet-300" />}
+            </button>
+          );
+        })}
       </div>
       <button
         onClick={() => { if (selectedPerfId) enterChallenge.mutate({ challengeId, performanceId: selectedPerfId }); }}
         disabled={!selectedPerfId || enterChallenge.isPending}
-        className="w-full py-2.5 rounded-xl bg-primary text-white font-medium text-sm disabled:opacity-40 hover:bg-primary/80 transition-colors"
+        className="ds-btn ds-btn-primary w-full py-3 text-sm disabled:opacity-40"
       >
-        {enterChallenge.isPending ? "..." : t.enterChallenge}
+        {enterChallenge.isPending ? "..." : <><Sparkles className="w-4 h-4" />{t.enterChallenge}</>}
       </button>
     </div>
   );
@@ -121,7 +74,7 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
   const t = T[lang] || T.en;
   const isRtl = lang === "he" || lang === "ar";
 
-  if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" /></div>;
   if (!data) return null;
 
   const { challenge, leaderboard, myEntry } = data;
@@ -129,51 +82,58 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"}>
-      <button onClick={onBack} className="flex items-center gap-2 text-white/50 hover:text-white mb-6 transition-colors">
+      <button onClick={onBack} className="inline-flex items-center gap-2 text-white/45 hover:text-white mb-6 transition-colors text-sm">
         <ArrowLeft className="w-4 h-4" />{t.back}
       </button>
 
-      <div className="glass-card rounded-2xl p-6 mb-6">
-        <div className="relative flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-1 font-display">{challenge.title}</h2>
-            {challenge.description && <p className="text-white/50 text-sm">{challenge.description}</p>}
-            {challenge.song_name && <p className="text-primary text-sm mt-1">🎵 {challenge.song_name}</p>}
-          </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            challenge.status === "active" ? "bg-green-500/20 text-green-400" :
-            challenge.status === "upcoming" ? "bg-blue-500/20 text-blue-400" :
-            "bg-white/10 text-white/50"
-          }`}>{t[challenge.status as keyof typeof t] || challenge.status}</span>
-        </div>
-
-        <div className="flex flex-wrap gap-4 text-sm">
-          {timeLeft && (
-            <div className="flex items-center gap-1.5 text-yellow-400">
-              <Clock className="w-4 h-4" />
-              {t.timeLeft}: {timeLeft.days}{t.days} {timeLeft.hours}{t.hours} {timeLeft.mins}{t.mins}
+      <div className="ds-card-feature relative p-6 sm:p-8 mb-6 overflow-hidden">
+        <div className="ds-orb ds-orb-violet absolute -top-12 -right-12 w-48 h-48 opacity-50" />
+        <div className="relative">
+          <div className="flex items-start justify-between mb-4 gap-4">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-1.5">{challenge.title}</h2>
+              {challenge.description && <p className="text-white/55 text-sm">{challenge.description}</p>}
+              {challenge.song_name && (
+                <div className="inline-flex items-center gap-1.5 mt-2 text-violet-300 text-sm bg-violet-500/10 border border-violet-400/25 rounded-full px-3 py-1">
+                  <Music2 className="w-3.5 h-3.5" />{challenge.song_name}
+                </div>
+              )}
             </div>
-          )}
-          {challenge.prize_credits > 0 && (
-            <div className="flex items-center gap-1.5 text-primary">
-              <Star className="w-4 h-4" />
-              {t.prize}: {challenge.prize_credits} {t.credits}
-            </div>
-          )}
-        </div>
-
-        {myEntry ? (
-          <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-sm">
-            <span className="text-primary font-medium">✓ {t.entered}</span>
-            <span className="text-white/60 ms-3">{t.yourScore}: {myEntry.score}</span>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+              challenge.status === "active" ? "bg-emerald-500/15 text-emerald-300 border border-emerald-400/25" :
+              challenge.status === "upcoming" ? "bg-cyan-500/15 text-cyan-300 border border-cyan-400/25" :
+              "bg-white/[0.05] text-white/45 border border-white/10"
+            }`}>{t[challenge.status as keyof typeof t] || challenge.status}</span>
           </div>
-        ) : challenge.status === "active" ? (
-          <ChallengeEntryForm challengeId={id} lang={lang} />
-        ) : null}
+
+          <div className="flex flex-wrap gap-3 text-sm">
+            {timeLeft && (
+              <div className="ds-glass rounded-full px-4 py-1.5 inline-flex items-center gap-1.5 text-amber-300">
+                <Clock className="w-3.5 h-3.5" />
+                {t.timeLeft}: {timeLeft.days}{t.days} {timeLeft.hours}{t.hours} {timeLeft.mins}{t.mins}
+              </div>
+            )}
+            {challenge.prize_credits > 0 && (
+              <div className="ds-glass rounded-full px-4 py-1.5 inline-flex items-center gap-1.5 text-violet-300">
+                <Star className="w-3.5 h-3.5" />
+                {t.prize}: {challenge.prize_credits} {t.credits}
+              </div>
+            )}
+          </div>
+
+          {myEntry ? (
+            <div className="mt-5 p-4 bg-violet-500/10 border border-violet-400/30 rounded-xl text-sm flex items-center justify-between">
+              <span className="inline-flex items-center gap-2 text-violet-300 font-semibold"><Check className="w-4 h-4" />{t.entered}</span>
+              <span className="text-white/65">{t.yourScore}: <span className="font-bold text-white">{myEntry.score}</span></span>
+            </div>
+          ) : challenge.status === "active" ? (
+            <ChallengeEntryForm challengeId={id} lang={lang} />
+          ) : null}
+        </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-        <Trophy className="w-5 h-5 text-yellow-400" />{t.leaderboard}
+      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <Trophy className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,.5)]" />{t.leaderboard}
       </h3>
 
       {leaderboard.length === 0 ? (
@@ -181,21 +141,19 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
       ) : (
         <div className="space-y-2">
           {leaderboard.map((entry: any, i: number) => (
-            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
-              i < 3 ? "bg-white/[0.05] border border-white/10" : "bg-white/[0.02]"
+            <div key={i} className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all ${
+              i < 3 ? "ds-card" : "bg-white/[0.02] border border-white/[0.05]"
             }`}>
-              <span className="w-8 text-center font-bold text-lg">
-                {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span className="text-white/30">{i + 1}</span>}
+              <span className="w-8 text-center font-bold text-lg shrink-0">
+                {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span className="text-white/35 text-sm">#{i + 1}</span>}
               </span>
               {entry.picture ? (
-                <img src={entry.picture} alt="" className="w-8 h-8 rounded-full object-cover" />
+                <img src={entry.picture} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-400/20" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs text-white font-bold">
-                  {(entry.display_name || "?")[0]}
-                </div>
+                <div className="w-9 h-9 rounded-full ds-icon-orb text-xs font-bold">{(entry.display_name || "?")[0]}</div>
               )}
-              <span className="flex-1 text-sm text-white truncate">{entry.display_name}</span>
-              <span className="text-primary font-bold">{entry.score}</span>
+              <span className="flex-1 text-sm text-white truncate font-medium">{entry.display_name}</span>
+              <span className="text-lg font-black ds-grad-text">{entry.score}</span>
             </div>
           ))}
         </div>
@@ -213,8 +171,15 @@ export default function Challenges() {
 
   if (selectedId) {
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 py-10">
-        <ChallengeDetail id={selectedId} onBack={() => setSelectedId(null)} lang={lang} />
+      <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="absolute top-0 inset-x-0 h-[420px] -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 ds-bg-aurora opacity-50" />
+          <div className="ds-orb ds-orb-violet absolute -top-24 left-10 w-96 h-96 opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
+        </div>
+        <div className="w-full max-w-3xl mx-auto px-4 py-10">
+          <ChallengeDetail id={selectedId} onBack={() => setSelectedId(null)} lang={lang} />
+        </div>
       </div>
     );
   }
@@ -225,60 +190,95 @@ export default function Challenges() {
   const ended = challenges.filter((c: any) => c.status === "ended");
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-10" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/15 mb-4">
-          <Trophy className="w-8 h-8 text-white drop-shadow-lg" />
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-2 font-display">{t.title}</h1>
-        <p className="text-white/30">{t.subtitle}</p>
+    <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={isRtl ? "rtl" : "ltr"}>
+      <div className="absolute top-0 inset-x-0 h-[460px] -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 ds-bg-galaxy" />
+        <div className="absolute inset-0 ds-bg-aurora opacity-50" />
+        <div className="ds-orb absolute -top-32 left-1/2 -translate-x-1/2 w-[520px] h-[520px] opacity-50" style={{ background: "radial-gradient(circle, rgba(252,211,77,.4) 0%, transparent 70%)" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
-      ) : challenges.length === 0 ? (
-        <div className="text-center py-16">
-          <Medal className="w-12 h-12 text-white/20 mx-auto mb-4" />
-          <p className="text-white/40 text-lg">{t.noChallenge}</p>
-          <p className="text-white/30 text-sm mt-2">{t.noDesc}</p>
+      <div className="w-full max-w-3xl mx-auto px-4 py-12 sm:py-16">
+        <div className="text-center mb-12 ds-reveal">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ds-icon-orb"
+               style={{ background: "linear-gradient(135deg,#FBBF24,#F97316)", boxShadow: "0 0 40px rgba(251,191,36,.55)" }}>
+            <Trophy className="w-8 h-8 text-white drop-shadow-lg" />
+          </div>
+          <h1 className="ds-page-title font-bold text-white mb-2">{t.title}</h1>
+          <p className="text-white/55 text-base">{t.subtitle}</p>
         </div>
-      ) : (
-        <div className="space-y-8">
-          {[
-            { label: t.active, items: active, color: "green" },
-            { label: t.upcoming, items: upcoming, color: "blue" },
-            { label: t.ended, items: ended, color: "gray" },
-          ].filter(g => g.items.length > 0).map(group => (
-            <div key={group.label}>
-              <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">{group.label}</h2>
-              <div className="space-y-3">
-                {group.items.map((c: any) => {
-                  const timeLeft = getTimeLeft(c.end_date);
-                  return (
-                    <button
-                      key={c.id}
-                      onClick={() => setSelectedId(c.id)}
-                      className="w-full text-start glass-card hover:bg-white/[0.04] rounded-2xl p-5 transition-all duration-300 group"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">{c.title}</h3>
-                        <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-primary transition-colors" />
-                      </div>
-                      {c.song_name && <p className="text-primary/70 text-sm mb-3">🎵 {c.song_name}</p>}
-                      <div className="flex flex-wrap gap-4 text-xs text-white/40">
-                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{c.entry_count} {t.participants}</span>
-                        {c.prize_credits > 0 && <span className="flex items-center gap-1 text-primary"><Star className="w-3.5 h-3.5" />{c.prize_credits} {t.credits}</span>}
-                        {timeLeft && <span className="flex items-center gap-1 text-yellow-400/70"><Clock className="w-3.5 h-3.5" />{timeLeft.days}{t.days} {timeLeft.hours}{t.hours}</span>}
-                        {c.hasEntered && <span className="text-green-400">✓ {t.entered}</span>}
-                      </div>
-                    </button>
-                  );
-                })}
+
+        {isLoading ? (
+          <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" /></div>
+        ) : challenges.length === 0 ? (
+          <div className="ds-card-feature text-center py-16">
+            <Medal className="w-12 h-12 text-white/20 mx-auto mb-4" />
+            <p className="text-white/50 text-lg font-semibold">{t.noChallenge}</p>
+            <p className="text-white/35 text-sm mt-2">{t.noDesc}</p>
+          </div>
+        ) : (
+          <div className="space-y-10">
+            {[
+              { label: t.active, items: active, accent: "emerald" },
+              { label: t.upcoming, items: upcoming, accent: "cyan" },
+              { label: t.ended, items: ended, accent: "white" },
+            ].filter(g => g.items.length > 0).map(group => (
+              <div key={group.label}>
+                <h2 className="text-xs font-bold text-white/45 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <span className={`w-1 h-4 rounded-full ${group.accent === "emerald" ? "bg-emerald-400" : group.accent === "cyan" ? "bg-cyan-400" : "bg-white/20"}`} />
+                  {group.label}
+                </h2>
+                <div className="space-y-3">
+                  {group.items.map((c: any, i: number) => {
+                    const timeLeft = getTimeLeft(c.end_date);
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedId(c.id)}
+                        className="w-full text-start ds-card relative overflow-hidden p-5 sm:p-6 transition-all duration-300 hover:border-white/15 group ds-reveal"
+                        style={{ animationDelay: `${i * 40}ms` }}
+                      >
+                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-violet-500/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-violet-200 transition-colors">{c.title}</h3>
+                            <ChevronRight className={`w-5 h-5 text-white/30 group-hover:text-violet-300 transition-all group-hover:translate-x-1 ${isRtl ? "rotate-180" : ""}`} />
+                          </div>
+                          {c.song_name && (
+                            <div className="inline-flex items-center gap-1.5 mb-3 text-violet-300/85 text-sm">
+                              <Music2 className="w-3.5 h-3.5" />{c.song_name}
+                            </div>
+                          )}
+                          <div className="flex flex-wrap gap-3 text-xs">
+                            <span className="inline-flex items-center gap-1.5 text-white/55 bg-white/[0.04] border border-white/[0.08] rounded-full px-2.5 py-1">
+                              <Users className="w-3.5 h-3.5" />{c.entry_count} {t.participants}
+                            </span>
+                            {c.prize_credits > 0 && (
+                              <span className="inline-flex items-center gap-1.5 text-violet-300 bg-violet-500/10 border border-violet-400/25 rounded-full px-2.5 py-1">
+                                <Star className="w-3.5 h-3.5" />{c.prize_credits} {t.credits}
+                              </span>
+                            )}
+                            {timeLeft && (
+                              <span className="inline-flex items-center gap-1.5 text-amber-300 bg-amber-500/10 border border-amber-400/25 rounded-full px-2.5 py-1">
+                                <Clock className="w-3.5 h-3.5" />{timeLeft.days}{t.days} {timeLeft.hours}{t.hours}
+                              </span>
+                            )}
+                            {c.hasEntered && (
+                              <span className="inline-flex items-center gap-1.5 text-emerald-300 bg-emerald-500/10 border border-emerald-400/25 rounded-full px-2.5 py-1 font-semibold">
+                                <Check className="w-3.5 h-3.5" />{t.entered}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

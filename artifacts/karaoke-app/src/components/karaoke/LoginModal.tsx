@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Mic2, AlertCircle } from "lucide-react";
+import { Mic2, AlertCircle, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
 
@@ -29,13 +28,9 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleGoogleLogin = () => {
-    if (!agreedToTerms) {
-      setError(t.login.mustAgreeError);
-      return;
-    }
+    if (!agreedToTerms) { setError(t.login.mustAgreeError); return; }
     const apiBase = import.meta.env.VITE_API_URL ?? "";
-    const width = 500;
-    const height = 650;
+    const width = 500, height = 650;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
     const popup = window.open(
@@ -48,22 +43,14 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
     const onMessage = (e: MessageEvent) => {
       if (e.source !== popup) return;
       if (e.data?.type === "AUTH_SUCCESS") {
-        if (e.data.token) {
-          localStorage.setItem("myoukee_auth_token", e.data.token);
-        }
+        if (e.data.token) localStorage.setItem("myoukee_auth_token", e.data.token);
         cleanup();
         queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         onOpenChange(false);
       }
     };
-
-    const cleanup = () => {
-      clearInterval(timer);
-      window.removeEventListener("message", onMessage);
-    };
-
+    const cleanup = () => { clearInterval(timer); window.removeEventListener("message", onMessage); };
     window.addEventListener("message", onMessage);
-
     const timer = setInterval(() => {
       if (popup.closed) {
         cleanup();
@@ -75,56 +62,63 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-white/10 text-center" dir={t.dir}>
-        <div className="flex flex-col items-center gap-6 py-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
-            <Mic2 className="h-8 w-8 text-white" />
-          </div>
+      <DialogContent
+        className="sm:max-w-md border-white/[0.08] text-center p-0 overflow-hidden"
+        style={{ background: "linear-gradient(180deg, rgba(15,12,30,.98), rgba(8,6,18,.98))" }}
+        dir={t.dir}
+      >
+        <div className="relative p-7 sm:p-8 overflow-hidden">
+          <div className="absolute inset-0 ds-bg-aurora opacity-30 pointer-events-none" />
+          <div className="ds-orb ds-orb-violet absolute -top-20 -right-16 w-64 h-64 opacity-50 pointer-events-none" />
+          <div className="ds-orb ds-orb-pink absolute -bottom-16 -left-16 w-56 h-56 opacity-40 pointer-events-none" style={{ animationDelay: "1.5s" }} />
 
-          <DialogTitle className="text-2xl font-display font-bold">
-            {reason === "paywall"
-              ? t.login.paywallTitle
-              : t.login.welcome}
-          </DialogTitle>
-
-          <p className="text-muted-foreground text-sm max-w-xs">
-            {reason === "paywall"
-              ? t.login.paywallSubtitle
-              : t.login.subtitle}
-          </p>
-
-          {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 w-full" dir="auto">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+          <div className="relative flex flex-col items-center gap-5">
+            <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider">
+              <Sparkles className="w-3 h-3" />Sign in
             </div>
-          )}
 
-          <Button
-            size="lg"
-            className="w-full gap-3 bg-white text-gray-900 hover:bg-gray-100 font-semibold"
-            onClick={handleGoogleLogin}
-          >
-            <GoogleIcon />
-            {t.login.googleButton}
-          </Button>
+            <div className="ds-icon-orb h-16 w-16 rounded-2xl">
+              <Mic2 className="h-8 w-8 text-white drop-shadow-lg" />
+            </div>
 
-          <label className="flex items-start gap-3 max-w-xs cursor-pointer select-none group text-start">
-            <input
-              type="checkbox"
-              checked={agreedToTerms}
-              onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 accent-[hsl(var(--primary))] cursor-pointer"
-            />
-            <span className="text-xs text-muted-foreground group-hover:text-white/60 transition-colors leading-relaxed">
-              {t.login.agreeToTerms}{" "}
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.termsLink}</a>
-              {" · "}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.privacyLink}</a>
-              {" · "}
-              <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.copyrightLink}</a>
-            </span>
-          </label>
+            <DialogTitle className="text-2xl font-display font-bold text-white">
+              {reason === "paywall" ? t.login.paywallTitle : t.login.welcome}
+            </DialogTitle>
+
+            <p className="text-white/55 text-sm max-w-xs leading-relaxed">
+              {reason === "paywall" ? t.login.paywallSubtitle : t.login.subtitle}
+            </p>
+
+            {error && (
+              <div className="flex items-center gap-2 text-rose-300 text-sm bg-rose-500/10 border border-rose-500/25 rounded-xl px-4 py-3 w-full" dir="auto">
+                <AlertCircle className="w-4 h-4 shrink-0" />{error}
+              </div>
+            )}
+
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full inline-flex items-center justify-center gap-3 py-3.5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-semibold text-sm transition-all duration-300 shadow-lg shadow-black/20 hover:shadow-violet-500/20 active:scale-[0.98]"
+            >
+              <GoogleIcon />{t.login.googleButton}
+            </button>
+
+            <label className="flex items-start gap-3 max-w-xs cursor-pointer select-none group text-start">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 text-violet-500 focus:ring-violet-400/40 focus:ring-offset-0 accent-violet-500 cursor-pointer"
+              />
+              <span className="text-xs text-white/45 group-hover:text-white/65 transition-colors leading-relaxed">
+                {t.login.agreeToTerms}{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.termsLink}</a>
+                {" · "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.privacyLink}</a>
+                {" · "}
+                <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.copyrightLink}</a>
+              </span>
+            </label>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

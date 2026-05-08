@@ -195,11 +195,10 @@ export function FloatingShareFab() {
         aria-label={open ? uiT.share.closeMenu : uiT.share.shareApp}
         aria-expanded={open}
         aria-controls={MENU_ID}
-        className={`flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 ${
-          open
-            ? "bg-white/10 backdrop-blur-md rotate-0"
-            : "bg-gradient-to-br from-primary to-accent hover:scale-110 hover:shadow-primary/40"
+        className={`relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 ${
+          open ? "ds-glass rotate-0" : "ds-icon-orb hover:scale-110"
         }`}
+        style={open ? undefined : { boxShadow: "0 8px 32px rgba(139,92,246,.5), 0 0 0 1px rgba(139,92,246,.3) inset" }}
       >
         {open ? (
           <X className="w-6 h-6 text-white" />

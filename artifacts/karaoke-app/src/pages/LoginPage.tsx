@@ -1,6 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { Mic2, Mail, Lock, User, Loader2, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Mic2, Mail, Lock, User, Loader2, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEmailLogin, useEmailRegister, useForgotPassword, useResetPassword, consumeAuthErrorFromUrl } from "@/hooks/use-auth";
 import { useLang, type SupportedLang } from "@/contexts/LanguageContext";
@@ -26,6 +25,14 @@ function GoogleIcon() {
 }
 
 type PageMode = "login" | "register" | "forgot" | "reset" | "reset-success";
+
+const INPUT_BASE =
+  "w-full bg-white/[0.04] border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-violet-400/40 transition-all";
+
+const PRIMARY_BTN =
+  "ds-btn ds-btn-primary w-full h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed";
+
+const CARD = "ds-card-feature p-6 sm:p-8";
 
 export default function LoginPage() {
   useNoIndex();
@@ -115,12 +122,10 @@ export default function LoginPage() {
       setError(t.login.mustAgreeError);
       return;
     }
-
     if (!email || !password) {
       setError(t.login.emailLabel + " & " + t.login.passwordLabel + " required");
       return;
     }
-
     if (password.length < 6) {
       setError(t.login.passwordMinLength);
       return;
@@ -200,28 +205,30 @@ export default function LoginPage() {
 
   const isRtl = t.dir === "rtl";
 
+  const ErrorBanner = error ? (
+    <div className="flex items-center gap-2 text-pink-300 text-sm rounded-xl px-4 py-3 mb-4" style={{ background: "rgba(236,72,153,.12)", border: "1px solid rgba(236,72,153,.3)" }} dir="auto">
+      <AlertCircle className="w-4 h-4 shrink-0" />
+      {error}
+    </div>
+  ) : null;
+
   const renderContent = () => {
     if (mode === "reset-success") {
       return (
-        <div className="glass-panel rounded-3xl border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-center">
+        <div className={`${CARD} text-center`}>
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 text-green-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,.18)", border: "1px solid rgba(34,197,94,.4)", boxShadow: "0 0 24px rgba(34,197,94,.25)" }}>
+              <CheckCircle2 className="w-8 h-8 text-green-300" />
             </div>
           </div>
           <h3 className="text-lg font-bold text-white mb-2">{t.login.resetSuccess}</h3>
-          <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc.replace(
-            t.login.resetEmailSentDesc, 
-            mode === "reset-success" ? t.login.resetSuccess : t.login.resetEmailSentDesc
-          )}</p>
-          <Button
-            onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-            }}
-            className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+          <p className="text-sm text-white/55 mb-6">{t.login.resetEmailSentDesc}</p>
+          <button
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["auth", "me"] })}
+            className={PRIMARY_BTN}
           >
             {t.login.loginButton}
-          </Button>
+          </button>
         </div>
       );
     }
@@ -229,17 +236,17 @@ export default function LoginPage() {
     if (mode === "forgot") {
       if (resetSent) {
         return (
-          <div className="glass-panel rounded-3xl border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-center">
+          <div className={`${CARD} text-center`}>
             <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                <Mail className="w-8 h-8 text-primary" />
+              <div className="ds-icon-orb w-16 h-16 rounded-full">
+                <Mail className="w-8 h-8 text-white" />
               </div>
             </div>
             <h3 className="text-lg font-bold text-white mb-2">{t.login.resetEmailSent}</h3>
-            <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc}</p>
+            <p className="text-sm text-white/55 mb-6">{t.login.resetEmailSentDesc}</p>
             <button
               onClick={goToLogin}
-              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+              className="text-sm text-violet-300 hover:text-violet-200 font-medium transition-colors"
             >
               {t.login.backToLogin}
             </button>
@@ -248,28 +255,23 @@ export default function LoginPage() {
       }
 
       return (
-        <div className="glass-panel rounded-3xl border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+        <div className={CARD}>
           <button
             onClick={goToLogin}
-            className={`flex items-center gap-1 text-sm text-white/40 hover:text-white/70 transition-colors mb-6 ${isRtl ? 'flex-row-reverse' : ''}`}
+            className={`flex items-center gap-1 text-sm text-white/45 hover:text-white/80 transition-colors mb-6 ${isRtl ? 'flex-row-reverse' : ''}`}
           >
             <ArrowLeft className="w-4 h-4" />
             {t.login.backToLogin}
           </button>
 
           <h3 className="text-lg font-bold text-white mb-2">{t.login.forgotPassword}</h3>
-          <p className="text-sm text-white/50 mb-6">{t.login.resetEmailSentDesc}</p>
+          <p className="text-sm text-white/55 mb-6">{t.login.resetEmailSentDesc}</p>
 
-          {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
-            </div>
-          )}
+          {ErrorBanner}
 
           <form onSubmit={handleForgotSubmit} className="space-y-4">
             <div className="relative">
-              <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
               <input
                 type="email"
                 value={email}
@@ -277,22 +279,13 @@ export default function LoginPage() {
                 placeholder={t.login.emailLabel}
                 required
                 dir="ltr"
-                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+                className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
               />
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                t.login.sendResetLink
-              )}
-            </Button>
+            <button type="submit" className={PRIMARY_BTN} disabled={loading}>
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t.login.sendResetLink}
+            </button>
           </form>
         </div>
       );
@@ -300,20 +293,15 @@ export default function LoginPage() {
 
     if (mode === "reset") {
       return (
-        <div className="glass-panel rounded-3xl border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+        <div className={CARD}>
           <h3 className="text-lg font-bold text-white mb-2">{t.login.resetPassword}</h3>
-          <p className="text-sm text-white/50 mb-6">{t.login.passwordMinLength}</p>
+          <p className="text-sm text-white/55 mb-6">{t.login.passwordMinLength}</p>
 
-          {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
-            </div>
-          )}
+          {ErrorBanner}
 
           <form onSubmit={handleResetSubmit} className="space-y-4">
             <div className="relative">
-              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -321,19 +309,19 @@ export default function LoginPage() {
                 placeholder={t.login.newPassword}
                 required
                 dir="ltr"
-                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
+                className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+                className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-violet-300 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
 
             <div className="relative">
-              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
               <input
                 type={showPassword ? "text" : "password"}
                 value={confirmPw}
@@ -341,28 +329,19 @@ export default function LoginPage() {
                 placeholder={t.login.confirmPassword}
                 required
                 dir="ltr"
-                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+                className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
               />
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                t.login.resetPassword
-              )}
-            </Button>
+            <button type="submit" className={PRIMARY_BTN} disabled={loading}>
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t.login.resetPassword}
+            </button>
           </form>
 
           <div className="mt-5 text-center">
             <button
               onClick={goToLogin}
-              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+              className="text-sm text-violet-300 hover:text-violet-200 font-medium transition-colors"
             >
               {t.login.backToLogin}
             </button>
@@ -372,45 +351,39 @@ export default function LoginPage() {
     }
 
     return (
-      <div className="glass-panel rounded-3xl border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
-        <Button
-          size="lg"
-          className="w-full gap-3 bg-white text-gray-900 hover:bg-gray-100 font-semibold h-12 text-base rounded-xl shadow-md"
+      <div className={CARD}>
+        <button
+          className="w-full gap-3 bg-white text-gray-900 hover:bg-gray-100 font-semibold h-12 text-base rounded-xl shadow-md flex items-center justify-center transition-colors"
           onClick={handleGoogleLogin}
         >
           <GoogleIcon />
           {t.login.googleButton}
-        </Button>
+        </button>
 
         <div className="flex items-center gap-3 my-6">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-sm text-white/30 font-medium">{t.login.orDivider}</span>
+          <span className="text-sm text-white/40 font-medium">{t.login.orDivider}</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        {error && (
-          <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-4 py-3 mb-4" dir="auto">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            {error}
-          </div>
-        )}
+        {ErrorBanner}
 
         <form onSubmit={handleEmailSubmit} className="space-y-4">
           {mode === "register" && (
             <div className="relative">
-              <User className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+              <User className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder={t.login.displayNameLabel}
-                className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
+                className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
               />
             </div>
           )}
 
           <div className="relative">
-            <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
             <input
               type="email"
               value={email}
@@ -418,12 +391,12 @@ export default function LoginPage() {
               placeholder={t.login.emailLabel}
               required
               dir="ltr"
-              className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
+              className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'}`}
             />
           </div>
 
           <div className="relative">
-            <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <Lock className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 ${isRtl ? 'right-3' : 'left-3'}`} />
             <input
               type={showPassword ? "text" : "password"}
               value={password}
@@ -431,12 +404,12 @@ export default function LoginPage() {
               placeholder={t.login.passwordLabel}
               required
               dir="ltr"
-              className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
+              className={`${INPUT_BASE} ${isRtl ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10'}`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`absolute top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+              className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-violet-300 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -447,19 +420,14 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => { setMode("forgot"); setError(null); }}
-                className="text-xs text-white/40 hover:text-primary transition-colors"
+                className="text-xs text-white/50 hover:text-violet-300 transition-colors"
               >
                 {t.login.forgotPassword}
               </button>
             </div>
           )}
 
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-            disabled={loading}
-          >
+          <button type="submit" className={PRIMARY_BTN} disabled={loading}>
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : mode === "login" ? (
@@ -467,26 +435,26 @@ export default function LoginPage() {
             ) : (
               t.login.registerButton
             )}
-          </Button>
+          </button>
         </form>
 
         <div className="mt-5 text-center">
           {mode === "login" ? (
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-white/50">
               {t.login.noAccount}{" "}
               <button
                 onClick={() => { setMode("register"); setError(null); }}
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                className="text-violet-300 hover:text-violet-200 font-semibold transition-colors"
               >
                 {t.login.registerButton}
               </button>
             </p>
           ) : (
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-white/50">
               {t.login.hasAccount}{" "}
               <button
                 onClick={() => { setMode("login"); setError(null); }}
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                className="text-violet-300 hover:text-violet-200 font-semibold transition-colors"
               >
                 {t.login.loginButton}
               </button>
@@ -498,83 +466,83 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 grid place-items-center overflow-auto" dir={t.dir}>
-      <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
-        <img
-          src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1920&h=1080&fit=crop&q=80"
-          alt=""
-          className="w-full h-full object-cover opacity-[0.08]"
-          style={{ filter: "saturate(0.4) brightness(0.5)" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/6 via-transparent to-accent/4" />
-      </div>
+    <div className="fixed inset-0 grid place-items-center overflow-auto ds-bg-galaxy" dir={t.dir}>
+      <div className="absolute inset-0 ds-bg-aurora opacity-40 pointer-events-none" aria-hidden="true" />
+      <div className="ds-orb ds-orb-violet absolute top-[-10%] left-[-10%] w-[500px] h-[500px] opacity-50 pointer-events-none" aria-hidden="true" />
+      <div className="ds-orb ds-orb-pink absolute bottom-[-10%] right-[-10%] w-[480px] h-[480px] opacity-45 pointer-events-none" aria-hidden="true" style={{ animationDelay: "2s" }} />
+      <div className="ds-orb ds-orb-cyan absolute top-1/2 right-[10%] w-[320px] h-[320px] opacity-30 pointer-events-none" aria-hidden="true" style={{ animationDelay: "4s" }} />
 
       <div className="fixed top-4 right-4 z-50" dir="ltr">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/10 transition-colors border border-white/10 bg-white/5 backdrop-blur-sm">
+            <button className="ds-glass flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white/65 hover:text-white transition-colors">
               <Globe className="w-4 h-4" />
               <span className="text-base leading-none">{allLangs.find(l => l.code === lang)?.flag}</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-card border-white/10 min-w-[160px] max-h-[400px] overflow-y-auto">
+          <DropdownMenuContent align="end" className="glass-panel min-w-[160px] max-h-[400px] overflow-y-auto">
             {allLangs.map(({ code, name, flag }) => (
               <DropdownMenuItem
                 key={code}
                 onClick={() => setLang(code as SupportedLang)}
-                className={`cursor-pointer gap-2 ${lang === code ? "text-primary" : ""}`}
+                className={`cursor-pointer gap-2 ${lang === code ? "text-violet-300" : ""}`}
               >
                 <span>{flag}</span>{name}
-                {lang === code && <span className="ml-auto text-primary text-xs">✓</span>}
+                {lang === code && <span className="ml-auto text-violet-300 text-xs">✓</span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <div className="w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
-                <Mic2 className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-lg" />
-              </div>
+      <div className="relative w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-5">
+            <div className="ds-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider">
+              <Sparkles className="w-3 h-3" />MYOUKEE AI
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold mb-1">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">MY</span>
-              <span className="text-white">OUKEE</span>
-            </h1>
-            {(mode === "login" || mode === "register") && (
-              <>
-                <h2 className="text-xl sm:text-2xl font-display font-bold mt-4 text-white">
-                  {t.login.welcome}
-                </h2>
-                <p className="text-white/30 text-sm mt-2 max-w-xs mx-auto">
-                  {t.login.subtitle}
-                </p>
-              </>
-            )}
           </div>
-
-          {renderContent()}
-
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="ds-icon-orb w-14 h-14 sm:w-16 sm:h-16 rounded-2xl">
+              <Mic2 className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-lg" />
+            </div>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold mb-1">
+            <span className="ds-grad-text">MY</span>
+            <span className="text-white">OUKEE</span>
+          </h1>
           {(mode === "login" || mode === "register") && (
-            <label className="flex items-start gap-3 mt-6 max-w-xs mx-auto cursor-pointer select-none group">
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 accent-[hsl(var(--primary))] cursor-pointer"
-              />
-              <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors leading-relaxed">
-                {t.login.agreeToTerms}{" "}
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.termsLink}</a>
-                {" · "}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.privacyLink}</a>
-                {" · "}
-                <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">{t.consent.copyrightLink}</a>
-              </span>
-            </label>
+            <>
+              <h2 className="text-xl sm:text-2xl font-display font-bold mt-4 text-white">
+                {t.login.welcome}
+              </h2>
+              <p className="text-white/55 text-sm mt-2 max-w-xs mx-auto">
+                {t.login.subtitle}
+              </p>
+            </>
           )}
+        </div>
+
+        {renderContent()}
+
+        {(mode === "login" || mode === "register") && (
+          <label className="flex items-start gap-3 mt-6 max-w-xs mx-auto cursor-pointer select-none group">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 focus:ring-violet-400 focus:ring-offset-0 cursor-pointer accent-violet-500"
+            />
+            <span className="text-xs text-white/50 group-hover:text-white/75 transition-colors leading-relaxed">
+              {t.login.agreeToTerms}{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.termsLink}</a>
+              {" · "}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.privacyLink}</a>
+              {" · "}
+              <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.copyrightLink}</a>
+            </span>
+          </label>
+        )}
       </div>
     </div>
   );

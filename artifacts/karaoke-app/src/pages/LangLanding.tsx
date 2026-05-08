@@ -151,77 +151,69 @@ export default function LangLanding() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5" />
       </div>
 
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-white/8">
+      <header className="sticky top-0 z-50 ds-glass border-b border-white/[0.08]">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16" dir={dir}>
           <Link href="/">
             <span className="flex items-center gap-2.5 cursor-pointer">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/20">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl ds-icon-orb">
                 <Mic className="h-4.5 w-4.5 text-white" />
               </div>
               <span className="font-display font-bold text-lg text-white tracking-tight">MYOUKEE</span>
             </span>
           </Link>
           <Link href="/upload">
-            <button className="btn-primary gap-2 px-5 py-2 rounded-xl text-sm text-white">
-              <Mic className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">{t.nav.createKaraoke}</span>
+            <button className="ds-btn ds-btn-primary px-5 py-2 text-sm">
+              <Mic className="w-4 h-4" />
+              {t.nav.createKaraoke}
             </button>
           </Link>
         </div>
       </header>
 
       <section className="relative min-h-[70vh] sm:min-h-[94vh] flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img
-            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&h=1080&fit=crop&q=80"
-            alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-50"
-            style={{ filter: "saturate(0.75)" }}
-          />
-          <div className="absolute inset-0 bg-[#06060f]/50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/10" />
-          <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-primary/15 blur-[140px]" />
-          <div className="absolute top-1/2 right-1/5 w-60 h-60 rounded-full bg-accent/10 blur-[100px]" />
+        <div className="absolute inset-0 -z-10 pointer-events-none">
+          <div className="absolute inset-0 ds-bg-galaxy" />
+          <div className="absolute inset-0 ds-bg-aurora opacity-60" />
+          <div className="ds-orb ds-orb-violet absolute top-1/4 left-1/4 w-[520px] h-[520px] opacity-55" />
+          <div className="ds-orb ds-orb-pink absolute top-1/2 right-1/5 w-[440px] h-[440px] opacity-45" style={{ animationDelay: "2s" }} />
+          <div className="ds-orb ds-orb-cyan absolute bottom-0 left-1/3 w-[380px] h-[380px] opacity-35" style={{ animationDelay: "4s" }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/40 via-transparent to-[#050510]" />
         </div>
 
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-8 sm:pb-12">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/6 border border-white/10 text-sm text-white/60 mb-6 sm:mb-10 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2.5 ds-glass rounded-full px-4 py-1.5 text-sm text-white/70 mb-6 sm:mb-10 ds-reveal">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             {t.home.hero.badge}
           </div>
 
-          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-6">
-            {t.home.hero.headline1}
+          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-6 ds-reveal" style={{ animationDelay: "60ms" }}>
+            <span className="text-white">{t.home.hero.headline1}</span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-blue-400">
-              {t.home.hero.headline2}
-            </span>
+            <span className="ds-grad-text">{t.home.hero.headline2}</span>
             <span className="text-white">{t.home.hero.headline3}</span>
           </h1>
 
-          <p className="text-base sm:text-xl text-white/50 max-w-lg mx-auto mb-6 sm:mb-10 leading-relaxed">
+          <p className="text-base sm:text-xl text-white/55 max-w-lg mx-auto mb-6 sm:mb-10 leading-relaxed ds-reveal" style={{ animationDelay: "120ms" }}>
             {t.home.hero.sub}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10 ds-reveal" style={{ animationDelay: "180ms" }}>
             {t.home.hero.chips.map((f: string) => (
-              <span key={f} className="px-3 py-1.5 rounded-full bg-white/6 border border-white/10 text-sm text-white/55 backdrop-blur-sm">
+              <span key={f} className="ds-glass rounded-full px-3 py-1.5 text-sm text-white/65">
                 {f}
               </span>
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 ds-reveal" style={{ animationDelay: "240ms" }}>
             <Link href="/upload">
-              <button
-                className="btn-primary gap-2.5 px-9 py-4 rounded-2xl font-bold text-base text-white active:scale-95 shadow-[0_0_50px_rgba(147,51,234,0.3)]">
-                <Mic className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">{t.home.hero.ctaCreate}</span>
+              <button className="ds-btn ds-btn-primary px-9 py-4 text-base font-bold">
+                <Mic className="w-5 h-5" />{t.home.hero.ctaCreate}
               </button>
             </Link>
             <Link href="/leaderboard">
-              <button className="flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-white/7 border border-white/12 text-white/75 hover:bg-white/12 hover:text-white transition-all font-semibold text-base">
-                <Trophy className="w-5 h-5 text-yellow-400" />
+              <button className="ds-btn ds-btn-ghost px-8 py-4 text-base font-semibold">
+                <Trophy className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,.5)]" />
                 {t.home.hero.ctaLeaderboard}
               </button>
             </Link>

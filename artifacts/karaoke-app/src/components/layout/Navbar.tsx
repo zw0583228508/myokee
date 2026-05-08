@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Mic2, LogOut, Loader2, Zap, Trophy, Globe, Plus, Menu, X, History, Gift, PartyPopper, Cloud, User, Medal, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
 import { LoginModal } from "@/components/karaoke/LoginModal";
@@ -50,20 +49,16 @@ export function Navbar() {
         className="sticky top-0 z-50 w-full"
         role="banner"
       >
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px">
-          <div className="h-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        </div>
+        <div className="absolute inset-0 ds-glass" style={{ background: "rgba(8,6,18,0.72)" }} />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/30 to-transparent" />
 
         <div className="relative w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5 group transition-all duration-300" aria-label="MYOUKEE">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-accent to-primary shadow-lg shadow-primary/25 group-hover:shadow-primary/50 group-hover:scale-110 transition-all duration-500" aria-hidden="true">
-              <Mic2 className="h-5 w-5 text-white drop-shadow-lg" />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl ds-icon-orb group-hover:scale-110 transition-all duration-500" aria-hidden="true">
+              <Mic2 className="h-5 w-5 text-white drop-shadow-lg relative z-10" />
             </div>
             <span className="font-display text-xl font-bold tracking-wide">
-              <span className="animated-gradient-text">MY</span><span className="text-white">OUKEE</span>
+              <span className="ds-grad-text">MY</span><span className="text-white">OUKEE</span>
             </span>
           </Link>
 
@@ -76,14 +71,14 @@ export function Navbar() {
                     isActive
                       ? "text-white"
                       : primary
-                        ? "text-primary/80 hover:text-primary"
-                        : "text-white/40 hover:text-white/80"
+                        ? "text-violet-300/85 hover:text-violet-200"
+                        : "text-white/45 hover:text-white/85"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-3.5 h-3.5" aria-hidden="true" />{label}
                   {isActive && (
-                    <span className="absolute bottom-0 inset-x-2 h-[2px] rounded-full bg-gradient-to-r from-primary via-accent to-primary animate-gradient-shift" style={{ backgroundSize: "200% 200%" }} />
+                    <span className="absolute bottom-0 inset-x-2 h-[2px] rounded-full" style={{ background: "var(--ds-grad-primary)", boxShadow: "0 0 10px rgba(139,92,246,.6)" }} />
                   )}
                 </Link>
               );
@@ -102,7 +97,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-white/40 hover:text-white/80 hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-white/45 hover:text-white/85 hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
                   aria-label={`${t.nav.language}: ${allLangs.find(l => l.code === lang)?.name}`}
                   title={t.nav.language}
                 >
@@ -115,12 +110,12 @@ export function Navbar() {
                   <DropdownMenuItem
                     key={code}
                     onClick={() => setLang(code as SupportedLang)}
-                    className={`cursor-pointer gap-2 ${lang === code ? "text-primary" : ""}`}
+                    className={`cursor-pointer gap-2 ${lang === code ? "text-violet-300" : ""}`}
                     role="menuitemradio"
                     aria-checked={lang === code}
                   >
                     <span aria-hidden="true">{flag}</span>{name}
-                    {lang === code && <span className="ml-auto text-primary text-xs">✓</span>}
+                    {lang === code && <span className="ml-auto text-violet-300 text-xs">✓</span>}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -132,28 +127,33 @@ export function Navbar() {
               <>
                 <button
                   onClick={() => setShowPricing(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/25 hover:border-primary/40 hover:from-primary/25 hover:to-accent/15 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.12))",
+                    border: "1px solid rgba(139,92,246,.32)",
+                    boxShadow: "0 0 14px rgba(139,92,246,.18)",
+                  }}
                   aria-label={`${user.credits} ${t.nav.credits}`}
                 >
-                  <Zap className="w-4 h-4 text-primary group-hover:text-primary drop-shadow-[0_0_6px_rgba(147,51,234,0.5)]" aria-hidden="true" />
-                  <span className="text-sm font-bold text-primary">{user.credits}</span>
-                  <span className="text-xs text-white/30 hidden sm:block">{t.nav.credits}</span>
+                  <Zap className="w-4 h-4 text-violet-300 drop-shadow-[0_0_8px_rgba(139,92,246,.6)]" aria-hidden="true" />
+                  <span className="text-sm font-bold ds-grad-text">{user.credits}</span>
+                  <span className="text-xs text-white/40 hidden sm:block">{t.nav.credits}</span>
                 </button>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
                       aria-label={`${user.displayName}`}
                     >
                       {user.picture ? (
                         <img
                           src={user.picture}
                           alt={user.displayName}
-                          className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/30 ring-offset-1 ring-offset-background"
+                          className="w-7 h-7 rounded-full object-cover ring-2 ring-violet-400/40 ring-offset-1 ring-offset-[#080612]"
                         />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20" aria-hidden="true">
+                        <div className="w-7 h-7 rounded-full ds-icon-orb" aria-hidden="true">
                           <User className="w-4 h-4 text-white" />
                         </div>
                       )}
@@ -170,7 +170,7 @@ export function Navbar() {
                       )}
                     </div>
                     <DropdownMenuItem onClick={() => setShowPricing(true)} className="cursor-pointer">
-                      <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />{t.nav.buyCredits}
+                      <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.buyCredits}
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/leaderboard" className="cursor-pointer flex items-center w-full">
@@ -179,7 +179,7 @@ export function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/xp" className="cursor-pointer flex items-center w-full">
-                        <Zap className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />{t.nav.xpBadges}
+                        <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.xpBadges}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -201,16 +201,14 @@ export function Navbar() {
                 </DropdownMenu>
               </>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/15 transition-all duration-300 focus:ring-2 focus:ring-primary/50"
+              <button
+                className="ds-btn ds-btn-ghost px-4 py-2 text-sm"
                 onClick={() => setShowLogin(true)}
                 aria-label={t.nav.login}
               >
                 <GoogleIcon />
                 <span className="hidden sm:block">{t.nav.login}</span>
-              </Button>
+              </button>
             )}
           </nav>
         </div>
@@ -232,9 +230,9 @@ export function Navbar() {
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     location === href
-                      ? "bg-primary/10 text-primary border border-primary/20"
-                      : "text-white/50 hover:text-white hover:bg-white/[0.04]"
-                  }`}>
+                      ? "text-white border border-violet-400/35"
+                      : "text-white/55 hover:text-white hover:bg-white/[0.04] border border-transparent"
+                  }`} style={location === href ? { background: "linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.10))", boxShadow: "0 0 14px rgba(139,92,246,.18)" } : undefined}>
                     <Icon className="w-4 h-4" />
                     {label}
                   </button>

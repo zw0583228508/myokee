@@ -94,35 +94,40 @@ export default function Terms() {
   const sections = content[lang] ?? content["en"]!;
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-12" dir={t.dir}>
-      <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-white/70 mb-8 transition-colors">
-        <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
-        {t.nav.createKaraoke}
-      </Link>
-
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-          <FileText className="w-5 h-5 text-accent" />
-        </div>
-        <h1 className="text-3xl font-display font-bold">{t.consent.termsLink}</h1>
+    <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={t.dir}>
+      <div className="absolute top-0 inset-x-0 h-[300px] -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 ds-bg-aurora opacity-40" />
+        <div className="ds-orb ds-orb-violet absolute -top-32 left-1/3 w-[400px] h-[400px] opacity-50" style={{ animationDelay: "1s" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
       </div>
 
-      <div className="prose prose-invert prose-sm max-w-none space-y-6 text-white/30 leading-relaxed">
-        {sections.map((s, i) => (
-          <section key={i}>
-            {s.title && <h2 className="text-white text-lg font-semibold mb-2">{s.title}</h2>}
-            {s.body && <p>{s.body}</p>}
-            {s.bullets && (
-              <ul className="list-disc list-inside space-y-1 mt-2">
-                {s.bullets.map((b, j) => <li key={j}>{b}</li>)}
-              </ul>
-            )}
-          </section>
-        ))}
+      <div className="w-full max-w-3xl mx-auto px-4 py-12">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/45 hover:text-white mb-8 transition-colors">
+          <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+          {t.nav.createKaraoke}
+        </Link>
 
-        <p className="text-xs text-white/20 pt-4 border-t border-white/5">
-          MYOUKEE &copy; {new Date().getFullYear()}
-        </p>
+        <div className="flex items-center gap-4 mb-10 ds-reveal">
+          <div className="ds-icon-orb w-14 h-14 rounded-2xl" style={{ background: "linear-gradient(135deg,#06B6D4,#8B5CF6)", boxShadow: "0 0 32px rgba(6,182,212,.45)" }}>
+            <FileText className="w-7 h-7 text-white" />
+          </div>
+          <h1 className="ds-page-title font-display font-bold text-white">{t.consent.termsLink}</h1>
+        </div>
+
+        <div className="ds-card p-6 sm:p-8 space-y-7 text-white/65 leading-relaxed text-sm">
+          {sections.map((s, i) => (
+            <section key={i}>
+              {s.title && <h2 className="text-white text-base sm:text-lg font-bold mb-2.5 ds-grad-text">{s.title}</h2>}
+              {s.body && <p>{s.body}</p>}
+              {s.bullets && (
+                <ul className="list-disc list-inside space-y-1.5 mt-3 marker:text-cyan-400/60">
+                  {s.bullets.map((b, j) => <li key={j} className="pl-1">{b}</li>)}
+                </ul>
+              )}
+            </section>
+          ))}
+          <p className="text-xs text-white/35 pt-5 border-t border-white/[0.06]">MYOUKEE &copy; {new Date().getFullYear()}</p>
+        </div>
       </div>
     </div>
   );
