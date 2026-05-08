@@ -264,7 +264,7 @@ export function FileUpload() {
             flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200
             ${tab === "file"
               ? "bg-primary text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
-              : "text-muted-foreground hover:text-white hover:bg-white/5"
+              : "text-white/75 hover:text-white hover:bg-white/5"
             }
           `}
         >
@@ -277,7 +277,7 @@ export function FileUpload() {
             flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200
             ${tab === "youtube"
               ? "bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.3)]"
-              : "text-muted-foreground hover:text-white hover:bg-white/5"
+              : "text-white/75 hover:text-white hover:bg-white/5"
             }
           `}
         >
@@ -287,8 +287,8 @@ export function FileUpload() {
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-          <span className="opacity-60">🌐</span>
+        <p className="text-xs text-white/75 flex items-center gap-1.5 font-medium">
+          <span>🌐</span>
           {t.upload.transcriptionLang}
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -299,8 +299,8 @@ export function FileUpload() {
               className={`
                 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150
                 ${languageHint === opt.value
-                  ? "bg-primary text-white shadow-[0_0_10px_rgba(139,92,246,0.35)]"
-                  : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-white border border-white/10"
+                  ? "bg-primary text-white shadow-[0_0_10px_rgba(139,92,246,0.35)] border border-violet-300/40"
+                  : "bg-white/10 text-white/85 hover:bg-white/20 hover:text-white border border-white/20"
                 }
               `}
             >
