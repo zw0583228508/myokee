@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import {
   CheckCircle2, XCircle, Sparkles, Music, Video, Upload, ChevronDown,
   Mic, Trophy, Users, Star, Swords, Play, Headphones, ArrowRight,
-  Camera, Mail, FileText, Zap, Globe, Wand2, Radio, Share2, Crown,
+  Camera, Mail, FileText, Zap, Globe, Wand2, Share2,
 } from "lucide-react";
 import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
@@ -183,7 +183,6 @@ export default function Home() {
 
   const featuresRef = useRef<HTMLDivElement>(null);
   const howRef      = useRef<HTMLDivElement>(null);
-  const pricingRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params  = new URLSearchParams(window.location.search);
@@ -633,37 +632,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ BACKGROUND GALLERY (atmosphere teaser) ═══════════════════ */}
-      <section className="relative py-16 sm:py-24 overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#050510] via-[#08081A] to-[#050510]" />
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-10 reveal-on-scroll">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-yellow-400/25 text-xs text-yellow-300 font-semibold mb-4">
-              <Radio className="w-3 h-3" />{i18n.bgGalleryBadge}
-            </div>
-            <h2 className="ds-page-title font-bold mb-3">{i18n.bgGalleryTitle}</h2>
-            <p className="text-white/55 text-base max-w-md mx-auto">{i18n.bgGallerySub}</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 reveal-on-scroll">
-            {[
-              { name: "Aurora",   cls: "ds-bg-aurora" },
-              { name: "Neon",     cls: "ds-bg-neon-stage" },
-              { name: "Galaxy",   cls: "ds-bg-galaxy" },
-              { name: "Studio",   cls: "ds-bg-studio" },
-              { name: "Party",    cls: "ds-bg-party" },
-            ].map((bg) => (
-              <div key={bg.name} className={`relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 group cursor-default ${bg.cls}`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-white">{bg.name}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/50">live</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ═══════════════════════════ LANGUAGES ═══════════════════════════ */}
       <section className="relative py-16 sm:py-24 overflow-hidden">
         <div className="absolute inset-0 -z-10">
@@ -691,59 +659,6 @@ export default function Home() {
               <div key={name} className="ds-glass group flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-default hover:border-white/20 transition-all duration-300">
                 <span className="text-lg group-hover:scale-125 transition-transform duration-300">{flag}</span>
                 <span className="text-sm text-white/65 group-hover:text-white transition-colors">{name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════ PRICING TEASER ═══════════════════════════ */}
-      <section ref={pricingRef} className="relative py-20 sm:py-28 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#0A0820] to-[#050510]" />
-          <div className="ds-orb ds-orb-violet absolute top-0 right-1/4 w-[400px] h-[400px] opacity-30" />
-        </div>
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-12 reveal-on-scroll">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-amber-400/25 text-xs text-amber-300 font-semibold mb-4">
-              <Crown className="w-3 h-3" />{i18n.pricingBadge}
-            </div>
-            <h2 className="ds-page-title font-bold mb-3">{i18n.pricingTitle}</h2>
-            <p className="text-white/55 text-base max-w-lg mx-auto">{i18n.pricingSub}</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-            {[
-              { name: i18n.planFreeName, desc: i18n.planFreeDesc, credits: 30,  price: "$0",  highlight: false, glow: "rgba(34,211,238,.25)" },
-              { name: i18n.planProName,  desc: i18n.planProDesc,  credits: 300, price: "$9",  highlight: true,  glow: "rgba(139,92,246,.45)" },
-              { name: i18n.planMaxName,  desc: i18n.planMaxDesc,  credits: 1000,price: "$29", highlight: false, glow: "rgba(236,72,153,.25)" },
-            ].map((p, i) => (
-              <div
-                key={p.name}
-                className={`reveal-on-scroll relative p-6 sm:p-7 overflow-hidden ${p.highlight ? "ds-card-feature" : "ds-card"}`}
-                style={{ transitionDelay: `${i * 100}ms`, ...(p.highlight ? { boxShadow: `0 0 60px ${p.glow}, var(--ds-shadow-card)` } : {}) }}
-              >
-                {p.highlight && (
-                  <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider text-white" style={{ background: "var(--ds-grad-primary)" }}>
-                    ★ {i18n.planProDesc}
-                  </span>
-                )}
-                <div className="ds-icon-orb w-12 h-12 rounded-2xl mb-5" style={p.highlight ? {} : { background: "rgba(255,255,255,.06)", boxShadow: "none" }}>
-                  <Zap className={`w-6 h-6 ${p.highlight ? "text-white" : "text-white/70"}`} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">{p.name}</h3>
-                <p className="text-xs text-white/50 mb-5">{p.desc}</p>
-                <div className="flex items-baseline gap-2 mb-5">
-                  <span className="text-4xl font-black text-white">{p.price}</span>
-                  <span className="text-sm text-white/40">/ {p.credits} credits</span>
-                </div>
-                <button
-                  onClick={() => navigate("/upload")}
-                  className={`w-full ${p.highlight ? "ds-btn ds-btn-primary" : "ds-btn ds-btn-secondary"} py-3 text-sm`}
-                >
-                  {i18n.planCta}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
               </div>
             ))}
           </div>
