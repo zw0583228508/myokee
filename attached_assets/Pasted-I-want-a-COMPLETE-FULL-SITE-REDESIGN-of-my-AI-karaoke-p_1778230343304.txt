@@ -1,0 +1,844 @@
+I want a COMPLETE FULL-SITE REDESIGN of my AI karaoke platform MYOUKEE.
+
+IMPORTANT:
+Do NOT slightly polish the existing design.
+Do NOT keep the current visual language.
+Do NOT only change colors, spacing, or small UI details.
+I want you to redesign the entire product from the ground up visually, while preserving all existing functionality, routes, APIs, auth, payments, processing logic, translations, and business logic.
+
+Your task is:
+Transform the entire MYOUKEE website into a premium, futuristic, viral, world-class AI karaoke product with an unforgettable design — something that feels like Spotify + TikTok + Apple Music + a cinematic AI studio + a social gaming platform.
+
+The final result should feel expensive, addictive, emotional, musical, social, and conversion-focused.
+
+========================
+CORE DESIGN DIRECTION
+========================
+
+Create a completely new design system for MYOUKEE.
+
+Visual style:
+- Futuristic cinematic music-tech platform
+- Dark premium interface as the main base
+- Deep black / near-black backgrounds
+- Glassmorphism panels
+- Neon gradients
+- Animated glowing music waves
+- Premium 3D depth
+- Smooth micro-interactions
+- Beautiful motion effects
+- Large emotional hero sections
+- Big clean typography
+- Strong hierarchy
+- Mobile-first experience
+- High-end SaaS/product design quality
+- Viral social app energy
+- Karaoke/nightclub/stage lighting atmosphere
+
+The site should feel like:
+“Upload any song → AI transforms it into a karaoke experience → sing → record → score → share → compete → invite friends.”
+
+Do not make it look like a generic SaaS template.
+Do not make it look like a simple upload tool.
+Make it feel like a magical AI music platform.
+
+========================
+GLOBAL DESIGN SYSTEM
+========================
+
+Create a new global UI language used consistently across all pages.
+
+Use:
+- Dark background: very deep navy/black, e.g. #050510, #080814, #0A0A12
+- Primary gradient: electric violet → neon cyan → hot pink
+- Secondary accents: aurora green, gold, plasma blue
+- Premium glow effects around CTA buttons
+- Soft glass cards with blur, border glow, and depth
+- Rounded corners: large, modern, premium
+- Floating blurred gradient orbs
+- Animated music waveform backgrounds
+- Subtle star/galaxy/noise texture
+- Smooth hover animations
+- Button press animations
+- Premium loading states
+- Skeleton loaders where needed
+- Empty states that look designed, not default
+- Error states that are friendly and polished
+
+Typography:
+- Big cinematic headings
+- Clean readable body text
+- Strong number/stat typography
+- Use responsive font sizes
+- Use clear spacing
+- Keep Hebrew/RTL support perfect
+- Keep multilingual support perfect
+
+Motion:
+- Add subtle entrance animations
+- Cards should animate in gently
+- Buttons should glow/shift on hover
+- Backgrounds should have slow ambient movement
+- Avoid heavy animations that hurt performance
+- Respect mobile performance
+
+Responsiveness:
+- Every page must be fully responsive
+- Mobile should feel native-app quality
+- Desktop should feel like a premium music dashboard
+- Tablet should not break
+- RTL layouts must work perfectly for Hebrew and Arabic
+- LTR layouts must work perfectly for English and all other languages
+
+Accessibility:
+- Strong contrast
+- Clear focus states
+- Buttons readable
+- Inputs accessible
+- Modals usable
+- Keyboard navigation reasonable
+
+========================
+DO NOT BREAK FUNCTIONALITY
+========================
+
+You must preserve:
+- All current routes
+- All API calls
+- All authentication logic
+- Google login/email login
+- Upload flow
+- Job processing state
+- Modal Labs processing integration
+- Karaoke video player
+- Lyrics overlay
+- Transcript editor
+- Vocal coach results
+- Premium gate
+- Stripe and PayPal modal logic
+- Referral system
+- Party mode logic
+- Social feed logic
+- Challenges logic
+- XP/gamification logic
+- Analytics dashboard logic
+- i18n via uiTranslations.ts
+- All 14 supported languages
+- RTL support
+- Existing backend and processor architecture
+- Object storage usage
+- Existing file structure as much as possible
+
+You may refactor UI components if needed, but do not remove business logic.
+
+========================
+MAIN PRODUCT STORY
+========================
+
+Every page should support this emotional flow:
+
+1. User sees MYOUKEE as a magical AI karaoke platform.
+2. User instantly understands: upload any song and get karaoke.
+3. User feels the product is premium and trustworthy.
+4. User is pushed toward upload/creation.
+5. User is pushed toward singing, recording, sharing, and upgrading.
+6. Social and gamification features should make the product feel alive.
+7. Payment moments should feel natural and valuable, not annoying.
+
+========================
+PAGE-BY-PAGE REDESIGN
+========================
+
+Redesign ALL of these pages completely.
+
+--------------------------------
+1. Home page — /
+File: Home.tsx
+--------------------------------
+
+Create a stunning landing page.
+
+Hero section:
+- Full-screen cinematic hero
+- Animated aurora/neon/galaxy background
+- Large emotional headline
+- Clear subheadline explaining:
+  “Turn any song into an AI karaoke video. Remove vocals, sync lyrics, sing, record, score, and share.”
+- Massive central CTA: “Create Karaoke Now” / localized text
+- Secondary CTA: “See Demo” / “Explore Features”
+- Upload CTA should feel like the main action
+- Add floating preview cards:
+  - “Vocal removed”
+  - “Lyrics synced”
+  - “Karaoke video ready”
+  - “Sing now”
+  - “Share performance”
+- Add mock video/player preview card with lyrics overlay
+- Add small trust/benefit indicators:
+  - Fast AI processing
+  - Supports many languages
+  - MP3/MP4/YouTube
+  - Record your voice
+  - Share instantly
+
+Sections:
+- How it works: Upload → AI Processing → Sing → Share
+- Feature grid:
+  - AI vocal remover
+  - Lyrics extractor
+  - Synced karaoke video
+  - Recording studio
+  - Vocal coach
+  - Party mode
+  - Leaderboard
+  - Challenges
+- Animated background gallery: Aurora, Neon, Galaxy, etc.
+- Social proof / community energy section
+- Pricing teaser / credits explanation
+- Final CTA with dramatic design
+
+Make the homepage feel like a product people immediately want to try.
+
+--------------------------------
+2. Upload page — /upload
+File: Upload.tsx
+--------------------------------
+
+Redesign as a premium creation studio.
+
+Layout:
+- Centered “AI Karaoke Studio” card
+- Beautiful drag-and-drop upload zone
+- Supported file icons
+- Optional YouTube/link input if currently supported
+- Toggle cards:
+  - Create karaoke video
+  - Remove vocals only
+  - Include vocal separation
+  - Advanced options
+- Show credits/free limit clearly but elegantly
+- Strong CTA: “Start AI Creation”
+
+Progress state:
+- Replace boring progress with cinematic pipeline:
+  1. Uploading
+  2. Analyzing audio
+  3. Separating vocals
+  4. Transcribing lyrics
+  5. Syncing words
+  6. Rendering karaoke video
+  7. Finalizing
+- Each step should have an icon, animated status, glowing progress bar
+- Add estimated status messaging without promising exact times
+- Add engaging microcopy so users do not abandon during processing
+
+Error state:
+- Beautiful error card
+- Retry button
+- Clear explanation
+
+Success state:
+- Celebration animation
+- “Open your karaoke video” CTA
+
+--------------------------------
+3. Job details page — /job/:id
+File: JobDetails.tsx
+--------------------------------
+
+This is the core experience. Make it incredible.
+
+Layout:
+- Premium karaoke stage interface
+- Main video player large and cinematic
+- Lyrics overlay should look polished and readable
+- Background selector should look like a professional visual preset picker
+- Add right/side panel or bottom panel with:
+  - Song status
+  - Actions
+  - Edit lyrics
+  - Sing now
+  - Share
+  - Download/export if supported
+  - Vocal coach results
+- “Sing Now” CTA must be very prominent
+- Premium lock should feel valuable, not cheap
+- Transcript editor should be clean, modern, not technical-looking
+- Sharing panel should look viral and social
+- After recording, vocal coach results should appear as a beautiful performance analysis dashboard
+
+Design details:
+- Use stage lighting feel
+- Use glowing audio waveform
+- Use cards with clear hierarchy
+- Make the video/player area the hero
+- Make lyrics feel like real karaoke, not plain subtitles
+
+--------------------------------
+4. History page — /history
+File: History.tsx
+--------------------------------
+
+Redesign as “My Karaoke Library”.
+
+Features:
+- Beautiful grid/list of processed songs
+- Thumbnail cards
+- Status badges
+- Search/filter/sort if easy
+- Continue button
+- Delete button styled safely
+- Empty state encouraging first upload
+- Cards should show:
+  - Song title
+  - Created date
+  - Processing status
+  - Quick actions
+- Make it feel like a personal music library.
+
+--------------------------------
+5. My Recordings page
+File: MyRecordings.tsx
+--------------------------------
+
+Redesign as “My Performances”.
+
+Features:
+- Cards for each vocal recording
+- Audio player/video preview if available
+- Score/vocal coach summary if available
+- Share button
+- Download/export if supported
+- Empty state: “Your stage is waiting”
+- Make users proud of their recordings.
+
+--------------------------------
+6. Challenges page — /challenges
+File: Challenges.tsx
+--------------------------------
+
+Create a high-energy weekly challenge page.
+
+Design:
+- Big active challenge hero card
+- Countdown timer with dramatic design
+- Prize/reward/XP visual if applicable
+- Submit performance CTA
+- Live leaderboard
+- Past challenges carousel/grid
+- Use trophy, spotlight, stage visuals
+- Make it feel competitive and viral.
+
+--------------------------------
+7. Feed page — /feed
+File: Feed.tsx
+--------------------------------
+
+Redesign as a social music feed.
+
+Design:
+- TikTok/Instagram-inspired performance cards, but unique and premium
+- User avatar, song title, score, reactions
+- Like/comment buttons
+- Infinite scroll polish
+- Empty/loading states
+- Sticky composer/share prompt if useful
+- Performance cards should feel alive and clickable.
+
+--------------------------------
+8. Profile page — /profile/:userId
+File: Profile.tsx
+--------------------------------
+
+Redesign as a premium artist profile.
+
+Include:
+- Hero cover with gradient/stage lights
+- Avatar
+- Username
+- Follow/unfollow button
+- XP level
+- Followers/following
+- Total performances
+- Best score
+- Public performances grid
+- Achievements badges
+- Make each user feel like an artist.
+
+--------------------------------
+9. Vocal Coach page — /vocal-coach
+File: VocalCoachPage.tsx
+--------------------------------
+
+Redesign as an AI singing coach dashboard.
+
+Design:
+- Premium analytics dashboard
+- Score cards:
+  - Pitch accuracy
+  - Timing
+  - Breath/control
+  - Progress
+- Beautiful progress chart
+- Personalized tips cards
+- Before/after improvement feeling
+- Use friendly AI coach tone
+- Make the analysis feel valuable enough to pay for.
+
+--------------------------------
+10. XP / Gamification page — /xp
+File: GamificationProfile.tsx
+--------------------------------
+
+Redesign as a game profile dashboard.
+
+Include:
+- Level card
+- XP progress ring/bar
+- Daily challenges
+- Achievements/badges
+- Streaks if available
+- Unlock teasers
+- Visual reward system
+- Make it fun, addictive, and premium.
+
+--------------------------------
+11. Global Leaderboard — /leaderboard
+File: Leaderboard.tsx
+--------------------------------
+
+Redesign as a global stage ranking.
+
+Include:
+- Top 3 podium with dramatic trophy design
+- Ranking table/list
+- Filters if available
+- XP, score, activity columns
+- User’s own rank highlighted
+- Make it feel like a worldwide competition.
+
+--------------------------------
+12. Party page — /party
+File: Party.tsx
+--------------------------------
+
+Redesign as “Karaoke Party Mode”.
+
+Design:
+- Split actions:
+  - Create Party
+  - Join Party
+- Party code input
+- Explanation of party mode
+- Visual: TV screen, phones, queue, friends
+- Make it feel like a fun live room.
+
+--------------------------------
+13. Party room — /party/:id
+File: PartyRoom.tsx
+--------------------------------
+
+Redesign as a live control room.
+
+Include:
+- Current song
+- Queue
+- Chat
+- Participants
+- Host controls
+- Add song button
+- Big “display mode” CTA
+- Status indicators
+- Make it feel like a live event dashboard.
+
+--------------------------------
+14. Party display — /party/:id/display
+File: PartyDisplay.tsx
+--------------------------------
+
+Redesign for TV/fullscreen.
+
+Requirements:
+- Big readable lyrics
+- Large current song info
+- Next singer / queue teaser
+- Minimal controls
+- Cinematic animated background
+- Perfect for large display
+- No clutter
+- High contrast
+
+--------------------------------
+15. Referral page — /referral
+File: Referral.tsx
+--------------------------------
+
+Redesign as a growth/rewards page.
+
+Include:
+- Personal referral code card
+- Copy/share buttons
+- Invite friends CTA
+- Referral progress
+- Credits earned
+- Successful referrals
+- Beautiful reward visuals
+- Make sharing feel exciting.
+
+--------------------------------
+16. Pricing modal
+File: PricingModal.tsx
+--------------------------------
+
+This is extremely important for conversion.
+
+Redesign completely.
+
+Requirements:
+- Premium glass modal
+- 3 pricing packages
+- Clearly show credits/minutes/value
+- Highlight recommended plan
+- Stripe + PayPal options
+- Trust badges/security messaging
+- Clear benefits:
+  - Create longer karaoke videos
+  - Sing and record
+  - Export/share
+  - Faster/better access if applicable
+- Add subtle urgency/value copy without being spammy
+- Make upgrade feel like unlocking a studio, not paying a fee.
+- Mobile modal must be perfect.
+
+--------------------------------
+17. Legal pages
+Files/routes:
+- /privacy
+- /terms
+- /copyright
+--------------------------------
+
+Redesign these pages so they are:
+- Clean
+- Professional
+- Trustworthy
+- Readable
+- Same design system
+- Good spacing
+- Clear headings
+- Not visually neglected
+
+--------------------------------
+18. Shared public view — /shared/:id
+File: SharedView.tsx
+--------------------------------
+
+Redesign for viral sharing.
+
+Goal:
+A person opening a shared performance should immediately understand MYOUKEE and want to try it.
+
+Include:
+- Public performance preview
+- Creator/user info
+- Song/performance info
+- CTA: “Create your own karaoke”
+- Share buttons
+- App branding
+- Smooth layout for mobile social traffic
+
+--------------------------------
+19. Language landing pages — /lang/:lang
+File: LangLanding.tsx
+--------------------------------
+
+Redesign as SEO landing pages but still beautiful.
+
+Requirements:
+- Localized hero per language
+- Strong CTA
+- Explain AI karaoke in that language
+- Feature sections
+- Use same premium visual language
+- Keep SEO content readable
+- Respect RTL for Hebrew/Arabic
+- Do not break uiTranslations.ts
+
+--------------------------------
+20. Feature landing pages — /features/:slug
+File: FeatureLanding.tsx
+--------------------------------
+
+Redesign each feature page to feel like a polished marketing page.
+
+Examples:
+- Vocal remover
+- Lyrics extractor
+- Karaoke maker
+- AI singing coach
+- Party mode
+
+Each page should include:
+- Feature-specific hero
+- Clear benefit
+- Visual demo area
+- Step-by-step explanation
+- CTA to upload/create
+- Related features
+- SEO-friendly structure
+
+--------------------------------
+21. Login page + login modal
+Files:
+- LoginPage.tsx
+- LoginModal.tsx
+--------------------------------
+
+Redesign as premium auth.
+
+Requirements:
+- Beautiful brand panel
+- Google login button
+- Email login if supported
+- Trust/security text
+- Smooth modal animation
+- Clear reason to sign in
+- No generic boring login box
+
+--------------------------------
+22. 404 page
+File: not-found.tsx
+--------------------------------
+
+Redesign as a fun branded page.
+
+Idea:
+- “This stage is empty”
+- Animated spotlight
+- CTA back home / create karaoke
+- Keep it polished.
+
+--------------------------------
+23. Analytics dashboard — /analytics
+--------------------------------
+
+Redesign admin analytics dashboard.
+
+Requirements:
+- Professional SaaS dashboard
+- Revenue cards
+- Usage cards
+- Active users
+- Jobs processed
+- Conversion metrics if available
+- Clean charts/tables
+- Dark premium admin UI
+- Must remain functional and readable
+
+========================
+GLOBAL COMPONENTS TO REDESIGN
+========================
+
+Redesign these shared components completely:
+
+Navbar:
+- Premium sticky top nav
+- Logo/brand beautiful
+- Language selector for 14 languages
+- User avatar
+- Credits balance
+- Main navigation links
+- Mobile hamburger menu
+- Upgrade CTA if relevant
+- RTL/LTR support
+
+FloatingShareFab:
+- Beautiful floating share button
+- Should not block content
+- Mobile-friendly
+
+ConsentGate:
+- Premium cookie/GDPR modal
+- Clear accept/manage buttons
+- Same design language
+
+ErrorBoundary:
+- Branded error screen
+- Friendly retry/back buttons
+
+BackgroundChanger:
+- Redesign as a visual preset gallery
+- 14 animated background options
+- Cards with live preview feel
+- Selected state very clear
+
+TranscriptEditor:
+- Redesign as a polished lyric editor
+- Line-by-line editing
+- Timing controls if currently available
+- Save/cancel states
+- Avoid technical clutter
+
+All buttons, inputs, dropdowns, modals, cards, tabs, badges, loaders, toasts, forms, tables, empty states, and alerts should be redesigned to match the new design system.
+
+========================
+INTERNATIONALIZATION
+========================
+
+The site supports 14 languages:
+Hebrew, English, Arabic, Russian, Spanish, French, German, Japanese, Chinese, Korean, Thai, Vietnamese, Filipino, Indonesian.
+
+Requirements:
+- Do not hardcode user-facing text unless already acceptable in the codebase pattern
+- Use uiTranslations.ts or existing translation method
+- Preserve automatic browser language detection
+- Preserve manual language switching
+- Hebrew and Arabic must be RTL
+- English and other languages must be LTR
+- Layout must flip properly in RTL
+- Avoid text overflow in long languages
+- Mobile must work in all languages
+
+========================
+MOBILE EXPERIENCE
+========================
+
+Mobile is critical.
+
+Design mobile like a real premium app:
+- Sticky bottom actions where useful
+- Large touch targets
+- Upload flow must be very easy
+- Player must fit beautifully
+- Lyrics must be readable
+- Pricing modal must convert on mobile
+- Feed and profile should feel app-like
+- Party mode should be easy to use from phone
+- No horizontal overflow
+- No tiny buttons
+- No broken modals
+
+========================
+CONVERSION OPTIMIZATION
+========================
+
+Make the design increase paid conversions.
+
+Important conversion moments:
+- Home page CTA
+- Upload page
+- Processing progress screen
+- Job details “Sing Now”
+- Premium lock
+- Pricing modal
+- Shared public page
+- Feature landing pages
+- Referral page
+
+Design these with:
+- Clear value
+- Emotional benefit
+- Minimal friction
+- Strong CTA
+- Premium feeling
+- Trust
+- Clear upgrade reason
+
+Do not make payment feel aggressive or cheap.
+Make it feel like unlocking a powerful AI karaoke studio.
+
+========================
+TECHNICAL IMPLEMENTATION GUIDELINES
+========================
+
+Before changing files:
+1. Inspect the current React/TypeScript structure.
+2. Identify the design system/components currently used.
+3. Create or improve shared UI primitives if needed.
+4. Apply the new design system consistently.
+5. Preserve all logic, state, hooks, API calls, types, and routes.
+6. Do not remove existing features.
+7. Do not break build.
+8. Keep TypeScript clean.
+9. Avoid duplicate messy CSS.
+10. Prefer reusable components.
+11. Keep performance reasonable.
+12. Test responsive layouts.
+13. Test RTL/LTR behavior.
+14. Make sure modals and navigation work.
+
+If Tailwind is used:
+- Create consistent utility patterns
+- Use reusable class groups/components
+- Avoid random inconsistent styling
+- Add custom gradients/animations if needed
+
+If CSS files are used:
+- Organize global tokens clearly
+- Avoid conflicting old styles
+- Remove/replace outdated design styles where safe
+
+========================
+DESIGN DETAILS TO ADD
+========================
+
+Add these kinds of visual elements across the site:
+- Animated aurora background
+- Neon waveform lines
+- Floating music notes only if tasteful
+- Stage spotlights
+- Gradient borders
+- Glass cards
+- Premium blur
+- Song/video preview cards
+- Performance score rings
+- XP progress bars
+- Trophy/podium visuals
+- Beautiful upload dropzone
+- High-end pricing cards
+- Live status badges
+- Social reaction buttons
+- Empty states with illustration-like design
+- Loading states that feel alive
+- Micro animations for CTA buttons
+
+Avoid:
+- Cheap cartoon style
+- Generic SaaS blue template
+- Boring white cards
+- Clutter
+- Too many random colors
+- Low contrast text
+- Overloaded pages
+- Broken mobile layout
+- Changing business logic unnecessarily
+
+========================
+EXPECTED FINAL RESULT
+========================
+
+When finished, the website should look like a completely new premium product.
+
+The user should feel:
+- “Wow, this is serious.”
+- “I want to upload a song now.”
+- “This looks worth paying for.”
+- “This is fun and social.”
+- “This is not just a tool — this is a karaoke platform.”
+
+The design should be:
+- Stunning
+- Premium
+- Modern
+- Futuristic
+- Emotional
+- Musical
+- Viral
+- Conversion-focused
+- Fully responsive
+- Fully multilingual
+- RTL/LTR safe
+- Production-ready
+
+Start by redesigning the global design system and shared components, then apply it page by page to every route listed above. 
+Do not stop after one page. Redesign the whole website.

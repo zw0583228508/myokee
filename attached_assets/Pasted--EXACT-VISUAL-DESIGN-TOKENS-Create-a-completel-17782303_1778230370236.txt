@@ -1,0 +1,327 @@
+========================
+EXACT VISUAL DESIGN TOKENS
+========================
+
+Create a completely new visual design system using these exact premium tokens.
+
+COLORS:
+
+Base backgrounds:
+- App background: #050510
+- Secondary background: #080816
+- Elevated surface: rgba(255,255,255,0.06)
+- Strong elevated surface: rgba(255,255,255,0.10)
+- Card border: rgba(255,255,255,0.12)
+- Soft divider: rgba(255,255,255,0.08)
+
+Primary brand gradient:
+- Violet: #8B5CF6
+- Electric purple: #A855F7
+- Neon cyan: #22D3EE
+- Hot pink: #EC4899
+- Use gradient: linear-gradient(135deg, #8B5CF6 0%, #22D3EE 45%, #EC4899 100%)
+
+Secondary gradients:
+- Aurora: linear-gradient(135deg, #14F195 0%, #22D3EE 45%, #8B5CF6 100%)
+- Premium gold: linear-gradient(135deg, #FACC15 0%, #FB923C 50%, #F43F5E 100%)
+- Galaxy: radial-gradient(circle at top left, #8B5CF6, transparent 35%), radial-gradient(circle at bottom right, #22D3EE, transparent 35%), #050510
+- Danger: linear-gradient(135deg, #FB7185 0%, #EF4444 100%)
+- Success: linear-gradient(135deg, #22C55E 0%, #14F195 100%)
+
+Text colors:
+- Main text: #F8FAFC
+- Secondary text: #CBD5E1
+- Muted text: #94A3B8
+- Disabled text: #64748B
+- Inverted text: #020617
+
+Status colors:
+- Success: #22C55E
+- Warning: #FACC15
+- Error: #EF4444
+- Info: #38BDF8
+- Premium: #F59E0B
+
+TYPOGRAPHY:
+
+Use a modern premium font stack:
+- English/LTR: Inter, Plus Jakarta Sans, Sora, system-ui, sans-serif
+- Hebrew/RTL: Heebo, Assistant, Rubik, system-ui, sans-serif
+- Arabic RTL: Tajawal, Cairo, system-ui, sans-serif
+- Japanese/Chinese/Korean fallback: Noto Sans JP, Noto Sans SC, Noto Sans KR, system-ui, sans-serif
+
+Font hierarchy:
+- Hero title: clamp(3rem, 8vw, 7rem), font-weight 800/900, letter-spacing -0.05em
+- Page title: clamp(2.25rem, 5vw, 4.5rem), font-weight 800
+- Section title: clamp(1.75rem, 3vw, 3rem), font-weight 800
+- Card title: 1.25rem–1.75rem, font-weight 700
+- Body: 1rem–1.125rem, line-height 1.7
+- Small text: 0.875rem
+- Micro labels: 0.75rem, uppercase for English only, letter-spacing 0.08em
+
+Hebrew:
+- Do not use exaggerated letter spacing in Hebrew.
+- Hebrew headings should use Heebo or Assistant, weight 700–900.
+- Hebrew body text should be highly readable.
+
+SPACING SYSTEM:
+
+Use a consistent 8px spacing scale:
+- 4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px, 96px, 128px
+- Page horizontal padding:
+  - Mobile: 16px
+  - Tablet: 24px–32px
+  - Desktop: 48px–80px
+- Section vertical padding:
+  - Mobile: 56px–72px
+  - Desktop: 96px–140px
+- Card padding:
+  - Small: 16px
+  - Medium: 24px
+  - Large: 32px–40px
+
+BORDERS / RADIUS:
+
+- Small controls: 12px
+- Inputs/buttons: 16px
+- Cards: 24px
+- Large hero cards/modals: 28px–36px
+- Full pill buttons: 999px
+- Border color default: rgba(255,255,255,0.10)
+- Active border: rgba(34,211,238,0.55)
+- Premium border: rgba(250,204,21,0.45)
+
+SHADOWS / GLOW:
+
+Use premium shadows:
+- Soft card shadow: 0 20px 60px rgba(0,0,0,0.35)
+- Strong modal shadow: 0 30px 100px rgba(0,0,0,0.55)
+- Cyan glow: 0 0 40px rgba(34,211,238,0.35)
+- Violet glow: 0 0 50px rgba(139,92,246,0.35)
+- Pink glow: 0 0 45px rgba(236,72,153,0.28)
+- Gold premium glow: 0 0 45px rgba(250,204,21,0.30)
+
+GLASSMORPHISM:
+
+Default glass panel:
+- background: rgba(255,255,255,0.06)
+- backdrop-filter: blur(22px)
+- border: 1px solid rgba(255,255,255,0.10)
+- box-shadow: 0 20px 60px rgba(0,0,0,0.35)
+
+Strong glass panel:
+- background: rgba(255,255,255,0.10)
+- backdrop-filter: blur(28px)
+- border: 1px solid rgba(255,255,255,0.16)
+
+BUTTON SYSTEM:
+
+Primary CTA:
+- Background: primary brand gradient
+- Text: white
+- Border-radius: 999px
+- Padding desktop: 16px 28px
+- Padding mobile: 14px 22px
+- Font-weight: 800
+- Shadow: cyan/violet glow
+- Hover: lift -2px, stronger glow, slight scale 1.02
+- Active: scale 0.98
+
+Secondary button:
+- Glass background rgba(255,255,255,0.07)
+- Border rgba(255,255,255,0.14)
+- Text #F8FAFC
+- Hover border cyan, background rgba(255,255,255,0.11)
+
+Premium/upgrade button:
+- Gold gradient
+- Dark text or white depending contrast
+- Gold glow
+- Small crown/spark icon if available
+
+Danger button:
+- Red gradient
+- Use only for destructive actions
+- Always require clear visual hierarchy
+
+INPUT SYSTEM:
+
+Inputs:
+- Background rgba(255,255,255,0.06)
+- Border rgba(255,255,255,0.12)
+- Border-radius 16px
+- Height 48px–56px
+- Placeholder #64748B
+- Focus border #22D3EE
+- Focus glow 0 0 0 4px rgba(34,211,238,0.12)
+
+CARDS:
+
+Default card:
+- Glass background
+- 24px radius
+- 1px subtle border
+- Soft shadow
+- Hover: border brighter, translateY(-3px), shadow stronger
+
+Feature card:
+- Icon in gradient orb
+- Title
+- Short copy
+- Subtle animated glow on hover
+
+Song/performance card:
+- Large thumbnail
+- Status badge
+- Quick actions
+- Hover preview feel
+
+Pricing card:
+- Stronger depth
+- Recommended plan should visually dominate
+- Use gold/premium highlight for recommended plan
+- Clear CTA at bottom
+
+MODALS:
+
+- Centered glass panel
+- Backdrop: rgba(0,0,0,0.72) with blur
+- Rounded 28px
+- Strong shadow
+- Mobile full-width bottom-sheet style where needed
+- Smooth scale/fade entrance
+
+ANIMATION:
+
+Use tasteful motion:
+- Page entrance: opacity 0 → 1, y 16px → 0, duration 400–600ms
+- Card hover: 180–220ms
+- Modal entrance: 220–320ms
+- CTA pulse glow: slow 2.5s–4s, subtle
+- Background orbs: 12s–24s slow movement
+- Progress steps: animated gradient shimmer
+- Do not over-animate text.
+
+BREAKPOINTS:
+
+Use mobile-first:
+- sm: 640px
+- md: 768px
+- lg: 1024px
+- xl: 1280px
+- 2xl: 1536px
+
+Layouts:
+- Mobile: single column
+- Tablet: 2 columns where appropriate
+- Desktop: 3–4 column grids
+- Hero sections can use split layout on desktop
+- Sticky bottom CTA on mobile for key conversion pages
+
+BACKGROUND SYSTEM:
+
+Create reusable premium backgrounds:
+1. Aurora background:
+   - slow moving green/cyan/violet gradients
+2. Neon stage:
+   - radial spotlights from bottom corners
+3. Galaxy:
+   - dark star/noise texture with purple/cyan orbs
+4. Studio:
+   - subtle waveform lines and grid
+5. Party:
+   - colorful light beams, but still premium
+
+Use CSS pseudo-elements where possible.
+Avoid large heavy assets unless already in project.
+
+ICONS:
+
+Use clean consistent icons.
+Preferred style:
+- Lucide-style thin icons
+- Gradient icon containers
+- Avoid mixed icon styles
+- Icons should support RTL naturally where relevant
+
+DATA VISUALIZATION:
+
+Charts/cards should use:
+- Dark glass containers
+- Neon line charts
+- Soft grid lines rgba(255,255,255,0.08)
+- Clear labels
+- Strong number hierarchy
+- No plain default chart styling
+
+LOADING / EMPTY / ERROR STATES:
+
+Loading:
+- Skeletons with shimmer
+- Animated waveform loader for karaoke processing
+- Step-based progress cards
+
+Empty:
+- Beautiful illustration-like card
+- Clear headline
+- Short helpful text
+- Strong CTA
+
+Error:
+- Friendly branded error panel
+- Retry action
+- Do not show raw technical errors to normal users unless needed
+
+PREMIUM LOCK DESIGN:
+
+Premium lock should feel like unlocking a studio:
+- Glass locked card
+- Gold gradient accent
+- Crown/spark icon
+- Benefits list
+- Main upgrade CTA
+- Secondary “not now” action
+- Avoid making it feel like a punishment
+
+KARAOKE PLAYER DESIGN:
+
+Player should feel like a real stage:
+- Large cinematic container
+- Dark frame
+- Lyrics with glow/outline for readability
+- Current lyric highlighted with gradient or bright color
+- Upcoming lyric dimmed
+- Controls clean and minimal
+- Background selector nearby but not distracting
+
+LYRICS OVERLAY:
+
+- Text must be readable over any background
+- Use subtle text-shadow/stroke
+- Active word/line should glow
+- RTL lyrics must align correctly
+- Long lines should wrap beautifully
+- Mobile lyrics must remain large enough
+
+NAVBAR:
+
+- Sticky top
+- Transparent/glass when at top
+- Slightly stronger background on scroll if existing logic allows
+- Logo left in LTR, right in RTL
+- Language selector compact
+- Credits pill
+- Upgrade CTA
+- User avatar
+- Mobile menu: full-screen glass drawer or elegant dropdown
+
+FOOTER:
+
+If footer exists:
+- Add premium footer
+- Logo
+- Short product description
+- Links
+- Legal links
+- Language selector if appropriate
+- Social/share links if available
