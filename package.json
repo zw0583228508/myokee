@@ -19,5 +19,10 @@
     "pg": "^8.20.0",
     "stripe": "^20.4.1",
     "stripe-replit-sync": "^1.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
