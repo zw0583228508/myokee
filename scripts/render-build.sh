@@ -3,13 +3,19 @@ set -e
 
 echo "=== Render build script ==="
 
+# CRITICAL: force install of devDependencies (vite, esbuild, tsx, etc).
+# Render sets NODE_ENV=production which makes pnpm skip devDependencies.
+# We override here for the install phase only — runtime NODE_ENV stays production.
+export NODE_ENV=development
+export NPM_CONFIG_PRODUCTION=false
+
 echo "--- Installing pnpm 9.15.4 ---"
 npm install -g pnpm@9.15.4
 
-echo "--- Installing dependencies (no-frozen-lockfile, tolerating ignored builds) ---"
-pnpm install --no-frozen-lockfile --config.strict-dep-builds=false --config.dangerously-allow-all-builds=true || {
-  echo "pnpm install exited non-zero, retrying without strict checks..."
-  pnpm install --no-frozen-lockfile --ignore-scripts || true
+echo "--- Installing dependencies (incl. devDependencies, no-frozen-lockfile) ---"
+pnpm install --no-frozen-lockfile --prod=false --config.strict-dep-builds=false --config.dangerously-allow-all-builds=true || {
+  echo "pnpm install exited non-zero, retrying with --ignore-scripts..."
+  pnpm install --no-frozen-lockfile --prod=false --ignore-scripts || true
 }
 
 echo "--- Rebuilding esbuild explicitly ---"
