@@ -3,6 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useFeed, useDiscover, useLikePerformance, useComments, useAddComment } from "@/hooks/use-social";
 import { Heart, MessageCircle, User, Music, ChevronDown, Send, Sparkles, Globe2, Users } from "lucide-react";
 import { Link } from "wouter";
+import { DEMO_PERFORMANCES, isDemo } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { feed: "Following", discover: "Discover", title: "Community", subtitle: "See what others are singing", noFeed: "No performances yet", noFeedDesc: "Follow other singers to see their performances here", noDiscover: "No public performances yet", score: "Score", addComment: "Add a comment...", showComments: "comments", loadMore: "Load More" },
@@ -71,6 +72,19 @@ function PerformanceCard({ perf, lang, idx }: { perf: any; lang: string; idx: nu
   const t = T[lang] || T.en;
   const like = useLikePerformance();
   const [showComments, setShowComments] = useState(false);
+  const demo = isDemo(perf);
+  const [demoLiked, setDemoLiked] = useState(false);
+  const [demoLikeCount, setDemoLikeCount] = useState<number>(perf.like_count || 0);
+  const liked = demo ? demoLiked : perf.liked_by_me;
+  const likeCount = demo ? demoLikeCount : (perf.like_count || 0);
+  const onLike = () => {
+    if (demo) {
+      setDemoLiked(v => !v);
+      setDemoLikeCount(c => c + (demoLiked ? -1 : 1));
+    } else {
+      like.mutate({ performanceId: perf.id, like: !perf.liked_by_me });
+    }
+  };
   const scoreColor = perf.score >= 90 ? "text-emerald-300" : perf.score >= 70 ? "text-amber-300" : perf.score >= 50 ? "text-orange-300" : "text-rose-300";
 
   return (
@@ -78,8 +92,8 @@ function PerformanceCard({ perf, lang, idx }: { perf: any; lang: string; idx: nu
       <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-violet-500/8 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative">
         <div className="flex items-center gap-3 mb-3.5">
-          <Link href={`/profile/${perf.user_id}`}>
-            <div className="cursor-pointer shrink-0">
+          {demo ? (
+            <div className="shrink-0">
               {perf.picture ? (
                 <img src={perf.picture} alt="" className="w-11 h-11 rounded-full object-cover ring-2 ring-violet-400/25" />
               ) : (
@@ -88,11 +102,27 @@ function PerformanceCard({ perf, lang, idx }: { perf: any; lang: string; idx: nu
                 </div>
               )}
             </div>
-          </Link>
-          <div className="flex-1 min-w-0">
+          ) : (
             <Link href={`/profile/${perf.user_id}`}>
-              <span className="text-sm font-semibold text-white hover:text-violet-200 cursor-pointer transition-colors">{perf.display_name}</span>
+              <div className="cursor-pointer shrink-0">
+                {perf.picture ? (
+                  <img src={perf.picture} alt="" className="w-11 h-11 rounded-full object-cover ring-2 ring-violet-400/25" />
+                ) : (
+                  <div className="w-11 h-11 rounded-full ds-icon-orb">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                )}
+              </div>
             </Link>
+          )}
+          <div className="flex-1 min-w-0">
+            {demo ? (
+              <span className="text-sm font-semibold text-white">{perf.display_name}</span>
+            ) : (
+              <Link href={`/profile/${perf.user_id}`}>
+                <span className="text-sm font-semibold text-white hover:text-violet-200 cursor-pointer transition-colors">{perf.display_name}</span>
+              </Link>
+            )}
             <p className="text-xs text-white/35 mt-0.5">{new Date(perf.created_at).toLocaleDateString()}</p>
           </div>
           <div className={`text-3xl font-black ${scoreColor} drop-shadow-[0_0_10px_currentColor] leading-none`} style={{ filter: "brightness(1.1)" }}>{perf.score}</div>
@@ -111,26 +141,27 @@ function PerformanceCard({ perf, lang, idx }: { perf: any; lang: string; idx: nu
 
         <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.05]">
           <button
-            onClick={() => like.mutate({ performanceId: perf.id, like: !perf.liked_by_me })}
+            onClick={onLike}
             className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full transition-all ${
-              perf.liked_by_me
+              liked
                 ? "text-rose-300 bg-rose-500/15 border border-rose-400/30 drop-shadow-[0_0_8px_rgba(248,113,113,.4)]"
                 : "text-white/40 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent"
             }`}
           >
-            <Heart className={`w-4 h-4 ${perf.liked_by_me ? "fill-current" : ""}`} />
-            {perf.like_count || 0}
+            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+            {likeCount}
           </button>
           <button
-            onClick={() => setShowComments(!showComments)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 hover:text-violet-300 transition-colors px-3 py-1.5 rounded-full"
+            onClick={() => !demo && setShowComments(!showComments)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 hover:text-violet-300 transition-colors px-3 py-1.5 rounded-full disabled:opacity-60"
+            disabled={demo}
           >
             <MessageCircle className="w-4 h-4" />
             {perf.comment_count || 0}
           </button>
         </div>
 
-        {showComments && <CommentsSection performanceId={perf.id} lang={lang} />}
+        {showComments && !demo && <CommentsSection performanceId={perf.id} lang={lang} />}
       </div>
     </div>
   );
@@ -148,7 +179,12 @@ export default function Feed() {
 
   const data = tab === "feed" ? feed.data : discover.data;
   const isLoading = tab === "feed" ? feed.isLoading : discover.isLoading;
-  const performances = data?.performances || [];
+  const realPerformances = data?.performances || [];
+  // When the live feed is empty, fall back to demo content so the
+  // community page never looks abandoned. Demo items disappear as
+  // soon as real performances exist.
+  const usingDemo = !isLoading && realPerformances.length === 0 && tab === "discover";
+  const performances = usingDemo ? DEMO_PERFORMANCES : realPerformances;
 
   return (
     <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={isRtl ? "rtl" : "ltr"}>

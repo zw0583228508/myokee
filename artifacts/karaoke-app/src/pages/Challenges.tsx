@@ -3,6 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useChallenges, useChallengeDetail, useEnterChallenge } from "@/hooks/use-challenges";
 import { useMyPerformances } from "@/hooks/use-performances";
 import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check, Music2, Sparkles } from "lucide-react";
+import { DEMO_CHALLENGES, isDemo as isDemoItem } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { title: "Weekly Challenges", subtitle: "Compete with singers worldwide", active: "Active", upcoming: "Upcoming", ended: "Ended", participants: "participants", prize: "Prize", credits: "credits", enterChallenge: "Enter Challenge", leaderboard: "Leaderboard", noChallenge: "No challenges yet", noDesc: "New challenges are posted every week. Check back soon!", rank: "Rank", singer: "Singer", score: "Score", timeLeft: "Time left", days: "d", hours: "h", mins: "m", entered: "Entered", back: "Back", yourScore: "Your Score", selectPerformance: "Select a performance to submit" },
@@ -184,7 +185,10 @@ export default function Challenges() {
     );
   }
 
-  const challenges = data?.challenges || [];
+  const realChallenges = data?.challenges || [];
+  // Show demo challenges when there are no real ones — keeps the page lively
+  // for first-time visitors. Demo items can't be entered (button hidden).
+  const challenges = !isLoading && realChallenges.length === 0 ? DEMO_CHALLENGES : realChallenges;
   const active = challenges.filter((c: any) => c.status === "active");
   const upcoming = challenges.filter((c: any) => c.status === "upcoming");
   const ended = challenges.filter((c: any) => c.status === "ended");
@@ -234,8 +238,11 @@ export default function Challenges() {
                     return (
                       <button
                         key={c.id}
-                        onClick={() => setSelectedId(c.id)}
-                        className="w-full text-start ds-card relative overflow-hidden p-5 sm:p-6 transition-all duration-300 hover:border-white/15 group ds-reveal"
+                        onClick={() => { if (!isDemoItem(c)) setSelectedId(c.id); }}
+                        disabled={isDemoItem(c)}
+                        className={`w-full text-start ds-card relative overflow-hidden p-5 sm:p-6 transition-all duration-300 group ds-reveal ${
+                          isDemoItem(c) ? "cursor-default" : "hover:border-white/15"
+                        }`}
                         style={{ animationDelay: `${i * 40}ms` }}
                       >
                         <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-violet-500/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

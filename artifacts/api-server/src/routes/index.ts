@@ -13,6 +13,7 @@ import analyticsRouter from "./analytics";
 import challengesRouter from "./challenges";
 import socialRouter from "./social";
 import vocalCoachRouter from "./vocalCoach";
+import statsRouter from "./stats";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(analyticsRouter);
 router.use(challengesRouter);
 router.use(socialRouter);
 router.use(vocalCoachRouter);
+router.use(statsRouter);
 
 export default router;

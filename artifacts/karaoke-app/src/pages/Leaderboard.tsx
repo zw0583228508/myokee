@@ -5,6 +5,7 @@ import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
+import { DEMO_LEADERBOARD } from "@/lib/demoData";
 
 const toStars = (s: number) => s >= 90 ? 5 : s >= 75 ? 4 : s >= 60 ? 3 : s >= 40 ? 2 : 1;
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -103,7 +104,7 @@ export default function Leaderboard() {
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span className="text-sm">{t.leaderboard.loading}</span>
               </div>
-            ) : (tab === "global" ? (globalData ?? []) : (myData ?? [])).length === 0 ? (
+            ) : (tab === "global" ? ((globalData ?? []).length === 0 ? [] : globalData ?? []) : (myData ?? [])).length === 0 && tab === "me" ? (
               <div className="ds-card-feature text-center py-16">
                 <div className="w-16 h-16 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto mb-5">
                   <Music2 className="w-8 h-8 text-white/30" />
@@ -117,7 +118,10 @@ export default function Leaderboard() {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {(tab === "global" ? (globalData ?? []) : (myData ?? [])).map((row: any, i: number) => {
+                {(tab === "global"
+                  ? ((globalData ?? []).length === 0 ? DEMO_LEADERBOARD : (globalData ?? []))
+                  : (myData ?? [])
+                ).map((row: any, i: number) => {
                   const stars = toStars(row.score);
                   const isPodium = i < 3;
                   const podiumGlow = i === 0 ? "shadow-[0_0_40px_rgba(252,211,77,.18)]" : "";
@@ -223,7 +227,11 @@ export default function Leaderboard() {
           </>
         )}
 
-        {tab !== "xp" && (tab === "global" ? (globalData ?? []) : (myData ?? [])).length > 0 && (
+        {tab !== "xp" && (
+          tab === "global"
+            ? ((globalData ?? []).length > 0 || true)
+            : (myData ?? []).length > 0
+        ) && (
           <div className="mt-10 text-center">
             <Link href="/">
               <button className="ds-btn ds-btn-primary px-8 py-3 text-sm">

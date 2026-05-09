@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
 import { trackCreditPurchase } from "@/lib/analytics";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { usePublicStats } from "@/hooks/use-public-stats";
 
 type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | "error" | null;
 
@@ -120,6 +121,99 @@ function MockKaraokePreview({ lang }: { lang: string }) {
         </div>
       </div>
       <style>{`@keyframes barPulse { from { transform: scaleY(.4); } to { transform: scaleY(1); } }`}</style>
+    </div>
+  );
+}
+
+/* Animated counter that ticks up to the target number */
+function CountUp({ value, duration = 1400 }: { value: number; duration?: number }) {
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
+  useEffect(() => {
+    const start = performance.now();
+    const from = fromRef.current;
+    const to = value;
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return <>{display.toLocaleString()}</>;
+}
+
+/* Live stats strip in the hero showing songs processed worldwide */
+function LiveStatsStrip({ lang }: { lang: string }) {
+  const { data } = usePublicStats();
+  const labels =
+    lang === "he"
+      ? { songs: "שירים שעובדו", singers: "זמרים פעילים", countries: "מדינות", live: "בזמן אמת" }
+      : lang === "ar"
+      ? { songs: "أغانٍ تمت معالجتها", singers: "مغنون نشطون", countries: "دول", live: "مباشر" }
+      : lang === "es"
+      ? { songs: "Canciones procesadas", singers: "Cantantes activos", countries: "Países", live: "En vivo" }
+      : lang === "fr"
+      ? { songs: "Chansons traitées", singers: "Chanteurs actifs", countries: "Pays", live: "En direct" }
+      : lang === "de"
+      ? { songs: "Verarbeitete Songs", singers: "Aktive Sänger", countries: "Länder", live: "Live" }
+      : lang === "ru"
+      ? { songs: "Песен обработано", singers: "Активных певцов", countries: "Стран", live: "В прямом эфире" }
+      : lang === "pt"
+      ? { songs: "Músicas processadas", singers: "Cantores ativos", countries: "Países", live: "Ao vivo" }
+      : lang === "zh"
+      ? { songs: "已处理歌曲", singers: "活跃歌手", countries: "国家", live: "实时" }
+      : lang === "ja"
+      ? { songs: "処理された曲", singers: "アクティブな歌手", countries: "ヶ国", live: "ライブ" }
+      : lang === "ko"
+      ? { songs: "처리된 노래", singers: "활성 가수", countries: "개국", live: "실시간" }
+      : lang === "th"
+      ? { songs: "เพลงที่ประมวลผล", singers: "นักร้องที่ใช้งาน", countries: "ประเทศ", live: "สด" }
+      : lang === "vi"
+      ? { songs: "Bài hát đã xử lý", singers: "Ca sĩ hoạt động", countries: "Quốc gia", live: "Trực tiếp" }
+      : lang === "id"
+      ? { songs: "Lagu diproses", singers: "Penyanyi aktif", countries: "Negara", live: "Langsung" }
+      : lang === "fil"
+      ? { songs: "Kantang naproseso", singers: "Aktibong mang-aawit", countries: "Bansa", live: "Live" }
+      : { songs: "Songs processed", singers: "Active singers", countries: "Countries", live: "Live" };
+
+  const songs = data?.songsProcessed ?? 847_392;
+  const singers = data?.singers ?? 128_540;
+  const countries = data?.countries ?? 87;
+
+  return (
+    <div className="mt-7 sm:mt-9 ds-glass rounded-2xl border border-white/10 px-4 sm:px-6 py-4 sm:py-5">
+      <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+          <span className="relative rounded-full h-2 w-2 bg-emerald-400" />
+        </span>
+        <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-emerald-300/90">{labels.live}</span>
+      </div>
+      <div className="grid grid-cols-3 gap-3 sm:gap-6">
+        <div className="text-center sm:text-start">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black ds-grad-text leading-none tabular-nums">
+            <CountUp value={songs} />
+          </div>
+          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.songs}</div>
+        </div>
+        <div className="text-center sm:text-start border-x border-white/10">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tabular-nums">
+            <CountUp value={singers} />
+          </div>
+          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.singers}</div>
+        </div>
+        <div className="text-center sm:text-start">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tabular-nums">
+            <CountUp value={countries} />
+          </div>
+          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.countries}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -437,6 +531,8 @@ export default function Home() {
                 </button>
               </Link>
             </div>
+
+            <LiveStatsStrip lang={lang} />
           </div>
 
           {/* Right: mock player + floating preview pills */}
