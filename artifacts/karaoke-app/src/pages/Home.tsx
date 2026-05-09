@@ -194,24 +194,24 @@ function LiveStatsStrip({ lang }: { lang: string }) {
         </span>
         <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-emerald-300/90">{labels.live}</span>
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:gap-6">
-        <div className="text-center sm:text-start">
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black ds-grad-text leading-none tabular-nums">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="text-center min-w-0 px-1">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-black ds-grad-text leading-none tabular-nums whitespace-nowrap overflow-visible inline-block pb-1">
             <CountUp value={songs} />
           </div>
-          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.songs}</div>
+          <div className="text-[10px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.songs}</div>
         </div>
-        <div className="text-center sm:text-start border-x border-white/10">
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tabular-nums">
+        <div className="text-center min-w-0 px-1 border-x border-white/10">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-none tabular-nums whitespace-nowrap">
             <CountUp value={singers} />
           </div>
-          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.singers}</div>
+          <div className="text-[10px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.singers}</div>
         </div>
-        <div className="text-center sm:text-start">
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tabular-nums">
+        <div className="text-center min-w-0 px-1">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-none tabular-nums whitespace-nowrap">
             <CountUp value={countries} />
           </div>
-          <div className="text-[11px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.countries}</div>
+          <div className="text-[10px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.countries}</div>
         </div>
       </div>
     </div>
