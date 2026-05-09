@@ -452,9 +452,9 @@ export function FileUpload() {
             </div>
 
             <div className="w-full space-y-2">
-              <p className="text-sm text-muted-foreground">{t.upload.youtubeLabel}</p>
+              <p className="text-sm text-white/85 font-medium">{t.upload.youtubeLabel}</p>
               <div className="relative">
-                <Link2 className={`absolute ${t.dir === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none`} />
+                <Link2 className={`absolute ${t.dir === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none`} />
                 <input
                   type="url"
                   dir="ltr"
@@ -462,8 +462,8 @@ export function FileUpload() {
                   onChange={handleUrlChange}
                   placeholder={t.upload.youtubePlaceholder}
                   className={`
-                    w-full bg-white/5 border rounded-xl ${t.dir === "rtl" ? "pr-10 pl-4" : "pl-10 pr-4"} py-3 text-sm text-left
-                    placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2
+                    w-full bg-white/10 border rounded-xl ${t.dir === "rtl" ? "pr-10 pl-4" : "pl-10 pr-4"} py-3 text-sm text-left text-white
+                    placeholder:text-white/55 focus:outline-none focus:ring-2
                     transition-all duration-200
                     ${urlError
                       ? "border-destructive focus:ring-destructive/30"
@@ -501,7 +501,7 @@ export function FileUpload() {
                 onChange={(e) => setCopyrightChecked(e.target.checked)}
                 className="mt-0.5 w-4 h-4 rounded border-white/20 accent-primary shrink-0"
               />
-              <span className="text-xs text-muted-foreground leading-relaxed">{t.upload.copyrightConfirm}</span>
+              <span className="text-xs text-white/75 leading-relaxed">{t.upload.copyrightConfirm}</span>
             </label>
             <Button
               size="lg"
@@ -561,7 +561,7 @@ function AvatarSection({
 }) {
   return (
     <div className="w-full border-t border-white/5 pt-5">
-      <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1.5">
+      <p className="text-sm text-white/85 font-medium mb-3 flex items-center gap-1.5">
         <User className="w-4 h-4" />
         {t.upload.avatarLabel}
       </p>
@@ -575,7 +575,7 @@ function AvatarSection({
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{effectiveAvatarLabel}</p>
-            <p className="text-xs text-muted-foreground">{t.upload.avatarAppears}</p>
+            <p className="text-xs text-white/65">{t.upload.avatarAppears}</p>
           </div>
           <button
             onClick={() => avatarInputRef.current?.click()}
@@ -599,7 +599,7 @@ function AvatarSection({
         <div className="flex flex-col items-center gap-2">
           <button
             onClick={() => avatarInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-muted-foreground hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-sm text-white/85 hover:text-white transition-colors"
           >
             <Camera className="w-4 h-4" />
             {t.upload.avatarUpload}
