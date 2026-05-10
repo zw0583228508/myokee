@@ -800,7 +800,7 @@ export default function Home() {
             </div>
 
             <a
-              href="https://mail.google.com/mail/?view=cm&to=windot100@gmail.com"
+              href="https://mail.google.com/mail/?view=cm&to=support@myoukee.com"
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-xl ds-glass text-white/65 hover:text-white transition-all text-sm"
             >

@@ -376,7 +376,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "עורך מילים", desc: "ערוך סנכרון ידנית — שליטה מלאה.", badge: "" },
         ],
       },
-      support: { label: "תמיכה: windot100@gmail.com" },
+      support: { label: "תמיכה: support@myoukee.com" },
     },
   },
   en: {
@@ -555,7 +555,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Lyrics Editor", desc: "Edit sync manually — full control.", badge: "" },
         ],
       },
-      support: { label: "Support: windot100@gmail.com" },
+      support: { label: "Support: support@myoukee.com" },
     },
   },
   ar: {
@@ -734,7 +734,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "محرر الكلمات", desc: "عدّل المزامنة يدوياً — تحكم كامل.", badge: "" },
         ],
       },
-      support: { label: "الدعم: windot100@gmail.com" },
+      support: { label: "الدعم: support@myoukee.com" },
     },
   },
   ru: {
@@ -913,7 +913,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Редактор текста", desc: "Редактируйте синхронизацию вручную — полный контроль.", badge: "" },
         ],
       },
-      support: { label: "Поддержка: windot100@gmail.com" },
+      support: { label: "Поддержка: support@myoukee.com" },
     },
   },
   es: {
@@ -1092,7 +1092,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Editor de Letras", desc: "Edita la sincronización manualmente — control total.", badge: "" },
         ],
       },
-      support: { label: "Soporte: windot100@gmail.com" },
+      support: { label: "Soporte: support@myoukee.com" },
     },
   },
   fr: {
@@ -1271,7 +1271,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Éditeur de Paroles", desc: "Modifiez la synchronisation — contrôle total.", badge: "" },
         ],
       },
-      support: { label: "Support: windot100@gmail.com" },
+      support: { label: "Support: support@myoukee.com" },
     },
   },
   de: {
@@ -1450,7 +1450,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Text-Editor", desc: "Synchronisation manuell bearbeiten — volle Kontrolle.", badge: "" },
         ],
       },
-      support: { label: "Support: windot100@gmail.com" },
+      support: { label: "Support: support@myoukee.com" },
     },
   },
   ja: {
@@ -1629,7 +1629,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "歌詞エディタ", desc: "手動で同期を編集 — 完全コントロール。", badge: "" },
         ],
       },
-      support: { label: "サポート: windot100@gmail.com" },
+      support: { label: "サポート: support@myoukee.com" },
     },
   },
   zh: {
@@ -1808,7 +1808,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "歌词编辑器", desc: "手动编辑同步 — 完全掌控。", badge: "" },
         ],
       },
-      support: { label: "客服: windot100@gmail.com" },
+      support: { label: "客服: support@myoukee.com" },
     },
   },
   ko: {
@@ -1987,7 +1987,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "가사 편집기", desc: "수동으로 싱크 편집 — 완전한 제어.", badge: "" },
         ],
       },
-      support: { label: "고객지원: windot100@gmail.com" },
+      support: { label: "고객지원: support@myoukee.com" },
     },
   },
   th: {
@@ -2166,7 +2166,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "แก้ไขเนื้อเพลง", desc: "แก้ไขการซิงค์ด้วยตนเอง — ควบคุมเต็มที่", badge: "" },
         ],
       },
-      support: { label: "ฝ่ายสนับสนุน: windot100@gmail.com" },
+      support: { label: "ฝ่ายสนับสนุน: support@myoukee.com" },
     },
   },
   vi: {
@@ -2345,7 +2345,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Trình chỉnh sửa lời", desc: "Chỉnh đồng bộ thủ công — kiểm soát hoàn toàn.", badge: "" },
         ],
       },
-      support: { label: "Hỗ trợ: windot100@gmail.com" },
+      support: { label: "Hỗ trợ: support@myoukee.com" },
     },
   },
   tl: {
@@ -2524,7 +2524,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Lyrics Editor", desc: "I-edit ang sync nang mano-mano — full control.", badge: "" },
         ],
       },
-      support: { label: "Support: windot100@gmail.com" },
+      support: { label: "Support: support@myoukee.com" },
     },
   },
   id: {
@@ -2703,7 +2703,7 @@ const LANGS: Record<SupportedLang, Translations> = {
           { title: "Editor Lirik", desc: "Edit sinkronisasi secara manual — kontrol penuh.", badge: "" },
         ],
       },
-      support: { label: "Dukungan: windot100@gmail.com" },
+      support: { label: "Dukungan: support@myoukee.com" },
     },
   },
 };
