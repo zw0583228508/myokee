@@ -97,7 +97,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
                   return (
                     <div
                       key={pkg.id}
-                      className="relative flex flex-col rounded-2xl p-4 text-center transition-all duration-300 ds-reveal overflow-hidden"
+                      className={`relative flex flex-col rounded-2xl p-4 text-center transition-all duration-300 ds-reveal ${isPopular ? "" : "overflow-hidden"}`}
                       style={isPopular ? {
                         background: "linear-gradient(180deg, rgba(139,92,246,.16), rgba(236,72,153,.10))",
                         border: "1.5px solid rgba(139,92,246,.45)",
