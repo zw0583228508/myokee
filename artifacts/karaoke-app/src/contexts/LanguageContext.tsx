@@ -297,7 +297,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "הכי פופולרי",
         unavailable: "חבילות לא זמינות כרגע.",
         secureStripe: "תשלום מאובטח דרך Stripe. קרדיטים לא פגים.",
-        securePaypal: "תשלום מאובטח דרך PayPal. קרדיטים לא פגים.",
+        securePaypal: "תשלום מאובטח דרך PayPal או Polar. קרדיטים לא פגים.",
         error: "שגיאה ביצירת סשן תשלום. נסה שוב.",
       },
     leaderboard: {
@@ -476,7 +476,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "Most Popular",
         unavailable: "Packages not available at the moment.",
         secureStripe: "Secure payment via Stripe. Credits never expire.",
-        securePaypal: "Secure payment via PayPal. Credits never expire.",
+        securePaypal: "Secure payment via PayPal or Polar. Credits never expire.",
         error: "Error creating payment session. Try again.",
       },
     leaderboard: {
@@ -655,7 +655,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "الأكثر شعبية",
         unavailable: "الباقات غير متاحة حاليًا.",
         secureStripe: "دفع آمن عبر Stripe. الرصيد لا ينتهي.",
-        securePaypal: "دفع آمن عبر PayPal. الرصيد لا ينتهي.",
+        securePaypal: "دفع آمن عبر PayPal أو Polar. الرصيد لا ينتهي.",
         error: "خطأ في إنشاء جلسة الدفع. حاول مرة أخرى.",
       },
     leaderboard: {
@@ -834,7 +834,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "Самый популярный",
         unavailable: "Пакеты сейчас недоступны.",
         secureStripe: "Безопасная оплата через Stripe. Кредиты не сгорают.",
-        securePaypal: "Безопасная оплата через PayPal. Кредиты не сгорают.",
+        securePaypal: "Безопасная оплата через PayPal или Polar. Кредиты не сгорают.",
         error: "Ошибка при создании платежной сессии. Попробуйте снова.",
       },
     leaderboard: {
@@ -1013,7 +1013,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "Más popular",
         unavailable: "Paquetes no disponibles en este momento.",
         secureStripe: "Pago seguro con Stripe. Los créditos no caducan.",
-        securePaypal: "Pago seguro con PayPal. Los créditos no caducan.",
+        securePaypal: "Pago seguro con PayPal o Polar. Los créditos no caducan.",
         error: "Error al crear sesión de pago. Inténtalo de nuevo.",
       },
     leaderboard: {
@@ -1192,7 +1192,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "Le plus populaire",
         unavailable: "Forfaits non disponibles pour le moment.",
         secureStripe: "Paiement sécurisé via Stripe. Les crédits n'expirent jamais.",
-        securePaypal: "Paiement sécurisé via PayPal. Les crédits n'expirent jamais.",
+        securePaypal: "Paiement sécurisé via PayPal ou Polar. Les crédits n'expirent jamais.",
         error: "Erreur lors de la création de la session de paiement. Réessayez.",
       },
     leaderboard: {
@@ -1371,7 +1371,7 @@ const LANGS: Record<SupportedLang, Translations> = {
         mostPopular: "Am beliebtesten",
         unavailable: "Pakete derzeit nicht verfügbar.",
         secureStripe: "Sichere Zahlung über Stripe. Credits verfallen nicht.",
-        securePaypal: "Sichere Zahlung über PayPal. Credits verfallen nicht.",
+        securePaypal: "Sichere Zahlung über PayPal oder Polar. Credits verfallen nicht.",
         error: "Fehler beim Erstellen der Zahlungssitzung. Versuchen Sie es erneut.",
       },
     leaderboard: {
@@ -1550,7 +1550,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "人気No.1",
       unavailable: "現在パッケージは利用できません。",
       secureStripe: "Stripeによる安全な決済。クレジットは期限なし。",
-      securePaypal: "PayPalによる安全な決済。クレジットは期限なし。",
+      securePaypal: "PayPalまたはPolarによる安全な決済。クレジットは期限なし。",
       error: "決済セッションの作成エラー。再試行してください。",
     },
     leaderboard: {
@@ -1729,7 +1729,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "最受欢迎",
       unavailable: "套餐暂时不可用。",
       secureStripe: "通过Stripe安全支付。积分永不过期。",
-      securePaypal: "通过PayPal安全支付。积分永不过期。",
+      securePaypal: "通过PayPal或Polar安全支付。积分永不过期。",
       error: "创建支付会话时出错。请重试。",
     },
     leaderboard: {
@@ -1908,7 +1908,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "가장 인기",
       unavailable: "현재 패키지를 이용할 수 없습니다.",
       secureStripe: "Stripe을 통한 안전한 결제. 크레딧은 만료되지 않습니다.",
-      securePaypal: "PayPal을 통한 안전한 결제. 크레딧은 만료되지 않습니다.",
+      securePaypal: "PayPal 또는 Polar를 통한 안전한 결제. 크레딧은 만료되지 않습니다.",
       error: "결제 세션 생성 오류. 다시 시도하세요.",
     },
     leaderboard: {
@@ -2087,7 +2087,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "ยอดนิยม",
       unavailable: "แพ็กเกจไม่พร้อมใช้งานในขณะนี้",
       secureStripe: "ชำระเงินอย่างปลอดภัยผ่าน Stripe เครดิตไม่มีวันหมดอายุ",
-      securePaypal: "ชำระเงินอย่างปลอดภัยผ่าน PayPal เครดิตไม่มีวันหมดอายุ",
+      securePaypal: "ชำระเงินอย่างปลอดภัยผ่าน PayPal หรือ Polar เครดิตไม่มีวันหมดอายุ",
       error: "เกิดข้อผิดพลาดในการสร้างเซสชันการชำระเงิน ลองอีกครั้ง",
     },
     leaderboard: {
@@ -2266,7 +2266,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "Phổ biến nhất",
       unavailable: "Gói hiện không khả dụng.",
       secureStripe: "Thanh toán an toàn qua Stripe. Tín dụng không hết hạn.",
-      securePaypal: "Thanh toán an toàn qua PayPal. Tín dụng không hết hạn.",
+      securePaypal: "Thanh toán an toàn qua PayPal hoặc Polar. Tín dụng không hết hạn.",
       error: "Lỗi khi tạo phiên thanh toán. Thử lại.",
     },
     leaderboard: {
@@ -2445,7 +2445,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "Pinakapopular",
       unavailable: "Hindi available ang mga package sa ngayon.",
       secureStripe: "Ligtas na bayad sa pamamagitan ng Stripe. Hindi nag-e-expire ang credits.",
-      securePaypal: "Ligtas na bayad sa pamamagitan ng PayPal. Hindi nag-e-expire ang credits.",
+      securePaypal: "Ligtas na bayad sa pamamagitan ng PayPal o Polar. Hindi nag-e-expire ang credits.",
       error: "Error sa paggawa ng payment session. Subukan ulit.",
     },
     leaderboard: {
@@ -2624,7 +2624,7 @@ const LANGS: Record<SupportedLang, Translations> = {
       mostPopular: "Paling Populer",
       unavailable: "Paket tidak tersedia saat ini.",
       secureStripe: "Pembayaran aman melalui Stripe. Kredit tidak pernah kadaluarsa.",
-      securePaypal: "Pembayaran aman melalui PayPal. Kredit tidak pernah kadaluarsa.",
+      securePaypal: "Pembayaran aman melalui PayPal atau Polar. Kredit tidak pernah kadaluarsa.",
       error: "Kesalahan membuat sesi pembayaran. Coba lagi.",
     },
     leaderboard: {

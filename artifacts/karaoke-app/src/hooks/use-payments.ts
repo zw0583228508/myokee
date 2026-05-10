@@ -109,6 +109,49 @@ export function useRecoverPayPal(isLoggedIn: boolean = false) {
   });
 }
 
+export function usePolarPurchase() {
+  const { lang } = useLang();
+  return useMutation({
+    mutationFn: async (packageId: string): Promise<string> => {
+      const res = await fetch(apiUrl("/api/polar/checkout"), authFetchOptions({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packageId, lang }),
+      }));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error ?? "Failed to create Polar checkout");
+      }
+      const data = await res.json();
+      if (data.checkoutId) {
+        sessionStorage.setItem("polar_checkout_id", data.checkoutId);
+      }
+      return data.url as string;
+    },
+  });
+}
+
+export function useFulfillPolar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (checkoutId: string) => {
+      const res = await fetch(apiUrl("/api/polar/fulfill"), authFetchOptions({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkoutId }),
+      }));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error ?? "Failed to fulfill Polar payment");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+}
+
 export function useFulfillPayment() {
   const queryClient = useQueryClient();
   return useMutation({

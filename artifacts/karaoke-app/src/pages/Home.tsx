@@ -5,7 +5,7 @@ import {
   Mic, Trophy, Users, Star, Swords, Play, Headphones, ArrowRight,
   Camera, Mail, FileText, Zap, Globe, Wand2, Share2,
 } from "lucide-react";
-import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal } from "@/hooks/use-payments";
+import { useFulfillPayment, useFulfillPayPal, useRecoverPayPal, useFulfillPolar } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLang } from "@/contexts/LanguageContext";
@@ -235,6 +235,7 @@ function FloatingPill({ icon: Icon, label, className = "", delay = "0s" }: { ico
 export default function Home() {
   const fulfillPayment = useFulfillPayment();
   const fulfillPayPal  = useFulfillPayPal();
+  const fulfillPolar   = useFulfillPolar();
   const queryClient    = useQueryClient();
   const [, navigate]   = useLocation();
   const { t, lang }    = useLang();
@@ -294,6 +295,7 @@ export default function Home() {
     const payment   = params.get("payment");
     const sessionId = params.get("session_id");
     const paypalOrderId = params.get("paypal_order_id") || params.get("token") || sessionStorage.getItem("paypal_order_id");
+    const polarCheckoutId = params.get("checkout_id") || sessionStorage.getItem("polar_checkout_id");
 
     if (payment === "success" && sessionId) {
       const attemptFulfill = (attempt = 0) => {
@@ -342,6 +344,30 @@ export default function Home() {
         });
       };
       attemptCapture();
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if ((payment === "polar_success" || !payment) && polarCheckoutId) {
+      sessionStorage.removeItem("polar_checkout_id");
+      const attemptPolar = (attempt = 0) => {
+        fulfillPolar.mutate(polarCheckoutId, {
+          onSuccess: (data) => {
+            setPaymentBanner(data.alreadyFulfilled ? "already_fulfilled" : "success");
+            if (!data.alreadyFulfilled && data.credits) {
+              trackCreditPurchase({ gateway: "polar", credits: data.credits });
+            }
+            queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+          },
+          onError: (err) => {
+            console.error(`[Payment] Polar fulfill error (attempt ${attempt + 1}):`, err);
+            if (attempt < 2) {
+              setTimeout(() => attemptPolar(attempt + 1), 2000 * (attempt + 1));
+            } else {
+              sessionStorage.setItem("polar_checkout_id", polarCheckoutId);
+              setPaymentBanner("error");
+            }
+          },
+        });
+      };
+      attemptPolar();
       window.history.replaceState({}, "", window.location.pathname);
     } else if (payment === "cancelled") {
       setPaymentBanner("cancelled");

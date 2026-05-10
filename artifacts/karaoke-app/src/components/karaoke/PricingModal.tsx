@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Zap, Star, AlertCircle, Sparkles, Shield, Check } from "lucide-react";
-import { usePackages, usePayPalPurchase } from "@/hooks/use-payments";
+import { usePackages, usePayPalPurchase, usePolarPurchase } from "@/hooks/use-payments";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginModal } from "./LoginModal";
 import { useLang } from "@/contexts/LanguageContext";
@@ -17,15 +17,17 @@ export function PricingModal({ open, onOpenChange }: Props) {
   const user = authData?.user ?? null;
   const { data: packages, isLoading: loadingPackages } = usePackages();
   const paypalPurchase = usePayPalPurchase();
+  const polarPurchase = usePolarPurchase();
   const [showLogin, setShowLogin] = useState(false);
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function handleBuy(packageId: string) {
+  function handleBuy(packageId: string, provider: "paypal" | "polar") {
     if (!user) { setShowLogin(true); return; }
     setError(null);
-    setBuyingId(packageId);
-    paypalPurchase.mutate(packageId, {
+    setBuyingId(`${provider}_${packageId}`);
+    const m = provider === "paypal" ? paypalPurchase : polarPurchase;
+    m.mutate(packageId, {
       onSuccess: (url) => { window.location.href = url; },
       onError: (err: any) => {
         setBuyingId(null);
@@ -89,7 +91,8 @@ export function PricingModal({ open, onOpenChange }: Props) {
                 {packages.map((pkg: any) => {
                   const isPopular = pkg.popular;
                   const priceUSD = pkg.unitAmount / 100;
-                  const isBuying = buyingId === pkg.id;
+                  const isBuyingPaypal = buyingId === `paypal_${pkg.id}`;
+                  const isBuyingPolar = buyingId === `polar_${pkg.id}`;
 
                   return (
                     <div
@@ -133,10 +136,24 @@ export function PricingModal({ open, onOpenChange }: Props) {
                             isPopular ? "ds-btn ds-btn-primary" : "ds-btn ds-btn-ghost"
                           } disabled:opacity-40`}
                           disabled={!!buyingId}
-                          onClick={() => handleBuy(pkg.id)}
+                          onClick={() => handleBuy(pkg.id, "paypal")}
                         >
-                          {isBuying ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                            <><Check className="w-3.5 h-3.5" />{t.pricing.buyNow}</>
+                          {isBuyingPaypal ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                            <><Check className="w-3.5 h-3.5" />PayPal</>
+                          )}
+                        </button>
+                        <button
+                          className="w-full mt-2 py-2 rounded-xl text-xs font-semibold transition-all duration-300 disabled:opacity-40"
+                          style={{
+                            background: "rgba(255,255,255,.06)",
+                            border: "1px solid rgba(255,255,255,.12)",
+                            color: "#fff",
+                          }}
+                          disabled={!!buyingId}
+                          onClick={() => handleBuy(pkg.id, "polar")}
+                        >
+                          {isBuyingPolar ? <Loader2 className="w-4 h-4 animate-spin inline" /> : (
+                            <><Check className="w-3.5 h-3.5 inline mr-1" />Polar</>
                           )}
                         </button>
                       </div>
