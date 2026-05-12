@@ -60,11 +60,13 @@ app = modal.App("karaoke-processor", image=image)
             "DEMUCS_DEVICE": "cuda",
             "WHISPER_DEVICE": "cuda",
         }),
-        # Modal secret named "youtube-cookies" with key YT_COOKIES_B64
-        # (base64-encoded Netscape cookies.txt). yt-dlp uses these cookies
-        # to bypass YouTube bot detection.
+        # RapidAPI key for the youtube-mp36 service. Bypasses YouTube bot
+        # detection entirely by delegating the download to a managed service.
+        modal.Secret.from_name("rapidapi-youtube", required_keys=["RAPIDAPI_KEY"]),
+        # Optional fallback: cookies + proxy for legacy yt-dlp path (unused
+        # while RapidAPI is the primary downloader, kept so the secrets stay
+        # provisioned in case we need to revert).
         modal.Secret.from_name("youtube-cookies", required_keys=["YT_COOKIES_B64"]),
-        # Residential proxy URL for yt-dlp (bypasses Modal datacenter IP ban).
         modal.Secret.from_name("youtube-proxy", required_keys=["YT_PROXY"]),
     ],
 )

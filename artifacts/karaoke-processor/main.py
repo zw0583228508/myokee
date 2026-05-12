@@ -1884,10 +1884,192 @@ async def create_job(request: Request, background_tasks: BackgroundTasks, file: 
     return Job(**jd)
 
 
+_YT_ID_RE = re.compile(r"(?:v=|youtu\.be/|/shorts/|/embed/|/v/|/live/)([\w-]{11})")
+_RAPIDAPI_CDN_HOST_SUFFIX = ".123tokyo.xyz"
+
+
+def _extract_youtube_id(url: str) -> Optional[str]:
+    """Extract the 11-character YouTube video ID from any common URL form."""
+    m = _YT_ID_RE.search(url)
+    return m.group(1) if m else None
+
+
 async def _download_youtube_and_process(job_id: str, url: str,
                                          max_duration_secs: Optional[float] = None,
                                          language_hint: Optional[str] = None):
-    """Download a YouTube video's audio with yt-dlp, then run the normal pipeline."""
+    """Download a YouTube video's audio via RapidAPI youtube-mp36, then run the
+    normal pipeline. Bypasses YouTube bot detection by delegating the download
+    to a managed third-party service."""
+    import httpx
+    jdir = job_dir(job_id)
+    try:
+        update_job(job_id, status="downloading", progress=2)
+
+        rapidapi_key = os.environ.get("RAPIDAPI_KEY", "").strip()
+        if not rapidapi_key:
+            raise RuntimeError("RAPIDAPI_KEY secret missing — cannot download from YouTube")
+
+        video_id = _extract_youtube_id(url)
+        if not video_id:
+            raise RuntimeError("לא ניתן לחלץ מזהה וידאו מהקישור — ודא שזה קישור YouTube תקין")
+        print(f"[youtube] video_id={video_id}")
+
+        api_url = f"https://youtube-mp36.p.rapidapi.com/dl?id={video_id}"
+        api_headers = {
+            "x-rapidapi-host": "youtube-mp36.p.rapidapi.com",
+            "x-rapidapi-key": rapidapi_key,
+        }
+        cdn_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/130.0.0.0 Safari/537.36",
+            "Referer": "https://youtube-mp36.p.rapidapi.com/",
+            "Accept": "*/*",
+        }
+        # Route CDN download via residential proxy if configured — Modal
+        # datacenter IPs are blocked by 123tokyo.xyz, residential proxy passes.
+        proxy_url = os.environ.get("YT_PROXY", "").strip() or None
+        if proxy_url and not proxy_url.startswith(("http://", "https://", "socks5://")):
+            proxy_url = "http://" + proxy_url
+
+        async def _fetch_link() -> tuple[str, str]:
+            """Poll RapidAPI until status=ok. Returns (download_link, title).
+            Raises on permanent failure or timeout (~90s)."""
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                for attempt in range(30):
+                    try:
+                        r = await client.get(api_url, headers=api_headers)
+                    except Exception as exc:
+                        print(f"[youtube] API request error (attempt {attempt+1}): {exc}")
+                        await asyncio.sleep(3)
+                        continue
+                    if r.status_code == 429:
+                        raise RuntimeError("חרגנו ממכסת הבקשות החודשית של RapidAPI — שדרג את התוכנית")
+                    if r.status_code in (401, 403):
+                        raise RuntimeError(f"מפתח RapidAPI לא תקין (HTTP {r.status_code})")
+                    # 4xx (other than rate-limit/auth) → permanent (bad ID,
+                    # video unavailable, etc.). Stop polling.
+                    if 400 <= r.status_code < 500:
+                        raise RuntimeError(f"RapidAPI rejected request (HTTP {r.status_code}): {r.text[:200]}")
+                    if r.status_code != 200:
+                        print(f"[youtube] RapidAPI HTTP {r.status_code}: {r.text[:200]}")
+                        await asyncio.sleep(3)
+                        continue
+                    try:
+                        data = r.json()
+                    except Exception:
+                        print(f"[youtube] RapidAPI non-JSON response: {r.text[:200]}")
+                        await asyncio.sleep(3)
+                        continue
+                    status = (data.get("status") or "").lower()
+                    if status == "ok":
+                        link = data.get("link", "")
+                        title = data.get("title", "") or "YouTube song"
+                        if len(title) > 80:
+                            title = title[:80] + "…"
+                        print(f"[youtube] ready: {title!r} ({data.get('filesize', '?')} bytes)")
+                        return link, title
+                    if status == "fail":
+                        raise RuntimeError(f"RapidAPI download failed: {data.get('msg', 'unknown')}")
+                    progress_pct = data.get("progress", 0) or 0
+                    if job_id in jobs:
+                        update_job(job_id, progress=int(2 + progress_pct * 0.05))
+                    print(f"[youtube] processing... attempt {attempt+1}/30 (progress={progress_pct}%)")
+                    await asyncio.sleep(3)
+            raise RuntimeError("RapidAPI did not return a download link within 90 seconds")
+
+        def _validate_cdn_url(link: str) -> None:
+            """Block SSRF: enforce https + allowlist the known RapidAPI CDN."""
+            from urllib.parse import urlparse
+            p = urlparse(link)
+            if p.scheme != "https":
+                raise RuntimeError(f"download link rejected: non-https scheme ({p.scheme})")
+            host = (p.hostname or "").lower()
+            if not host.endswith(_RAPIDAPI_CDN_HOST_SUFFIX):
+                raise RuntimeError(f"download link rejected: host '{host}' not in allowlist")
+
+        input_path = jdir / "input.mp3"
+        bytes_written = 0
+        download_ok = False
+        last_err = ""
+
+        # ── Retry loop: up to 3 attempts, each fetching a fresh link ─────────
+        # CDN links can be short-lived or rate-limited per IP. Re-querying the
+        # API gives us a new signed URL (often from a different CDN host).
+        for outer_attempt in range(3):
+            if job_id not in jobs:
+                print(f"[youtube] job {job_id} disappeared (likely deleted) — abort")
+                return
+            try:
+                download_link, display_name = await _fetch_link()
+            except RuntimeError:
+                # Permanent API-side failure → bubble up immediately.
+                raise
+            _validate_cdn_url(download_link)
+
+            if job_id in jobs:
+                jobs[job_id]["filename"] = display_name
+                _save_job_meta(job_id)
+                update_job(job_id, progress=10)
+
+            client_kwargs: dict = {
+                "timeout": 120.0,
+                # Disable redirects — CDN should serve the file directly. Any
+                # redirect could escape the host allowlist (SSRF) so reject it.
+                "follow_redirects": False,
+                "headers": cdn_headers,
+            }
+            if proxy_url:
+                client_kwargs["proxy"] = proxy_url
+
+            try:
+                bytes_written = 0
+                async with httpx.AsyncClient(**client_kwargs) as client:
+                    async with client.stream("GET", download_link) as resp:
+                        if resp.status_code != 200:
+                            body_preview = ""
+                            try:
+                                body_preview = (await resp.aread())[:200].decode("utf-8", errors="replace")
+                            except Exception:
+                                pass
+                            raise RuntimeError(f"CDN HTTP {resp.status_code} {body_preview}")
+                        total = int(resp.headers.get("content-length", 0)) or 0
+                        with open(input_path, "wb") as f:
+                            async for chunk in resp.aiter_bytes(chunk_size=64 * 1024):
+                                f.write(chunk)
+                                bytes_written += len(chunk)
+                                if total > 0 and job_id in jobs:
+                                    dl_pct = (bytes_written / total) * 100
+                                    update_job(job_id, progress=int(10 + dl_pct * 0.16))
+                if bytes_written < 1024:
+                    raise RuntimeError(f"file too small ({bytes_written} bytes)")
+                download_ok = True
+                break
+            except Exception as exc:
+                last_err = str(exc)
+                print(f"[youtube] download attempt {outer_attempt+1}/3 failed: {last_err}")
+                # Backoff before next attempt with a fresh link.
+                await asyncio.sleep(2)
+
+        if not download_ok:
+            raise RuntimeError(f"כל ניסיונות ההורדה נכשלו: {last_err}")
+        update_job(job_id, progress=26)
+        print(f"[youtube] Downloaded: input.mp3 ({bytes_written // 1024} KB)")
+
+        # ── Hand off to the exact same pipeline as a file upload ─────────────
+        await process_job(job_id, input_path, display_name, max_duration_secs, language_hint)
+
+    except Exception as exc:
+        print(f"[youtube] job={job_id} error: {exc}")
+        update_job(job_id, status="error",
+                   error=f"הורדה מ-YouTube נכשלה: {exc}")
+        _save_job_meta(job_id)
+
+
+async def _download_youtube_and_process_LEGACY_YTDLP(job_id: str, url: str,
+                                         max_duration_secs: Optional[float] = None,
+                                         language_hint: Optional[str] = None):
+    """Legacy yt-dlp implementation — kept for reference but not called."""
     jdir = job_dir(job_id)
     try:
         update_job(job_id, status="downloading", progress=2)
