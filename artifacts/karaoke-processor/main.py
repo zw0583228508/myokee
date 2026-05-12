@@ -1892,71 +1892,145 @@ async def _download_youtube_and_process(job_id: str, url: str,
     try:
         update_job(job_id, status="downloading", progress=2)
 
-        # ── Fetch title via --print (stdout only, stderr discarded) ──────────
-        # --get-title writes to stdout; run_cmd only returns stderr → use run_cmd_stdout
-        title_rc, title_out = await run_cmd_stdout(
-            "yt-dlp", "--no-playlist",
-            "--js-runtimes", "node",
-            "--cache-dir", "/tmp/yt-dlp-cache",
-            "--print", "%(title)s", "--simulate", url)
-        raw_title = title_out.strip().splitlines()[-1] if title_out.strip() else ""
-        display_name = (raw_title[:80] + "…") if len(raw_title) > 80 else raw_title
+        # ── Resolve cookies (bypasses YouTube bot detection) ─────────────────
+        # YT_COOKIES_B64 = base64-encoded Netscape cookies.txt (decoded at runtime)
+        cookies_path: Optional[str] = os.environ.get("YT_COOKIES_FILE") or None
+        if not cookies_path:
+            b64 = os.environ.get("YT_COOKIES_B64")
+            if b64:
+                try:
+                    import base64 as _b64
+                    cookies_path = "/tmp/yt-cookies.txt"
+                    Path(cookies_path).write_bytes(_b64.b64decode(b64))
+                except Exception as exc:
+                    print(f"[youtube] failed to decode YT_COOKIES_B64: {exc}")
+                    cookies_path = None
+        if cookies_path and not Path(cookies_path).exists():
+            print(f"[youtube] cookies file not found: {cookies_path}")
+            cookies_path = None
+        cookie_args = ["--cookies", cookies_path] if cookies_path else []
+        if cookies_path:
+            try:
+                size = Path(cookies_path).stat().st_size
+                print(f"[youtube] ✓ cookies loaded: {cookies_path} ({size} bytes)")
+            except Exception:
+                pass
+        else:
+            print("[youtube] ✗ NO cookies — set YT_COOKIES_B64 secret")
+
+        # ── Optional residential proxy (bypasses datacenter IP ban) ──────────
+        proxy_url = os.environ.get("YT_PROXY", "").strip()
+        proxy_args = ["--proxy", proxy_url] if proxy_url else []
+        if proxy_url:
+            _safe = proxy_url.split("@")[-1] if "@" in proxy_url else proxy_url
+            print(f"[youtube] ✓ proxy enabled: {_safe}")
+        else:
+            print("[youtube] ✗ NO proxy — set YT_PROXY secret to bypass IP block")
+
+        # ── Player-client fallback chain (try each until one succeeds) ───────
+        client_attempts = [
+            "youtube:player_client=android,ios",
+            "youtube:player_client=tv,tv_embedded",
+            "youtube:player_client=mweb,web_safari",
+            "youtube:player_client=default",
+        ]
+
+        # ── Fetch title (try each client until one returns a title) ──────────
+        display_name = ""
+        for cargs in client_attempts:
+            title_rc, title_out = await run_cmd_stdout(
+                "yt-dlp", "--no-playlist",
+                "--js-runtimes", "node",
+                "--cache-dir", "/tmp/yt-dlp-cache",
+                "--extractor-args", cargs,
+                *cookie_args,
+                *proxy_args,
+                "--print", "%(title)s", "--simulate", url)
+            raw_title = title_out.strip().splitlines()[-1] if title_out.strip() else ""
+            if title_rc == 0 and raw_title:
+                display_name = (raw_title[:80] + "…") if len(raw_title) > 80 else raw_title
+                print(f"[youtube] Title via {cargs}: {display_name!r}")
+                break
         if not display_name:
             display_name = "YouTube song"
         jobs[job_id]["filename"] = display_name
         _save_job_meta(job_id)
-        print(f"[youtube] Title: {display_name!r}")
 
-        # ── Stream download with live progress tracking ───────────────────────
+        # ── Stream download with live progress + client fallback ─────────────
         output_template = str(jdir / "input.%(ext)s")
-        proc = await asyncio.create_subprocess_exec(
-            "yt-dlp",
-            "--no-playlist",
-            "--js-runtimes", "node",
-            "--cache-dir", "/tmp/yt-dlp-cache",
-            "-f", "bestaudio/best",
-            "-x",
-            "--audio-format", "mp3",
-            "--audio-quality", "0",
-            "--no-continue",
-            "--newline",            # one progress line per stdout update
-            "--progress",
-            "--extractor-retries", "5",
-            "--retry-sleep", "3",
-            "--socket-timeout", "30",
-            "--no-check-certificates",
-            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "-o", output_template,
-            url,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,  # capture stderr for error reporting
-        )
-        stderr_lines: list[str] = []
-        # Parse yt-dlp progress lines:  "[download]  50.3% of ~8.00MiB at 2.50MiB/s ETA 00:02"
-        async def read_stderr():
-            async for raw in proc.stderr:
-                ln = raw.decode(errors="replace").strip()
-                if ln:
-                    stderr_lines.append(ln)
-                    if "ERROR" in ln:
-                        print(f"[youtube] yt-dlp stderr: {ln}")
-        import asyncio as _aio
-        stderr_task = _aio.ensure_future(read_stderr())
-        async for raw_line in proc.stdout:
-            line = raw_line.decode(errors="replace").strip()
-            if "[download]" in line and "%" in line:
+        last_err = ""
+        download_ok = False
+        for attempt_idx, cargs in enumerate(client_attempts):
+            # Clean any partial file from a previous failed attempt.
+            for old in jdir.glob("input.*"):
                 try:
-                    pct_str = line.split("%")[0].split()[-1]
-                    dl_pct = float(pct_str)
-                    # Map 0-100% download → job progress 5-25%
-                    update_job(job_id, progress=int(5 + dl_pct * 0.20))
+                    old.unlink()
                 except Exception:
                     pass
-        await proc.wait()
-        await stderr_task
-        if proc.returncode != 0:
-            err_detail = "; ".join(l for l in stderr_lines if "ERROR" in l)[:200]
-            raise RuntimeError(f"yt-dlp failed (exit {proc.returncode})" + (f": {err_detail}" if err_detail else ""))
+            print(f"[youtube] download attempt {attempt_idx + 1}/{len(client_attempts)} via {cargs}")
+            proc = await asyncio.create_subprocess_exec(
+                "yt-dlp",
+                "--no-playlist",
+                "--js-runtimes", "node",
+                "--cache-dir", "/tmp/yt-dlp-cache",
+                "--extractor-args", cargs,
+                *cookie_args,
+                *proxy_args,
+                "-f", "bestaudio/best",
+                "-x",
+                "--audio-format", "mp3",
+                "--audio-quality", "0",
+                "--no-continue",
+                "--newline",
+                "--progress",
+                "--extractor-retries", "3",
+                "--retry-sleep", "2",
+                "--socket-timeout", "30",
+                "--no-check-certificates",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "-o", output_template,
+                url,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stderr_lines: list[str] = []
+            async def read_stderr():
+                async for raw in proc.stderr:
+                    ln = raw.decode(errors="replace").strip()
+                    if ln:
+                        stderr_lines.append(ln)
+                        if "ERROR" in ln:
+                            print(f"[youtube] yt-dlp stderr: {ln}")
+            import asyncio as _aio
+            stderr_task = _aio.ensure_future(read_stderr())
+            async for raw_line in proc.stdout:
+                line = raw_line.decode(errors="replace").strip()
+                if "[download]" in line and "%" in line:
+                    try:
+                        pct_str = line.split("%")[0].split()[-1]
+                        dl_pct = float(pct_str)
+                        update_job(job_id, progress=int(5 + dl_pct * 0.20))
+                    except Exception:
+                        pass
+            await proc.wait()
+            await stderr_task
+            if proc.returncode == 0:
+                download_ok = True
+                break
+            last_err = "; ".join(l for l in stderr_lines if "ERROR" in l)[:300]
+            print(f"[youtube] attempt {attempt_idx + 1} failed: {last_err}")
+            # Stop only on PERMANENT errors that another client can't fix
+            permanent = ("Private video", "Video unavailable", "members-only",
+                         "Members-only", "removed by the uploader",
+                         "is not available in your country",
+                         "video has been removed")
+            if any(t in last_err for t in permanent):
+                break
+        if not download_ok:
+            hint = ""
+            if "Sign in" in last_err or "bot" in last_err:
+                hint = " — YouTube blocked all clients. Provide cookies via YT_COOKIES_B64 secret."
+            raise RuntimeError(f"yt-dlp failed: {last_err}{hint}")
 
         # ── Locate downloaded file ───────────────────────────────────────────
         candidates = [f for f in jdir.iterdir()
