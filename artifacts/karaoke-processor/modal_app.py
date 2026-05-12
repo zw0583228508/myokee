@@ -59,7 +59,13 @@ app = modal.App("karaoke-processor", image=image)
         modal.Secret.from_dict({
             "DEMUCS_DEVICE": "cuda",
             "WHISPER_DEVICE": "cuda",
-        })
+        }),
+        # Modal secret named "youtube-cookies" with key YT_COOKIES_B64
+        # (base64-encoded Netscape cookies.txt). yt-dlp uses these cookies
+        # to bypass YouTube bot detection.
+        modal.Secret.from_name("youtube-cookies", required_keys=["YT_COOKIES_B64"]),
+        # Residential proxy URL for yt-dlp (bypasses Modal datacenter IP ban).
+        modal.Secret.from_name("youtube-proxy", required_keys=["YT_PROXY"]),
     ],
 )
 @modal.concurrent(max_inputs=100)
