@@ -1479,9 +1479,17 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
 
     if hint in ("sacred_he", "lashon_kodesh", "liturgical_he", "he_liturgical"):
         whisper_lang      = "he"
+        # Rich liturgical prompt — primes Whisper with actual sacred-Hebrew
+        # vocabulary so it locks onto Hebrew script and biblical/prayer diction
+        # instead of romanizing or falling back to English.
         initial_prompt    = (
-            "מילות פיוט ותפילה בלשון הקודש. "
-            "שיר קדוש עם מילים עתיקות:"
+            "מילות שיר קודש, פיוט ותפילה בלשון הקודש. "
+            "ברוך אתה ה' אלוהינו מלך העולם. "
+            "שמע ישראל ה' אלוהינו ה' אחד. "
+            "אבינו מלכנו, רחם עלינו. "
+            "אנא בכוח גדולת ימינך תתיר צרורה. "
+            "אדון עולם אשר מלך בטרם כל יציר נברא. "
+            "המילים של השיר בעברית:"
         )
         print(f"[whisper] Language mode: לשון הקודש (sacred Hebrew, he)")
 
@@ -1595,18 +1603,27 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
         "threshold": 0.25,        # lower = more sensitive (picks up quiet singing)
     }
 
+    # ── Hebrew / sacred-Hebrew modes use a wider beam for maximum accuracy
+    # on liturgical vocabulary, and condition on previous text so the model
+    # carries Hebrew context forward instead of slipping into English. ──────
+    is_hebrew_mode = whisper_lang in ("he", "yi")
+    beam            = 10 if is_hebrew_mode else 8
+    best_of_n       = 5  if is_hebrew_mode else 2
+    condition_prev  = True if is_hebrew_mode else False
+
     # ── Common transcription kwargs ───────────────────────────────────────────
     common_kwargs = dict(
+        task="transcribe",                  # NEVER translate to English
         word_timestamps=True,
-        beam_size=8,
-        best_of=2,
+        beam_size=beam,
+        best_of=best_of_n,
         patience=1.0,
         length_penalty=1.0,
         temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
         compression_ratio_threshold=2.4,
         log_prob_threshold=-1.0,
         no_speech_threshold=0.4,            # was 0.35 — slightly more permissive to avoid skipping quiet vocal sections
-        condition_on_previous_text=False,   # was True — prevents hallucination cascades where a bad first segment poisons the rest
+        condition_on_previous_text=condition_prev,  # True for Hebrew/Yiddish to carry script context; False elsewhere to avoid hallucination cascades
         prompt_reset_on_temperature=0.5,
         initial_prompt=initial_prompt,
         repetition_penalty=1.1,
@@ -1656,6 +1673,54 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
         print(f"[whisper] Re-run result: lang={detected_lang} "
               f"(prob={info.language_probability:.2f}), duration={dur:.1f}s")
 
+    # ── Auto-detect English-fallback: Whisper sometimes guesses "en" for
+    #    Hebrew songs with heavy instrumentation or sparse vocals. If "en"
+    #    was detected with mediocre confidence, re-try forcing Hebrew and
+    #    keep it if the resulting words contain real Hebrew characters. ─────
+    if whisper_lang is None and detected_lang == "en" and info.language_probability < 0.95:
+        print(f"[whisper] Low-confidence English ({info.language_probability:.2f}) — "
+              f"trying Hebrew fallback…")
+        try:
+            he_kwargs = {**common_kwargs,
+                         "initial_prompt": _native_prompts["he"],
+                         "condition_on_previous_text": True,
+                         "beam_size": 10,
+                         "best_of": 5}
+            he_kwargs.pop("language_detection_segments", None)
+            he_kwargs.pop("language_detection_threshold", None)
+            he_gen, he_info = wmodel.transcribe(
+                str(audio_path),
+                language="he",
+                **he_kwargs,
+            )
+            he_words_raw: list[dict] = []
+            for seg in he_gen:
+                if seg.words:
+                    for w in seg.words:
+                        cleaned = _clean_word(w.word)
+                        if cleaned:
+                            he_words_raw.append({
+                                "word": cleaned,
+                                "start": round(w.start, 3),
+                                "end":   round(w.end, 3),
+                                "probability": round(w.probability, 3),
+                            })
+            if he_words_raw:
+                he_avg = sum(w["probability"] for w in he_words_raw) / len(he_words_raw)
+                hebrew_chars = sum(1 for w in he_words_raw for c in w["word"]
+                                   if "\u0590" <= c <= "\u05FF")
+                total_chars = sum(len(w["word"]) for w in he_words_raw)
+                hebrew_ratio = hebrew_chars / max(total_chars, 1)
+                print(f"[whisper] Hebrew fallback: avg word-prob={he_avg:.3f}, "
+                      f"Hebrew-char ratio={hebrew_ratio:.2f}")
+                # Switch only if the result is genuinely Hebrew script with
+                # reasonable confidence (avoids accepting garbled Hebrew)
+                if hebrew_ratio >= 0.60 and he_avg >= 0.40:
+                    print(f"[whisper] Switching to Hebrew transcription")
+                    return he_words_raw, "he"
+        except Exception as e:
+            print(f"[whisper] Hebrew fallback failed: {e} — keeping English result")
+
     # ── Smart Yiddish fallback: if auto-detected Hebrew with low confidence,
     #    re-run with language="yi" and pick whichever has higher avg log-prob ──
     if whisper_lang is None and detected_lang == "he" and info.language_probability < 0.60:
@@ -1665,9 +1730,11 @@ def _run_whisper_sync(audio_path: Path, job_id: str, audio_dur: float,
             yi_gen, yi_info = wmodel.transcribe(
                 str(audio_path),
                 language="yi",
-                initial_prompt="ייִדישע לידער:",
                 **{k: v for k, v in common_kwargs.items()
-                   if k not in ("language_detection_segments", "language_detection_threshold")},
+                   if k not in ("language_detection_segments",
+                                "language_detection_threshold",
+                                "initial_prompt")},
+                initial_prompt="ייִדישע לידער:",
             )
             # Collect yi words to compare
             yi_words_raw: list[dict] = []
