@@ -20,7 +20,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { SocialClip } from "@/components/party/SocialClip";
 import { useKaraokeJobs, useCreateJob, useCreateJobFromYouTube, getDownloadUrls } from "@/hooks/use-karaoke";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
-import { buildDemoPartyRoom, buildDemoPartyLeaderboard } from "@/lib/demoData";
+import { buildDemoPartyRoom, buildDemoPartyLeaderboard, isDemoPartyId } from "@/lib/demoData";
 
 export default function PartyRoom() {
   const [, params] = useRoute("/party/:id");
@@ -31,7 +31,7 @@ export default function PartyRoom() {
   const { data: authData } = useAuth();
   const userId = authData?.user?.id;
 
-  const isDemoRoom = !!roomId && roomId.startsWith("demo-");
+  const isDemoRoom = !!roomId && isDemoPartyId(roomId);
   const { data: realRoom, isLoading: realLoading } = usePartyRoom(isDemoRoom ? null : roomId);
   const { data: realLeaderboard } = usePartyLeaderboard(isDemoRoom ? null : roomId);
   // For demo room IDs (linked from the Party hub when there are no real
