@@ -5,14 +5,14 @@ import { Link } from "wouter";
 import { useNoIndex } from "@/hooks/use-noindex";
 import { JobStatusBadge } from "@/components/karaoke/JobStatusBadge";
 import { useLang } from "@/contexts/LanguageContext";
-import { DEMO_JOBS, type DemoJob, isDemo } from "@/lib/demoData";
+import { buildDemoJobs, type DemoJob, isDemo } from "@/lib/demoData";
 import type { Job } from "@workspace/api-client-react";
 
 type HistoryRow = Job | DemoJob;
 
 export default function History() {
   useNoIndex();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const isRtl = t.dir === "rtl";
   const BackArrow = isRtl ? ArrowRight : ArrowLeft;
   const { data: realJobs, isLoading } = useKaraokeJobs();
@@ -21,7 +21,7 @@ export default function History() {
   // populated for first-time visitors. Demo cards aren't deletable / clickable.
   const jobs: HistoryRow[] =
     !isLoading && (realJobs?.length ?? 0) === 0
-      ? DEMO_JOBS
+      ? buildDemoJobs(lang)
       : (realJobs ?? []);
 
   return (

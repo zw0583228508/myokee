@@ -549,14 +549,21 @@ export type DemoJob = Pick<Job, "id" | "status" | "filename" | "created_at"> & {
   is_demo: true;
 };
 
-export const DEMO_JOBS: DemoJob[] = [
-  { id: "demo-job-1", filename: "Perfect — Ed Sheeran.mp3",        status: "done"      as const, progress: 100, created_at: daysAgo(0, 2), updated_at: daysAgo(0, 2), duration_seconds: 263, is_demo: true },
-  { id: "demo-job-2", filename: "Believer — Imagine Dragons.mp3",  status: "done"      as const, progress: 100, created_at: daysAgo(1, 4), updated_at: daysAgo(1, 4), duration_seconds: 204, is_demo: true },
-  { id: "demo-job-3", filename: "Senorita — Shawn Mendes.mp3",     status: "done"      as const, progress: 100, created_at: daysAgo(3, 1), updated_at: daysAgo(3, 1), duration_seconds: 191, is_demo: true },
-  { id: "demo-job-4", filename: "Shallow — Lady Gaga.mp3",         status: "rendering" as const, progress: 65,  created_at: daysAgo(0, 0), updated_at: daysAgo(0, 0), duration_seconds: 217, is_demo: true },
-  { id: "demo-job-5", filename: "Bohemian Rhapsody — Queen.mp3",   status: "done"      as const, progress: 100, created_at: daysAgo(5, 3), updated_at: daysAgo(5, 3), duration_seconds: 354, is_demo: true },
-  { id: "demo-job-6", filename: "Rolling in the Deep — Adele.mp3", status: "done"      as const, progress: 100, created_at: daysAgo(7, 6), updated_at: daysAgo(7, 6), duration_seconds: 228, is_demo: true },
-];
+export function buildDemoJobs(lang: string = "en"): DemoJob[] {
+  const songs = getSongs(lang);
+  const ext = ".mp3";
+  return [
+    { id: "demo-job-1", filename: `${songs[0]}${ext}`, status: "done"      as const, progress: 100, created_at: daysAgo(0, 2), updated_at: daysAgo(0, 2), duration_seconds: 263, is_demo: true },
+    { id: "demo-job-2", filename: `${songs[2]}${ext}`, status: "done"      as const, progress: 100, created_at: daysAgo(1, 4), updated_at: daysAgo(1, 4), duration_seconds: 204, is_demo: true },
+    { id: "demo-job-3", filename: `${songs[5]}${ext}`, status: "done"      as const, progress: 100, created_at: daysAgo(3, 1), updated_at: daysAgo(3, 1), duration_seconds: 191, is_demo: true },
+    { id: "demo-job-4", filename: `${songs[7]}${ext}`, status: "rendering" as const, progress: 65,  created_at: daysAgo(0, 0), updated_at: daysAgo(0, 0), duration_seconds: 217, is_demo: true },
+    { id: "demo-job-5", filename: `${songs[9]}${ext}`, status: "done"      as const, progress: 100, created_at: daysAgo(5, 3), updated_at: daysAgo(5, 3), duration_seconds: 354, is_demo: true },
+    { id: "demo-job-6", filename: `${songs[1]}${ext}`, status: "done"      as const, progress: 100, created_at: daysAgo(7, 6), updated_at: daysAgo(7, 6), duration_seconds: 228, is_demo: true },
+  ];
+}
+
+/** Back-compat default-language export. */
+export const DEMO_JOBS: DemoJob[] = buildDemoJobs("en");
 
 /* ---------- public profile (used on /profile/:userId) ----------------- */
 

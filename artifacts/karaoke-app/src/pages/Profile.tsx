@@ -38,7 +38,16 @@ export default function Profile() {
   // If the backend has no record for this user, fall back to a demo
   // profile when the userId matches one of our demo singers (e.g. links
   // coming from demo Feed/Leaderboard rows). This keeps the page lively.
-  const data = realData ?? buildDemoProfile(userId, lang);
+  // Additionally, if a real profile has no performances, inject demo
+  // performance cards (non-interactive) so the page never looks empty.
+  let data = realData ?? buildDemoProfile(userId, lang);
+  if (realData && (!realData.performances || realData.performances.length === 0)) {
+    const fillerProfile = buildDemoProfile("demo-1", lang);
+    data = {
+      ...realData,
+      performances: fillerProfile ? fillerProfile.performances.slice(0, 3) : [],
+    };
+  }
 
   if (isLoading)
     return (
