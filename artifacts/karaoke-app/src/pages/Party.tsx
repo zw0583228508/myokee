@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { trackPartyCreated, trackPartyJoined } from "@/lib/analytics";
 import { useNoIndex } from "@/hooks/use-noindex";
-import { buildDemoParties, isDemo } from "@/lib/demoData";
+import { buildDemoParties } from "@/lib/demoData";
 
 export default function Party() {
   useNoIndex();

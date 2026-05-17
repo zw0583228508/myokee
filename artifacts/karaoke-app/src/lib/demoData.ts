@@ -117,17 +117,119 @@ export type DemoChallenge = {
   is_demo: true;
 };
 
-export const DEMO_CHALLENGES: DemoChallenge[] = [
-  { id: 990_001, title: "Power Ballad Week",     description: "Bring your strongest vocals — long high notes and heart.", song_name: SONGS[0], status: "active",   prize_credits: 200, entry_count: 1284, start_date: daysAgo(2),  end_date: daysAgo(-5),  hasEntered: false, is_demo: true },
-  { id: 990_002, title: "Hebrew Hits Challenge", description: "שירו את הלהיט הישראלי האהוב עליכם.",                       song_name: SONGS[2], status: "active",   prize_credits: 150, entry_count: 642,  start_date: daysAgo(1),  end_date: daysAgo(-3),  hasEntered: false, is_demo: true },
-  { id: 990_003, title: "K-Pop Showdown",        description: "Match the energy. Match the moves. Match the score.",      song_name: SONGS[7], status: "upcoming", prize_credits: 250, entry_count: 0,    start_date: daysAgo(-3), end_date: daysAgo(-10), hasEntered: false, is_demo: true },
-  { id: 990_004, title: "Classic Rock Legends",  description: "Channel your inner Freddie. The crowd is watching.",       song_name: SONGS[1], status: "ended",    prize_credits: 200, entry_count: 2117, start_date: daysAgo(14), end_date: daysAgo(7),   hasEntered: false, is_demo: true },
+/** Localized title/description pairs for the 4 demo challenges (order matches DEMO_CHALLENGES). */
+const CHALLENGE_TEXT_BY_LANG: Partial<Record<string, Array<{ title: string; description: string }>>> = {
+  en: [
+    { title: "Power Ballad Week",     description: "Bring your strongest vocals — long high notes and heart." },
+    { title: "Global Hits Challenge", description: "Sing your favorite chart-topper from anywhere in the world." },
+    { title: "K-Pop Showdown",        description: "Match the energy. Match the moves. Match the score." },
+    { title: "Classic Rock Legends",  description: "Channel your inner Freddie. The crowd is watching." },
+  ],
+  he: [
+    { title: "שבוע בלדות עוצמתיות",  description: "תנו את הוקאל החזק ביותר — תווים גבוהים ארוכים ולב." },
+    { title: "אתגר הלהיטים העולמי",   description: "שירו את הלהיט האהוב עליכם מכל מקום בעולם." },
+    { title: "התמודדות K-Pop",        description: "אותה אנרגיה. אותן תנועות. אותו ציון." },
+    { title: "אגדות הרוק הקלאסי",     description: "תכלו את הפרדי שבכם. הקהל צופה." },
+  ],
+  ar: [
+    { title: "أسبوع الأغاني العاطفية", description: "قدّم أقوى أداء صوتي — نغمات عالية طويلة وعاطفة." },
+    { title: "تحدي الأغاني العالمية",  description: "غنِّ أغنيتك المفضلة من أي مكان في العالم." },
+    { title: "مواجهة الكي بوب",        description: "نفس الطاقة. نفس الحركات. نفس النتيجة." },
+    { title: "أساطير الروك الكلاسيكي", description: "أطلق فريدي الذي بداخلك. الجمهور يشاهد." },
+  ],
+  ko: [
+    { title: "파워 발라드 위크",   description: "가장 강력한 보컬을 선보이세요 — 긴 고음과 감정." },
+    { title: "글로벌 히트 챌린지", description: "전 세계 어디서든 좋아하는 차트 1위 곡을 불러보세요." },
+    { title: "K-Pop 쇼다운",       description: "에너지도, 동작도, 점수도 똑같이." },
+    { title: "클래식 록 레전드",   description: "당신 안의 프레디를 깨우세요. 관객이 보고 있어요." },
+  ],
+  ja: [
+    { title: "パワーバラードウィーク",  description: "最強のボーカルを — 長い高音と情熱を込めて。" },
+    { title: "グローバルヒットチャレンジ", description: "世界中のお気に入りヒット曲を歌おう。" },
+    { title: "K-Pop ショーダウン",       description: "エネルギー、動き、スコアすべてを合わせよう。" },
+    { title: "クラシックロック レジェンド", description: "内なるフレディを解き放て。観客が見ている。" },
+  ],
+  zh: [
+    { title: "力量情歌周",     description: "拿出最强嗓音——长高音与情感。" },
+    { title: "全球热门挑战",   description: "演唱来自世界任何地方的你最爱的金曲。" },
+    { title: "K-Pop 对决",     description: "同样的能量、同样的舞步、同样的分数。" },
+    { title: "经典摇滚传奇",   description: "释放你心中的弗雷迪。观众正在看着。" },
+  ],
+  es: [
+    { title: "Semana Power Ballad",    description: "Da lo mejor de tu voz — notas altas largas y corazón." },
+    { title: "Desafío Éxitos Globales", description: "Canta tu éxito favorito desde cualquier parte del mundo." },
+    { title: "Duelo K-Pop",            description: "Iguala la energía. Iguala los pasos. Iguala la puntuación." },
+    { title: "Leyendas del Rock Clásico", description: "Canaliza tu Freddie interior. El público mira." },
+  ],
+  ru: [
+    { title: "Неделя пауэр-баллад",   description: "Покажи самый сильный вокал — долгие высокие ноты и душа." },
+    { title: "Глобальный хит-челлендж", description: "Спой свой любимый мировой хит откуда угодно." },
+    { title: "K-Pop поединок",        description: "Та же энергия. Те же движения. Тот же счёт." },
+    { title: "Легенды классического рока", description: "Прояви в себе Фредди. Публика смотрит." },
+  ],
+  fr: [
+    { title: "Semaine Power Ballad",   description: "Donne le meilleur de ta voix — notes hautes et cœur." },
+    { title: "Défi Hits Mondiaux",     description: "Chante ton tube préféré venu d’ailleurs dans le monde." },
+    { title: "K-Pop Showdown",         description: "Même énergie. Mêmes mouvements. Même score." },
+    { title: "Légendes du Rock Classique", description: "Libère le Freddie en toi. Le public regarde." },
+  ],
+  de: [
+    { title: "Power-Ballad-Woche",     description: "Zeig deinen stärksten Gesang — lange hohe Töne und Herz." },
+    { title: "Globale Hits Challenge", description: "Singe deinen Lieblingshit von irgendwo auf der Welt." },
+    { title: "K-Pop Showdown",         description: "Gleiche Energie. Gleiche Moves. Gleiche Punktzahl." },
+    { title: "Klassische Rock-Legenden", description: "Lass den Freddie in dir raus. Die Menge schaut zu." },
+  ],
+  th: [
+    { title: "สัปดาห์เพลงพาวเวอร์บัลลาด", description: "ปล่อยเสียงร้องที่ทรงพลังที่สุด — โน้ตสูงยาวและหัวใจ." },
+    { title: "ชาเลนจ์เพลงฮิตทั่วโลก",   description: "ร้องเพลงฮิตโปรดจากทุกที่ในโลก." },
+    { title: "K-Pop โชว์ดาวน์",         description: "พลังงานเดียวกัน ท่าเดียวกัน คะแนนเดียวกัน." },
+    { title: "ตำนานคลาสสิกร็อก",       description: "ปลดปล่อยเฟรดดี้ในตัวคุณ ผู้ชมกำลังจ้องมอง." },
+  ],
+  vi: [
+    { title: "Tuần Power Ballad",       description: "Hát giọng mạnh nhất của bạn — nốt cao dài và cảm xúc." },
+    { title: "Thử thách Hit Toàn cầu",  description: "Hát bản hit yêu thích từ bất cứ nơi nào trên thế giới." },
+    { title: "K-Pop Showdown",          description: "Cùng năng lượng. Cùng vũ đạo. Cùng điểm số." },
+    { title: "Huyền thoại Rock Cổ điển", description: "Đánh thức Freddie trong bạn. Khán giả đang xem." },
+  ],
+  tl: [
+    { title: "Linggo ng Power Ballad", description: "Ipakita ang pinakamalakas mong boses — mahabang mataas na nota at puso." },
+    { title: "Global Hits Challenge",  description: "Kantahin ang paborito mong hit mula saanmang panig ng mundo." },
+    { title: "K-Pop Showdown",         description: "Parehong enerhiya. Parehong galaw. Parehong puntos." },
+    { title: "Mga Alamat ng Classic Rock", description: "Palayain ang Freddie sa loob mo. Nanonood ang mga tao." },
+  ],
+  id: [
+    { title: "Pekan Power Ballad",     description: "Berikan vokal terkuatmu — nada tinggi panjang dan perasaan." },
+    { title: "Tantangan Hit Global",   description: "Nyanyikan hit favorit dari mana saja di dunia." },
+    { title: "K-Pop Showdown",         description: "Energi sama. Gerakan sama. Skor sama." },
+    { title: "Legenda Rock Klasik",    description: "Bangkitkan Freddie dalam dirimu. Penonton menyaksikan." },
+  ],
+};
+
+const CHALLENGE_META = [
+  { id: 990_001, song_name: SONGS[0], status: "active"   as const, prize_credits: 200, entry_count: 1284, start_date: daysAgo(2),  end_date: daysAgo(-5)  },
+  { id: 990_002, song_name: SONGS[2], status: "active"   as const, prize_credits: 150, entry_count: 642,  start_date: daysAgo(1),  end_date: daysAgo(-3)  },
+  { id: 990_003, song_name: SONGS[7], status: "upcoming" as const, prize_credits: 250, entry_count: 0,    start_date: daysAgo(-3), end_date: daysAgo(-10) },
+  { id: 990_004, song_name: SONGS[1], status: "ended"    as const, prize_credits: 200, entry_count: 2117, start_date: daysAgo(14), end_date: daysAgo(7)   },
 ];
 
+export function buildDemoChallenges(lang: string = "en"): DemoChallenge[] {
+  const texts = pick(CHALLENGE_TEXT_BY_LANG, lang, CHALLENGE_TEXT_BY_LANG.en!);
+  return CHALLENGE_META.map((m, i) => ({
+    ...m,
+    title: texts[i].title,
+    description: texts[i].description,
+    hasEntered: false as const,
+    is_demo: true as const,
+  }));
+}
+
+/** Back-compat default-language export (kept for any legacy importers). */
+export const DEMO_CHALLENGES: DemoChallenge[] = buildDemoChallenges("en");
+
 /** Build a demo challenge-detail payload (leaderboard rows for the modal). */
-export function buildDemoChallengeDetail(id: number) {
-  const challenge =
-    DEMO_CHALLENGES.find((c) => c.id === id) || DEMO_CHALLENGES[0];
+export function buildDemoChallengeDetail(id: number, lang: string = "en") {
+  const list = buildDemoChallenges(lang);
+  const challenge = list.find((c) => c.id === id) || list[0];
   const leaderboard = SINGERS.slice(0, 8).map((s, i) => ({
     user_id: s.id,
     display_name: s.name,
@@ -139,7 +241,7 @@ export function buildDemoChallengeDetail(id: number) {
 
 /** Helper used by Challenges page to decide whether to fall back to a demo detail. */
 export const isDemoChallengeId = (id: number) =>
-  DEMO_CHALLENGES.some((c) => c.id === id);
+  CHALLENGE_META.some((c) => c.id === id);
 
 /* ---------- leaderboard rows (re-uses singer pool) --------------------- */
 

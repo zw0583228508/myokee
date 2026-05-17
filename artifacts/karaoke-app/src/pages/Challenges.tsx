@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useChallenges, useChallengeDetail, useEnterChallenge } from "@/hooks/use-challenges";
 import { useMyPerformances } from "@/hooks/use-performances";
 import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check, Music2, Sparkles } from "lucide-react";
-import { DEMO_CHALLENGES, isDemo as isDemoItem, buildDemoChallengeDetail, isDemoChallengeId, buildDemoMyPerformances, demoLabel } from "@/lib/demoData";
+import { buildDemoChallenges, isDemo as isDemoItem, buildDemoChallengeDetail, isDemoChallengeId, buildDemoMyPerformances, demoLabel } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { title: "Weekly Challenges", subtitle: "Compete with singers worldwide", active: "Active", upcoming: "Upcoming", ended: "Ended", participants: "participants", prize: "Prize", credits: "credits", enterChallenge: "Enter Challenge", leaderboard: "Leaderboard", noChallenge: "No challenges yet", noDesc: "New challenges are posted every week. Check back soon!", rank: "Rank", singer: "Singer", score: "Score", timeLeft: "Time left", days: "d", hours: "h", mins: "m", entered: "Entered", back: "Back", yourScore: "Your Score", selectPerformance: "Select a performance to submit" },
@@ -76,7 +76,7 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
   const isRtl = lang === "he" || lang === "ar";
 
   const data = isDemoChallengeId(id)
-    ? buildDemoChallengeDetail(id)
+    ? buildDemoChallengeDetail(id, lang)
     : liveData;
   const isDemoDetail = isDemoChallengeId(id);
 
@@ -208,7 +208,7 @@ export default function Challenges() {
   const realChallenges = data?.challenges || [];
   // Show demo challenges when there are no real ones — keeps the page lively
   // for first-time visitors. Demo items can't be entered (button hidden).
-  const challenges = !isLoading && realChallenges.length === 0 ? DEMO_CHALLENGES : realChallenges;
+  const challenges = !isLoading && realChallenges.length === 0 ? buildDemoChallenges(lang) : realChallenges;
   const active = challenges.filter((c: any) => c.status === "active");
   const upcoming = challenges.filter((c: any) => c.status === "upcoming");
   const ended = challenges.filter((c: any) => c.status === "ended");
