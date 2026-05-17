@@ -5,6 +5,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useMyPerformances, usePublishPerformance, useUnpublishPerformance } from "@/hooks/use-performances";
 import { apiUrl } from "@/lib/api";
 import { useState, useRef } from "react";
+import { DEMO_RECORDINGS, DEMO_MY_PERFORMANCES, isDemo } from "@/lib/demoData";
 
 function formatDate(iso: string, lang: string) {
   return new Date(iso).toLocaleDateString(
@@ -28,8 +29,16 @@ const getLabels = (lang: string) => LABELS[lang] || LABELS.en;
 export default function MyRecordings() {
   const { t, lang } = useLang();
   const l = getLabels(lang);
-  const { data: recordings, isLoading: loadingRec } = useRecordings();
-  const { data: performances, isLoading: loadingPerf } = useMyPerformances();
+  const { data: realRecordings, isLoading: loadingRec } = useRecordings();
+  const { data: realPerformances, isLoading: loadingPerf } = useMyPerformances();
+  // Show demo content when there are no real items, so first-time visitors
+  // see a working page. Demo rows are non-interactive (no API calls).
+  const recordings = (!loadingRec && (realRecordings?.length ?? 0) === 0)
+    ? DEMO_RECORDINGS
+    : realRecordings;
+  const performances = (!loadingPerf && (realPerformances?.length ?? 0) === 0)
+    ? DEMO_MY_PERFORMANCES
+    : realPerformances;
   const deleteRec = useDeleteRecording();
   const publishPerf = usePublishPerformance();
   const unpublishPerf = useUnpublishPerformance();
@@ -37,19 +46,22 @@ export default function MyRecordings() {
   const [playingId, setPlayingId] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const handlePlay = (objectPath: string, id: number) => {
+  const handlePlay = (rec: any) => {
+    if (isDemo(rec)) return; // demo previews aren't playable
+    const id = rec.id;
     if (playingId === id) { audioRef.current?.pause(); setPlayingId(null); return; }
     if (audioRef.current) audioRef.current.pause();
-    const audio = new Audio(apiUrl(`/api/storage${objectPath}`));
+    const audio = new Audio(apiUrl(`/api/storage${rec.object_path}`));
     audio.onended = () => setPlayingId(null);
     audio.play().catch(() => {});
     audioRef.current = audio;
     setPlayingId(id);
   };
-  const handleDelete = (id: number) => {
+  const handleDelete = (rec: any) => {
+    if (isDemo(rec)) return;
     if (confirm(l.confirmDelete)) {
-      deleteRec.mutate(id);
-      if (playingId === id) { audioRef.current?.pause(); setPlayingId(null); }
+      deleteRec.mutate(rec.id);
+      if (playingId === rec.id) { audioRef.current?.pause(); setPlayingId(null); }
     }
   };
   const handleDownload = (objectPath: string, fileName: string) => {
@@ -131,7 +143,8 @@ export default function MyRecordings() {
               {recordings.map((rec, i) => (
                 <div key={rec.id} className="ds-card flex items-center gap-3 px-4 py-3.5 hover:border-white/15 transition-all ds-reveal" style={{ animationDelay: `${i * 30}ms` }}>
                   <button
-                    onClick={() => handlePlay(rec.object_path, rec.id)}
+                    onClick={() => handlePlay(rec)}
+                    disabled={isDemo(rec)}
                     className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all ${
                       playingId === rec.id
                         ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-[0_0_20px_rgba(248,113,113,.35)]"
@@ -150,15 +163,16 @@ export default function MyRecordings() {
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
-                      onClick={() => handleDownload(rec.object_path, rec.file_name)}
-                      className="w-9 h-9 rounded-full ds-glass flex items-center justify-center text-white/45 hover:text-white transition-all"
+                      onClick={() => !isDemo(rec) && handleDownload(rec.object_path, rec.file_name)}
+                      disabled={isDemo(rec)}
+                      className="w-9 h-9 rounded-full ds-glass flex items-center justify-center text-white/45 hover:text-white transition-all disabled:opacity-40"
                       title={l.download}
                     >
                       <Download className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(rec.id)}
-                      disabled={deleteRec.isPending}
+                      onClick={() => handleDelete(rec)}
+                      disabled={deleteRec.isPending || isDemo(rec)}
                       className="w-9 h-9 rounded-full ds-glass flex items-center justify-center text-rose-400/60 hover:text-rose-300 hover:bg-rose-500/15 transition-all"
                       title={l.delete}
                     >
@@ -185,7 +199,7 @@ export default function MyRecordings() {
             <div className="space-y-2.5">
               {performances.map((perf, i) => (
                 <div key={perf.id} className="ds-card hover:border-white/15 transition-all ds-reveal" style={{ animationDelay: `${i * 30}ms` }}>
-                  <Link href={perf.job_id ? `/job/${perf.job_id}` : "#"}>
+                  <Link href={isDemo(perf) ? "#" : (perf.job_id ? `/job/${perf.job_id}` : "#")}>
                     <div className="flex items-center gap-3 px-4 pt-4 pb-2 cursor-pointer">
                       <div className="ds-icon-orb w-11 h-11 rounded-xl shrink-0">
                         <Music2 className="w-5 h-5 text-white" />
@@ -213,10 +227,11 @@ export default function MyRecordings() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (isDemo(perf)) return;
                         if (perf.is_public) unpublishPerf.mutate(perf.id);
                         else publishPerf.mutate(perf.id);
                       }}
-                      disabled={publishPerf.isPending || unpublishPerf.isPending}
+                      disabled={publishPerf.isPending || unpublishPerf.isPending || isDemo(perf)}
                       className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all ${
                         perf.is_public
                           ? "text-rose-300 bg-rose-500/10 border border-rose-500/25 hover:bg-rose-500/20"

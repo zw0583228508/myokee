@@ -20,6 +20,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { SocialClip } from "@/components/party/SocialClip";
 import { useKaraokeJobs, useCreateJob, useCreateJobFromYouTube, getDownloadUrls } from "@/hooks/use-karaoke";
 import { VideoPlayer } from "@/components/karaoke/VideoPlayer";
+import { buildDemoPartyRoom, buildDemoPartyLeaderboard } from "@/lib/demoData";
 
 export default function PartyRoom() {
   const [, params] = useRoute("/party/:id");
@@ -30,8 +31,15 @@ export default function PartyRoom() {
   const { data: authData } = useAuth();
   const userId = authData?.user?.id;
 
-  const { data: room, isLoading } = usePartyRoom(roomId);
-  const { data: leaderboard } = usePartyLeaderboard(roomId);
+  const isDemoRoom = !!roomId && roomId.startsWith("demo-");
+  const { data: realRoom, isLoading: realLoading } = usePartyRoom(isDemoRoom ? null : roomId);
+  const { data: realLeaderboard } = usePartyLeaderboard(isDemoRoom ? null : roomId);
+  // For demo room IDs (linked from the Party hub when there are no real
+  // parties), serve a fully formed read-only demo room. Host actions and
+  // queue mutations are no-ops because isHost is forced to false below.
+  const room = isDemoRoom ? buildDemoPartyRoom(roomId!) : realRoom;
+  const leaderboard = isDemoRoom ? buildDemoPartyLeaderboard() : realLeaderboard;
+  const isLoading = isDemoRoom ? false : realLoading;
 
   const addToQueue = useAddToQueue(roomId || "");
   const removeFromQueue = useRemoveFromQueue(roomId || "");
@@ -58,7 +66,7 @@ export default function PartyRoom() {
   const [ytStatus, setYtStatus] = useState<"idle" | "processing" | "done" | "error">("idle");
   const [ytError, setYtError] = useState("");
 
-  const isHost = room?.isHost === true;
+  const isHost = !isDemoRoom && room?.isHost === true;
   const theme = getTheme(room?.theme || "neon");
   const queue = room?.queue || [];
   const members = room?.members || [];
@@ -91,6 +99,7 @@ export default function PartyRoom() {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isDemoRoom) return;
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = "";
@@ -114,6 +123,7 @@ export default function PartyRoom() {
   };
 
   const handleYouTubeAdd = async () => {
+    if (isDemoRoom) return;
     const url = youtubeUrl.trim();
     if (!url) return;
     const ytRegex = /(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]+)/;
@@ -144,6 +154,7 @@ export default function PartyRoom() {
   };
 
   const handleAddJobToQueue = async (job: any) => {
+    if (isDemoRoom) return;
     await addToQueue.mutateAsync({
       songName: job.filename || "Unknown",
       jobId: job.id,
@@ -154,9 +165,10 @@ export default function PartyRoom() {
     setSongSearch("");
   };
 
-  const handleNextSong = () => advanceQueue.mutate();
+  const handleNextSong = () => { if (!isDemoRoom) advanceQueue.mutate(); };
 
   const handleEndParty = async () => {
+    if (isDemoRoom) { navigate("/party"); return; }
     await endParty.mutateAsync();
     navigate("/party");
   };
@@ -324,13 +336,15 @@ export default function PartyRoom() {
         {/* Queue Tab */}
         {activeTab === "queue" && (
           <div className="space-y-3">
-            <Button
-              onClick={() => setShowAddSong(true)}
-              className={`w-full gap-2 bg-gradient-to-r ${theme.gradient} hover:opacity-90 py-5`}
-            >
-              <Plus className="w-5 h-5" />
-              {pt.room.addSong}
-            </Button>
+            {!isDemoRoom && (
+              <Button
+                onClick={() => setShowAddSong(true)}
+                className={`w-full gap-2 bg-gradient-to-r ${theme.gradient} hover:opacity-90 py-5`}
+              >
+                <Plus className="w-5 h-5" />
+                {pt.room.addSong}
+              </Button>
+            )}
 
             {showAddSong && (
               <Card className={`${theme.card} border ${theme.cardBorder}`}>

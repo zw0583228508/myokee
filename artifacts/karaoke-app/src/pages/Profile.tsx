@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoute } from "wouter";
 import { User, Users, Music, Heart, ArrowLeft, Zap, Crown, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { buildDemoProfile, isDemo } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { followers: "Followers", following: "Following", performances: "Performances", follow: "Follow", unfollow: "Unfollow", level: "Level", noPerf: "No public performances yet", back: "Back" },
@@ -30,9 +31,14 @@ export default function Profile() {
   const isRtl = lang === "he" || lang === "ar";
   const { data: authData } = useAuth();
   const me = authData?.user?.id;
-  const { data, isLoading } = useProfile(userId);
+  const { data: realData, isLoading } = useProfile(userId);
   const follow = useFollow();
   const like = useLikePerformance();
+
+  // If the backend has no record for this user, fall back to a demo
+  // profile when the userId matches one of our demo singers (e.g. links
+  // coming from demo Feed/Leaderboard rows). This keeps the page lively.
+  const data = realData ?? buildDemoProfile(userId);
 
   if (isLoading)
     return (
@@ -50,6 +56,7 @@ export default function Profile() {
 
   const { user, stats, isFollowing, performances } = data;
   const isMe = me === userId;
+  const demo = isDemo(data);
 
   return (
     <div className="min-h-screen relative bg-[var(--ds-bg-app)]" dir={isRtl ? "rtl" : "ltr"}>
@@ -90,7 +97,7 @@ export default function Profile() {
                   <span>{stats.totalXp} XP</span>
                 </div>
               </div>
-              {!isMe && (
+              {!isMe && !demo && (
                 <button
                   onClick={() => follow.mutate({ userId, follow: !isFollowing })}
                   className={
@@ -141,7 +148,8 @@ export default function Profile() {
                     <p className="text-xs text-white/35 mt-0.5">{new Date(p.created_at).toLocaleDateString()}</p>
                   </div>
                   <button
-                    onClick={() => like.mutate({ performanceId: p.id, like: !p.liked_by_me })}
+                    onClick={() => { if (!demo && !isDemo(p)) like.mutate({ performanceId: p.id, like: !p.liked_by_me }); }}
+                    disabled={demo || isDemo(p)}
                     className={`p-2 rounded-full transition-all ${
                       p.liked_by_me
                         ? "text-rose-400 bg-rose-500/15 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]"

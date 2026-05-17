@@ -7,6 +7,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { XPProfileCard } from "@/components/gamification/XPProfileCard";
 import { BadgeGrid } from "@/components/gamification/BadgeGrid";
 import { AchievementList } from "@/components/gamification/AchievementList";
+import { buildDemoGamificationProfile, buildDemoXPLeaderboard } from "@/lib/demoData";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
@@ -16,18 +17,26 @@ export default function GamificationProfile() {
   const [tab, setTab] = useState<"profile" | "leaderboard">("profile");
   const [lbMode, setLbMode] = useState<"all" | "weekly">("all");
 
-  const { data: profile, isLoading: loadingProfile } = useGamificationProfile();
-  const { data: lbData, isLoading: loadingLb } = useXPLeaderboard(lbMode);
+  const { data: realProfile, isLoading: loadingProfile } = useGamificationProfile();
+  const { data: realLbData, isLoading: loadingLb } = useXPLeaderboard(lbMode);
+  // When backend has nothing yet (first-time visitor), substitute a demo
+  // profile + XP leaderboard so the page never looks empty.
+  const profile = realProfile ?? (loadingProfile ? null : buildDemoGamificationProfile());
+  const lbData = (realLbData?.leaderboard?.length ?? 0) > 0
+    ? realLbData
+    : buildDemoXPLeaderboard(lbMode);
   const awardXP = useAwardXP();
   const dailyLoginSent = useRef(false);
 
   useEffect(() => {
-    if (!dailyLoginSent.current && profile) {
+    // Only award daily-login XP for the real user profile, never for demo
+    // fallback (which would be a no-op against the backend anyway).
+    if (!dailyLoginSent.current && realProfile) {
       dailyLoginSent.current = true;
       awardXP.mutate({ action: "daily_login" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
+  }, [realProfile]);
 
   const tabs = [
     { key: "profile" as const, icon: Award, label: gt.xp.title },

@@ -5,7 +5,7 @@ import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
-import { DEMO_LEADERBOARD } from "@/lib/demoData";
+import { DEMO_LEADERBOARD, DEMO_MY_PERFORMANCES, buildDemoXPLeaderboard } from "@/lib/demoData";
 
 const toStars = (s: number) => s >= 90 ? 5 : s >= 75 ? 4 : s >= 60 ? 3 : s >= 40 ? 2 : 1;
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -104,23 +104,11 @@ export default function Leaderboard() {
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span className="text-sm">{t.leaderboard.loading}</span>
               </div>
-            ) : (tab === "global" ? ((globalData ?? []).length === 0 ? [] : globalData ?? []) : (myData ?? [])).length === 0 && tab === "me" ? (
-              <div className="ds-card-feature text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto mb-5">
-                  <Music2 className="w-8 h-8 text-white/30" />
-                </div>
-                <p className="text-white/55 text-base mb-6">{t.leaderboard.empty}</p>
-                <Link href="/">
-                  <button className="ds-btn ds-btn-primary px-7 py-3 text-sm">
-                    <Mic className="w-4 h-4" />{t.leaderboard.singNow}
-                  </button>
-                </Link>
-              </div>
             ) : (
               <div className="space-y-2.5">
                 {(tab === "global"
                   ? ((globalData ?? []).length === 0 ? DEMO_LEADERBOARD : (globalData ?? []))
-                  : (myData ?? [])
+                  : ((myData ?? []).length === 0 ? DEMO_MY_PERFORMANCES : (myData ?? []))
                 ).map((row: any, i: number) => {
                   const stars = toStars(row.score);
                   const isPodium = i < 3;
@@ -170,14 +158,18 @@ export default function Leaderboard() {
               <div className="flex items-center justify-center py-24 text-white/45">
                 <Loader2 className="w-5 h-5 animate-spin" />
               </div>
-            ) : xpData?.leaderboard?.length > 0 ? (
+            ) : (() => {
+              const effective = (xpData?.leaderboard?.length ?? 0) > 0
+                ? xpData
+                : buildDemoXPLeaderboard(xpMode);
+              return (
               <div className="space-y-2.5">
-                {xpData.yourRank && (
+                {effective.yourRank && (
                   <div className="mb-4 px-4 py-3 rounded-2xl bg-violet-500/10 border border-violet-400/25 text-sm text-white/70">
-                    {gt.leaderboard.yourRank}: <span className="font-bold ds-grad-text text-base">#{xpData.yourRank}</span>
+                    {gt.leaderboard.yourRank}: <span className="font-bold ds-grad-text text-base">#{effective.yourRank}</span>
                   </div>
                 )}
-                {xpData.leaderboard.map((entry: any, i: number) => {
+                {effective.leaderboard.map((entry: any, i: number) => {
                   const isPodium = entry.rank <= 3;
                   return (
                     <div
@@ -218,12 +210,8 @@ export default function Leaderboard() {
                   );
                 })}
               </div>
-            ) : (
-              <div className="text-center py-20 space-y-3">
-                <Crown className="w-12 h-12 text-white/15 mx-auto" />
-                <p className="text-white/45 text-sm">{gt.leaderboard.empty}</p>
-              </div>
-            )}
+              );
+            })()}
           </>
         )}
 

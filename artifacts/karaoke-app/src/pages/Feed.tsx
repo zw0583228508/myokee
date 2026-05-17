@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useFeed, useDiscover, useLikePerformance, useComments, useAddComment } from "@/hooks/use-social";
 import { Heart, MessageCircle, User, Music, ChevronDown, Send, Sparkles, Globe2, Users } from "lucide-react";
 import { Link } from "wouter";
-import { DEMO_PERFORMANCES, isDemo } from "@/lib/demoData";
+import { DEMO_PERFORMANCES, DEMO_FOLLOWING_FEED, buildDemoComments, isDemo } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { feed: "Following", discover: "Discover", title: "Community", subtitle: "See what others are singing", noFeed: "No performances yet", noFeedDesc: "Follow other singers to see their performances here", noDiscover: "No public performances yet", score: "Score", addComment: "Add a comment...", showComments: "comments", loadMore: "Load More" },
@@ -22,9 +22,10 @@ const T: Record<string, Record<string, string>> = {
   id: { feed: "Mengikuti", discover: "Jelajahi", title: "Komunitas", subtitle: "Lihat apa yang orang lain nyanyikan", noFeed: "Belum ada penampilan", noFeedDesc: "Ikuti penyanyi lain", noDiscover: "Belum ada penampilan publik", score: "Skor", addComment: "Tambahkan komentar...", showComments: "komentar", loadMore: "Muat lebih banyak" },
 };
 
-function CommentsSection({ performanceId, lang }: { performanceId: number; lang: string }) {
+function CommentsSection({ performanceId, lang, demo }: { performanceId: number; lang: string; demo?: boolean }) {
   const t = T[lang] || T.en;
-  const { data } = useComments(performanceId);
+  const { data: liveData } = useComments(demo ? -1 : performanceId);
+  const data = demo ? buildDemoComments(performanceId) : liveData;
   const addComment = useAddComment();
   const [text, setText] = useState("");
 
@@ -183,8 +184,10 @@ export default function Feed() {
   // When the live feed is empty, fall back to demo content so the
   // community page never looks abandoned. Demo items disappear as
   // soon as real performances exist.
-  const usingDemo = !isLoading && realPerformances.length === 0 && tab === "discover";
-  const performances = usingDemo ? DEMO_PERFORMANCES : realPerformances;
+  const usingDemo = !isLoading && realPerformances.length === 0;
+  const performances = usingDemo
+    ? (tab === "discover" ? DEMO_PERFORMANCES : DEMO_FOLLOWING_FEED)
+    : realPerformances;
 
   return (
     <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={isRtl ? "rtl" : "ltr"}>

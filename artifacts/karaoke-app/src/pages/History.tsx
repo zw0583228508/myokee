@@ -5,14 +5,18 @@ import { Link } from "wouter";
 import { useNoIndex } from "@/hooks/use-noindex";
 import { JobStatusBadge } from "@/components/karaoke/JobStatusBadge";
 import { useLang } from "@/contexts/LanguageContext";
+import { DEMO_JOBS, isDemo } from "@/lib/demoData";
 
 export default function History() {
   useNoIndex();
   const { t, lang } = useLang();
   const isRtl = t.dir === "rtl";
   const BackArrow = isRtl ? ArrowRight : ArrowLeft;
-  const { data: jobs, isLoading } = useKaraokeJobs();
+  const { data: realJobs, isLoading } = useKaraokeJobs();
   const removeJob = useRemoveJob();
+  // Show demo songs when there's no real history yet, so the page feels
+  // populated for first-time visitors. Demo cards aren't deletable / clickable.
+  const jobs = (!isLoading && (realJobs?.length ?? 0) === 0) ? DEMO_JOBS as any : realJobs;
 
   return (
     <div className="min-h-screen flex flex-col relative bg-[var(--ds-bg-app)]" dir={t.dir}>
@@ -67,7 +71,7 @@ export default function History() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {jobs.map((job, i) => (
+            {jobs.map((job: any, i: number) => (
               <div
                 key={job.id}
                 className="ds-card group relative p-5 sm:p-6 flex flex-col h-full ds-reveal overflow-hidden hover:border-white/15 transition-all duration-500"
@@ -78,8 +82,9 @@ export default function History() {
                   <div className="flex justify-between items-start mb-4">
                     <JobStatusBadge status={job.status} />
                     <button
-                      onClick={(e) => { e.preventDefault(); if (confirm(t.history.deleteSong)) removeJob.mutate(job.id); }}
-                      className="h-8 w-8 rounded-full text-white/30 hover:text-rose-400 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"
+                      onClick={(e) => { e.preventDefault(); if (isDemo(job)) return; if (confirm(t.history.deleteSong)) removeJob.mutate(job.id); }}
+                      disabled={isDemo(job)}
+                      className="h-8 w-8 rounded-full text-white/30 hover:text-rose-400 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center disabled:hidden"
                       aria-label={t.history.deleteSong}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -99,17 +104,26 @@ export default function History() {
                   </p>
 
                   <div className="mt-auto pt-4 border-t border-white/[0.06]">
-                    <Link href={`/job/${job.id}`}>
-                      <button className="w-full flex items-center justify-between text-sm font-semibold text-violet-300 hover:text-white transition-colors group/btn px-2 py-2">
+                    {isDemo(job) ? (
+                      <div className="w-full flex items-center justify-between text-sm font-semibold text-white/30 px-2 py-2 cursor-default">
                         <span className="inline-flex items-center gap-1.5">
                           <Sparkles className="w-3.5 h-3.5" />
                           {job.status === "done" ? t.history.viewResults : t.history.viewProgress}
                         </span>
-                        {isRtl
-                          ? <ArrowLeft className="w-4 h-4 transition-transform group-hover/btn:-translate-x-1" />
-                          : <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />}
-                      </button>
-                    </Link>
+                      </div>
+                    ) : (
+                      <Link href={`/job/${job.id}`}>
+                        <button className="w-full flex items-center justify-between text-sm font-semibold text-violet-300 hover:text-white transition-colors group/btn px-2 py-2">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {job.status === "done" ? t.history.viewResults : t.history.viewProgress}
+                          </span>
+                          {isRtl
+                            ? <ArrowLeft className="w-4 h-4 transition-transform group-hover/btn:-translate-x-1" />
+                            : <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />}
+                        </button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
