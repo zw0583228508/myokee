@@ -39,67 +39,115 @@ export type DemoPerformance = {
 const daysAgo = (n: number, hours = 0) =>
   new Date(Date.now() - n * 86400_000 - hours * 3600_000).toISOString();
 
-const SINGERS: Array<{ id: string; name: string; pic: string | null }> = [
-  { id: "demo-1", name: "Maya Stern", pic: "https://i.pravatar.cc/120?img=47" },
-  { id: "demo-2", name: "Daniel Cohen", pic: "https://i.pravatar.cc/120?img=12" },
-  { id: "demo-3", name: "نور الهدى", pic: "https://i.pravatar.cc/120?img=49" },
-  { id: "demo-4", name: "Sofia Rivera", pic: "https://i.pravatar.cc/120?img=45" },
-  { id: "demo-5", name: "Liam Park", pic: "https://i.pravatar.cc/120?img=33" },
-  { id: "demo-6", name: "유진 김", pic: "https://i.pravatar.cc/120?img=20" },
-  { id: "demo-7", name: "Aria Müller", pic: "https://i.pravatar.cc/120?img=44" },
-  { id: "demo-8", name: "Tomer Levi", pic: "https://i.pravatar.cc/120?img=15" },
-  { id: "demo-9", name: "Mei Tanaka", pic: "https://i.pravatar.cc/120?img=32" },
-  { id: "demo-10", name: "Ben Avraham", pic: "https://i.pravatar.cc/120?img=8" },
-  { id: "demo-11", name: "Noor Hassan", pic: "https://i.pravatar.cc/120?img=29" },
-  { id: "demo-12", name: "Camila Rojas", pic: "https://i.pravatar.cc/120?img=36" },
+/**
+ * Singer pool — 12 culturally appropriate display names per language.
+ * IDs (demo-1..demo-12) and avatar pictures are stable across all langs,
+ * so deep links like /profile/demo-3 keep working regardless of UI lang.
+ */
+const SINGER_PICS = [
+  "https://i.pravatar.cc/120?img=47", "https://i.pravatar.cc/120?img=12",
+  "https://i.pravatar.cc/120?img=49", "https://i.pravatar.cc/120?img=45",
+  "https://i.pravatar.cc/120?img=33", "https://i.pravatar.cc/120?img=20",
+  "https://i.pravatar.cc/120?img=44", "https://i.pravatar.cc/120?img=15",
+  "https://i.pravatar.cc/120?img=32", "https://i.pravatar.cc/120?img=8",
+  "https://i.pravatar.cc/120?img=29", "https://i.pravatar.cc/120?img=36",
 ];
 
-// Song titles are proper nouns — we keep the original artist/title strings
-// in their canonical form (English / Hebrew / Arabic / Korean as released).
-const SONGS = [
-  "Shallow — Lady Gaga & Bradley Cooper",
-  "Bohemian Rhapsody — Queen",
-  "אהבת חיי — אייל גולן",
-  "حبيبي يا نور العين — عمرو دياب",
-  "Believer — Imagine Dragons",
-  "Despacito — Luis Fonsi",
-  "Rolling in the Deep — Adele",
-  "Dynamite — BTS",
-  "Perfect — Ed Sheeran",
-  "ערב טוב — נועה קירל",
-  "Lose Yourself — Eminem",
-  "Senorita — Shawn Mendes",
-];
+const SINGER_NAMES_BY_LANG: Partial<Record<string, string[]>> = {
+  en: ["Maya Stone","Daniel Reed","Sofia Rivera","Liam Parker","Aria Brooks","Noah Wright","Olivia Hayes","Ethan Carter","Emma Bennett","Lucas Reyes","Chloe Morgan","Mason Cole"],
+  he: ["מאיה שטרן","דניאל כהן","נועה לוי","איתן פרץ","שירה ביטון","יונתן אבני","תמר הלוי","עומר שטרן","ליאל אוחיון","איתי מזרחי","יעל אזולאי","עידן רוזן"],
+  ar: ["مايا حسن","دانيال خليل","سارة منصور","ياسين كريم","نور الهدى","عمر صالح","ليلى ناصر","كريم فؤاد","رنا حداد","زياد عثمان","هبة شاكر","مازن قاسم"],
+  ko: ["김유진","박지훈","이서연","최민호","정수아","강도윤","윤하늘","조은우","임채린","서지호","한예나","오재현"],
+  ja: ["田中 美咲","佐藤 大輔","鈴木 結衣","高橋 颯太","伊藤 さくら","渡辺 蓮","山本 葵","中村 陽斗","小林 凛","加藤 悠真","吉田 ひかり","山田 大翔"],
+  zh: ["李美华","王浩然","张雨欣","刘子轩","陈思琪","赵宇航","黄诗雅","周博文","吴梓彤","徐若曦","孙嘉怡","马天宇"],
+  es: ["Sofía García","Mateo López","Lucía Martín","Diego Fernández","Camila Ruiz","Sebastián Torres","Valentina Cruz","Tomás Romero","Isabella Vega","Joaquín Ortega","Martina Soto","Andrés Castillo"],
+  ru: ["Анна Иванова","Дмитрий Петров","Мария Соколова","Александр Кузнецов","Полина Морозова","Артём Орлов","Софья Новикова","Михаил Васильев","Виктория Лебедева","Иван Смирнов","Ева Попова","Никита Громов"],
+  fr: ["Léa Martin","Lucas Bernard","Camille Dubois","Hugo Laurent","Manon Petit","Léo Moreau","Chloé Rousseau","Nathan Simon","Inès Garnier","Théo Faure","Sarah Mercier","Adam Vincent"],
+  de: ["Mia Schneider","Leon Fischer","Hanna Weber","Paul Becker","Lena Hoffmann","Felix Wagner","Emilia Schulz","Jonas Richter","Lina Köhler","Noah Bauer","Sophia Lehmann","Finn Krüger"],
+  th: ["มินตรา จันทร์","ภาคิน สมบูรณ์","ปริยา ศรีสุข","กิตติ พงษ์ศักดิ์","พิมพ์ชนก ทอง","ธนวัฒน์ ศิริ","นภัสสร ไพศาล","ชยพล วรกิจ","อรปรียา รุ่ง","ปิยะพงษ์ ใจดี","ลลิตา สุวรรณ","ภูริ ตันเจริญ"],
+  vi: ["Linh Nguyễn","Minh Trần","Hà Phạm","Quang Lê","Trang Hoàng","Hùng Đỗ","Mai Vũ","Tuấn Bùi","Thảo Phan","Anh Đặng","Phương Dương","Long Trịnh"],
+  tl: ["Maria Reyes","Juan Cruz","Andrea Santos","Miguel Bautista","Bianca Aquino","Carlos Mendoza","Sofia Gonzales","Daniel Garcia","Camille Torres","Joshua Dela Cruz","Patricia Ramos","Marco Villanueva"],
+  id: ["Sari Wijaya","Budi Pratama","Citra Lestari","Andi Saputra","Dewi Anggraini","Rizky Putra","Putri Maharani","Bayu Nugroho","Anisa Hartono","Fajar Setiawan","Maya Permata","Reza Hidayat"],
+};
+
+const SONGS_BY_LANG: Partial<Record<string, string[]>> = {
+  en: ["Shallow — Lady Gaga","Bohemian Rhapsody — Queen","Believer — Imagine Dragons","Rolling in the Deep — Adele","Perfect — Ed Sheeran","Lose Yourself — Eminem","Stay — Rihanna","Someone Like You — Adele","Bad Guy — Billie Eilish","Don't Stop Believin' — Journey","Hello — Adele","Hey Jude — The Beatles"],
+  he: ["אהבת חיי — אייל גולן","ערב טוב — נועה קירל","תמיד אהיה איתך — שלמה ארצי","אם נדבר — אריק איינשטיין","יש בי אהבה — להקת כוורת","אהבתיה — בני אלבז","תוצרת הארץ — שלום חנוך","שיר השכונה — שלמה ארצי","מילים יפות מאלה — שרית חדד","בלילות הקיץ — עומר אדם","אני ואתה — אריק איינשטיין","שיר אהבה בדואי — דוד ברוזה"],
+  ar: ["حبيبي يا نور العين — عمرو دياب","تملي معاك — عمرو دياب","نور العين — عمرو دياب","قارئة الفنجان — عبد الحليم حافظ","الأطلال — أم كلثوم","قد الحروف — كاظم الساهر","حبك نار — وائل كفوري","رومانسية — ماجدة الرومي","يا ليل يا عين — فيروز","سيد الحبايب — كاظم الساهر","لما بدا يتثنى — فيروز","يا غايب — فضل شاكر"],
+  ko: ["봄날 — BTS","Dynamite — BTS","좋은 날 — IU","밤편지 — IU","Through the Night — IU","러브 시나리오 — iKON","사건의 지평선 — 윤하","Love Dive — IVE","마지막처럼 — BLACKPINK","Stay With Me — 찬열 & 펀치","후라이의 꿈 — AKMU","오래된 노래 — 김동률"],
+  ja: ["Lemon — 米津玄師","紅蓮華 — LiSA","残酷な天使のテーゼ — 高橋洋子","Pretender — Official髭男dism","夜に駆ける — YOASOBI","アイドル — YOASOBI","Subtitle — Official髭男dism","怪物 — YOASOBI","Lemon — 米津玄師","First Love — 宇多田ヒカル","明日があるさ — 坂本九","世界に一つだけの花 — SMAP"],
+  zh: ["稻香 — 周杰伦","告白气球 — 周杰伦","青花瓷 — 周杰伦","起风了 — 买辣椒也用券","学猫叫 — 小潘潘","下一站天后 — 容祖儿","小幸运 — 田馥甄","后来 — 刘若英","遇见 — 孙燕姿","成全 — 林宥嘉","干杯 — 五月天","海阔天空 — Beyond"],
+  es: ["Despacito — Luis Fonsi","Bailando — Enrique Iglesias","La Bamba — Ritchie Valens","La Bicicleta — Shakira","Vivir Mi Vida — Marc Anthony","Hips Don't Lie — Shakira","Bésame Mucho — Consuelo Velázquez","Color Esperanza — Diego Torres","La Camisa Negra — Juanes","Tusa — Karol G","Macarena — Los del Río","Échame La Culpa — Luis Fonsi"],
+  ru: ["Сансара — Баста","Лабиринт — Любэ","Дискотека — Руки Вверх","Берега — Руки Вверх","Тает лёд — Грибы","Розовое вино — Элджей","Минимал — IOWA","Прованс — Ёлка","Город — Сплин","Любимка — Niletto","Я свободен — Кипелов","Звезда — Алла Пугачёва"],
+  fr: ["La Vie en Rose — Édith Piaf","Non, je ne regrette rien — Édith Piaf","Je veux — Zaz","Dernière danse — Indila","Tous les mêmes — Stromae","Papaoutai — Stromae","Formidable — Stromae","Champs-Élysées — Joe Dassin","La Bohème — Charles Aznavour","Aline — Christophe","Mistral gagnant — Renaud","Mon amie la rose — Françoise Hardy"],
+  de: ["99 Luftballons — Nena","Über den Wolken — Reinhard Mey","Atemlos durch die Nacht — Helene Fischer","Major Tom — Peter Schilling","Ein Stern — DJ Ötzi","Auf uns — Andreas Bourani","An Tagen wie diesen — Die Toten Hosen","Skandal im Sperrbezirk — Spider Murphy","Stadt — Cassandra Steen","Cordula Grün — Josh","Königlich — Mark Forster","Lieblingsmensch — Namika"],
+  th: ["คู่คอง — ก้อง ห้วยไร่","คิดถึง — Cocktail","ขอบฟ้า — โต๋ ศักดิ์สิทธิ์","แค่ลมผ่าน — Calories Blah Blah","รักแท้ดูแลไม่ได้ — ETC","เพียงชายคนนี้ — เจมส์ จิรายุ","คนใจง่าย — TaitosmitH","หรือฉันคิดไปเอง — Loso","ฉันจะร้องเพลงรัก — เบิร์ด ธงไชย","คนที่ใช่ — Klear","ใจเย็น — ตรี ชัยณรงค์","อย่าให้ฉันคิดมาก — Bodyslam"],
+  vi: ["Bống Bống Bang Bang — 365","Em Gái Mưa — Hương Tràm","Lạc Trôi — Sơn Tùng M-TP","Chúng Ta Của Hiện Tại — Sơn Tùng M-TP","Ngày Đầu Tiên — Đức Phúc","Có Chàng Trai Viết Lên Cây — Phan Mạnh Quỳnh","Người Lạ Ơi — Karik","Anh Nhà Ở Đâu Thế — AMEE","Để Mị Nói Cho Mà Nghe — Hoàng Thùy Linh","Hồng Nhan — Jack","Hoa Hải Đường — Jack","Đi Để Trở Về — Soobin"],
+  tl: ["Anak — Freddie Aguilar","Bakit Ngayon Ka Lang — Freestyle","Forevermore — Side A","Tadhana — Up Dharma Down","Kahit Ayaw Mo Na — This Band","Hawak Kamay — Yeng Constantino","Buwan — Juan Karlos","Pagsamo — Arthur Nery","With a Smile — Eraserheads","Ang Huling El Bimbo — Eraserheads","Salamat — Yeng Constantino","Mundo — IV of Spades"],
+  id: ["Bento — Iwan Fals","Kisah Sempurna — Mahalini","Mungkin Hari Ini Esok Atau Nanti — Anggi Marito","Bintang di Surga — Peterpan","Akad — Payung Teduh","Cinta Luar Biasa — Andmesh","Hingga Tua Bersama — Rizky Febian","Asmalibrasi — Soegi Bornean","Sakit Sendiri — Mahalini","Berlayar Denganku — Adrian Khalif","Komang — Raim Laode","Melukis Senja — Budi Doremi"],
+};
 
 const SCORES = [98, 96, 94, 92, 91, 89, 87, 85, 83, 81, 79, 76];
 
-export const DEMO_PERFORMANCES: DemoPerformance[] = SINGERS.map((s, i) => ({
-  id: 900_000 + i,
-  user_id: s.id,
-  display_name: s.name,
-  picture: s.pic,
-  song_name: SONGS[i % SONGS.length],
-  score: SCORES[i],
-  pitch_score: Math.max(60, SCORES[i] - 3 - (i % 5)),
-  timing_score: Math.max(60, SCORES[i] - 1 - (i % 4)),
-  like_count: 1240 - i * 73 + (i % 3) * 17,
-  comment_count: 86 - i * 5 + (i % 4) * 3,
-  liked_by_me: false,
-  is_public: true,
-  is_demo: true,
-  created_at: daysAgo(Math.floor(i / 2), (i * 5) % 23),
-}));
+type Singer = { id: string; name: string; pic: string };
+
+/** Build a 12-singer pool for the given UI language. IDs stay stable across langs. */
+function getSingers(lang: string = "en"): Singer[] {
+  const names = pick(SINGER_NAMES_BY_LANG, lang, SINGER_NAMES_BY_LANG.en!);
+  return names.map((name, i) => ({
+    id: `demo-${i + 1}`,
+    name,
+    pic: SINGER_PICS[i],
+  }));
+}
+
+/** Localized song pool — 12 culturally-appropriate titles. */
+function getSongs(lang: string = "en"): string[] {
+  return pick(SONGS_BY_LANG, lang, SONGS_BY_LANG.en!);
+}
+
+/** Resolve a demo singer id (demo-1..demo-12) to its localized display name. */
+function singerById(userId: string, lang: string = "en"): Singer | null {
+  const singers = getSingers(lang);
+  return singers.find((s) => s.id === userId) ?? null;
+}
+
+export function buildDemoPerformances(lang: string = "en"): DemoPerformance[] {
+  const singers = getSingers(lang);
+  const songs = getSongs(lang);
+  return singers.map((s, i) => ({
+    id: 900_000 + i,
+    user_id: s.id,
+    display_name: s.name,
+    picture: s.pic,
+    song_name: songs[i % songs.length],
+    score: SCORES[i],
+    pitch_score: Math.max(60, SCORES[i] - 3 - (i % 5)),
+    timing_score: Math.max(60, SCORES[i] - 1 - (i % 4)),
+    like_count: 1240 - i * 73 + (i % 3) * 17,
+    comment_count: 86 - i * 5 + (i % 4) * 3,
+    liked_by_me: false,
+    is_public: true,
+    is_demo: true,
+    created_at: daysAgo(Math.floor(i / 2), (i * 5) % 23),
+  }));
+}
 
 /* ---------- following feed (subset of singers, different ordering) ----- */
 
-export const DEMO_FOLLOWING_FEED: DemoPerformance[] = [0, 2, 4, 6, 8, 10].map(
-  (idx, i) => ({
-    ...DEMO_PERFORMANCES[idx],
+export function buildDemoFollowingFeed(lang: string = "en"): DemoPerformance[] {
+  const all = buildDemoPerformances(lang);
+  return [0, 2, 4, 6, 8, 10].map((idx, i) => ({
+    ...all[idx],
     id: 910_000 + i,
     liked_by_me: i % 3 === 0,
     created_at: daysAgo(i, (i * 7) % 23),
-  })
-);
+  }));
+}
+
+/** Back-compat default-language exports. */
+export const DEMO_PERFORMANCES: DemoPerformance[] = buildDemoPerformances("en");
+export const DEMO_FOLLOWING_FEED: DemoPerformance[] = buildDemoFollowingFeed("en");
 
 /* ---------- challenges ------------------------------------------------- */
 
@@ -206,21 +254,26 @@ const CHALLENGE_TEXT_BY_LANG: Partial<Record<string, Array<{ title: string; desc
 };
 
 const CHALLENGE_META = [
-  { id: 990_001, song_name: SONGS[0], status: "active"   as const, prize_credits: 200, entry_count: 1284, start_date: daysAgo(2),  end_date: daysAgo(-5)  },
-  { id: 990_002, song_name: SONGS[2], status: "active"   as const, prize_credits: 150, entry_count: 642,  start_date: daysAgo(1),  end_date: daysAgo(-3)  },
-  { id: 990_003, song_name: SONGS[7], status: "upcoming" as const, prize_credits: 250, entry_count: 0,    start_date: daysAgo(-3), end_date: daysAgo(-10) },
-  { id: 990_004, song_name: SONGS[1], status: "ended"    as const, prize_credits: 200, entry_count: 2117, start_date: daysAgo(14), end_date: daysAgo(7)   },
+  { id: 990_001, song_idx: 0, status: "active"   as const, prize_credits: 200, entry_count: 1284, start_date: daysAgo(2),  end_date: daysAgo(-5)  },
+  { id: 990_002, song_idx: 2, status: "active"   as const, prize_credits: 150, entry_count: 642,  start_date: daysAgo(1),  end_date: daysAgo(-3)  },
+  { id: 990_003, song_idx: 7, status: "upcoming" as const, prize_credits: 250, entry_count: 0,    start_date: daysAgo(-3), end_date: daysAgo(-10) },
+  { id: 990_004, song_idx: 1, status: "ended"    as const, prize_credits: 200, entry_count: 2117, start_date: daysAgo(14), end_date: daysAgo(7)   },
 ];
 
 export function buildDemoChallenges(lang: string = "en"): DemoChallenge[] {
   const texts = pick(CHALLENGE_TEXT_BY_LANG, lang, CHALLENGE_TEXT_BY_LANG.en!);
-  return CHALLENGE_META.map((m, i) => ({
-    ...m,
-    title: texts[i].title,
-    description: texts[i].description,
-    hasEntered: false as const,
-    is_demo: true as const,
-  }));
+  const songs = getSongs(lang);
+  return CHALLENGE_META.map((m, i) => {
+    const { song_idx, ...rest } = m;
+    return {
+      ...rest,
+      song_name: songs[song_idx],
+      title: texts[i].title,
+      description: texts[i].description,
+      hasEntered: false as const,
+      is_demo: true as const,
+    };
+  });
 }
 
 /** Back-compat default-language export (kept for any legacy importers). */
@@ -230,7 +283,7 @@ export const DEMO_CHALLENGES: DemoChallenge[] = buildDemoChallenges("en");
 export function buildDemoChallengeDetail(id: number, lang: string = "en") {
   const list = buildDemoChallenges(lang);
   const challenge = list.find((c) => c.id === id) || list[0];
-  const leaderboard = SINGERS.slice(0, 8).map((s, i) => ({
+  const leaderboard = getSingers(lang).slice(0, 8).map((s, i) => ({
     user_id: s.id,
     display_name: s.name,
     picture: s.pic,
@@ -261,21 +314,28 @@ export type DemoLeaderRow = {
   is_demo: true;
 };
 
-export const DEMO_LEADERBOARD: DemoLeaderRow[] = SINGERS.slice(0, 10).map((s, i) => ({
-  id: 800_000 + i,
-  user_id: s.id,
-  display_name: s.name,
-  picture: s.pic,
-  song_name: SONGS[i % SONGS.length],
-  score: SCORES[i],
-  timing_score: Math.max(60, SCORES[i] - 1 - (i % 4)),
-  pitch_score: Math.max(60, SCORES[i] - 3 - (i % 5)),
-  words_covered: 120 - i * 4,
-  total_words: 132,
-  job_id: `demo-${i}`,
-  created_at: daysAgo(Math.floor(i / 2), (i * 5) % 23),
-  is_demo: true,
-}));
+export function buildDemoLeaderboard(lang: string = "en"): DemoLeaderRow[] {
+  const singers = getSingers(lang);
+  const songs = getSongs(lang);
+  return singers.slice(0, 10).map((s, i) => ({
+    id: 800_000 + i,
+    user_id: s.id,
+    display_name: s.name,
+    picture: s.pic,
+    song_name: songs[i % songs.length],
+    score: SCORES[i],
+    timing_score: Math.max(60, SCORES[i] - 1 - (i % 4)),
+    pitch_score: Math.max(60, SCORES[i] - 3 - (i % 5)),
+    words_covered: 120 - i * 4,
+    total_words: 132,
+    job_id: `demo-${i}`,
+    created_at: daysAgo(Math.floor(i / 2), (i * 5) % 23),
+    is_demo: true,
+  }));
+}
+
+/** Back-compat default-language export. */
+export const DEMO_LEADERBOARD: DemoLeaderRow[] = buildDemoLeaderboard("en");
 
 /* ---------- localized level titles ------------------------------------ */
 
@@ -306,7 +366,7 @@ export function buildDemoXPLeaderboard(
   lang: string = "en",
 ) {
   const titles = pick(LEVEL_TITLES_BY_LANG, lang, LEVEL_TITLES_BY_LANG.en!);
-  const leaderboard = SINGERS.slice(0, 10).map((s, i) => ({
+  const leaderboard = getSingers(lang).slice(0, 10).map((s, i) => ({
     rank: i + 1,
     userId: s.id,
     displayName: s.name,
@@ -345,10 +405,11 @@ export function demoLabel(lang: string = "en"): string {
 
 export function buildDemoMyPerformances(lang: string = "en") {
   const me = pick(ME_LABEL_BY_LANG, lang, "You");
+  const songs = getSongs(lang);
   return [
-    { id: 850_001, score: 94, timing_score: 92, pitch_score: 91, words_covered: 128, total_words: 132, song_name: SONGS[8], job_id: "demo-mp-1", created_at: daysAgo(0, 2), display_name: me, picture: undefined as string | undefined, is_public: true,  is_demo: true as const },
-    { id: 850_002, score: 88, timing_score: 86, pitch_score: 87, words_covered: 122, total_words: 130, song_name: SONGS[4], job_id: "demo-mp-2", created_at: daysAgo(1, 4), display_name: me, picture: undefined,                       is_public: false, is_demo: true as const },
-    { id: 850_003, score: 81, timing_score: 79, pitch_score: 82, words_covered: 110, total_words: 128, song_name: SONGS[11],job_id: "demo-mp-3", created_at: daysAgo(3, 1), display_name: me, picture: undefined,                       is_public: true,  is_demo: true as const },
+    { id: 850_001, score: 94, timing_score: 92, pitch_score: 91, words_covered: 128, total_words: 132, song_name: songs[0], job_id: "demo-mp-1", created_at: daysAgo(0, 2), display_name: me, picture: undefined as string | undefined, is_public: true,  is_demo: true as const },
+    { id: 850_002, score: 88, timing_score: 86, pitch_score: 87, words_covered: 122, total_words: 130, song_name: songs[3], job_id: "demo-mp-2", created_at: daysAgo(1, 4), display_name: me, picture: undefined,                       is_public: false, is_demo: true as const },
+    { id: 850_003, score: 81, timing_score: 79, pitch_score: 82, words_covered: 110, total_words: 128, song_name: songs[6], job_id: "demo-mp-3", created_at: daysAgo(3, 1), display_name: me, picture: undefined,                       is_public: true,  is_demo: true as const },
   ];
 }
 
@@ -445,6 +506,7 @@ const COMMENT_TEMPLATES_BY_LANG: Partial<Record<string, string[]>> = {
 /** Deterministic, per-performance localized comment list. */
 export function buildDemoComments(performanceId: number, lang: string = "en") {
   const templates = pick(COMMENT_TEMPLATES_BY_LANG, lang, COMMENT_TEMPLATES_BY_LANG.en!);
+  const SINGERS = getSingers(lang);
   const seed = performanceId % 1000;
   const count = 3 + (seed % 4);
   return {
@@ -466,12 +528,18 @@ export function buildDemoComments(performanceId: number, lang: string = "en") {
 
 /* ---------- recordings / history (jobs) ------------------------------ */
 
-export const DEMO_RECORDINGS = [
-  { id: 700_001, user_id: "demo-me", song_name: SONGS[8],  job_id: "demo-mp-1", object_path: "/demo/perfect.m4a",   file_name: "perfect.m4a",   content_type: "audio/m4a", size_bytes: 3_640_000, created_at: daysAgo(0, 2), is_demo: true },
-  { id: 700_002, user_id: "demo-me", song_name: SONGS[4],  job_id: "demo-mp-2", object_path: "/demo/believer.m4a",  file_name: "believer.m4a",  content_type: "audio/m4a", size_bytes: 2_910_000, created_at: daysAgo(1, 4), is_demo: true },
-  { id: 700_003, user_id: "demo-me", song_name: SONGS[11], job_id: "demo-mp-3", object_path: "/demo/senorita.m4a",  file_name: "senorita.m4a",  content_type: "audio/m4a", size_bytes: 3_150_000, created_at: daysAgo(3, 1), is_demo: true },
-  { id: 700_004, user_id: "demo-me", song_name: SONGS[0],  job_id: "demo-mp-4", object_path: "/demo/shallow.m4a",   file_name: "shallow.m4a",   content_type: "audio/m4a", size_bytes: 4_220_000, created_at: daysAgo(5, 3), is_demo: true },
-];
+export function buildDemoRecordings(lang: string = "en") {
+  const songs = getSongs(lang);
+  return [
+    { id: 700_001, user_id: "demo-me", song_name: songs[0], job_id: "demo-mp-1", object_path: "/demo/track-1.m4a", file_name: "track-1.m4a", content_type: "audio/m4a", size_bytes: 3_640_000, created_at: daysAgo(0, 2), is_demo: true },
+    { id: 700_002, user_id: "demo-me", song_name: songs[3], job_id: "demo-mp-2", object_path: "/demo/track-2.m4a", file_name: "track-2.m4a", content_type: "audio/m4a", size_bytes: 2_910_000, created_at: daysAgo(1, 4), is_demo: true },
+    { id: 700_003, user_id: "demo-me", song_name: songs[6], job_id: "demo-mp-3", object_path: "/demo/track-3.m4a", file_name: "track-3.m4a", content_type: "audio/m4a", size_bytes: 3_150_000, created_at: daysAgo(3, 1), is_demo: true },
+    { id: 700_004, user_id: "demo-me", song_name: songs[9], job_id: "demo-mp-4", object_path: "/demo/track-4.m4a", file_name: "track-4.m4a", content_type: "audio/m4a", size_bytes: 4_220_000, created_at: daysAgo(5, 3), is_demo: true },
+  ];
+}
+
+/** Back-compat default-language export. */
+export const DEMO_RECORDINGS = buildDemoRecordings("en");
 
 /** Demo job rows — shape-compatible with the real `Job` schema plus `is_demo`. */
 export type DemoJob = Pick<Job, "id" | "status" | "filename" | "created_at"> & {
@@ -492,11 +560,11 @@ export const DEMO_JOBS: DemoJob[] = [
 
 /* ---------- public profile (used on /profile/:userId) ----------------- */
 
-export function buildDemoProfile(userId: string) {
-  const singer = SINGERS.find((s) => s.id === userId);
+export function buildDemoProfile(userId: string, lang: string = "en") {
+  const singer = singerById(userId, lang);
   if (!singer) return null;
-  const idx = SINGERS.indexOf(singer);
-  const myPerfs = DEMO_PERFORMANCES.filter((p) => p.user_id === userId);
+  const idx = parseInt(singer.id.replace("demo-", ""), 10) - 1;
+  const myPerfs = buildDemoPerformances(lang).filter((p) => p.user_id === userId);
   return {
     user: {
       id: singer.id,
@@ -567,6 +635,8 @@ export const isDemoPartyId = (id: string) => id.startsWith("demo-room-");
 export function buildDemoPartyRoom(roomId: string, lang: string = "en") {
   const parties = buildDemoParties(lang);
   const meta = parties.find((p) => p.id === roomId) || parties[0];
+  const SINGERS = getSingers(lang);
+  const songs = getSongs(lang);
   return {
     id: meta.id,
     name: meta.name,
@@ -576,11 +646,11 @@ export function buildDemoPartyRoom(roomId: string, lang: string = "en") {
     isHost: false,
     created_at: meta.created_at,
     queue: [
-      { id: 1, status: "singing", song_name: SONGS[4], display_name: SINGERS[0].name, user_id: SINGERS[0].id, job_id: null, mode: "solo",   is_demo: true },
-      { id: 2, status: "waiting", song_name: SONGS[1], display_name: SINGERS[1].name, user_id: SINGERS[1].id, job_id: null, mode: "duet",   is_demo: true },
-      { id: 3, status: "waiting", song_name: SONGS[7], display_name: SINGERS[5].name, user_id: SINGERS[5].id, job_id: null, mode: "battle", is_demo: true },
-      { id: 4, status: "waiting", song_name: SONGS[0], display_name: SINGERS[3].name, user_id: SINGERS[3].id, job_id: null, mode: "solo",   is_demo: true },
-      { id: 5, status: "done",    song_name: SONGS[8], display_name: SINGERS[2].name, user_id: SINGERS[2].id, job_id: null, mode: "solo",   is_demo: true },
+      { id: 1, status: "singing", song_name: songs[1], display_name: SINGERS[0].name, user_id: SINGERS[0].id, job_id: null, mode: "solo",   is_demo: true },
+      { id: 2, status: "waiting", song_name: songs[4], display_name: SINGERS[1].name, user_id: SINGERS[1].id, job_id: null, mode: "duet",   is_demo: true },
+      { id: 3, status: "waiting", song_name: songs[2], display_name: SINGERS[5].name, user_id: SINGERS[5].id, job_id: null, mode: "battle", is_demo: true },
+      { id: 4, status: "waiting", song_name: songs[7], display_name: SINGERS[3].name, user_id: SINGERS[3].id, job_id: null, mode: "solo",   is_demo: true },
+      { id: 5, status: "done",    song_name: songs[9], display_name: SINGERS[2].name, user_id: SINGERS[2].id, job_id: null, mode: "solo",   is_demo: true },
     ],
     members: SINGERS.slice(0, 6).map((s, i) => ({
       user_id: s.id,
@@ -592,8 +662,8 @@ export function buildDemoPartyRoom(roomId: string, lang: string = "en") {
   };
 }
 
-export function buildDemoPartyLeaderboard() {
-  return SINGERS.slice(0, 6).map((s, i) => ({
+export function buildDemoPartyLeaderboard(lang: string = "en") {
+  return getSingers(lang).slice(0, 6).map((s, i) => ({
     user_id: s.id,
     display_name: s.name,
     picture: s.pic,

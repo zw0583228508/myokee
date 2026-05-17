@@ -5,7 +5,7 @@ import { useXPLeaderboard } from "@/hooks/use-gamification";
 import { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useGamificationTranslations } from "@/hooks/use-gamification-translations";
-import { DEMO_LEADERBOARD, buildDemoMyPerformances, buildDemoXPLeaderboard } from "@/lib/demoData";
+import { buildDemoLeaderboard, buildDemoMyPerformances, buildDemoXPLeaderboard } from "@/lib/demoData";
 
 const toStars = (s: number) => s >= 90 ? 5 : s >= 75 ? 4 : s >= 60 ? 3 : s >= 40 ? 2 : 1;
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -107,7 +107,7 @@ export default function Leaderboard() {
             ) : (
               <div className="space-y-2.5">
                 {(tab === "global"
-                  ? ((globalData ?? []).length === 0 ? DEMO_LEADERBOARD : (globalData ?? []))
+                  ? ((globalData ?? []).length === 0 ? buildDemoLeaderboard(lang) : (globalData ?? []))
                   : ((myData ?? []).length === 0 ? buildDemoMyPerformances(lang) : (myData ?? []))
                 ).map((row: any, i: number) => {
                   const stars = toStars(row.score);

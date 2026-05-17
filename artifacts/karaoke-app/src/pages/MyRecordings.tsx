@@ -5,7 +5,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useMyPerformances, usePublishPerformance, useUnpublishPerformance } from "@/hooks/use-performances";
 import { apiUrl } from "@/lib/api";
 import { useState, useRef } from "react";
-import { DEMO_RECORDINGS, buildDemoMyPerformances, isDemo, demoLabel } from "@/lib/demoData";
+import { buildDemoRecordings, buildDemoMyPerformances, isDemo, demoLabel } from "@/lib/demoData";
 
 function formatDate(iso: string, lang: string) {
   return new Date(iso).toLocaleDateString(
@@ -34,7 +34,7 @@ export default function MyRecordings() {
   // Show demo content when there are no real items, so first-time visitors
   // see a working page. Demo rows are non-interactive (no API calls).
   const recordings = (!loadingRec && (realRecordings?.length ?? 0) === 0)
-    ? DEMO_RECORDINGS
+    ? buildDemoRecordings(lang)
     : realRecordings;
   const performances = (!loadingPerf && (realPerformances?.length ?? 0) === 0)
     ? buildDemoMyPerformances(lang)

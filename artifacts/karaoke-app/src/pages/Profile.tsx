@@ -38,7 +38,7 @@ export default function Profile() {
   // If the backend has no record for this user, fall back to a demo
   // profile when the userId matches one of our demo singers (e.g. links
   // coming from demo Feed/Leaderboard rows). This keeps the page lively.
-  const data = realData ?? buildDemoProfile(userId);
+  const data = realData ?? buildDemoProfile(userId, lang);
 
   if (isLoading)
     return (

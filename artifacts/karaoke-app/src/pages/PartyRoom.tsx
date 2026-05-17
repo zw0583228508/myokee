@@ -38,7 +38,7 @@ export default function PartyRoom() {
   // parties), serve a fully formed read-only demo room. Host actions and
   // queue mutations are no-ops because isHost is forced to false below.
   const room = isDemoRoom ? buildDemoPartyRoom(roomId!, lang) : realRoom;
-  const leaderboard = isDemoRoom ? buildDemoPartyLeaderboard() : realLeaderboard;
+  const leaderboard = isDemoRoom ? buildDemoPartyLeaderboard(lang) : realLeaderboard;
   const isLoading = isDemoRoom ? false : realLoading;
 
   const addToQueue = useAddToQueue(roomId || "");

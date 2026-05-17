@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useFeed, useDiscover, useLikePerformance, useComments, useAddComment } from "@/hooks/use-social";
 import { Heart, MessageCircle, User, Music, ChevronDown, Send, Sparkles, Globe2, Users } from "lucide-react";
 import { Link } from "wouter";
-import { DEMO_PERFORMANCES, DEMO_FOLLOWING_FEED, buildDemoComments, isDemo } from "@/lib/demoData";
+import { buildDemoPerformances, buildDemoFollowingFeed, buildDemoComments, isDemo } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { feed: "Following", discover: "Discover", title: "Community", subtitle: "See what others are singing", noFeed: "No performances yet", noFeedDesc: "Follow other singers to see their performances here", noDiscover: "No public performances yet", score: "Score", addComment: "Add a comment...", showComments: "comments", loadMore: "Load More" },
@@ -187,7 +187,7 @@ export default function Feed() {
   // soon as real performances exist.
   const usingDemo = !isLoading && realPerformances.length === 0;
   const performances = usingDemo
-    ? (tab === "discover" ? DEMO_PERFORMANCES : DEMO_FOLLOWING_FEED)
+    ? (tab === "discover" ? buildDemoPerformances(lang) : buildDemoFollowingFeed(lang))
     : realPerformances;
 
   return (
