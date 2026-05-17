@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useChallenges, useChallengeDetail, useEnterChallenge } from "@/hooks/use-challenges";
 import { useMyPerformances } from "@/hooks/use-performances";
 import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check, Music2, Sparkles } from "lucide-react";
-import { DEMO_CHALLENGES, isDemo as isDemoItem, buildDemoChallengeDetail, isDemoChallengeId } from "@/lib/demoData";
+import { DEMO_CHALLENGES, isDemo as isDemoItem, buildDemoChallengeDetail, isDemoChallengeId, buildDemoMyPerformances, demoLabel } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { title: "Weekly Challenges", subtitle: "Compete with singers worldwide", active: "Active", upcoming: "Upcoming", ended: "Ended", participants: "participants", prize: "Prize", credits: "credits", enterChallenge: "Enter Challenge", leaderboard: "Leaderboard", noChallenge: "No challenges yet", noDesc: "New challenges are posted every week. Check back soon!", rank: "Rank", singer: "Singer", score: "Score", timeLeft: "Time left", days: "d", hours: "h", mins: "m", entered: "Entered", back: "Back", yourScore: "Your Score", selectPerformance: "Select a performance to submit" },
@@ -134,6 +134,21 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
             </div>
           ) : challenge.status === "active" && !isDemoDetail ? (
             <ChallengeEntryForm challengeId={id} lang={lang} />
+          ) : isDemoDetail && challenge.status === "active" ? (
+            <div className="mt-5 p-4 bg-white/[0.03] border border-white/10 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-semibold text-white/75">{t.selectPerformance}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">{demoLabel(lang)}</span>
+              </div>
+              <div className="space-y-2">
+                {buildDemoMyPerformances(lang).map((perf) => (
+                  <div key={perf.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                    <span className="text-sm text-white/80 truncate" dir="auto">{perf.song_name}</span>
+                    <span className="text-sm font-bold text-violet-300 shrink-0 ms-2">{perf.score}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : null}
         </div>
       </div>

@@ -5,7 +5,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useMyPerformances, usePublishPerformance, useUnpublishPerformance } from "@/hooks/use-performances";
 import { apiUrl } from "@/lib/api";
 import { useState, useRef } from "react";
-import { DEMO_RECORDINGS, DEMO_MY_PERFORMANCES, isDemo } from "@/lib/demoData";
+import { DEMO_RECORDINGS, buildDemoMyPerformances, isDemo, demoLabel } from "@/lib/demoData";
 
 function formatDate(iso: string, lang: string) {
   return new Date(iso).toLocaleDateString(
@@ -37,7 +37,7 @@ export default function MyRecordings() {
     ? DEMO_RECORDINGS
     : realRecordings;
   const performances = (!loadingPerf && (realPerformances?.length ?? 0) === 0)
-    ? DEMO_MY_PERFORMANCES
+    ? buildDemoMyPerformances(lang)
     : realPerformances;
   const deleteRec = useDeleteRecording();
   const publishPerf = usePublishPerformance();
@@ -154,7 +154,12 @@ export default function MyRecordings() {
                     {playingId === rec.id ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ms-0.5" />}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white truncate text-sm" dir="auto">{rec.song_name || rec.file_name}</p>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <p className="font-semibold text-white truncate text-sm" dir="auto">{rec.song_name || rec.file_name}</p>
+                      {isDemo(rec) && (
+                        <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">{demoLabel(lang)}</span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5 text-[11px] text-white/40">
                       <span>{formatDate(rec.created_at, lang)}</span>
                       <span className="text-white/20">·</span>
@@ -205,7 +210,12 @@ export default function MyRecordings() {
                         <Music2 className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white truncate text-sm" dir="auto">{perf.song_name || "—"}</p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="font-semibold text-white truncate text-sm" dir="auto">{perf.song_name || "—"}</p>
+                          {isDemo(perf) && (
+                            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30">{demoLabel(lang)}</span>
+                          )}
+                        </div>
                         <p className="text-[11px] text-white/40 mt-0.5">{formatDate(perf.created_at, lang)}</p>
                       </div>
                       <div className="shrink-0 text-end">

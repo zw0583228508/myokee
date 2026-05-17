@@ -231,6 +231,16 @@ const ME_LABEL_BY_LANG: Partial<Record<string, string>> = {
   tl: "Ikaw", id: "Kamu",
 };
 
+/** Localized "Demo" tag label for visible placeholder badges. */
+const DEMO_LABEL_BY_LANG: Partial<Record<string, string>> = {
+  en: "Demo", he: "הדגמה", ar: "عرض", ko: "데모", ja: "デモ", zh: "示例",
+  es: "Demo", ru: "Демо", fr: "Démo", de: "Demo", th: "ตัวอย่าง", vi: "Demo",
+  tl: "Demo", id: "Demo",
+};
+export function demoLabel(lang: string = "en"): string {
+  return pick(DEMO_LABEL_BY_LANG, lang, "Demo");
+}
+
 export function buildDemoMyPerformances(lang: string = "en") {
   const me = pick(ME_LABEL_BY_LANG, lang, "You");
   return [
