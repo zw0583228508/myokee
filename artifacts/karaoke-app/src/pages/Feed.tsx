@@ -25,7 +25,7 @@ const T: Record<string, Record<string, string>> = {
 function CommentsSection({ performanceId, lang, demo }: { performanceId: number; lang: string; demo?: boolean }) {
   const t = T[lang] || T.en;
   const { data: liveData } = useComments(demo ? -1 : performanceId);
-  const data = demo ? buildDemoComments(performanceId) : liveData;
+  const data = demo ? buildDemoComments(performanceId, lang) : liveData;
   const addComment = useAddComment();
   const [text, setText] = useState("");
 
@@ -44,27 +44,29 @@ function CommentsSection({ performanceId, lang, demo }: { performanceId: number;
           </div>
         ))}
       </div>
-      <div className="flex gap-2">
-        <input
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder={t.addComment}
-          className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-400/50 focus:bg-white/[0.06] transition-all"
-          onKeyDown={e => {
-            if (e.key === "Enter" && text.trim()) {
-              addComment.mutate({ performanceId, content: text.trim() });
-              setText("");
-            }
-          }}
-        />
-        <button
-          onClick={() => { if (text.trim()) { addComment.mutate({ performanceId, content: text.trim() }); setText(""); } }}
-          className="w-9 h-9 rounded-full ds-glass flex items-center justify-center text-violet-300 hover:text-white hover:bg-violet-500/20 transition-all disabled:opacity-30"
-          disabled={!text.trim()}
-        >
-          <Send className="w-4 h-4" />
-        </button>
-      </div>
+      {!demo && (
+        <div className="flex gap-2">
+          <input
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder={t.addComment}
+            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-400/50 focus:bg-white/[0.06] transition-all"
+            onKeyDown={e => {
+              if (e.key === "Enter" && text.trim()) {
+                addComment.mutate({ performanceId, content: text.trim() });
+                setText("");
+              }
+            }}
+          />
+          <button
+            onClick={() => { if (text.trim()) { addComment.mutate({ performanceId, content: text.trim() }); setText(""); } }}
+            className="w-9 h-9 rounded-full ds-glass flex items-center justify-center text-violet-300 hover:text-white hover:bg-violet-500/20 transition-all disabled:opacity-30"
+            disabled={!text.trim()}
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -153,16 +155,15 @@ function PerformanceCard({ perf, lang, idx }: { perf: any; lang: string; idx: nu
             {likeCount}
           </button>
           <button
-            onClick={() => !demo && setShowComments(!showComments)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 hover:text-violet-300 transition-colors px-3 py-1.5 rounded-full disabled:opacity-60"
-            disabled={demo}
+            onClick={() => setShowComments(!showComments)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 hover:text-violet-300 transition-colors px-3 py-1.5 rounded-full"
           >
             <MessageCircle className="w-4 h-4" />
             {perf.comment_count || 0}
           </button>
         </div>
 
-        {showComments && !demo && <CommentsSection performanceId={perf.id} lang={lang} />}
+        {showComments && <CommentsSection performanceId={perf.id} lang={lang} demo={demo} />}
       </div>
     </div>
   );

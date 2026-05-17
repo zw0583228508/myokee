@@ -9,12 +9,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/LanguageContext";
 import { trackPartyCreated, trackPartyJoined } from "@/lib/analytics";
 import { useNoIndex } from "@/hooks/use-noindex";
-import { DEMO_PARTIES, isDemo } from "@/lib/demoData";
+import { buildDemoParties, isDemo } from "@/lib/demoData";
 
 export default function Party() {
   useNoIndex();
   const pt = usePartyTranslations();
-  const { t: { dir } } = useLang();
+  const { t: { dir }, lang } = useLang();
   const [, navigate] = useLocation();
   const { data: authData } = useAuth();
   const user = authData?.user;
@@ -57,8 +57,8 @@ export default function Party() {
 
   const realActive = (myParties || []).filter((p: any) => p.status === "active");
   // Show demo parties when the user has none, so the hub never looks empty.
-  // Demo party cards are non-clickable.
-  const activeParties = realActive.length > 0 ? realActive : DEMO_PARTIES;
+  // Demo party cards navigate into a read-only demo party room.
+  const activeParties = realActive.length > 0 ? realActive : buildDemoParties(lang);
 
   return (
     <div className="min-h-screen bg-[var(--ds-bg-app)] relative" dir={dir}>
@@ -209,11 +209,8 @@ export default function Party() {
                 return (
                   <button
                     key={room.id}
-                    onClick={() => { if (!isDemo(room)) navigate(`/party/${room.id}`); }}
-                    disabled={isDemo(room)}
-                    className={`w-full text-start p-4 rounded-2xl ds-card transition-all duration-300 flex items-center gap-4 ds-reveal ${
-                      isDemo(room) ? "cursor-default opacity-90" : "hover:border-violet-400/30"
-                    }`}
+                    onClick={() => navigate(`/party/${room.id}`)}
+                    className="w-full text-start p-4 rounded-2xl ds-card transition-all duration-300 flex items-center gap-4 ds-reveal hover:border-violet-400/30"
                     style={{ animationDelay: `${i * 30}ms` }}
                   >
                     <div className="text-2xl">{theme.emoji}</div>

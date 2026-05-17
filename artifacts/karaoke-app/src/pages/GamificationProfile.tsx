@@ -12,7 +12,7 @@ import { buildDemoGamificationProfile, buildDemoXPLeaderboard } from "@/lib/demo
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 export default function GamificationProfile() {
-  const { t: { dir } } = useLang();
+  const { t: { dir }, lang } = useLang();
   const gt = useGamificationTranslations();
   const [tab, setTab] = useState<"profile" | "leaderboard">("profile");
   const [lbMode, setLbMode] = useState<"all" | "weekly">("all");
@@ -21,10 +21,10 @@ export default function GamificationProfile() {
   const { data: realLbData, isLoading: loadingLb } = useXPLeaderboard(lbMode);
   // When backend has nothing yet (first-time visitor), substitute a demo
   // profile + XP leaderboard so the page never looks empty.
-  const profile = realProfile ?? (loadingProfile ? null : buildDemoGamificationProfile());
+  const profile = realProfile ?? (loadingProfile ? null : buildDemoGamificationProfile(lang));
   const lbData = (realLbData?.leaderboard?.length ?? 0) > 0
     ? realLbData
-    : buildDemoXPLeaderboard(lbMode);
+    : buildDemoXPLeaderboard(lbMode, lang);
   const awardXP = useAwardXP();
   const dailyLoginSent = useRef(false);
 

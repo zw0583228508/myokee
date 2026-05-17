@@ -161,7 +161,7 @@ export default function Leaderboard() {
             ) : (() => {
               const effective = (xpData?.leaderboard?.length ?? 0) > 0
                 ? xpData
-                : buildDemoXPLeaderboard(xpMode);
+                : buildDemoXPLeaderboard(xpMode, lang);
               return (
               <div className="space-y-2.5">
                 {effective.yourRank && (

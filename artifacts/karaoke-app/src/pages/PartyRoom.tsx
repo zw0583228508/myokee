@@ -27,7 +27,7 @@ export default function PartyRoom() {
   const [, navigate] = useLocation();
   const roomId = params?.id || null;
   const pt = usePartyTranslations();
-  const { t: { dir } } = useLang();
+  const { t: { dir }, lang } = useLang();
   const { data: authData } = useAuth();
   const userId = authData?.user?.id;
 
@@ -37,7 +37,7 @@ export default function PartyRoom() {
   // For demo room IDs (linked from the Party hub when there are no real
   // parties), serve a fully formed read-only demo room. Host actions and
   // queue mutations are no-ops because isHost is forced to false below.
-  const room = isDemoRoom ? buildDemoPartyRoom(roomId!) : realRoom;
+  const room = isDemoRoom ? buildDemoPartyRoom(roomId!, lang) : realRoom;
   const leaderboard = isDemoRoom ? buildDemoPartyLeaderboard() : realLeaderboard;
   const isLoading = isDemoRoom ? false : realLoading;
 

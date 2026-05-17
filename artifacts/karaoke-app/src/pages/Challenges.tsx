@@ -3,7 +3,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useChallenges, useChallengeDetail, useEnterChallenge } from "@/hooks/use-challenges";
 import { useMyPerformances } from "@/hooks/use-performances";
 import { Trophy, Clock, Users, ChevronRight, Medal, Star, ArrowLeft, Check, Music2, Sparkles } from "lucide-react";
-import { DEMO_CHALLENGES, isDemo as isDemoItem } from "@/lib/demoData";
+import { DEMO_CHALLENGES, isDemo as isDemoItem, buildDemoChallengeDetail, isDemoChallengeId } from "@/lib/demoData";
 
 const T: Record<string, Record<string, string>> = {
   en: { title: "Weekly Challenges", subtitle: "Compete with singers worldwide", active: "Active", upcoming: "Upcoming", ended: "Ended", participants: "participants", prize: "Prize", credits: "credits", enterChallenge: "Enter Challenge", leaderboard: "Leaderboard", noChallenge: "No challenges yet", noDesc: "New challenges are posted every week. Check back soon!", rank: "Rank", singer: "Singer", score: "Score", timeLeft: "Time left", days: "d", hours: "h", mins: "m", entered: "Entered", back: "Back", yourScore: "Your Score", selectPerformance: "Select a performance to submit" },
@@ -71,11 +71,16 @@ function ChallengeEntryForm({ challengeId, lang }: { challengeId: number; lang: 
 }
 
 function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void; lang: string }) {
-  const { data, isLoading } = useChallengeDetail(id);
+  const { data: liveData, isLoading } = useChallengeDetail(isDemoChallengeId(id) ? -1 : id);
   const t = T[lang] || T.en;
   const isRtl = lang === "he" || lang === "ar";
 
-  if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" /></div>;
+  const data = isDemoChallengeId(id)
+    ? buildDemoChallengeDetail(id)
+    : liveData;
+  const isDemoDetail = isDemoChallengeId(id);
+
+  if (isLoading && !isDemoDetail) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" /></div>;
   if (!data) return null;
 
   const { challenge, leaderboard, myEntry } = data;
@@ -127,7 +132,7 @@ function ChallengeDetail({ id, onBack, lang }: { id: number; onBack: () => void;
               <span className="inline-flex items-center gap-2 text-violet-300 font-semibold"><Check className="w-4 h-4" />{t.entered}</span>
               <span className="text-white/65">{t.yourScore}: <span className="font-bold text-white">{myEntry.score}</span></span>
             </div>
-          ) : challenge.status === "active" ? (
+          ) : challenge.status === "active" && !isDemoDetail ? (
             <ChallengeEntryForm challengeId={id} lang={lang} />
           ) : null}
         </div>
@@ -238,11 +243,8 @@ export default function Challenges() {
                     return (
                       <button
                         key={c.id}
-                        onClick={() => { if (!isDemoItem(c)) setSelectedId(c.id); }}
-                        disabled={isDemoItem(c)}
-                        className={`w-full text-start ds-card relative overflow-hidden p-5 sm:p-6 transition-all duration-300 group ds-reveal ${
-                          isDemoItem(c) ? "cursor-default" : "hover:border-white/15"
-                        }`}
+                        onClick={() => setSelectedId(c.id)}
+                        className="w-full text-start ds-card relative overflow-hidden p-5 sm:p-6 transition-all duration-300 group ds-reveal hover:border-white/15"
                         style={{ animationDelay: `${i * 40}ms` }}
                       >
                         <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-violet-500/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
