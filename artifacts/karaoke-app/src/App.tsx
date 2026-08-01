@@ -14,6 +14,7 @@ import { FloatingShareFab } from "@/components/FloatingShareFab";
 import { useUITranslations } from "@/contexts/uiTranslations";
 import { RouteTracker } from "@/components/RouteTracker";
 import NotFound from "@/pages/not-found";
+import { FEATURES } from "@/config/features";
 
 const Home = lazy(() => import("@/pages/Home"));
 const JobDetails = lazy(() => import("@/pages/JobDetails"));
@@ -142,21 +143,21 @@ function Router() {
             <Route path="/"            component={Home}        />
             <Route path="/upload"      component={Upload}      />
             <Route path="/history"     component={History}     />
-            <Route path="/leaderboard" component={Leaderboard} />
-            <Route path="/xp"          component={GamificationProfile} />
+            {FEATURES.leaderboard && <Route path="/leaderboard" component={Leaderboard} />}
+            {FEATURES.gamification && <Route path="/xp" component={GamificationProfile} />}
 
             <Route path="/job/:id"     component={JobDetails}  />
-            <Route path="/party"       component={Party}       />
-            <Route path="/party/:id"   component={PartyRoom}   />
-            <Route path="/party/:id/display" component={PartyDisplay} />
+            {FEATURES.party && <Route path="/party" component={Party} />}
+            {FEATURES.party && <Route path="/party/:id" component={PartyRoom} />}
+            {FEATURES.party && <Route path="/party/:id/display" component={PartyDisplay} />}
             <Route path="/privacy"     component={Privacy}     />
             <Route path="/terms"       component={Terms}       />
             <Route path="/copyright"   component={Copyright}   />
             <Route path="/referral"    component={Referral}    />
-            <Route path="/challenges"  component={Challenges}  />
-            <Route path="/feed"        component={Feed}        />
-            <Route path="/profile/:userId" component={Profile} />
-            <Route path="/vocal-coach"  component={VocalCoachPage} />
+            {FEATURES.challenges && <Route path="/challenges" component={Challenges} />}
+            {FEATURES.socialFeed && <Route path="/feed" component={Feed} />}
+            {FEATURES.socialFeed && <Route path="/profile/:userId" component={Profile} />}
+            {FEATURES.vocalCoach && <Route path="/vocal-coach" component={VocalCoachPage} />}
             <Route component={NotFound} />
           </Switch>
         </Suspense>

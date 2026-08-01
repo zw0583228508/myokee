@@ -1,0 +1,2 @@
+- [Karaoke-app feature flags](feature-flags.md) — social/party/gamification features hidden via src/config/features.ts, not deleted; sitemap entries commented out too.
+- Deployment note: production runs on Render (via GitHub) + Modal Labs (processor), not Replit deployments — env/secret fixes here must be mirrored in Render/Modal.

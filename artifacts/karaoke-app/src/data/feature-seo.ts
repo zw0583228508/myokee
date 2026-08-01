@@ -598,7 +598,20 @@ export const LANG_KARAOKE: Record<string, FeatureConfig> = {
   },
 };
 
-export const ALL_FEATURES: Record<string, FeatureConfig> = { ...FEATURES, ...LANG_KARAOKE };
+import { FEATURES as FEATURE_FLAGS } from "@/config/features";
+
+// SEO landing pages for features that are currently switched off are hidden too.
+// Flip the flag in src/config/features.ts to bring them back.
+const HIDDEN_FEATURE_SLUGS: string[] = [
+  ...(FEATURE_FLAGS.party ? [] : ["party-mode"]),
+  ...(FEATURE_FLAGS.vocalCoach ? [] : ["singing-score"]),
+];
+
+export const ALL_FEATURES: Record<string, FeatureConfig> = Object.fromEntries(
+  Object.entries({ ...FEATURES, ...LANG_KARAOKE }).filter(
+    ([slug]) => !HIDDEN_FEATURE_SLUGS.includes(slug),
+  ),
+);
 
 export const LANG_LABELS: Record<string, Record<string, string>> = {
   keyFeatures: { en: "Key Features", he: "תכונות עיקריות", ar: "الميزات الرئيسية", ru: "Ключевые функции", es: "Características Principales", fr: "Fonctionnalités Clés", de: "Hauptfunktionen", ja: "主な機能", zh: "主要功能", ko: "주요 기능", th: "คุณสมบัติหลัก", vi: "Tính Năng Chính", tl: "Mga Pangunahing Feature", id: "Fitur Utama" },

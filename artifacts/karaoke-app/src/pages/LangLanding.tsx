@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRoute, useLocation, Link } from "wouter";
 import { useLang, SupportedLang } from "@/contexts/LanguageContext";
+import { FEATURES } from "@/config/features";
 import {
   Mic, Upload, Sparkles, Play, ChevronDown,
   Headphones, Users, Swords, Trophy, Star, Video, FileText,
@@ -198,11 +199,16 @@ export default function LangLanding() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10 ds-reveal" style={{ animationDelay: "180ms" }}>
-            {t.home.hero.chips.map((f: string) => (
-              <span key={f} className="ds-glass rounded-full px-3 py-1.5 text-sm text-white/65">
-                {f}
-              </span>
-            ))}
+            {t.home.hero.chips.map((f: string, i: number) => {
+              // Chips 1-2 are Global Leaderboard / Challenge Friends — hidden while those features are off
+              if (i === 1 && !FEATURES.leaderboard) return null;
+              if (i === 2 && !FEATURES.challenges && !FEATURES.party) return null;
+              return (
+                <span key={f} className="ds-glass rounded-full px-3 py-1.5 text-sm text-white/65">
+                  {f}
+                </span>
+              );
+            })}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 ds-reveal" style={{ animationDelay: "240ms" }}>
@@ -211,12 +217,14 @@ export default function LangLanding() {
                 <Mic className="w-5 h-5" />{t.home.hero.ctaCreate}
               </button>
             </Link>
-            <Link href="/leaderboard">
-              <button className="ds-btn ds-btn-ghost px-8 py-4 text-base font-semibold">
-                <Trophy className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,.5)]" />
-                {t.home.hero.ctaLeaderboard}
-              </button>
-            </Link>
+            {FEATURES.leaderboard && (
+              <Link href="/leaderboard">
+                <button className="ds-btn ds-btn-ghost px-8 py-4 text-base font-semibold">
+                  <Trophy className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,.5)]" />
+                  {t.home.hero.ctaLeaderboard}
+                </button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -369,6 +377,10 @@ export default function LangLanding() {
             </div>
 
             {t.home.features.cards.map((f: any, i: number) => {
+              // Cards 0-2 are Party Mode, Battle & Duet, Levels/Badges — hidden while those features are off
+              if (i === 0 && !FEATURES.party) return null;
+              if (i === 1 && !FEATURES.party) return null;
+              if (i === 2 && !FEATURES.gamification) return null;
               const Icon = SMALL_CARD_ICONS[i];
               const colors = [
                 { color: "text-yellow-400", bg: "from-yellow-500/12 to-amber-600/5", border: "border-yellow-500/20" },

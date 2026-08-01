@@ -5,6 +5,7 @@ import { useAuth, useLogout } from "@/hooks/use-auth";
 import { PricingModal } from "@/components/karaoke/PricingModal";
 import { LoginModal } from "@/components/karaoke/LoginModal";
 import { useLang, type SupportedLang } from "@/contexts/LanguageContext";
+import { FEATURES } from "@/config/features";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,11 +37,11 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/upload",     icon: Plus,        label: t.nav.createKaraoke, primary: true },
-    { href: "/leaderboard", icon: Trophy,     label: t.nav.leaderboard },
-    { href: "/xp",          icon: Zap,        label: t.nav.xpBadges },
-    { href: "/party",       icon: PartyPopper, label: t.nav.party, match: (l: string) => l.startsWith("/party") },
-    { href: "/challenges",  icon: Medal,      label: t.nav.challenges },
-    { href: "/feed",        icon: Users,      label: t.nav.feed, match: (l: string) => l === "/feed" || l.startsWith("/profile/") },
+    ...(FEATURES.leaderboard ? [{ href: "/leaderboard", icon: Trophy, label: t.nav.leaderboard }] : []),
+    ...(FEATURES.gamification ? [{ href: "/xp", icon: Zap, label: t.nav.xpBadges }] : []),
+    ...(FEATURES.party ? [{ href: "/party", icon: PartyPopper, label: t.nav.party, match: (l: string) => l.startsWith("/party") }] : []),
+    ...(FEATURES.challenges ? [{ href: "/challenges", icon: Medal, label: t.nav.challenges }] : []),
+    ...(FEATURES.socialFeed ? [{ href: "/feed", icon: Users, label: t.nav.feed, match: (l: string) => l === "/feed" || l.startsWith("/profile/") }] : []),
   ];
 
   return (
@@ -172,16 +173,20 @@ export function Navbar() {
                     <DropdownMenuItem onClick={() => setShowPricing(true)} className="cursor-pointer">
                       <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.buyCredits}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/leaderboard" className="cursor-pointer flex items-center w-full">
-                        <Trophy className="w-4 h-4 mr-2 text-yellow-400" aria-hidden="true" />{t.nav.leaderboard}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/xp" className="cursor-pointer flex items-center w-full">
-                        <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.xpBadges}
-                      </Link>
-                    </DropdownMenuItem>
+                    {FEATURES.leaderboard && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/leaderboard" className="cursor-pointer flex items-center w-full">
+                          <Trophy className="w-4 h-4 mr-2 text-yellow-400" aria-hidden="true" />{t.nav.leaderboard}
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {FEATURES.gamification && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/xp" className="cursor-pointer flex items-center w-full">
+                          <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.xpBadges}
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/recordings" className="cursor-pointer flex items-center w-full">
                         <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{t.nav.myRecordings}
@@ -221,11 +226,11 @@ export function Navbar() {
                 { href: "/upload",      icon: Plus,        label: t.nav.createKaraoke },
                 { href: "/history",     icon: History,     label: t.nav.history },
                 { href: "/recordings",  icon: Cloud,       label: t.nav.myRecordings },
-                { href: "/leaderboard", icon: Trophy,      label: t.nav.leaderboard },
-                { href: "/xp",          icon: Zap,         label: t.nav.xpBadges },
-                { href: "/party",       icon: PartyPopper, label: t.nav.party },
-                { href: "/challenges",  icon: Medal,       label: t.nav.challenges },
-                { href: "/feed",        icon: Users,       label: t.nav.feed },
+                ...(FEATURES.leaderboard ? [{ href: "/leaderboard", icon: Trophy, label: t.nav.leaderboard }] : []),
+                ...(FEATURES.gamification ? [{ href: "/xp", icon: Zap, label: t.nav.xpBadges }] : []),
+                ...(FEATURES.party ? [{ href: "/party", icon: PartyPopper, label: t.nav.party }] : []),
+                ...(FEATURES.challenges ? [{ href: "/challenges", icon: Medal, label: t.nav.challenges }] : []),
+                ...(FEATURES.socialFeed ? [{ href: "/feed", icon: Users, label: t.nav.feed }] : []),
               ].map(({ href, icon: Icon, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${

@@ -17,6 +17,17 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ALL_FEATURES, RTL_LANGS } from "../src/data/feature-seo";
+import { FEATURES as FEATURE_FLAGS } from "../src/config/features";
+
+// SEO pages for switched-off features are not prerendered.
+// Flip the flag in src/config/features.ts to bring them back.
+const HIDDEN_SEO_PAGES: string[] = [
+  ...(FEATURE_FLAGS.challenges ? [] : ["challenges"]),
+  ...(FEATURE_FLAGS.socialFeed ? [] : ["feed"]),
+  ...(FEATURE_FLAGS.leaderboard ? [] : ["leaderboard"]),
+  ...(FEATURE_FLAGS.gamification ? [] : ["xp"]),
+  ...(FEATURE_FLAGS.vocalCoach ? [] : ["vocal-coach"]),
+];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(__dirname, "..", "dist", "public");
@@ -441,6 +452,7 @@ for (const slug of Object.keys(ALL_FEATURES)) {
 }
 
 for (const page of Object.keys(PAGE_SEO)) {
+  if (HIDDEN_SEO_PAGES.includes(page)) continue;
   written.push(writeRoute(`/${page}`, renderPage(page)));
 }
 

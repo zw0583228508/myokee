@@ -12,6 +12,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { trackCreditPurchase } from "@/lib/analytics";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { usePublicStats } from "@/hooks/use-public-stats";
+import { FEATURES } from "@/config/features";
 
 type PaymentBanner = "success" | "cancelled" | "already_fulfilled" | "error" | null;
 
@@ -535,11 +536,16 @@ export default function Home() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 mb-7 sm:mb-10">
-              {t.home.hero.chips.map((f: string) => (
-                <span key={f} className="px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-xs sm:text-sm text-white/65 backdrop-blur-sm hover:bg-white/[0.1] hover:text-white transition-colors">
-                  {f}
-                </span>
-              ))}
+              {t.home.hero.chips.map((f: string, i: number) => {
+                // Chips 1-2 are Global Leaderboard / Challenge Friends — hidden while those features are off
+                if (i === 1 && !FEATURES.leaderboard) return null;
+                if (i === 2 && !FEATURES.challenges && !FEATURES.party) return null;
+                return (
+                  <span key={f} className="px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-xs sm:text-sm text-white/65 backdrop-blur-sm hover:bg-white/[0.1] hover:text-white transition-colors">
+                    {f}
+                  </span>
+                );
+              })}
             </div>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
@@ -550,12 +556,14 @@ export default function Home() {
                   <ArrowRight className="w-4 h-4 opacity-80" />
                 </button>
               </Link>
-              <Link href="/leaderboard">
-                <button className="ds-btn ds-btn-secondary px-7 py-4 text-base">
-                  <Trophy className="w-5 h-5 text-yellow-300" />
-                  {t.home.hero.ctaLeaderboard}
-                </button>
-              </Link>
+              {FEATURES.leaderboard && (
+                <Link href="/leaderboard">
+                  <button className="ds-btn ds-btn-secondary px-7 py-4 text-base">
+                    <Trophy className="w-5 h-5 text-yellow-300" />
+                    {t.home.hero.ctaLeaderboard}
+                  </button>
+                </Link>
+              )}
             </div>
 
             <LiveStatsStrip lang={lang} />
@@ -722,6 +730,10 @@ export default function Home() {
 
             {/* Small feature cards */}
             {t.home.features.cards.map((f: any, i: number) => {
+              // Cards 0-2 are Party Mode, Battle & Duet, Levels/Badges — hidden while those features are off
+              if (i === 0 && !FEATURES.party) return null;
+              if (i === 1 && !FEATURES.party) return null;
+              if (i === 2 && !FEATURES.gamification) return null;
               const Icon = SMALL_CARD_ICONS[i];
               const palette = [
                 { col: "text-yellow-300",  glow: "rgba(250,204,21,.3)",  bg: "bg-yellow-500/8" },
