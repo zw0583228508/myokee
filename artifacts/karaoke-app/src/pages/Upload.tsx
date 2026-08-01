@@ -23,14 +23,14 @@ export default function Upload() {
     <main id="main-content" className="relative min-h-screen py-10 sm:py-16 overflow-hidden bg-[var(--ds-bg-app)]" dir={t.dir}>
       {/* Cinematic studio background */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0 ds-bg-aurora opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/20 via-[#050510]/60 to-[#050510]" />
-        <div className="ds-orb ds-orb-violet absolute -top-32 left-1/4 w-[480px] h-[480px] opacity-50" />
-        <div className="ds-orb ds-orb-cyan   absolute top-1/3 -right-32 w-[420px] h-[420px] opacity-45" style={{ animationDelay: "2s" }} />
-        <div className="ds-orb ds-orb-pink   absolute bottom-0 left-10 w-[360px] h-[360px] opacity-35" style={{ animationDelay: "4s" }} />
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)`,
-          backgroundSize: "84px 84px",
+        <div className="absolute top-0 inset-x-0 h-[800px] pointer-events-none" style={{
+          background: "radial-gradient(circle at 50% -10%, rgba(232,160,32,0.1), transparent 70%)"
+        }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#060606]/20 via-[#0A0A0A]/60 to-[#060606]" />
+        <div className="ds-orb ds-orb-gold absolute -top-32 left-1/4 w-[480px] h-[480px] opacity-10" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)`,
+          backgroundSize: "64px 64px",
           maskImage: "radial-gradient(ellipse at center top, black 25%, transparent 70%)",
           WebkitMaskImage: "radial-gradient(ellipse at center top, black 25%, transparent 70%)",
         }} />
@@ -39,13 +39,13 @@ export default function Upload() {
       <div className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12 ds-reveal">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-violet-400/25 text-xs text-violet-300 font-semibold mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-[#E8A020]/25 text-xs text-[#E8A020] font-semibold mb-5">
             <Sparkles className="w-3 h-3" />
             {i18n.badge}
           </div>
 
           <div className="flex justify-center mb-6">
-            <div className="ds-icon-orb w-16 h-16 sm:w-20 sm:h-20 rounded-3xl">
+            <div className="ds-icon-orb w-16 h-16 sm:w-20 sm:h-20 rounded-3xl" style={{ boxShadow: "var(--ds-glow-gold)" }}>
               <UploadIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function Upload() {
           <p className="text-white/60 text-base sm:text-lg max-w-xl mx-auto mb-3">{t.upload.subtitle}</p>
 
           <p className="text-white/45 text-sm flex items-center justify-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-violet-300 drop-shadow-[0_0_6px_rgba(139,92,246,0.6)]" aria-hidden="true" />
+            <Zap className="w-3.5 h-3.5 text-[#E8A020] drop-shadow-[0_0_6px_rgba(232,160,32,0.6)]" aria-hidden="true" />
             {t.upload.freeTip}
           </p>
 
@@ -70,7 +70,7 @@ export default function Upload() {
               { icon: Mic,   text: i18n.perks[2] },
             ].map(({ icon: Icon, text }) => (
               <span key={text} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ds-glass border border-white/10 text-xs sm:text-sm text-white/75">
-                <Icon className="w-3.5 h-3.5 text-cyan-300" />
+                <Icon className="w-3.5 h-3.5 text-[#E8A020]" />
                 {text}
               </span>
             ))}

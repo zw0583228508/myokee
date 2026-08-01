@@ -46,11 +46,11 @@ export function PricingModal({ open, onOpenChange }: Props) {
         >
           <div className="relative px-6 sm:px-8 pt-7 pb-6 overflow-hidden">
             <div className="absolute inset-0 ds-bg-aurora opacity-30 pointer-events-none" />
-            <div className="ds-orb ds-orb-violet absolute -top-24 -right-16 w-72 h-72 opacity-45 pointer-events-none" />
-            <div className="ds-orb ds-orb-pink absolute -top-20 -left-20 w-64 h-64 opacity-40 pointer-events-none" style={{ animationDelay: "1.5s" }} />
+            <div className="ds-orb ds-orb-gold absolute -top-24 -right-16 w-72 h-72 opacity-45 pointer-events-none" />
+            <div className="ds-orb absolute -top-20 -left-20 w-64 h-64 opacity-40 pointer-events-none" style={{ animationDelay: "1.5s" }} />
 
             <div className="relative text-center">
-              <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider mb-3">
+              <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-[#E8A020] uppercase tracking-wider mb-3">
                 <Sparkles className="w-3 h-3" />Credits
               </div>
               <DialogTitle className="text-2xl sm:text-3xl font-display font-bold mb-2 text-white">
@@ -110,7 +110,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
                     >
                       {isPopular && (
                         <>
-                          <div className="ds-orb ds-orb-violet absolute -top-12 -right-8 w-28 h-28 opacity-60 pointer-events-none" />
+                          <div className="ds-orb ds-orb-gold absolute -top-12 -right-8 w-28 h-28 opacity-60 pointer-events-none" />
                           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white whitespace-nowrap shadow-lg"
                                   style={{ background: "var(--ds-grad-primary)", boxShadow: "0 4px 14px rgba(139,92,246,.5)" }}>

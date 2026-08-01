@@ -51,19 +51,19 @@ export function ConsentModal({ open, onAccept, onClose }: ConsentModalProps) {
       <div
         className={`relative z-10 w-full max-w-md rounded-3xl overflow-hidden transition-all duration-700 ${visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}`}
         style={{
-          background: "linear-gradient(180deg, rgba(15,12,30,.98), rgba(8,6,18,.98))",
-          border: "1px solid rgba(139,92,246,.25)",
-          boxShadow: "0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(139,92,246,.18)",
+          background: "linear-gradient(180deg, rgba(12,12,12,.98), rgba(4,4,4,.98))",
+          border: "1px solid rgba(232,160,32,.25)",
+          boxShadow: "0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(232,160,32,.18)",
         }}
         dir={t.dir}
       >
         <div className="absolute inset-0 ds-bg-aurora opacity-35 pointer-events-none" />
-        <div className="ds-orb ds-orb-violet absolute -top-24 -right-16 w-72 h-72 opacity-50 pointer-events-none" />
-        <div className="ds-orb ds-orb-pink absolute -bottom-20 -left-16 w-60 h-60 opacity-45 pointer-events-none" style={{ animationDelay: "1.5s" }} />
+        <div className="ds-orb ds-orb-gold absolute -top-24 -right-16 w-72 h-72 opacity-50 pointer-events-none" />
+        <div className="ds-orb ds-orb-gold absolute -bottom-20 -left-16 w-60 h-60 opacity-45 pointer-events-none" style={{ animationDelay: "1.5s" }} />
 
         <div className="relative z-10 p-6 sm:p-8">
           <div className="flex justify-center mb-3">
-            <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-[#E8A020] uppercase tracking-wider">
               <Sparkles className="w-3 h-3" />MYOUKEE
             </div>
           </div>
@@ -88,21 +88,21 @@ export function ConsentModal({ open, onAccept, onClose }: ConsentModalProps) {
           <div className="flex justify-center gap-4 text-sm mb-7 flex-wrap">
             <Link
               href="/privacy"
-              className="text-violet-300 hover:text-violet-200 hover:underline focus:outline-none focus:ring-2 focus:ring-violet-400 rounded transition-colors"
+              className="text-[#E8A020] hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-[#E8A020] rounded transition-colors"
             >
               {t.consent.privacyLink}
             </Link>
             <span className="text-white/15">|</span>
             <Link
               href="/terms"
-              className="text-violet-300 hover:text-violet-200 hover:underline focus:outline-none focus:ring-2 focus:ring-violet-400 rounded transition-colors"
+              className="text-[#E8A020] hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-[#E8A020] rounded transition-colors"
             >
               {t.consent.termsLink}
             </Link>
             <span className="text-white/15">|</span>
             <Link
               href="/copyright"
-              className="text-violet-300 hover:text-violet-200 hover:underline focus:outline-none focus:ring-2 focus:ring-violet-400 rounded transition-colors"
+              className="text-[#E8A020] hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-[#E8A020] rounded transition-colors"
             >
               {t.consent.copyrightLink}
             </Link>

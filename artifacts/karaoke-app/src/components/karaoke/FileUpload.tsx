@@ -299,7 +299,7 @@ export function FileUpload() {
               className={`
                 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150
                 ${languageHint === opt.value
-                  ? "bg-primary text-white shadow-[0_0_10px_rgba(139,92,246,0.35)] border border-violet-300/40"
+                  ? "bg-primary text-white shadow-[0_0_10px_rgba(232,160,32,0.35)] border border-[#E8A020]/40"
                   : "bg-white/10 text-white/85 hover:bg-white/20 hover:text-white border border-white/20"
                 }
               `}

@@ -29,42 +29,44 @@ function MusicBars() {
 /* Cinematic aurora/galaxy stage that lives behind the hero */
 function HeroStage() {
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden ds-bg-galaxy">
-      {/* Animated aurora gradient layer */}
-      <div className="ds-bg-aurora absolute inset-0 opacity-70" />
-      {/* Soft top vignette → page background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
-      {/* Floating glow orbs */}
-      <div className="ds-orb ds-orb-violet absolute -top-24 -left-24 w-[420px] h-[420px]" />
-      <div className="ds-orb ds-orb-cyan absolute top-1/3 -right-32 w-[480px] h-[480px]" style={{ animationDelay: "2s" }} />
-      <div className="ds-orb ds-orb-pink absolute bottom-0 left-1/4 w-[360px] h-[360px]" style={{ animationDelay: "4s" }} />
-      {/* Subtle grid */}
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: `linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)`,
-        backgroundSize: "84px 84px",
-        maskImage: "radial-gradient(ellipse at center, black 35%, transparent 75%)",
-        WebkitMaskImage: "radial-gradient(ellipse at center, black 35%, transparent 75%)",
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-[#060606]">
+      {/* Subtle radial spotlight at top center */}
+      <div className="absolute top-0 inset-x-0 h-[800px] pointer-events-none" style={{
+        background: "radial-gradient(circle at 50% -20%, rgba(232,160,32,0.15), transparent 70%)"
       }} />
-      {/* Animated waveform at the bottom */}
-      <svg className="absolute bottom-0 left-0 right-0 w-full h-32 sm:h-44 opacity-[0.18]" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
+      {/* Floating glow orb - gold */}
+      <div className="ds-orb ds-orb-gold absolute -top-32 left-1/4 w-[600px] h-[600px] opacity-20" />
+      {/* Subtle top vignette → page background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#060606]/30 via-[#060606]/80 to-[#060606]" />
+      
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)`,
+        backgroundSize: "64px 64px",
+        maskImage: "radial-gradient(ellipse at center, black 25%, transparent 70%)",
+        WebkitMaskImage: "radial-gradient(ellipse at center, black 25%, transparent 70%)",
+      }} />
+      
+      {/* Animated waveform at the bottom - pure white/gold */}
+      <svg className="absolute bottom-0 left-0 right-0 w-full h-32 sm:h-44 opacity-[0.06]" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
         <path fill="url(#wgrad1)" d="M0,120 C240,180 480,60 720,120 C960,180 1200,60 1440,120 L1440,200 L0,200 Z">
-          <animate attributeName="d" dur="8s" repeatCount="indefinite"
+          <animate attributeName="d" dur="10s" repeatCount="indefinite"
             values="M0,120 C240,180 480,60 720,120 C960,180 1200,60 1440,120 L1440,200 L0,200 Z;M0,140 C240,60 480,180 720,100 C960,60 1200,180 1440,140 L1440,200 L0,200 Z;M0,120 C240,180 480,60 720,120 C960,180 1200,60 1440,120 L1440,200 L0,200 Z" />
         </path>
-        <path fill="url(#wgrad2)" opacity="0.6" d="M0,150 C360,100 720,200 1080,130 C1260,100 1440,150 1440,150 L1440,200 L0,200 Z">
-          <animate attributeName="d" dur="6s" repeatCount="indefinite"
+        <path fill="url(#wgrad2)" opacity="0.4" d="M0,150 C360,100 720,200 1080,130 C1260,100 1440,150 1440,150 L1440,200 L0,200 Z">
+          <animate attributeName="d" dur="8s" repeatCount="indefinite"
             values="M0,150 C360,100 720,200 1080,130 C1260,100 1440,150 1440,150 L1440,200 L0,200 Z;M0,130 C360,190 720,110 1080,170 C1260,190 1440,130 1440,130 L1440,200 L0,200 Z;M0,150 C360,100 720,200 1080,130 C1260,100 1440,150 1440,150 L1440,200 L0,200 Z" />
         </path>
         <defs>
           <linearGradient id="wgrad1" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"  stopColor="#8B5CF6" />
-            <stop offset="50%" stopColor="#22D3EE" />
-            <stop offset="100%" stopColor="#EC4899" />
+            <stop offset="0%"  stopColor="#FFFFFF" />
+            <stop offset="50%" stopColor="#E8A020" />
+            <stop offset="100%" stopColor="#FFFFFF" />
           </linearGradient>
           <linearGradient id="wgrad2" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"  stopColor="#22D3EE" />
-            <stop offset="50%" stopColor="#8B5CF6" />
-            <stop offset="100%" stopColor="#FACC15" />
+            <stop offset="0%"  stopColor="#E8A020" />
+            <stop offset="50%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#E8A020" />
           </linearGradient>
         </defs>
       </svg>
@@ -83,40 +85,44 @@ function MockKaraokePreview({ lang }: { lang: string }) {
   const liveLabel = lang === "he" ? "שידור חי" : lang === "ar" ? "بث مباشر" : "LIVE";
   return (
     <div className="ds-card-feature relative w-full max-w-[560px] mx-auto p-4 sm:p-5 overflow-hidden">
-      {/* glow ring */}
       <div className="absolute -inset-px rounded-[inherit] pointer-events-none" style={{
-        background: "linear-gradient(135deg, rgba(139,92,246,.45), rgba(34,211,238,.35), rgba(236,72,153,.45))",
+        background: "linear-gradient(135deg, rgba(232,160,32,.25), transparent 40%, rgba(232,160,32,.1))",
         WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
         WebkitMaskComposite: "xor", maskComposite: "exclude", padding: "1px",
       }} />
-      <div className="relative aspect-video rounded-2xl overflow-hidden ds-bg-neon-stage">
-        {/* spotlight beams */}
-        <div className="absolute inset-x-0 top-0 h-2/3" style={{
-          background: "radial-gradient(ellipse at 30% 10%, rgba(139,92,246,.55), transparent 55%), radial-gradient(ellipse at 70% 0%, rgba(34,211,238,.45), transparent 55%)",
+      <div className="relative aspect-video rounded-2xl overflow-hidden bg-[#0A0A0A]">
+        {/* cinematic single spotlight */}
+        <div className="absolute inset-x-0 -top-[30%] h-[130%]" style={{
+          background: "conic-gradient(from 180deg at 50% 0%, transparent 42%, rgba(232,160,32,.15) 50%, transparent 58%)",
         }} />
+        {/* stage floor glow */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3" style={{
+          background: "radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.05), transparent 70%)"
+        }} />
+        
         {/* mic silhouette + bars */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,.55)]">
-              <Mic className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-[0_0_40px_rgba(232,160,32,.2)]">
+              <Mic className="w-8 h-8 text-white/90 drop-shadow-md" />
             </div>
             <div className="flex items-end gap-1 h-8">
               {[14,22,30,18,26,12,24,32,16,20].map((h, i) => (
-                <span key={i} className="w-1.5 rounded-full bg-gradient-to-t from-violet-500 via-cyan-400 to-pink-500" style={{ height: `${h}px`, animation: `barPulse 1.${(i%9)+1}s ease-in-out infinite alternate`, animationDelay: `${i*0.08}s` }} />
+                <span key={i} className="w-[3px] rounded-full bg-gradient-to-t from-[#D48C15] to-[#E8A020]" style={{ height: `${h}px`, animation: `barPulse 1.${(i%9)+1}s ease-in-out infinite alternate`, animationDelay: `${i*0.08}s` }} />
               ))}
             </div>
           </div>
         </div>
         {/* live badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold tracking-wider text-white">
-          <span className="w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,.9)] animate-pulse" />
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-bold tracking-wider text-white">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,.8)] animate-pulse" />
           {liveLabel}
         </div>
         {/* karaoke lyrics overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
+        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
           <div className="space-y-1 text-center">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80 font-semibold">{lyrics[0]}</div>
-            <div className="text-base sm:text-lg font-bold ds-grad-text leading-tight">{lyrics[1]}</div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-[#A87212] font-semibold">{lyrics[0]}</div>
+            <div className="text-base sm:text-lg font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">{lyrics[1]}</div>
             <div className="text-[11px] uppercase tracking-[0.2em] text-white/40">{lyrics[2]}</div>
           </div>
         </div>
@@ -190,14 +196,14 @@ function LiveStatsStrip({ lang }: { lang: string }) {
     <div className="mt-7 sm:mt-9 ds-glass rounded-2xl border border-white/10 px-4 sm:px-6 py-4 sm:py-5">
       <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
         <span className="relative flex h-2 w-2">
-          <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
-          <span className="relative rounded-full h-2 w-2 bg-emerald-400" />
+          <span className="absolute inset-0 rounded-full bg-white animate-ping opacity-75" />
+          <span className="relative rounded-full h-2 w-2 bg-white" />
         </span>
-        <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-emerald-300/90">{labels.live}</span>
+        <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-white/90">{labels.live}</span>
       </div>
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="text-center min-w-0 px-1">
-          <div className="text-xl sm:text-2xl lg:text-3xl font-black ds-grad-text leading-none tabular-nums whitespace-nowrap overflow-visible inline-block pb-1">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-black text-[#E8A020] leading-none tabular-nums whitespace-nowrap overflow-visible inline-block pb-1">
             <CountUp value={songs} />
           </div>
           <div className="text-[10px] sm:text-xs text-white/60 mt-1.5 font-medium">{labels.songs}</div>
@@ -226,7 +232,7 @@ function FloatingPill({ icon: Icon, label, className = "", delay = "0s" }: { ico
       className={`hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full ds-glass border border-white/10 text-xs font-semibold text-white/85 shadow-[0_8px_30px_rgba(0,0,0,.4)] ${className}`}
       style={{ animation: "floatGently 6s ease-in-out infinite", animationDelay: delay }}
     >
-      <Icon className="w-3.5 h-3.5 text-cyan-300" />
+      <Icon className="w-3.5 h-3.5 text-[#E8A020]" />
       {label}
       <style>{`@keyframes floatGently { 0%,100%{ transform: translateY(0)} 50%{ transform: translateY(-10px)} }`}</style>
     </div>
@@ -527,7 +533,7 @@ export default function Home() {
 
             <h1 className="ds-hero-title font-bold leading-[0.94] tracking-tight mb-5 sm:mb-7">
               <span className="block text-white">{t.home.hero.headline1}</span>
-              <span className="block ds-grad-text">{t.home.hero.headline2}</span>
+              <span className="block text-[#E8A020]">{t.home.hero.headline2}</span>
               <span className="block text-white/90">{t.home.hero.headline3}</span>
             </h1>
 
@@ -590,14 +596,14 @@ export default function Home() {
       {/* ═══════════════════════════ HOW IT WORKS ═══════════════════════════ */}
       <section ref={howRef} id="how-it-works" className="relative scroll-mt-32 py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#080814] to-[#050510]" />
-          <div className="ds-orb ds-orb-violet absolute top-10 left-[8%] w-[320px] h-[320px] opacity-40" />
-          <div className="ds-orb ds-orb-cyan absolute bottom-10 right-[8%] w-[360px] h-[360px] opacity-40" style={{ animationDelay: "3s" }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#060606] via-[#0A0A0A] to-[#060606]" />
+          <div className="ds-orb ds-orb-gold absolute top-10 left-[8%] w-[320px] h-[320px] opacity-40" />
+          <div className="ds-orb bg-white absolute bottom-10 right-[8%] w-[360px] h-[360px] opacity-40" style={{ animationDelay: "3s" }} />
         </div>
 
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-cyan-400/25 text-xs text-cyan-300 font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-white/25 text-xs text-white font-semibold mb-4">
               <Play className="w-3 h-3" />{t.home.howItWorks.badge}
             </div>
             <h2 className="ds-page-title font-bold mb-4">{t.home.howItWorks.title}</h2>
@@ -610,9 +616,9 @@ export default function Home() {
             </div>
 
             {[
-              { num: "01", icon: Upload,   step: t.home.howItWorks.step1, gradient: "linear-gradient(135deg,#8B5CF6,#7C3AED)", glow: "rgba(139,92,246,.45)" },
-              { num: "02", icon: Sparkles, step: t.home.howItWorks.step2, gradient: "linear-gradient(135deg,#22D3EE,#0891B2)", glow: "rgba(34,211,238,.45)" },
-              { num: "03", icon: Mic,      step: t.home.howItWorks.step3, gradient: "linear-gradient(135deg,#EC4899,#DB2777)", glow: "rgba(236,72,153,.45)" },
+              { num: "01", icon: Upload,   step: t.home.howItWorks.step1, gradient: "linear-gradient(135deg,#D48C15,#A87212)", glow: "rgba(232,160,32,.45)" },
+              { num: "02", icon: Sparkles, step: t.home.howItWorks.step2, gradient: "linear-gradient(135deg,#F5C66C,#E8A020)", glow: "rgba(245,198,108,.45)" },
+              { num: "03", icon: Mic,      step: t.home.howItWorks.step3, gradient: "linear-gradient(135deg,#FFFFFF,#D4D4D4)", glow: "rgba(255,255,255,.45)" },
             ].map(({ num, icon: Icon, step, gradient, glow }, i) => (
               <div key={num} className="relative text-center group reveal-on-scroll" dir={dir} style={{ transitionDelay: `${i * 150}ms` }}>
                 <div className="relative inline-flex mb-6">
@@ -644,13 +650,13 @@ export default function Home() {
       {/* ═══════════════════════════ FEATURES GRID ═══════════════════════════ */}
       <section ref={featuresRef} id="features" className="relative scroll-mt-32 py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#0A0A18] to-[#050510]" />
-          <div className="ds-orb ds-orb-pink absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#060606] via-[#0A0A0A] to-[#060606]" />
+          <div className="ds-orb ds-orb-gold absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] opacity-30" />
         </div>
 
         <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-12 sm:mb-20 reveal-on-scroll">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-violet-400/25 text-xs text-violet-300 font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-[#E8A020]/25 text-xs text-[#E8A020] font-semibold mb-4">
               <Sparkles className="w-3 h-3" />{t.home.features.badge}
             </div>
             <h2 className="ds-page-title font-bold mb-4">{t.home.features.title}</h2>
@@ -660,11 +666,11 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 auto-rows-fr">
             {/* Sing hero */}
             <div className="col-span-2 ds-card relative p-5 sm:p-8 overflow-hidden reveal-on-scroll group">
-              <div className="absolute -right-10 -top-10 w-56 h-56 rounded-full bg-violet-500/20 blur-[60px] group-hover:bg-violet-500/30 transition-all duration-700" />
+              <div className="absolute -right-10 -top-10 w-56 h-56 rounded-full bg-[#E8A020]/20 blur-[60px] group-hover:bg-[#E8A020]/30 transition-all duration-700" />
               <div className="relative">
                 <div className="flex items-start justify-between mb-5">
                   <div className="ds-icon-orb w-14 h-14 rounded-2xl"><Mic className="w-7 h-7 text-white" /></div>
-                  <span className="px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-200 text-xs font-semibold border border-violet-400/25">{t.home.features.singBadge}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-[#E8A020]/15 text-[#D48C15] text-xs font-semibold border border-[#E8A020]/25">{t.home.features.singBadge}</span>
                 </div>
                 <h3 className="ds-section-title font-bold text-white mb-2">{t.home.features.sing}</h3>
                 <p className="text-white/60 text-sm leading-relaxed mb-4">{t.home.features.singDesc}</p>
@@ -678,13 +684,13 @@ export default function Home() {
 
             {/* AI hero */}
             <div className="col-span-2 ds-card relative p-5 sm:p-8 overflow-hidden reveal-on-scroll group" style={{ transitionDelay: "100ms" }}>
-              <div className="absolute -left-10 -bottom-10 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px] group-hover:bg-cyan-500/30 transition-all duration-700" />
+              <div className="absolute -left-10 -bottom-10 w-56 h-56 rounded-full bg-white/10 blur-[60px] group-hover:bg-white/15 transition-all duration-700" />
               <div className="relative">
                 <div className="flex items-start justify-between mb-5">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#22D3EE,#0EA5E9)", boxShadow: "0 0 40px rgba(34,211,238,.5)" }}>
-                    <Headphones className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#F5C66C,#E8A020)", boxShadow: "0 0 40px rgba(232,160,32,.5)" }}>
+                    <Headphones className="w-7 h-7 text-[#0A0A0A]" />
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-200 text-xs font-semibold border border-cyan-400/25">{t.home.features.aiBadge}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-white/5 text-white/80 text-xs font-semibold border border-white/25">{t.home.features.aiBadge}</span>
                 </div>
                 <h3 className="ds-section-title font-bold text-white mb-2">{t.home.features.ai}</h3>
                 <p className="text-white/60 text-sm leading-relaxed mb-4">{t.home.features.aiDesc}</p>
@@ -698,18 +704,18 @@ export default function Home() {
 
             {/* Avatar full-width */}
             <div className="col-span-2 lg:col-span-4 ds-card relative p-5 sm:p-8 overflow-hidden reveal-on-scroll group" style={{ transitionDelay: "200ms" }}>
-              <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-pink-500/20 blur-[80px] group-hover:bg-pink-500/30 transition-all duration-700" />
+              <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-[#E8A020]/20 blur-[80px] group-hover:bg-[#E8A020]/30 transition-all duration-700" />
               <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <div className="flex items-start justify-between sm:justify-start gap-4 w-full sm:w-auto">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#EC4899,#D946EF)", boxShadow: "0 0 40px rgba(236,72,153,.5)" }}>
-                    <Camera className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#FFFFFF,#D4D4D4)", boxShadow: "0 0 40px rgba(255,255,255,.5)" }}>
+                    <Camera className="w-7 h-7 text-[#0A0A0A]" />
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-pink-500/15 text-pink-200 text-xs font-semibold border border-pink-400/25 sm:hidden">{t.home.features.avatarBadge}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-[#E8A020]/15 text-[#D48C15] text-xs font-semibold border border-[#E8A020]/25 sm:hidden">{t.home.features.avatarBadge}</span>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="ds-section-title font-bold text-white">{t.home.features.avatar}</h3>
-                    <span className="hidden sm:inline px-2.5 py-1 rounded-full bg-pink-500/15 text-pink-200 text-xs font-semibold border border-pink-400/25">{t.home.features.avatarBadge}</span>
+                    <span className="hidden sm:inline px-2.5 py-1 rounded-full bg-[#E8A020]/15 text-[#D48C15] text-xs font-semibold border border-[#E8A020]/25">{t.home.features.avatarBadge}</span>
                   </div>
                   <p className="text-white/60 text-sm leading-relaxed mb-4 max-w-2xl">{t.home.features.avatarDesc}</p>
                   <div className="flex flex-wrap gap-2">
@@ -741,7 +747,7 @@ export default function Home() {
                 { col: "text-emerald-300", glow: "rgba(52,211,153,.3)",  bg: "bg-emerald-500/8" },
                 { col: "text-rose-300",    glow: "rgba(248,113,113,.3)", bg: "bg-rose-500/8" },
                 { col: "text-indigo-300",  glow: "rgba(129,140,248,.3)", bg: "bg-indigo-500/8" },
-                { col: "text-pink-300",    glow: "rgba(244,114,182,.3)", bg: "bg-pink-500/8" },
+                { col: "text-[#E8A020]",    glow: "rgba(244,114,182,.3)", bg: "bg-[#E8A020]/8" },
               ][i];
               if (!palette || !Icon) return null;
               return (
@@ -769,12 +775,12 @@ export default function Home() {
       {/* ═══════════════════════════ LANGUAGES ═══════════════════════════ */}
       <section className="relative py-16 sm:py-24 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#06061A] to-[#050510]" />
-          <div className="ds-orb ds-orb-cyan absolute top-1/2 left-1/4 w-[500px] h-[300px] opacity-25" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#060606] via-[#0A0A0A] to-[#060606]" />
+          <div className="ds-orb bg-white absolute top-1/2 left-1/4 w-[500px] h-[300px] opacity-25" />
         </div>
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
           <div className="text-center mb-10 reveal-on-scroll">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-cyan-400/25 text-xs text-cyan-300 font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full ds-glass border border-white/25 text-xs text-white font-semibold mb-4">
               <Globe className="w-3 h-3" />{i18n.langsBadge}
             </div>
             <h2 className="ds-page-title font-bold mb-3">{i18n.langsTitle}</h2>
@@ -806,8 +812,8 @@ export default function Home() {
           <div className="reveal-on-scroll relative rounded-[var(--ds-radius-2xl)] p-8 sm:p-16 overflow-hidden ds-card-feature">
             <div className="absolute inset-0 opacity-30" style={{ background: "var(--ds-grad-primary)" }} />
             <div className="absolute inset-[1px] rounded-[inherit]" style={{ background: "rgba(5,5,16,.85)", backdropFilter: "blur(24px)" }} />
-            <div className="ds-orb ds-orb-violet absolute -right-20 -top-20 w-72 h-72" />
-            <div className="ds-orb ds-orb-pink absolute -left-10 -bottom-10 w-48 h-48" style={{ animationDelay: "2s" }} />
+            <div className="ds-orb ds-orb-gold absolute -right-20 -top-20 w-72 h-72" />
+            <div className="ds-orb ds-orb-gold absolute -left-10 -bottom-10 w-48 h-48" style={{ animationDelay: "2s" }} />
             <div className="relative z-10">
               <div className="ds-icon-orb w-16 h-16 rounded-3xl mb-6 mx-auto">
                 <Zap className="w-8 h-8 text-white drop-shadow-lg" />
@@ -842,7 +848,7 @@ export default function Home() {
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-xl ds-glass text-white/65 hover:text-white transition-all text-sm"
             >
-              <Mail className="w-4 h-4 text-violet-300" />
+              <Mail className="w-4 h-4 text-[#E8A020]" />
               {t.home.support.label}
             </a>
 

@@ -50,8 +50,8 @@ export function Navbar() {
         className="sticky top-0 z-50 w-full"
         role="banner"
       >
-        <div className="absolute inset-0 ds-glass" style={{ background: "rgba(8,6,18,0.72)" }} />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/30 to-transparent" />
+        <div className="absolute inset-0 ds-glass" style={{ background: "rgba(6,6,6,0.72)" }} />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
         <div className="relative w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5 group transition-all duration-300" aria-label="MYOUKEE">
@@ -72,14 +72,14 @@ export function Navbar() {
                     isActive
                       ? "text-white"
                       : primary
-                        ? "text-violet-300/85 hover:text-violet-200"
+                        ? "text-[var(--ds-gold)] hover:text-white"
                         : "text-white/45 hover:text-white/85"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-3.5 h-3.5" aria-hidden="true" />{label}
                   {isActive && (
-                    <span className="absolute bottom-0 inset-x-2 h-[2px] rounded-full" style={{ background: "var(--ds-grad-primary)", boxShadow: "0 0 10px rgba(139,92,246,.6)" }} />
+                    <span className="absolute bottom-0 inset-x-2 h-[2px] rounded-full" style={{ background: "var(--ds-grad-primary)", boxShadow: "var(--ds-glow-gold)" }} />
                   )}
                 </Link>
               );
@@ -98,7 +98,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-white/45 hover:text-white/85 hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm text-white/45 hover:text-white/85 hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                   aria-label={`${t.nav.language}: ${allLangs.find(l => l.code === lang)?.name}`}
                   title={t.nav.language}
                 >
@@ -111,12 +111,12 @@ export function Navbar() {
                   <DropdownMenuItem
                     key={code}
                     onClick={() => setLang(code as SupportedLang)}
-                    className={`cursor-pointer gap-2 ${lang === code ? "text-violet-300" : ""}`}
+                    className={`cursor-pointer gap-2 ${lang === code ? "text-[var(--ds-gold)]" : ""}`}
                     role="menuitemradio"
                     aria-checked={lang === code}
                   >
                     <span aria-hidden="true">{flag}</span>{name}
-                    {lang === code && <span className="ml-auto text-violet-300 text-xs">✓</span>}
+                    {lang === code && <span className="ml-auto text-[var(--ds-gold)] text-xs">✓</span>}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -128,30 +128,30 @@ export function Navbar() {
               <>
                 <button
                   onClick={() => setShowPricing(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                   style={{
-                    background: "linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.12))",
-                    border: "1px solid rgba(139,92,246,.32)",
-                    boxShadow: "0 0 14px rgba(139,92,246,.18)",
+                    background: "rgba(232,160,32,0.1)",
+                    border: "1px solid rgba(232,160,32,0.3)",
+                    boxShadow: "0 0 14px rgba(232,160,32,0.1)",
                   }}
                   aria-label={`${user.credits} ${t.nav.credits}`}
                 >
-                  <Zap className="w-4 h-4 text-violet-300 drop-shadow-[0_0_8px_rgba(139,92,246,.6)]" aria-hidden="true" />
-                  <span className="text-sm font-bold ds-grad-text">{user.credits}</span>
+                  <Zap className="w-4 h-4 text-[#E8A020] drop-shadow-[0_0_8px_rgba(232,160,32,0.6)]" aria-hidden="true" />
+                  <span className="text-sm font-bold text-[#E8A020]">{user.credits}</span>
                   <span className="text-xs text-white/40 hidden sm:block">{t.nav.credits}</span>
                 </button>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                       aria-label={`${user.displayName}`}
                     >
                       {user.picture ? (
                         <img
                           src={user.picture}
                           alt={user.displayName}
-                          className="w-7 h-7 rounded-full object-cover ring-2 ring-violet-400/40 ring-offset-1 ring-offset-[#080612]"
+                          className="w-7 h-7 rounded-full object-cover ring-2 ring-amber-400/40 ring-offset-1 ring-offset-[#0A0A0A]"
                         />
                       ) : (
                         <div className="w-7 h-7 rounded-full ds-icon-orb" aria-hidden="true">
@@ -171,30 +171,30 @@ export function Navbar() {
                       )}
                     </div>
                     <DropdownMenuItem onClick={() => setShowPricing(true)} className="cursor-pointer">
-                      <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.buyCredits}
+                      <Zap className="w-4 h-4 mr-2 text-[var(--ds-gold)]" aria-hidden="true" />{t.nav.buyCredits}
                     </DropdownMenuItem>
                     {FEATURES.leaderboard && (
                       <DropdownMenuItem asChild>
                         <Link href="/leaderboard" className="cursor-pointer flex items-center w-full">
-                          <Trophy className="w-4 h-4 mr-2 text-yellow-400" aria-hidden="true" />{t.nav.leaderboard}
+                          <Trophy className="w-4 h-4 mr-2 text-[var(--ds-gold)]" aria-hidden="true" />{t.nav.leaderboard}
                         </Link>
                       </DropdownMenuItem>
                     )}
                     {FEATURES.gamification && (
                       <DropdownMenuItem asChild>
                         <Link href="/xp" className="cursor-pointer flex items-center w-full">
-                          <Zap className="w-4 h-4 mr-2 text-violet-300" aria-hidden="true" />{t.nav.xpBadges}
+                          <Zap className="w-4 h-4 mr-2 text-[var(--ds-gold)]" aria-hidden="true" />{t.nav.xpBadges}
                         </Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem asChild>
                       <Link href="/recordings" className="cursor-pointer flex items-center w-full">
-                        <Cloud className="w-4 h-4 mr-2 text-cyan-400" aria-hidden="true" />{t.nav.myRecordings}
+                        <Cloud className="w-4 h-4 mr-2 text-white/70" aria-hidden="true" />{t.nav.myRecordings}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/referral" className="cursor-pointer flex items-center w-full">
-                        <Gift className="w-4 h-4 mr-2 text-violet-400" aria-hidden="true" />{t.nav.inviteFriends}
+                        <Gift className="w-4 h-4 mr-2 text-[var(--ds-gold)]" aria-hidden="true" />{t.nav.inviteFriends}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-white/[0.04]" />
@@ -235,9 +235,9 @@ export function Navbar() {
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
                   <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     location === href
-                      ? "text-white border border-violet-400/35"
+                      ? "text-[#E8A020] border border-[#E8A020]/30"
                       : "text-white/55 hover:text-white hover:bg-white/[0.04] border border-transparent"
-                  }`} style={location === href ? { background: "linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.10))", boxShadow: "0 0 14px rgba(139,92,246,.18)" } : undefined}>
+                  }`} style={location === href ? { background: "rgba(232,160,32,0.05)", boxShadow: "var(--ds-glow-gold)" } : undefined}>
                     <Icon className="w-4 h-4" />
                     {label}
                   </button>

@@ -1438,7 +1438,7 @@ export function KaraokeSingMode({
                 </div>
                 <input type="range" min={0} max={300} value={fx.instrGain}
                   onChange={e => fxSet("instrGain", Number(e.target.value))}
-                  className="w-full accent-violet-400 cursor-pointer" />
+                  className="w-full accent-[#E8A020] cursor-pointer" />
               </div>
             </div>
 
@@ -1560,11 +1560,11 @@ export function KaraokeSingMode({
                 <span className="text-white/30 text-xs w-10 text-right">{fx.preGain}%</span>
               </div>
               <div className="w-full max-w-sm flex items-center gap-3">
-                <Music className="w-3.5 h-3.5 text-violet-400/50 shrink-0" title={uiT.sing.backingVolume} />
+                <Music className="w-3.5 h-3.5 text-white/50 shrink-0" title={uiT.sing.backingVolume} />
                 <input type="range" min={0} max={300} value={fx.instrGain}
                   onChange={e => fxSet("instrGain", Number(e.target.value))}
-                  className="flex-1 accent-violet-400 cursor-pointer" />
-                <span className="text-violet-400/50 text-xs w-10 text-right">{fx.instrGain}%</span>
+                  className="flex-1 accent-[#E8A020] cursor-pointer" />
+                <span className="text-white/50 text-xs w-10 text-right">{fx.instrGain}%</span>
               </div>
 
               {/* Inline reverb quick knob */}
@@ -1572,7 +1572,7 @@ export function KaraokeSingMode({
                 <span className="w-16 shrink-0">Reverb</span>
                 <input type="range" min={0} max={100} value={fx.reverbWet}
                   onChange={e => fxSet("reverbWet", Number(e.target.value))}
-                  className="flex-1 accent-violet-400 cursor-pointer" />
+                  className="flex-1 accent-[#E8A020] cursor-pointer" />
                 <span className="w-10 text-right">{fx.reverbWet}%</span>
               </div>
 
@@ -1713,7 +1713,7 @@ export function KaraokeSingMode({
                       type="range" min={0} max={2} step={0.02}
                       value={mixVocalGain}
                       onChange={e => updatePreviewVocalGain(Number(e.target.value))}
-                      className="w-full accent-violet-400 cursor-pointer h-1"
+                      className="w-full accent-[#E8A020] cursor-pointer h-1"
                     />
                   </div>
 
@@ -1784,7 +1784,7 @@ export function KaraokeSingMode({
                   <button
                     onClick={finalizeWithChosenGains}
                     disabled={isMixing}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-violet-600/25 border border-violet-500/35 text-violet-300 hover:bg-violet-600/35 transition-colors text-xs font-medium disabled:opacity-40">
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#E8A020]/15 border border-[#E8A020]/35 text-[#E8A020] hover:bg-[#E8A020]/25 transition-colors text-xs font-medium disabled:opacity-40">
                     <Download className="w-3 h-3" />
                     {isMixing ? uiT.sing.mixingLabel : uiT.sing.exportSettings}
                   </button>

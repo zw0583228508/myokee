@@ -27,7 +27,7 @@ function GoogleIcon() {
 type PageMode = "login" | "register" | "forgot" | "reset" | "reset-success";
 
 const INPUT_BASE =
-  "w-full bg-white/[0.04] border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-violet-400/40 transition-all";
+  "w-full bg-[#0A0A0A] border border-white/10 rounded-xl py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all";
 
 const PRIMARY_BTN =
   "ds-btn ds-btn-primary w-full h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed";
@@ -206,7 +206,7 @@ export default function LoginPage() {
   const isRtl = t.dir === "rtl";
 
   const ErrorBanner = error ? (
-    <div className="flex items-center gap-2 text-pink-300 text-sm rounded-xl px-4 py-3 mb-4" style={{ background: "rgba(236,72,153,.12)", border: "1px solid rgba(236,72,153,.3)" }} dir="auto">
+    <div className="flex items-center gap-2 text-red-300 text-sm rounded-xl px-4 py-3 mb-4" style={{ background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.3)" }} dir="auto">
       <AlertCircle className="w-4 h-4 shrink-0" />
       {error}
     </div>
@@ -246,7 +246,7 @@ export default function LoginPage() {
             <p className="text-sm text-white/55 mb-6">{t.login.resetEmailSentDesc}</p>
             <button
               onClick={goToLogin}
-              className="text-sm text-violet-300 hover:text-violet-200 font-medium transition-colors"
+              className="text-sm text-[#E8A020] hover:text-white font-medium transition-colors"
             >
               {t.login.backToLogin}
             </button>
@@ -314,7 +314,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-violet-300 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+                className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-[#E8A020] transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -341,7 +341,7 @@ export default function LoginPage() {
           <div className="mt-5 text-center">
             <button
               onClick={goToLogin}
-              className="text-sm text-violet-300 hover:text-violet-200 font-medium transition-colors"
+              className="text-sm text-[#E8A020] hover:text-white font-medium transition-colors"
             >
               {t.login.backToLogin}
             </button>
@@ -409,7 +409,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-violet-300 transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
+              className={`absolute top-1/2 -translate-y-1/2 text-white/35 hover:text-[#E8A020] transition-colors ${isRtl ? 'left-3' : 'right-3'}`}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -420,7 +420,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => { setMode("forgot"); setError(null); }}
-                className="text-xs text-white/50 hover:text-violet-300 transition-colors"
+                className="text-xs text-white/50 hover:text-[#E8A020] transition-colors"
               >
                 {t.login.forgotPassword}
               </button>
@@ -444,7 +444,7 @@ export default function LoginPage() {
               {t.login.noAccount}{" "}
               <button
                 onClick={() => { setMode("register"); setError(null); }}
-                className="text-violet-300 hover:text-violet-200 font-semibold transition-colors"
+                className="text-[#E8A020] hover:text-white font-semibold transition-colors"
               >
                 {t.login.registerButton}
               </button>
@@ -454,7 +454,7 @@ export default function LoginPage() {
               {t.login.hasAccount}{" "}
               <button
                 onClick={() => { setMode("login"); setError(null); }}
-                className="text-violet-300 hover:text-violet-200 font-semibold transition-colors"
+                className="text-[#E8A020] hover:text-white font-semibold transition-colors"
               >
                 {t.login.loginButton}
               </button>
@@ -466,11 +466,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 grid place-items-center overflow-auto ds-bg-galaxy" dir={t.dir}>
-      <div className="absolute inset-0 ds-bg-aurora opacity-40 pointer-events-none" aria-hidden="true" />
-      <div className="ds-orb ds-orb-violet absolute top-[-10%] left-[-10%] w-[500px] h-[500px] opacity-50 pointer-events-none" aria-hidden="true" />
-      <div className="ds-orb ds-orb-pink absolute bottom-[-10%] right-[-10%] w-[480px] h-[480px] opacity-45 pointer-events-none" aria-hidden="true" style={{ animationDelay: "2s" }} />
-      <div className="ds-orb ds-orb-cyan absolute top-1/2 right-[10%] w-[320px] h-[320px] opacity-30 pointer-events-none" aria-hidden="true" style={{ animationDelay: "4s" }} />
+    <div className="fixed inset-0 grid place-items-center overflow-auto bg-[#060606]" dir={t.dir}>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(232,160,32,0.1),transparent_70%)] pointer-events-none" aria-hidden="true" />
+      <div className="ds-orb ds-orb-gold absolute top-[-10%] left-[-10%] w-[500px] h-[500px] opacity-20 pointer-events-none" aria-hidden="true" />
+      <div className="ds-orb absolute bottom-[-10%] right-[-10%] w-[480px] h-[480px] opacity-15 pointer-events-none bg-white" aria-hidden="true" style={{ animationDelay: "2s" }} />
 
       <div className="fixed top-4 right-4 z-50" dir="ltr">
         <DropdownMenu>
@@ -485,10 +484,10 @@ export default function LoginPage() {
               <DropdownMenuItem
                 key={code}
                 onClick={() => setLang(code as SupportedLang)}
-                className={`cursor-pointer gap-2 ${lang === code ? "text-violet-300" : ""}`}
+                className={`cursor-pointer gap-2 ${lang === code ? "text-[#E8A020]" : ""}`}
               >
                 <span>{flag}</span>{name}
-                {lang === code && <span className="ml-auto text-violet-300 text-xs">✓</span>}
+                {lang === code && <span className="ml-auto text-[#E8A020] text-xs">✓</span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -498,7 +497,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md px-4 py-8 sm:py-12 mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-5">
-            <div className="ds-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider">
+            <div className="ds-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold text-[#E8A020] uppercase tracking-wider">
               <Sparkles className="w-3 h-3" />MYOUKEE AI
             </div>
           </div>
@@ -531,15 +530,15 @@ export default function LoginPage() {
               type="checkbox"
               checked={agreedToTerms}
               onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 focus:ring-violet-400 focus:ring-offset-0 cursor-pointer accent-violet-500"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 focus:ring-[#E8A020] focus:ring-offset-0 cursor-pointer accent-[#E8A020]"
             />
             <span className="text-xs text-white/50 group-hover:text-white/75 transition-colors leading-relaxed">
               {t.login.agreeToTerms}{" "}
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.termsLink}</a>
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.termsLink}</a>
               {" · "}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.privacyLink}</a>
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.privacyLink}</a>
               {" · "}
-              <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.copyrightLink}</a>
+              <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.copyrightLink}</a>
             </span>
           </label>
         )}

@@ -30,8 +30,8 @@ export default function History() {
       <div className="absolute top-0 inset-x-0 h-[480px] overflow-hidden -z-10 pointer-events-none">
         <div className="absolute inset-0 ds-bg-galaxy" />
         <div className="absolute inset-0 ds-bg-aurora opacity-50" />
-        <div className="ds-orb ds-orb-violet absolute -top-32 -left-32 w-[440px] h-[440px] opacity-50" />
-        <div className="ds-orb ds-orb-cyan absolute top-0 -right-32 w-[420px] h-[420px] opacity-40" style={{ animationDelay: "2s" }} />
+        <div className="ds-orb ds-orb-gold absolute -top-32 -left-32 w-[440px] h-[440px] opacity-50" />
+        <div className="ds-orb bg-white absolute top-0 -right-32 w-[420px] h-[420px] opacity-40" style={{ animationDelay: "2s" }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/30 via-transparent to-[#050510]" />
       </div>
 
@@ -56,11 +56,11 @@ export default function History() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-32">
-            <Loader2 className="w-10 h-10 text-violet-300 animate-spin" />
+            <Loader2 className="w-10 h-10 text-[#E8A020] animate-spin" />
           </div>
         ) : !jobs || jobs.length === 0 ? (
           <div className="ds-card-feature relative max-w-lg mx-auto p-12 text-center overflow-hidden ds-reveal">
-            <div className="ds-orb ds-orb-violet absolute -top-12 -right-12 w-48 h-48 opacity-50" />
+            <div className="ds-orb ds-orb-gold absolute -top-12 -right-12 w-48 h-48 opacity-50" />
             <div className="relative">
               <div className="mx-auto ds-icon-orb w-16 h-16 rounded-2xl mb-5">
                 <Video className="w-8 h-8 text-white" />
@@ -83,7 +83,7 @@ export default function History() {
                 className="ds-card group relative p-5 sm:p-6 flex flex-col h-full ds-reveal overflow-hidden hover:border-white/15 transition-all duration-500"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
-                <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-violet-500/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#E8A020]/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative flex flex-col h-full">
                   <div className="flex justify-between items-start mb-4">
                     <JobStatusBadge status={job.status} />
@@ -99,7 +99,7 @@ export default function History() {
 
                   <div className="flex items-start gap-3 mb-1">
                     <div className="w-9 h-9 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Music className="w-4 h-4 text-violet-300" />
+                      <Music className="w-4 h-4 text-[#E8A020]" />
                     </div>
                     <h4 className="font-semibold text-base sm:text-lg text-white truncate flex-1" title={job.filename} dir="auto">
                       {job.filename}
@@ -119,7 +119,7 @@ export default function History() {
                       </div>
                     ) : (
                       <Link href={`/job/${job.id}`}>
-                        <button className="w-full flex items-center justify-between text-sm font-semibold text-violet-300 hover:text-white transition-colors group/btn px-2 py-2">
+                        <button className="w-full flex items-center justify-between text-sm font-semibold text-[#E8A020] hover:text-white transition-colors group/btn px-2 py-2">
                           <span className="inline-flex items-center gap-1.5">
                             <Sparkles className="w-3.5 h-3.5" />
                             {job.status === "done" ? t.history.viewResults : t.history.viewProgress}

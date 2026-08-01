@@ -257,9 +257,9 @@ export default function JobDetails() {
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 ds-bg-galaxy" />
         <div className="absolute inset-0 ds-bg-aurora opacity-40" />
-        <div className="ds-orb ds-orb-violet absolute -top-32 -left-32 w-[480px] h-[480px] opacity-50" />
-        <div className="ds-orb ds-orb-cyan   absolute top-1/3 -right-32 w-[420px] h-[420px] opacity-40" style={{ animationDelay: "2s" }} />
-        <div className="ds-orb ds-orb-pink   absolute bottom-0 left-1/4 w-[360px] h-[360px] opacity-30" style={{ animationDelay: "4s" }} />
+        <div className="ds-orb ds-orb-gold absolute -top-32 -left-32 w-[480px] h-[480px] opacity-50" />
+        <div className="ds-orb bg-white   absolute top-1/3 -right-32 w-[420px] h-[420px] opacity-40" style={{ animationDelay: "2s" }} />
+        <div className="ds-orb   absolute bottom-0 left-1/4 w-[360px] h-[360px] opacity-30" style={{ animationDelay: "4s" }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050510]/40 via-transparent to-[#050510]" />
       </div>
 
@@ -277,7 +277,7 @@ export default function JobDetails() {
 
         {/* Header card — title + status + actions */}
         <div className="ds-card-feature relative p-5 sm:p-7 mb-8 overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-violet-500/15 blur-[80px] pointer-events-none" />
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#E8A020]/10 blur-[80px] pointer-events-none" />
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div className="min-w-0">
               <div className="flex items-center gap-3 mb-2">
@@ -308,7 +308,7 @@ export default function JobDetails() {
             )}
             {isDone && chargeState === "pending" && (
               <div className="flex items-center gap-2 text-sm text-white/55 shrink-0">
-                <Loader2 className="w-4 h-4 animate-spin text-violet-300" />
+                <Loader2 className="w-4 h-4 animate-spin text-[#E8A020]" />
                 <span>{uiT.jobPage.processingCharge}</span>
               </div>
             )}
@@ -360,7 +360,7 @@ export default function JobDetails() {
         {/* Charge pending */}
         {isDone && chargeState === "pending" && (
           <div className="ds-card p-8 mb-6 flex flex-col items-center justify-center min-h-[200px]">
-            <Loader2 className="w-8 h-8 text-violet-300 animate-spin mb-4" />
+            <Loader2 className="w-8 h-8 text-[#E8A020] animate-spin mb-4" />
             <h3 className="font-semibold text-white mb-1">{uiT.jobPage.verifyingCharge}</h3>
             <p className="text-sm text-white/45">{uiT.jobPage.verifyingChargeDesc}</p>
           </div>
@@ -427,8 +427,8 @@ export default function JobDetails() {
               >
                 <div className="absolute inset-0 opacity-40 group-hover:opacity-70 transition-opacity duration-500" style={{ background: "var(--ds-grad-primary)" }} />
                 <div className="absolute inset-[1px] rounded-[inherit]" style={{ background: "rgba(5,5,16,.85)", backdropFilter: "blur(20px)" }} />
-                <div className="ds-orb ds-orb-violet absolute -top-12 -right-12 w-44 h-44 opacity-60" />
-                <div className="ds-orb ds-orb-pink absolute -bottom-10 -left-10 w-36 h-36 opacity-40" style={{ animationDelay: "2s" }} />
+                <div className="ds-orb ds-orb-gold absolute -top-12 -right-12 w-44 h-44 opacity-60" />
+                <div className="ds-orb absolute -bottom-10 -left-10 w-36 h-36 opacity-40" style={{ animationDelay: "2s" }} />
                 <div className="relative flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="ds-icon-orb w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0">
@@ -439,7 +439,7 @@ export default function JobDetails() {
                       <div className="text-sm text-white/55 truncate">{uiT.jobPage.singNowDesc}</div>
                     </div>
                   </div>
-                  <div className="hidden sm:flex items-center gap-1.5 text-cyan-300 group-hover:translate-x-1 transition-transform shrink-0">
+                  <div className="hidden sm:flex items-center gap-1.5 text-white group-hover:translate-x-1 transition-transform shrink-0">
                     <span className="text-sm font-semibold">{uiT.jobPage.start}</span>
                     <ChevronRight className="w-5 h-5" />
                   </div>
@@ -453,7 +453,7 @@ export default function JobDetails() {
                   className="group relative w-full overflow-hidden rounded-[var(--ds-radius-2xl)] p-5 sm:p-6 text-start ds-card transition-transform active:scale-[0.99]"
                   style={{ borderColor: "rgba(250,204,21,.3)" }}
                 >
-                  <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-amber-400/15 blur-[60px]" />
+                  <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#E8A020]/10 blur-[60px]" />
                   <div className="relative flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0"
@@ -465,7 +465,7 @@ export default function JobDetails() {
                         <div className="text-sm text-white/55 truncate">{uiT.jobPage.buyCreditsDesc}</div>
                       </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-1.5 text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
+                    <div className="hidden sm:flex items-center gap-1.5 text-[#E8A020] group-hover:translate-x-1 transition-transform shrink-0">
                       <span className="text-sm font-semibold">{uiT.jobPage.buyNow}</span>
                       <ChevronRight className="w-5 h-5" />
                     </div>
@@ -476,13 +476,13 @@ export default function JobDetails() {
               {/* Track details */}
               <div className="ds-card p-6">
                 <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-white">
-                  <Sparkles className="w-4 h-4 text-cyan-300" />
+                  <Sparkles className="w-4 h-4 text-white" />
                   {uiT.jobPage.trackDetails}
                 </h3>
                 <div className="grid grid-cols-2 gap-5 text-sm">
                   <div>
                     <span className="text-white/35 block mb-1 text-xs uppercase tracking-wider">{uiT.jobPage.statusLabel}</span>
-                    <span className="text-emerald-300 font-semibold">{uiT.jobPage.statusSuccess}</span>
+                    <span className="text-[#10B981] font-semibold">{uiT.jobPage.statusSuccess}</span>
                   </div>
                   <div>
                     <span className="text-white/35 block mb-1 text-xs uppercase tracking-wider">{uiT.jobPage.wordsLabel}</span>
@@ -491,13 +491,13 @@ export default function JobDetails() {
                   {chargeState === "free" && (
                     <div>
                       <span className="text-white/35 block mb-1 text-xs uppercase tracking-wider">{uiT.jobPage.costLabel}</span>
-                      <span className="text-emerald-300 font-semibold flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> {uiT.jobPage.freeUnder40}</span>
+                      <span className="text-[#10B981] font-semibold flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> {uiT.jobPage.freeUnder40}</span>
                     </div>
                   )}
                   {chargeState === "charged" && (
                     <div>
                       <span className="text-white/35 block mb-1 text-xs uppercase tracking-wider">{uiT.jobPage.creditsUsed}</span>
-                      <span className="text-amber-300 font-semibold flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> {creditsCharged} {uiT.jobPage.creditsUnit}</span>
+                      <span className="text-[#E8A020] font-semibold flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> {creditsCharged} {uiT.jobPage.creditsUnit}</span>
                     </div>
                   )}
                 </div>
@@ -509,7 +509,7 @@ export default function JobDetails() {
               <div className="ds-card flex-1 flex flex-col overflow-hidden p-0">
                 <div className="p-4 border-b border-white/[0.06] bg-white/[0.02] backdrop-blur-md">
                   <h3 className="font-display font-semibold flex items-center gap-2 text-white">
-                    <Mic className="w-4 h-4 text-violet-300" />
+                    <Mic className="w-4 h-4 text-[#E8A020]" />
                     {uiT.jobPage.lyricsTitle}
                   </h3>
                 </div>
@@ -573,8 +573,8 @@ export default function JobDetails() {
           >
             <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: "var(--ds-grad-primary)" }} />
             <div className="absolute inset-[1px] rounded-[inherit]" style={{ background: "rgba(8,8,18,.92)", backdropFilter: "blur(24px)" }} />
-            <div className="ds-orb ds-orb-violet absolute -top-16 -right-16 w-48 h-48" />
-            <div className="ds-orb ds-orb-pink   absolute -bottom-10 -left-10 w-36 h-36" style={{ animationDelay: "2s" }} />
+            <div className="ds-orb ds-orb-gold absolute -top-16 -right-16 w-48 h-48" />
+            <div className="ds-orb   absolute -bottom-10 -left-10 w-36 h-36" style={{ animationDelay: "2s" }} />
             <div className="relative">
               <div className="mx-auto ds-icon-orb w-16 h-16 rounded-2xl mb-5" style={{ background: "linear-gradient(135deg,#FACC15,#F59E0B)", boxShadow: "0 0 40px rgba(250,204,21,.5)" }}>
                 <Crown className="w-8 h-8 text-white" />

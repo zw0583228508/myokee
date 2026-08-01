@@ -69,11 +69,11 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
       >
         <div className="relative p-7 sm:p-8 overflow-hidden">
           <div className="absolute inset-0 ds-bg-aurora opacity-30 pointer-events-none" />
-          <div className="ds-orb ds-orb-violet absolute -top-20 -right-16 w-64 h-64 opacity-50 pointer-events-none" />
-          <div className="ds-orb ds-orb-pink absolute -bottom-16 -left-16 w-56 h-56 opacity-40 pointer-events-none" style={{ animationDelay: "1.5s" }} />
+          <div className="ds-orb ds-orb-gold absolute -top-20 -right-16 w-64 h-64 opacity-50 pointer-events-none" />
+          <div className="ds-orb ds-orb-gold absolute -bottom-16 -left-16 w-56 h-56 opacity-40 pointer-events-none" style={{ animationDelay: "1.5s" }} />
 
           <div className="relative flex flex-col items-center gap-5">
-            <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-violet-300 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 ds-glass rounded-full px-3 py-1 text-[11px] font-bold text-[#E8A020] uppercase tracking-wider">
               <Sparkles className="w-3 h-3" />Sign in
             </div>
 
@@ -97,7 +97,7 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
 
             <button
               onClick={handleGoogleLogin}
-              className="w-full inline-flex items-center justify-center gap-3 py-3.5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-semibold text-sm transition-all duration-300 shadow-lg shadow-black/20 hover:shadow-violet-500/20 active:scale-[0.98]"
+              className="w-full inline-flex items-center justify-center gap-3 py-3.5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-semibold text-sm transition-all duration-300 shadow-lg shadow-black/20 hover:shadow-[#E8A020]/20 active:scale-[0.98]"
             >
               <GoogleIcon />{t.login.googleButton}
             </button>
@@ -107,15 +107,15 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={(e) => { setAgreedToTerms(e.target.checked); if (e.target.checked) setError(null); }}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 text-violet-500 focus:ring-violet-400/40 focus:ring-offset-0 accent-violet-500 cursor-pointer"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 text-[#E8A020] focus:ring-[#E8A020]/40 focus:ring-offset-0 accent-[#E8A020] cursor-pointer"
               />
               <span className="text-xs text-white/45 group-hover:text-white/65 transition-colors leading-relaxed">
                 {t.login.agreeToTerms}{" "}
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.termsLink}</a>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.termsLink}</a>
                 {" · "}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.privacyLink}</a>
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.privacyLink}</a>
                 {" · "}
-                <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-violet-300 hover:text-violet-200 underline">{t.consent.copyrightLink}</a>
+                <a href="/copyright" target="_blank" rel="noopener noreferrer" className="text-[#E8A020] hover:text-white underline">{t.consent.copyrightLink}</a>
               </span>
             </label>
           </div>
