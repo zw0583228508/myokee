@@ -7,7 +7,7 @@ import {
 import { useSavePerformance, usePublishPerformance } from "@/hooks/use-performances";
 import { useAwardXP } from "@/hooks/use-gamification";
 import { useCloudRecording } from "@/hooks/use-cloud-recording";
-import { apiUrl, authFetchOptions, AUTH_TOKEN_KEY } from "@/lib/api";
+import { AUTH_TOKEN_KEY, apiUrl, authFetch } from "@/lib/api";
 import { trackPerformanceCompleted } from "@/lib/analytics";
 import { useUITranslations } from "@/contexts/uiTranslations";
 
@@ -389,10 +389,10 @@ export function KaraokeSingMode({
         // ── Upload to scoring endpoint ─────────────────────────────────────
         const form = new FormData();
         form.append('file', wavBlob, 'recording.wav');
-        const resp = await fetch(apiUrl(`/api/processor/jobs/${jobId}/score-performance`), authFetchOptions({
+        const resp = await authFetch(apiUrl(`/api/processor/jobs/${jobId}/score-performance`), {
           method: 'POST',
           body: form,
-        }));
+        });
 
         if (!resp.ok) {
           console.warn('[Scorer] server error', resp.status, await resp.text());

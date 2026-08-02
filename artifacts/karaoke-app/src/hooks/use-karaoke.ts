@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGetJob, useDeleteJob, getGetJobQueryKey } from "@workspace/api-client-react";
 import type { Job, WordTimestamp } from "@workspace/api-client-react/src/generated/api.schemas";
-import { apiUrl, authFetchOptions, getAuthToken } from "@/lib/api";
+import { apiUrl, authFetch, getAuthToken } from "@/lib/api";
 
 export function useKaraokeJobs() {
   return useQuery({
     queryKey: ['/api/jobs/mine'],
     queryFn: async () => {
-      const res = await fetch(apiUrl('/api/jobs/mine'), authFetchOptions());
+      const res = await authFetch(apiUrl('/api/jobs/mine'));
       if (!res.ok) {
         if (res.status === 401) return [];
         throw new Error("Failed to fetch jobs");
@@ -53,11 +53,11 @@ export function useConfirmLyrics(jobId: string) {
 
   return useMutation({
     mutationFn: async ({ words, bg_style = "aurora" }: { words: WordTimestamp[]; bg_style?: string }) => {
-      const res = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions({
+      const res = await authFetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ words, bg_style }),
-      }));
+      });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Failed to confirm lyrics: ${errorText}`);
@@ -81,16 +81,16 @@ export function useChangeBackground(jobId: string) {
 
   return useMutation({
     mutationFn: async (bg_style: string) => {
-      const lyricsRes = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions());
+      const lyricsRes = await authFetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`));
       if (!lyricsRes.ok) throw new Error("Failed to fetch current lyrics");
       const lyricsData = await lyricsRes.json();
       const words = lyricsData.words || [];
 
-      const res = await fetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), authFetchOptions({
+      const res = await authFetch(apiUrl(`/api/processor/jobs/${jobId}/lyrics`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ words, bg_style }),
-      }));
+      });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Failed to change background: ${errorText}`);
@@ -111,7 +111,7 @@ export function useChangeBackground(jobId: string) {
 
 async function claimJob(jobId: string) {
   try {
-    await fetch(apiUrl(`/api/jobs/${jobId}/claim`), authFetchOptions({ method: 'POST' }));
+    await authFetch(apiUrl(`/api/jobs/${jobId}/claim`), { method: 'POST' });
   } catch {
     // Non-critical
   }
@@ -123,7 +123,7 @@ interface ProcessorConfig {
 }
 
 async function getProcessorConfig(): Promise<ProcessorConfig> {
-  const res = await fetch(apiUrl('/api/processor-config'), authFetchOptions());
+  const res = await authFetch(apiUrl('/api/processor-config'));
   if (!res.ok) {
     const text = await res.text();
     throw new Error(res.status === 401 ? 'Authentication required' : `Config error: ${text}`);
@@ -302,7 +302,7 @@ export function useRetryJob(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(apiUrl(`/api/processor/jobs/${jobId}/retry`), authFetchOptions({ method: 'POST' }));
+      const res = await authFetch(apiUrl(`/api/processor/jobs/${jobId}/retry`), { method: 'POST' });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Retry failed: ${errorText}`);

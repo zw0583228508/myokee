@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 
 async function gamFetch(path: string, options?: RequestInit) {
-  const res = await fetch(apiUrl(`/api${path}`), authFetchOptions(options));
+  const res = await authFetch(apiUrl(`/api${path}`), options);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Request failed" }));
     throw new Error(err.error || "Request failed");

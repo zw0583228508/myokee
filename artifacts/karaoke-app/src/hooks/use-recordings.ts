@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 
 export interface Recording {
   id: number;
@@ -14,7 +14,7 @@ export interface Recording {
 }
 
 async function apiFetch(path: string, options?: RequestInit) {
-  const res = await fetch(apiUrl(path), authFetchOptions(options));
+  const res = await authFetch(apiUrl(path), options);
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

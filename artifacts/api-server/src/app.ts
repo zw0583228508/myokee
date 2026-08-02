@@ -5,11 +5,14 @@ import cors, { type CorsOptions } from "cors";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import router from "./routes";
 import { passport } from "./routes/auth";
 import { storage } from "./storage";
 import { pool } from "./db";
 import { verifyToken } from "./jwt";
+import { requireSecret } from "./env";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -17,8 +20,40 @@ const app: Express = express();
 
 app.set("trust proxy", 1);
 
+// ── Security headers ────────────────────────────────────────────────────────
+// CSP disabled: the API also serves the built SPA in production, which uses
+// inline scripts (OAuth popup) and cross-origin media (object storage, Modal).
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false,
+}));
+
+// ── CORS: explicit origin allow-list ────────────────────────────────────────
+const allowedOrigins = new Set([
+  "https://myoukee.com",
+  "https://www.myoukee.com",
+]);
+if (!isProd) {
+  allowedOrigins.add("http://localhost:5173");
+  allowedOrigins.add("http://localhost:3000");
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    allowedOrigins.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  }
+}
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.add(process.env.FRONTEND_URL.replace(/\/$/, ""));
+}
+
 const corsOptions: CorsOptions = {
-  origin: true,
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+    const err: any = new Error("Origin not allowed");
+    err.status = 403;
+    callback(err);
+  },
   credentials: true,
   allowedHeaders: [
     "Content-Type",
@@ -51,7 +86,7 @@ const sessionStore = process.env.DATABASE_URL
 
 app.use(session({
   store: sessionStore,
-  secret: process.env.SESSION_SECRET || "karaoke-fallback-dev-secret-do-not-use-in-prod",
+  secret: requireSecret("SESSION_SECRET"),
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -74,9 +109,16 @@ app.use(async (req: any, _res, next) => {
     if (auth?.startsWith("Bearer ")) {
       const token = auth.slice(7);
       const payload = verifyToken(token);
-      if (payload?.sub) {
+      // Refresh tokens must never be used as access tokens.
+      if (payload?.sub && payload.type !== "refresh") {
         try {
-          req.user = await storage.getUser(payload.sub);
+          const user = await storage.getUser(payload.sub);
+          // token_version check — bumping the DB value ("logout everywhere")
+          // invalidates all previously issued tokens. Legacy tokens carry no
+          // `ver` claim and are treated as version 0.
+          if (user && (payload.ver ?? 0) === (user.token_version ?? 0)) {
+            req.user = user;
+          }
         } catch {
           // ignore — unauthenticated
         }
@@ -84,6 +126,17 @@ app.use(async (req: any, _res, next) => {
     }
   }
   next();
+});
+
+// ── Rate limiting ───────────────────────────────────────────────────────────
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false });
+const jobLimiter = rateLimit({ windowMs: 60 * 1000, limit: 5, standardHeaders: true, legacyHeaders: false });
+
+// Only throttle credential endpoints — /auth/me is polled by the frontend.
+app.use(["/api/auth/login", "/api/auth/register", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/refresh"], authLimiter);
+app.use("/api/processor/jobs", (req, res, next) => {
+  if (req.method !== "POST") return next();
+  return jobLimiter(req, res, next);
 });
 
 // ── Auth + free-mode guard for job creation ────────────────────────────────

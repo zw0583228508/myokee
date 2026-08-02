@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AUTH_TOKEN_KEY, authFetchOptions, clearAuthToken, setAuthToken } from "@/lib/api";
+import { authFetch, authFetchOptions, clearAuthToken, getRefreshToken, setAuthToken, setRefreshToken, storeTokens, tryRefreshToken } from "@/lib/api";
 
 export interface AuthUser {
   id: string;
@@ -17,11 +17,23 @@ export function useAuth() {
   return useQuery({
     queryKey: ["auth", "me"],
     queryFn: async (): Promise<{ user: AuthUser | null }> => {
-      const res = await fetch(`${API_BASE}/api/auth/me`, authFetchOptions());
-      if (!res.ok) return { user: null };
-      return res.json();
+      const res = await authFetch(`${API_BASE}/api/auth/me`);
+      let data: { user: AuthUser | null } = res.ok ? await res.json() : { user: null };
+      // /api/auth/me answers 200 {user:null} for an expired access token, so
+      // authFetch's 401-based retry never fires. If we still hold a refresh
+      // token, exchange it and retry once before treating the user as logged out.
+      if (!data.user && getRefreshToken()) {
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+          const res2 = await fetch(`${API_BASE}/api/auth/me`, authFetchOptions());
+          if (res2.ok) data = await res2.json();
+        }
+      }
+      return data;
     },
     staleTime: 60 * 1000,
+    // Keep the 1-hour access token fresh while the app is open.
+    refetchInterval: 30 * 60 * 1000,
     retry: false,
   });
 }
@@ -30,7 +42,7 @@ export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/api/auth/logout`, authFetchOptions({ method: "POST" }));
+      const res = await authFetch(`${API_BASE}/api/auth/logout`, { method: "POST" });
       if (!res.ok) throw new Error("Logout failed");
       return res.json();
     },
@@ -71,9 +83,7 @@ export function useEmailLogin() {
       return res.json();
     },
     onSuccess: (data) => {
-      if (data.token) {
-        setAuthToken(data.token);
-      }
+      storeTokens(data);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
   });
@@ -95,9 +105,7 @@ export function useEmailRegister() {
       return res.json();
     },
     onSuccess: (data) => {
-      if (data.token) {
-        setAuthToken(data.token);
-      }
+      storeTokens(data);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
   });
@@ -136,9 +144,7 @@ export function useResetPassword() {
       return res.json();
     },
     onSuccess: (data) => {
-      if (data.token) {
-        setAuthToken(data.token);
-      }
+      storeTokens(data);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
   });
@@ -148,9 +154,12 @@ export function useResetPassword() {
 export function consumeAuthTokenFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("auth_token");
+  const refresh = params.get("refresh_token");
   if (token) {
     setAuthToken(token);
+    if (refresh) setRefreshToken(refresh);
     params.delete("auth_token");
+    params.delete("refresh_token");
     const newUrl = window.location.pathname + (params.toString() ? `?${params}` : "");
     window.history.replaceState({}, "", newUrl);
   }

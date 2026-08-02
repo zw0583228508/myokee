@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 
 interface UploadState {
   status: "idle" | "uploading" | "done" | "error";
@@ -15,9 +15,9 @@ export function useCloudRecording() {
     setState({ status: "uploading", progress: 0 });
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         apiUrl("/api/storage/uploads/request-url"),
-        authFetchOptions({
+        {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -27,7 +27,7 @@ export function useCloudRecording() {
             songName: songName || fileName,
             jobId: jobId || "",
           }),
-        }),
+        },
       );
 
       if (!res.ok) {

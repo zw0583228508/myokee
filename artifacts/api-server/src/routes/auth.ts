@@ -5,10 +5,19 @@ import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { storage } from "../storage";
-import { signToken } from "../jwt";
+import { signAccessToken, signRefreshToken, verifyToken } from "../jwt";
 import { sendPasswordResetEmail } from "../emailService";
 
 const router = Router();
+
+/** Issue an access + refresh token pair bound to the user's current token_version. */
+function issueTokens(user: { id: string; token_version?: number | null }) {
+  const ver = user.token_version ?? 0;
+  return {
+    token: signAccessToken(user.id, ver),
+    refreshToken: signRefreshToken(user.id, ver),
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Passport serialization — store only the user ID in session
@@ -119,28 +128,39 @@ router.get(
         }
         // Issue JWT regardless of session save result — JWT is the primary
         // auth mechanism for cross-origin (Netlify ↔ Render) requests.
-        const token = signToken(user.id);
+        const { token, refreshToken } = issueTokens(user);
         console.log("[auth] Issued JWT for:", user.id);
         // Redirect URL: prefer FRONTEND_URL, fallback to request origin (same-origin prod)
         const redirectUrl = FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
         console.log("[auth] Redirect URL:", redirectUrl);
+        let openerOrigin: string;
+        try {
+          openerOrigin = new URL(redirectUrl).origin;
+        } catch {
+          openerOrigin = redirectUrl;
+        }
         const html = `<!DOCTYPE html><html><head><title>Login successful</title></head><body>
 <script>
   var token = ${JSON.stringify(token)};
+  var refreshToken = ${JSON.stringify(refreshToken)};
   var redirectUrl = ${JSON.stringify(redirectUrl)};
-  // Always persist token to localStorage — works for same-origin popup flows
+  // Always persist tokens to localStorage — works for same-origin popup flows
   // even when window.opener is nullified by cross-origin navigation through Google.
-  try { localStorage.setItem("myoukee_auth_token", token); } catch(e) {}
+  try {
+    localStorage.setItem("myoukee_auth_token", token);
+    localStorage.setItem("myoukee_refresh_token", refreshToken);
+  } catch(e) {}
   if (window.opener) {
     try {
-      window.opener.postMessage({ type: "AUTH_SUCCESS", token: token }, "*");
+      // Explicit target origin — never broadcast tokens with "*".
+      window.opener.postMessage({ type: "AUTH_SUCCESS", token: token, refreshToken: refreshToken }, ${JSON.stringify(openerOrigin)});
     } catch(e) {}
     window.close();
   } else {
     // No opener — full redirect. Use origin of THIS page (same-origin in prod)
     // or fall back to configured frontend URL.
     var dest = window.location.origin || redirectUrl;
-    window.location.href = dest + "/?auth_token=" + encodeURIComponent(token);
+    window.location.href = dest + "/?auth_token=" + encodeURIComponent(token) + "&refresh_token=" + encodeURIComponent(refreshToken);
   }
 </script>
 <p>Login successful. Redirecting...</p>
@@ -190,11 +210,12 @@ router.post("/auth/register", async (req: Request, res: Response) => {
       password_hash: passwordHash,
     });
 
-    const token = signToken(user.id);
+    const { token, refreshToken } = issueTokens(user);
     console.log("[auth] Email registration for:", email);
 
     return res.json({
       token,
+      refreshToken,
       user: {
         id: user.id,
         provider: "email",
@@ -238,11 +259,12 @@ router.post("/auth/login", async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = signToken(user.id);
+    const { token, refreshToken } = issueTokens(user);
     console.log("[auth] Email login for:", email);
 
     return res.json({
       token,
+      refreshToken,
       user: {
         id: user.id,
         provider: "email",
@@ -313,13 +335,14 @@ router.post("/auth/reset-password", async (req: Request, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 10);
     await storage.updatePasswordHash(consumed.userId, passwordHash);
 
-    const jwtToken = signToken(consumed.userId);
     const user = await storage.getUser(consumed.userId);
+    const { token: jwtToken, refreshToken } = issueTokens(user ?? { id: consumed.userId });
 
     console.log(`[auth] Password reset completed for: ${consumed.userId}`);
     return res.json({
       success: true,
       token: jwtToken,
+      refreshToken,
       user: user ? {
         id: user.id,
         provider: "email",
@@ -332,6 +355,41 @@ router.post("/auth/reset-password", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("[auth] Reset password error:", err.message);
     return res.status(500).json({ error: "Failed to reset password" });
+  }
+});
+
+// Refresh — exchange a valid refresh token for a new access+refresh pair
+router.post("/auth/refresh", async (req: Request, res: Response) => {
+  const { refreshToken } = req.body ?? {};
+  if (!refreshToken) {
+    return res.status(400).json({ error: "refreshToken is required" });
+  }
+  const payload = verifyToken(refreshToken);
+  if (!payload?.sub || payload.type !== "refresh") {
+    return res.status(401).json({ error: "Invalid refresh token" });
+  }
+  try {
+    const user = await storage.getUser(payload.sub);
+    if (!user || (payload.ver ?? 0) !== (user.token_version ?? 0)) {
+      return res.status(401).json({ error: "Refresh token revoked" });
+    }
+    return res.json(issueTokens(user));
+  } catch (err: any) {
+    console.error("[auth] Refresh error:", err.message);
+    return res.status(500).json({ error: "Failed to refresh token" });
+  }
+});
+
+// Logout from all devices — bump token_version, invalidating every issued token
+router.post("/auth/logout-all", async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: "Authentication required" });
+  try {
+    await storage.bumpTokenVersion(user.id);
+    return res.json({ ok: true });
+  } catch (err: any) {
+    console.error("[auth] logout-all error:", err.message);
+    return res.status(500).json({ error: "Failed to logout everywhere" });
   }
 });
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Copy, Check, Users, Gift, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLang } from "@/contexts/LanguageContext";
 import { trackReferralShared, trackReferralApplied } from "@/lib/analytics";
@@ -23,7 +23,7 @@ export function ReferralPanel() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetch(apiUrl("/api/referral/stats"), authFetchOptions())
+    authFetch(apiUrl("/api/referral/stats"))
       .then((r) => { if (!r.ok) throw new Error("fetch failed"); return r.json(); })
       .then(setStats)
       .catch(() => {})
@@ -47,14 +47,11 @@ export function ReferralPanel() {
     if (!applyCode.trim()) return;
     setApplying(true);
     try {
-      const res = await fetch(
-        apiUrl("/api/referral/apply"),
-        authFetchOptions({
+      const res = await authFetch(apiUrl("/api/referral/apply"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: applyCode.trim() }),
-        })
-      );
+        });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         toast({
@@ -73,10 +70,7 @@ export function ReferralPanel() {
           description: `+${data.creditsAwarded} ${t.pricing.credits}!`,
         });
         setApplyCode("");
-        const statsRes = await fetch(
-          apiUrl("/api/referral/stats"),
-          authFetchOptions()
-        );
+        const statsRes = await authFetch(apiUrl("/api/referral/stats"));
         if (statsRes.ok) {
           const updated = await statsRes.json();
           setStats(updated);

@@ -16,7 +16,7 @@ import { KaraokeSingMode } from "@/components/karaoke/KaraokeSingMode";
 import { BackgroundChanger } from "@/components/karaoke/BackgroundChanger";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 import { PricingModal } from "@/components/karaoke/PricingModal";
 import { useUITranslations } from "@/contexts/uiTranslations";
 import { useLang } from "@/contexts/LanguageContext";
@@ -129,7 +129,7 @@ export default function JobDetails() {
       if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 1500));
 
       try {
-        const accessRes = await fetch(apiUrl(`/api/jobs/${jobId}/access`), authFetchOptions());
+        const accessRes = await authFetch(apiUrl(`/api/jobs/${jobId}/access`));
         if (accessRes.ok) {
           const accessData = await accessRes.json();
           if (accessData.access && accessData.creditsCharged != null && accessData.creditsCharged >= 0) {
@@ -142,11 +142,11 @@ export default function JobDetails() {
       } catch (e) { console.warn("[Charge] Access check error:", e); }
 
       try {
-        const res = await fetch(apiUrl(`/api/jobs/${jobId}/charge`), authFetchOptions({
+        const res = await authFetch(apiUrl(`/api/jobs/${jobId}/charge`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(durationSeconds ? { durationSeconds } : {}),
-        }));
+        });
         const data = await res.json();
         if (data.alreadyCharged) {
           const cc = data.creditsCharged >= 0 ? data.creditsCharged : 0;
@@ -194,11 +194,11 @@ export default function JobDetails() {
     if (job?.status !== "done" || !id) return;
     const dur = (job as any)?.duration_seconds;
     if (dur && dur > 0) {
-      fetch(apiUrl(`/api/jobs/${id}/store-duration`), authFetchOptions({
+      authFetch(apiUrl(`/api/jobs/${id}/store-duration`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ durationSeconds: dur }),
-      })).catch(() => {});
+      }).catch(() => {});
     }
     if (chargeTriggeredRef.current) return;
     attemptCharge(id, dur);

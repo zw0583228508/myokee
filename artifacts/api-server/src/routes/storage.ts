@@ -6,26 +6,8 @@ import { query } from "../db";
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
 
-let tableReady = false;
-async function ensureRecordingsTable() {
-  if (tableReady) return;
-  await query(`
-    CREATE TABLE IF NOT EXISTS recordings (
-      id SERIAL PRIMARY KEY,
-      user_id VARCHAR(255) NOT NULL,
-      song_name VARCHAR(500) NOT NULL DEFAULT '',
-      job_id VARCHAR(255) NOT NULL DEFAULT '',
-      object_path VARCHAR(1000) NOT NULL,
-      file_name VARCHAR(500) NOT NULL DEFAULT '',
-      content_type VARCHAR(100) NOT NULL DEFAULT 'audio/wav',
-      size_bytes INTEGER NOT NULL DEFAULT 0,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
-  await query(`CREATE INDEX IF NOT EXISTS idx_rec_user ON recordings(user_id)`);
-  await query(`CREATE INDEX IF NOT EXISTS idx_rec_created ON recordings(created_at DESC)`);
-  tableReady = true;
-}
+// NOTE: the `recordings` table is created by runMigrations() at server startup
+// (src/migrate.ts) — no per-request table creation needed here.
 
 router.post("/storage/uploads/request-url", async (req: Request, res: Response) => {
   if (!req.user) return res.status(401).json({ error: "Authentication required" });
@@ -40,7 +22,6 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
-    await ensureRecordingsTable();
     const user = req.user as any;
     await query(
       `INSERT INTO recordings (user_id, song_name, job_id, object_path, file_name, content_type, size_bytes)
@@ -60,7 +41,6 @@ router.get("/storage/recordings", async (req: Request, res: Response) => {
   const user = req.user as any;
 
   try {
-    await ensureRecordingsTable();
     const result = await query(
       `SELECT * FROM recordings WHERE user_id = $1 ORDER BY created_at DESC LIMIT 100`,
       [user.id]
@@ -77,7 +57,6 @@ router.delete("/storage/recordings/:id", async (req: Request, res: Response) => 
   const user = req.user as any;
 
   try {
-    await ensureRecordingsTable();
     const result = await query(
       `DELETE FROM recordings WHERE id = $1 AND user_id = $2 RETURNING *`,
       [req.params.id, user.id]
@@ -127,7 +106,6 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
     const objectPath = `/objects/${wildcardPath}`;
 
-    await ensureRecordingsTable();
     const ownerCheck = await query(
       `SELECT id FROM recordings WHERE object_path = $1 AND user_id = $2 LIMIT 1`,
       [objectPath, user.id]

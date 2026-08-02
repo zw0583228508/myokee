@@ -1,2 +1,3 @@
 - [Karaoke-app feature flags](feature-flags.md) — social/party/gamification features hidden via src/config/features.ts, not deleted; sitemap entries commented out too.
 - Deployment note: production runs on Render (via GitHub) + Modal Labs (processor), not Replit deployments — env/secret fixes here must be mirrored in Render/Modal.
+- [Auth token model](auth-token-model.md) — 1h access + 30d refresh JWTs, token_version revocation, legacy-token compat rules, JWT_SECRET required in Render, FEATURE_* server flags.

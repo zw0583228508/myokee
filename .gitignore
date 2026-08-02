@@ -72,3 +72,4 @@ env/
 # Temp job files
 /tmp/
 
+.replit

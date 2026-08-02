@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 
 export function useFeed(page = 0) {
   return useQuery({
     queryKey: ["social-feed", page],
     queryFn: async () => {
-      const res = await fetch(apiUrl(`/api/social/feed?page=${page}`), authFetchOptions());
+      const res = await authFetch(apiUrl(`/api/social/feed?page=${page}`));
       if (!res.ok) return { performances: [], page: 0, hasMore: false };
       return res.json();
     },
@@ -17,7 +17,7 @@ export function useDiscover(page = 0) {
   return useQuery({
     queryKey: ["social-discover", page],
     queryFn: async () => {
-      const res = await fetch(apiUrl(`/api/social/discover?page=${page}`), authFetchOptions());
+      const res = await authFetch(apiUrl(`/api/social/discover?page=${page}`));
       if (!res.ok) return { performances: [], page: 0, hasMore: false };
       return res.json();
     },
@@ -29,7 +29,7 @@ export function useProfile(userId: string) {
   return useQuery({
     queryKey: ["social-profile", userId],
     queryFn: async () => {
-      const res = await fetch(apiUrl(`/api/social/profile/${userId}`), authFetchOptions());
+      const res = await authFetch(apiUrl(`/api/social/profile/${userId}`));
       if (!res.ok) throw new Error("Failed to fetch profile");
       return res.json();
     },
@@ -41,9 +41,9 @@ export function useFollow() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, follow }: { userId: string; follow: boolean }) => {
-      const res = await fetch(apiUrl(`/api/social/follow/${userId}`), authFetchOptions({
+      const res = await authFetch(apiUrl(`/api/social/follow/${userId}`), {
         method: follow ? "POST" : "DELETE",
-      }));
+      });
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },
@@ -58,9 +58,9 @@ export function useLikePerformance() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ performanceId, like }: { performanceId: number; like: boolean }) => {
-      const res = await fetch(apiUrl(`/api/social/like/${performanceId}`), authFetchOptions({
+      const res = await authFetch(apiUrl(`/api/social/like/${performanceId}`), {
         method: like ? "POST" : "DELETE",
-      }));
+      });
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },
@@ -75,7 +75,7 @@ export function useComments(performanceId: number) {
   return useQuery({
     queryKey: ["comments", performanceId],
     queryFn: async () => {
-      const res = await fetch(apiUrl(`/api/social/comments/${performanceId}`), authFetchOptions());
+      const res = await authFetch(apiUrl(`/api/social/comments/${performanceId}`));
       if (!res.ok) return { comments: [] };
       return res.json();
     },
@@ -87,11 +87,11 @@ export function useAddComment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ performanceId, content }: { performanceId: number; content: string }) => {
-      const res = await fetch(apiUrl(`/api/social/comment/${performanceId}`), authFetchOptions({
+      const res = await authFetch(apiUrl(`/api/social/comment/${performanceId}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
-      }));
+      });
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },

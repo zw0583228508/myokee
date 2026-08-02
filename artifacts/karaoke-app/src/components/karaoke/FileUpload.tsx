@@ -3,7 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadCloud, Music, Film, FileVideo, X, Loader2, User, Camera, Youtube, Link2, AlertCircle, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { apiUrl, authFetchOptions, getAuthToken } from "@/lib/api";
+import { apiUrl, authFetch, getAuthToken } from "@/lib/api";
 import { useCreateJob, useCreateJobFromYouTube } from "@/hooks/use-karaoke";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -32,10 +32,10 @@ async function uploadAvatarToJob(jobId: string, avatarFile: File | string) {
   }
   const formData = new FormData();
   formData.append("file", avatarFile);
-  await fetch(apiUrl(`/api/processor/jobs/${jobId}/avatar`), authFetchOptions({
+  await authFetch(apiUrl(`/api/processor/jobs/${jobId}/avatar`), {
     method: "POST",
     body: formData,
-  }));
+  });
 }
 
 const LANGUAGE_OPTIONS = [

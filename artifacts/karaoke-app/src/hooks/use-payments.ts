@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 import { useLang } from "@/contexts/LanguageContext";
 
 export interface CreditPackage {
@@ -16,7 +16,7 @@ export function usePackages() {
   return useQuery<CreditPackage[]>({
     queryKey: ["packages"],
     queryFn: async () => {
-      const res = await fetch(apiUrl("/api/packages"), authFetchOptions());
+      const res = await authFetch(apiUrl("/api/packages"));
       if (!res.ok) return [];
       const data = await res.json();
       return data.packages ?? [];
@@ -30,11 +30,11 @@ export function usePurchase() {
   const { lang } = useLang();
   return useMutation({
     mutationFn: async (packageId: string): Promise<string> => {
-      const res = await fetch(apiUrl("/api/checkout"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ packageId, lang }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to create checkout session");
@@ -49,11 +49,11 @@ export function usePayPalPurchase() {
   const { lang } = useLang();
   return useMutation({
     mutationFn: async (packageId: string): Promise<string> => {
-      const res = await fetch(apiUrl("/api/paypal/checkout"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/paypal/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ packageId, lang }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to create PayPal order");
@@ -71,11 +71,11 @@ export function useFulfillPayPal() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const res = await fetch(apiUrl("/api/paypal/capture"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/paypal/capture"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to capture PayPal payment");
@@ -95,7 +95,7 @@ export function useRecoverPayPal(isLoggedIn: boolean = false) {
     queryFn: async () => {
       const token = (await import("@/lib/api")).getAuthToken();
       if (!token) return { recovered: 0 };
-      const res = await fetch(apiUrl("/api/paypal/recover"), authFetchOptions());
+      const res = await authFetch(apiUrl("/api/paypal/recover"));
       if (!res.ok) return { recovered: 0 };
       const data = await res.json();
       if (data.recovered > 0) {
@@ -113,11 +113,11 @@ export function usePolarPurchase() {
   const { lang } = useLang();
   return useMutation({
     mutationFn: async (packageId: string): Promise<string> => {
-      const res = await fetch(apiUrl("/api/polar/checkout"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/polar/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ packageId, lang }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to create Polar checkout");
@@ -135,11 +135,11 @@ export function useFulfillPolar() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (checkoutId: string) => {
-      const res = await fetch(apiUrl("/api/polar/fulfill"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/polar/fulfill"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ checkoutId }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to fulfill Polar payment");
@@ -156,11 +156,11 @@ export function useFulfillPayment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (sessionId: string) => {
-      const res = await fetch(apiUrl("/api/credits/fulfill"), authFetchOptions({
+      const res = await authFetch(apiUrl("/api/credits/fulfill"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId }),
-      }));
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as any).error ?? "Failed to fulfill payment");

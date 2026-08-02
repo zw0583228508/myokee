@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ConsentGate } from "@/components/karaoke/ConsentModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { consumeAuthTokenFromUrl, useAuth } from "@/hooks/use-auth";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 import { Mic2 } from "lucide-react";
 import { FloatingShareFab } from "@/components/FloatingShareFab";
 import { useUITranslations } from "@/contexts/uiTranslations";
@@ -60,11 +60,11 @@ function useAutoApplyReferral() {
     const code = localStorage.getItem("myoukee-ref");
     if (!code) return;
     applied.current = true;
-    fetch(apiUrl("/api/referral/apply"), authFetchOptions({
+    authFetch(apiUrl("/api/referral/apply"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
-    })).then((res) => {
+    }).then((res) => {
       if (res.ok) localStorage.removeItem("myoukee-ref");
     }).catch(() => {});
   }, [authData?.user]);
@@ -116,9 +116,17 @@ function Router() {
   }
 
   if (!user) {
+    // Public routes for logged-out visitors — the home landing page and legal
+    // pages are reachable without an account; everything else asks to log in.
     return (
       <Suspense fallback={<PageLoader />}>
-        <LoginPage />
+        <Switch>
+          <Route path="/"          component={LangLanding} />
+          <Route path="/privacy"   component={Privacy}     />
+          <Route path="/terms"     component={Terms}       />
+          <Route path="/copyright" component={Copyright}   />
+          <Route component={LoginPage} />
+        </Switch>
       </Suspense>
     );
   }

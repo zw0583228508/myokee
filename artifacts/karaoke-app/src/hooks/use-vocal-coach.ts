@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiUrl, authFetchOptions } from "@/lib/api";
+import { apiUrl, authFetch } from "@/lib/api";
 
 export function useVocalTips(performanceId: number) {
   return useQuery({
     queryKey: ["vocal-tips", performanceId],
     queryFn: async () => {
-      const res = await fetch(apiUrl(`/api/vocal-coach/${performanceId}`), authFetchOptions());
+      const res = await authFetch(apiUrl(`/api/vocal-coach/${performanceId}`));
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },
@@ -17,7 +17,7 @@ export function useVocalProgress() {
   return useQuery({
     queryKey: ["vocal-progress"],
     queryFn: async () => {
-      const res = await fetch(apiUrl("/api/vocal-coach/progress/me"), authFetchOptions());
+      const res = await authFetch(apiUrl("/api/vocal-coach/progress/me"));
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },

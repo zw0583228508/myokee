@@ -10,6 +10,7 @@ export interface User {
   is_premium: boolean;
   referral_code: string | null;
   referred_by: string | null;
+  token_version: number | null;
   created_at: string;
 }
 
@@ -36,6 +37,11 @@ export class Storage {
   async getUser(id: string): Promise<User | null> {
     const res = await query(`SELECT * FROM users WHERE id = $1`, [id]);
     return res.rows[0] ?? null;
+  }
+
+  /** "Logout everywhere" — invalidates every previously issued JWT for the user. */
+  async bumpTokenVersion(userId: string): Promise<void> {
+    await query(`UPDATE users SET token_version = COALESCE(token_version, 0) + 1 WHERE id = $1`, [userId]);
   }
 
   async updateStripeCustomer(userId: string, stripeCustomerId: string): Promise<void> {

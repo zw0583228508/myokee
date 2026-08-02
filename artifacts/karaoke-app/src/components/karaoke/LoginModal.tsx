@@ -42,8 +42,14 @@ export function LoginModal({ open, onOpenChange, reason = "general" }: Props) {
 
     const onMessage = (e: MessageEvent) => {
       if (e.source !== popup) return;
+      // Tokens may only arrive from the API origin that served the popup.
+      const apiOrigin = import.meta.env.VITE_API_URL
+        ? new URL(import.meta.env.VITE_API_URL).origin
+        : window.location.origin;
+      if (e.origin !== apiOrigin) return;
       if (e.data?.type === "AUTH_SUCCESS") {
         if (e.data.token) localStorage.setItem("myoukee_auth_token", e.data.token);
+        if (e.data.refreshToken) localStorage.setItem("myoukee_refresh_token", e.data.refreshToken);
         cleanup();
         queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
         onOpenChange(false);
