@@ -55,10 +55,10 @@ export function Navbar() {
 
         <div className="relative w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5 group transition-all duration-300" aria-label="MYOUKEE">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl ds-icon-orb group-hover:scale-110 transition-all duration-500" aria-hidden="true">
-              <Mic2 className="h-5 w-5 text-white drop-shadow-lg relative z-10" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl ds-icon-orb group-hover:scale-110 group-hover:shadow-[0_0_24px_rgba(232,160,32,0.3)] transition-all duration-500" aria-hidden="true">
+              <Mic2 className="h-5 w-5 text-white group-hover:text-[#E8A020] transition-colors drop-shadow-lg relative z-10" />
             </div>
-            <span className="font-display text-xl font-bold tracking-wide">
+            <span className="font-display text-xl font-bold tracking-wide group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all">
               <span className="ds-grad-text">MY</span><span className="text-white">OUKEE</span>
             </span>
           </Link>

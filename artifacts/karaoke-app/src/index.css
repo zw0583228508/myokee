@@ -275,14 +275,14 @@
     background: #0A0A0A;
     border: 1px solid rgba(255,255,255,0.05);
     box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-    transition: transform 300ms cubic-bezier(0.16,1,0.3,1),
-                box-shadow 300ms cubic-bezier(0.16,1,0.3,1),
-                border-color 300ms ease;
+    transition: transform 400ms cubic-bezier(0.16,1,0.3,1),
+                box-shadow 400ms cubic-bezier(0.16,1,0.3,1),
+                border-color 400ms ease;
   }
   .ds-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.1);
-    box-shadow: 0 20px 48px rgba(0,0,0,0.6), 0 0 20px rgba(232,160,32,0.05);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.8), 0 0 30px rgba(232,160,32,0.1);
   }
   .ds-card-feature {
     border-radius: var(--radius-xl);
@@ -489,15 +489,36 @@
   .ds-orb-cyan   { background: rgba(255,255,255,0.05); }
   .ds-orb-pink   { background: rgba(232,160,32,0.08); }
 
-  .ds-reveal {
+  .ds-reveal, .reveal-on-scroll {
     opacity: 0;
-    transform: translateY(24px);
-    animation: ds-reveal 800ms cubic-bezier(0.16,1,0.3,1) forwards;
+    transform: translateY(32px);
+    transition: opacity 800ms cubic-bezier(0.16,1,0.3,1), transform 800ms cubic-bezier(0.16,1,0.3,1), filter 800ms cubic-bezier(0.16,1,0.3,1);
+    filter: blur(8px);
+    will-change: transform, opacity, filter;
   }
-  .ds-reveal-delay-1 { animation-delay: 100ms; }
-  .ds-reveal-delay-2 { animation-delay: 200ms; }
-  .ds-reveal-delay-3 { animation-delay: 300ms; }
-  .ds-reveal-delay-4 { animation-delay: 400ms; }
+  .ds-reveal.revealed, .reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  .ds-reveal-scale {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+    transition: opacity 800ms cubic-bezier(0.16,1,0.3,1), transform 800ms cubic-bezier(0.16,1,0.3,1), filter 800ms cubic-bezier(0.16,1,0.3,1);
+    filter: blur(12px);
+    will-change: transform, opacity, filter;
+  }
+  .ds-reveal-scale.revealed {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+  .ds-reveal-delay-1 { transition-delay: 100ms; }
+  .ds-reveal-delay-2 { transition-delay: 200ms; }
+  .ds-reveal-delay-3 { transition-delay: 300ms; }
+  .ds-reveal-delay-4 { transition-delay: 400ms; }
+  .ds-reveal-delay-5 { transition-delay: 500ms; }
+
 
   /* btn-primary / btn-glass: inline the styles so Tailwind v4 doesn't try to @apply custom classes */
   .btn-primary {
@@ -519,6 +540,16 @@
   .btn-glass:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .glass-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; }
   .glass-panel { background: rgba(255,255,255,0.06); backdrop-filter: blur(22px); border: 1px solid rgba(255,255,255,0.10); border-radius: 1rem; }
+
+  /* Page enter transitions */
+  .page-enter {
+    animation: page-enter 600ms cubic-bezier(0.16,1,0.3,1) both;
+  }
+}
+
+@keyframes page-enter {
+  0% { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes ds-reveal {
@@ -544,10 +575,39 @@
   33% { transform: translateY(-10px) translateX(5px); }
   66% { transform: translateY(5px) translateX(-5px); }
 }
+@keyframes float-complex {
+  0%,100% { transform: translateY(0) translateX(0) rotate(0deg); }
+  33% { transform: translateY(-15px) translateX(10px) rotate(2deg); }
+  66% { transform: translateY(10px) translateX(-10px) rotate(-2deg); }
+}
 @keyframes glow-breathe {
   0%,100% { opacity: 0.2; filter: blur(40px); }
   50%     { opacity: 0.4; filter: blur(60px); }
 }
+@keyframes stage-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
 .animate-float-medium { animation: float-medium 6s ease-in-out infinite; }
+.animate-float-complex { animation: float-complex 12s ease-in-out infinite; }
+.animate-stage-pan { background-size: 200% 200%; animation: stage-pan 20s ease-in-out infinite; }
+
+/* Reduced motion: disable decorative animations and show reveal content immediately */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .animate-float-slow,
+  .animate-float-medium,
+  .animate-float-complex,
+  .animate-stage-pan {
+    animation: none !important;
+  }
+  .ds-reveal, .ds-reveal-scale, .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}

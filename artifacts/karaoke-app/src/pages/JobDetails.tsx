@@ -21,6 +21,7 @@ import { PricingModal } from "@/components/karaoke/PricingModal";
 import { useUITranslations } from "@/contexts/uiTranslations";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/use-auth";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 type ChargeState = "pending" | "free" | "charged" | "insufficient" | "error";
 
@@ -33,6 +34,7 @@ export default function JobDetails() {
   const { toast } = useToast();
   const uiT = useUITranslations();
   const { lang } = useLang();
+  const pageScrollRef = useScrollReveal();
 
   const retryJob = useRetryJob(id || "");
   const [currentTime, setCurrentTime] = useState(0);
@@ -252,7 +254,7 @@ export default function JobDetails() {
     l === "he" ? "he-IL" : l === "ar" ? "ar" : l === "ja" ? "ja-JP" : l === "zh" ? "zh-CN" : l === "ko" ? "ko-KR" : "en-US";
 
   return (
-    <div className="relative min-h-screen bg-[var(--ds-bg-app)]">
+    <div className="relative min-h-screen bg-[var(--ds-bg-app)] page-enter" ref={pageScrollRef}>
       {/* Cinematic page background */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 ds-bg-galaxy" />
@@ -276,7 +278,7 @@ export default function JobDetails() {
         </div>
 
         {/* Header card — title + status + actions */}
-        <div className="ds-card-feature relative p-5 sm:p-7 mb-8 overflow-hidden">
+        <div className="ds-card-feature relative p-5 sm:p-7 mb-8 overflow-hidden ds-reveal">
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#E8A020]/10 blur-[80px] pointer-events-none" />
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div className="min-w-0">
@@ -411,35 +413,37 @@ export default function JobDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2 space-y-6">
               {/* Player card */}
-              <div className="relative rounded-[var(--ds-radius-2xl)] overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,.5)]">
+              <div className="relative rounded-[var(--ds-radius-2xl)] overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,.5)] ds-reveal ds-reveal-delay-1">
                 <div className="absolute -inset-px rounded-[inherit] pointer-events-none opacity-60" style={{ background: "var(--ds-grad-primary)" }} />
                 <div className="relative">
                   <VideoPlayer src={videoUrl} onTimeUpdate={setCurrentTime} />
                 </div>
               </div>
 
-              <BackgroundChanger jobId={job.id} currentBgStyle={(job as any).bg_style || "aurora"} />
+              <div className="ds-reveal ds-reveal-delay-2">
+                <BackgroundChanger jobId={job.id} currentBgStyle={(job as any).bg_style || "aurora"} />
+              </div>
 
               {/* Sing Now CTA */}
               <button
                 onClick={() => isPremium ? setSingMode(true) : setShowPremiumGate(true)}
-                className="group relative w-full overflow-hidden rounded-[var(--ds-radius-2xl)] p-5 sm:p-6 text-start ds-card-feature transition-transform active:scale-[0.99]"
+                className="group relative w-full overflow-hidden rounded-[var(--ds-radius-2xl)] p-5 sm:p-6 text-start ds-card-feature transition-transform active:scale-[0.99] ds-reveal ds-reveal-delay-3"
               >
                 <div className="absolute inset-0 opacity-40 group-hover:opacity-70 transition-opacity duration-500" style={{ background: "var(--ds-grad-primary)" }} />
                 <div className="absolute inset-[1px] rounded-[inherit]" style={{ background: "rgba(5,5,16,.85)", backdropFilter: "blur(20px)" }} />
-                <div className="ds-orb ds-orb-gold absolute -top-12 -right-12 w-44 h-44 opacity-60" />
-                <div className="ds-orb absolute -bottom-10 -left-10 w-36 h-36 opacity-40" style={{ animationDelay: "2s" }} />
+                <div className="ds-orb ds-orb-gold absolute -top-12 -right-12 w-44 h-44 opacity-60 group-hover:scale-125 transition-transform duration-700" />
+                <div className="ds-orb absolute -bottom-10 -left-10 w-36 h-36 opacity-40 group-hover:scale-110 transition-transform duration-700" style={{ animationDelay: "2s" }} />
                 <div className="relative flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="ds-icon-orb w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0">
-                      <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                    <div className="ds-icon-orb w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(232,160,32,0.4)] transition-all duration-500">
+                      <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white group-hover:text-[#E8A020] transition-colors" />
                     </div>
                     <div className="min-w-0">
                       <div className="text-lg sm:text-xl font-bold text-white truncate">{uiT.jobPage.singNowTitle}</div>
                       <div className="text-sm text-white/55 truncate">{uiT.jobPage.singNowDesc}</div>
                     </div>
                   </div>
-                  <div className="hidden sm:flex items-center gap-1.5 text-white group-hover:translate-x-1 transition-transform shrink-0">
+                  <div className={`hidden sm:flex items-center gap-1.5 text-white transition-transform shrink-0 ${lang === 'ar' || lang === 'he' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}>
                     <span className="text-sm font-semibold">{uiT.jobPage.start}</span>
                     <ChevronRight className="w-5 h-5" />
                   </div>
@@ -450,13 +454,13 @@ export default function JobDetails() {
               {chargeState === "free" && (
                 <button
                   onClick={() => setShowPricing(true)}
-                  className="group relative w-full overflow-hidden rounded-[var(--ds-radius-2xl)] p-5 sm:p-6 text-start ds-card transition-transform active:scale-[0.99]"
+                  className="group relative w-full overflow-hidden rounded-[var(--ds-radius-2xl)] p-5 sm:p-6 text-start ds-card transition-transform active:scale-[0.99] ds-reveal ds-reveal-delay-4"
                   style={{ borderColor: "rgba(250,204,21,.3)" }}
                 >
                   <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#E8A020]/10 blur-[60px]" />
                   <div className="relative flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0"
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500"
                            style={{ background: "linear-gradient(135deg,#FACC15,#F59E0B)", boxShadow: "0 0 40px rgba(250,204,21,.45)" }}>
                         <Coins className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                       </div>
@@ -465,7 +469,7 @@ export default function JobDetails() {
                         <div className="text-sm text-white/55 truncate">{uiT.jobPage.buyCreditsDesc}</div>
                       </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-1.5 text-[#E8A020] group-hover:translate-x-1 transition-transform shrink-0">
+                    <div className={`hidden sm:flex items-center gap-1.5 text-[#E8A020] transition-transform shrink-0 ${lang === 'ar' || lang === 'he' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}>
                       <span className="text-sm font-semibold">{uiT.jobPage.buyNow}</span>
                       <ChevronRight className="w-5 h-5" />
                     </div>
@@ -474,9 +478,9 @@ export default function JobDetails() {
               )}
 
               {/* Track details */}
-              <div className="ds-card p-6">
+              <div className="ds-card p-6 ds-reveal ds-reveal-delay-5">
                 <h3 className="text-base font-semibold mb-5 flex items-center gap-2 text-white">
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <Sparkles className="w-4 h-4 text-[#E8A020]" />
                   {uiT.jobPage.trackDetails}
                 </h3>
                 <div className="grid grid-cols-2 gap-5 text-sm">
@@ -505,15 +509,16 @@ export default function JobDetails() {
             </div>
 
             {/* Lyrics sidebar */}
-            <div className="lg:col-span-1 h-[400px] lg:h-[640px] flex flex-col">
-              <div className="ds-card flex-1 flex flex-col overflow-hidden p-0">
-                <div className="p-4 border-b border-white/[0.06] bg-white/[0.02] backdrop-blur-md">
+            <div className="lg:col-span-1 h-[400px] lg:h-[640px] flex flex-col ds-reveal ds-reveal-delay-2">
+              <div className="ds-card flex-1 flex flex-col overflow-hidden p-0 relative group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#E8A020]/10 blur-[40px] group-hover:bg-[#E8A020]/20 transition-all duration-700 pointer-events-none" />
+                <div className="p-4 border-b border-white/[0.06] bg-white/[0.02] backdrop-blur-md relative z-10">
                   <h3 className="font-display font-semibold flex items-center gap-2 text-white">
                     <Mic className="w-4 h-4 text-[#E8A020]" />
                     {uiT.jobPage.lyricsTitle}
                   </h3>
                 </div>
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-2 scroll-smooth" style={{ scrollbarWidth: "thin" }}>
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-2 scroll-smooth relative z-10" style={{ scrollbarWidth: "thin" }}>
                   {!lyricsData?.words || lyricsData.words.length === 0 ? (
                     <div className="text-center text-white/30 py-12">{uiT.jobPage.noVocalDetected}</div>
                   ) : (

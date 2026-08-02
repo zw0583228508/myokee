@@ -473,7 +473,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-[var(--ds-bg-app)]" ref={scrollContainer}>
+    <div className="min-h-screen flex flex-col relative bg-[var(--ds-bg-app)] page-enter" ref={scrollContainer}>
       {banners.map((b) => paymentBanner === b.kind && (
         <div key={b.kind} className={`w-full ${b.bg} border-b ${b.bd} px-4 py-3 flex items-center justify-center gap-3 text-sm backdrop-blur-xl`}>
           <b.icon className={`w-4 h-4 ${b.tx} shrink-0`} />
@@ -519,29 +519,29 @@ export default function Home() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-10 sm:pb-16 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)] gap-10 lg:gap-14 items-center">
 
           {/* Left: copy + CTAs */}
-          <div className="text-center lg:text-start ds-reveal" dir={dir}>
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full ds-glass border border-white/10 text-xs sm:text-sm text-white/75 mb-6 sm:mb-8">
+          <div className="text-center lg:text-start" dir={dir}>
+            <div className="ds-reveal inline-flex items-center gap-2.5 px-4 py-2 rounded-full ds-glass border border-white/10 text-xs sm:text-sm text-white/75 mb-6 sm:mb-8">
               <MusicBars />
               {t.home.hero.badge}
             </div>
 
-            <div className="mx-auto lg:mx-0 inline-flex mb-6 sm:mb-8">
-              <div className="ds-icon-orb w-16 h-16 sm:w-20 sm:h-20 rounded-3xl">
+            <div className="ds-reveal ds-reveal-delay-1 mx-auto lg:mx-0 inline-flex mb-6 sm:mb-8">
+              <div className="ds-icon-orb w-16 h-16 sm:w-20 sm:h-20 rounded-3xl animate-float-slow">
                 <Mic className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
               </div>
             </div>
 
-            <h1 className="ds-hero-title font-bold leading-[0.94] tracking-tight mb-5 sm:mb-7">
+            <h1 className="ds-reveal ds-reveal-delay-2 ds-hero-title font-bold leading-[0.94] tracking-tight mb-5 sm:mb-7">
               <span className="block text-white">{t.home.hero.headline1}</span>
               <span className="block text-[#E8A020]">{t.home.hero.headline2}</span>
               <span className="block text-white/90">{t.home.hero.headline3}</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-7 sm:mb-9 leading-relaxed">
+            <p className="ds-reveal ds-reveal-delay-3 text-base sm:text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-7 sm:mb-9 leading-relaxed">
               {t.home.hero.sub}
             </p>
 
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 mb-7 sm:mb-10">
+            <div className="ds-reveal ds-reveal-delay-4 flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 mb-7 sm:mb-10">
               {t.home.hero.chips.map((f: string, i: number) => {
                 // Chips 1-2 are Global Leaderboard / Challenge Friends — hidden while those features are off
                 if (i === 1 && !FEATURES.leaderboard) return null;
@@ -554,7 +554,7 @@ export default function Home() {
               })}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
+            <div className="ds-reveal ds-reveal-delay-5 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
               <Link href="/upload">
                 <button className="ds-btn ds-btn-primary px-9 py-4 text-base">
                   <Mic className="w-5 h-5" />
@@ -572,11 +572,13 @@ export default function Home() {
               )}
             </div>
 
-            <LiveStatsStrip lang={lang} />
+            <div className="ds-reveal ds-reveal-delay-4">
+              <LiveStatsStrip lang={lang} />
+            </div>
           </div>
 
           {/* Right: mock player + floating preview pills */}
-          <div className="relative ds-reveal" style={{ animationDelay: "120ms" }}>
+          <div className="relative ds-reveal-scale ds-reveal-delay-3">
             <MockKaraokePreview lang={lang} />
             {/* orbiting pills */}
             <FloatingPill icon={Wand2}    label={i18n.pillVocal}  className="absolute -top-4 -left-6"  delay="0s" />

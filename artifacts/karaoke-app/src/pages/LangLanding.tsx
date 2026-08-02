@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useRoute, useLocation, Link } from "wouter";
 import { useLang, SupportedLang } from "@/contexts/LanguageContext";
 import { FEATURES } from "@/config/features";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import {
   Mic, Upload, Sparkles, Play, ChevronDown,
   Headphones, Users, Swords, Trophy, Star, Video, FileText,
@@ -78,6 +79,7 @@ export default function LangLanding() {
   const { t, setLang } = useLang();
   const howRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useScrollReveal();
 
   const [, navigate] = useLocation();
   const urlLang = (params?.lang ?? "en") as SupportedLang;
@@ -146,7 +148,7 @@ export default function LangLanding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative page-enter" ref={scrollRef}>
       <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5" />
@@ -187,18 +189,18 @@ export default function LangLanding() {
             {t.home.hero.badge}
           </div>
 
-          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-6 ds-reveal" style={{ animationDelay: "60ms" }}>
+          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold font-display leading-[0.88] tracking-tight mb-4 sm:mb-6 ds-reveal ds-reveal-delay-1">
             <span className="text-white">{t.home.hero.headline1}</span>
             <br />
             <span className="ds-grad-text">{t.home.hero.headline2}</span>
             <span className="text-white">{t.home.hero.headline3}</span>
           </h1>
 
-          <p className="text-base sm:text-xl text-white/55 max-w-lg mx-auto mb-6 sm:mb-10 leading-relaxed ds-reveal" style={{ animationDelay: "120ms" }}>
+          <p className="text-base sm:text-xl text-white/55 max-w-lg mx-auto mb-6 sm:mb-10 leading-relaxed ds-reveal ds-reveal-delay-2">
             {t.home.hero.sub}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10 ds-reveal" style={{ animationDelay: "180ms" }}>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-10 ds-reveal ds-reveal-delay-3">
             {t.home.hero.chips.map((f: string, i: number) => {
               // Chips 1-2 are Global Leaderboard / Challenge Friends — hidden while those features are off
               if (i === 1 && !FEATURES.leaderboard) return null;
@@ -211,7 +213,7 @@ export default function LangLanding() {
             })}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 ds-reveal" style={{ animationDelay: "240ms" }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 ds-reveal ds-reveal-delay-4">
             <Link href="/upload">
               <button className="ds-btn ds-btn-primary px-9 py-4 text-base font-bold">
                 <Mic className="w-5 h-5" />{t.home.hero.ctaCreate}
@@ -246,7 +248,7 @@ export default function LangLanding() {
         </div>
 
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-10 sm:mb-16">
+          <div className="text-center mb-10 sm:mb-16 reveal-on-scroll">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent font-medium mb-4">
               <Play className="w-3 h-3" />{t.home.howItWorks.badge}
             </div>
@@ -261,10 +263,10 @@ export default function LangLanding() {
               { num: "01", icon: Upload, step: t.home.howItWorks.step1, gradient: "from-violet-600 to-primary" },
               { num: "02", icon: Sparkles, step: t.home.howItWorks.step2, gradient: "from-blue-500 to-cyan-500" },
               { num: "03", icon: Mic, step: t.home.howItWorks.step3, gradient: "from-accent to-pink-500" },
-            ].map(({ num, icon: Icon, step, gradient }) => (
-              <div key={num} className="relative text-center group" dir={dir}>
+            ].map(({ num, icon: Icon, step, gradient }, i) => (
+              <div key={num} className="relative text-center group reveal-on-scroll" dir={dir} style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="relative inline-flex mb-6">
-                  <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.2)] group-hover:shadow-[0_0_60px_rgba(124,58,237,0.3)] transition-all`}>
+                  <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.2)] group-hover:shadow-[0_0_60px_rgba(124,58,237,0.3)] group-hover:scale-105 transition-all duration-500`}>
                     <Icon className="w-9 h-9 text-white" />
                   </div>
                   <span className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-background border border-white/15 flex items-center justify-center text-[11px] font-bold text-white/50">
@@ -277,7 +279,7 @@ export default function LangLanding() {
             ))}
           </div>
 
-          <div className="mt-14 text-center">
+          <div className="mt-14 text-center reveal-on-scroll">
             <Link href="/upload">
               <button
                 className="btn-primary gap-2 px-8 py-3.5 rounded-2xl text-sm text-white shadow-[0_0_40px_rgba(147,51,234,.25)]">
@@ -300,7 +302,7 @@ export default function LangLanding() {
         </div>
 
         <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" dir={dir}>
-          <div className="text-center mb-10 sm:mb-16">
+          <div className="text-center mb-10 sm:mb-16 reveal-on-scroll">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium mb-4">
               <Sparkles className="w-3 h-3" />{t.home.features.badge}
             </div>
@@ -310,7 +312,7 @@ export default function LangLanding() {
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
 
-            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-violet-500/15 to-purple-600/5 border border-violet-500/20 overflow-hidden hover:border-violet-400/35 transition-all">
+            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-violet-500/15 to-purple-600/5 border border-violet-500/20 overflow-hidden hover:border-violet-400/35 hover:-translate-y-1 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-500 reveal-on-scroll">
               <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-violet-500/8 blur-3xl" />
               <div className="flex items-start justify-between mb-3 sm:mb-5">
                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-violet-500/20 border border-violet-400/20 flex items-center justify-center">
@@ -327,7 +329,7 @@ export default function LangLanding() {
               </div>
             </div>
 
-            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-blue-500/15 to-cyan-600/5 border border-blue-500/20 overflow-hidden hover:border-blue-400/35 transition-all">
+            <div className="col-span-2 sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-blue-500/15 to-cyan-600/5 border border-blue-500/20 overflow-hidden hover:border-blue-400/35 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
               <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-blue-500/8 blur-3xl" />
               <div className="flex items-start justify-between mb-3 sm:mb-5">
                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-blue-500/20 border border-blue-400/20 flex items-center justify-center">
@@ -344,7 +346,7 @@ export default function LangLanding() {
               </div>
             </div>
 
-            <div className="col-span-2 lg:col-span-4 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/8 to-pink-600/5 border border-fuchsia-500/25 overflow-hidden hover:border-fuchsia-400/40 transition-all">
+            <div className="col-span-2 lg:col-span-4 relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/8 to-pink-600/5 border border-fuchsia-500/25 overflow-hidden hover:border-fuchsia-400/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-fuchsia-500/20 transition-all duration-500 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
               <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-fuchsia-500/8 blur-[80px]" />
               <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-pink-500/8 blur-3xl" />
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -367,10 +369,10 @@ export default function LangLanding() {
                   </div>
                 </div>
                 <Link href="/upload" className="shrink-0">
-                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-300 hover:bg-fuchsia-500/30 transition-colors text-sm font-semibold whitespace-nowrap">
+                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-300 hover:bg-fuchsia-500/30 transition-colors text-sm font-semibold whitespace-nowrap group">
                     <Upload className="w-4 h-4" />
                     {t.nav.createKaraoke}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform ${dir === 'rtl' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
                   </button>
                 </Link>
               </div>
@@ -392,7 +394,7 @@ export default function LangLanding() {
               ][i];
               if (!colors) return null;
               return (
-                <div key={i} className={`relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-gradient-to-br ${colors.bg} border ${colors.border} overflow-hidden hover:scale-[1.02] transition-all`}>
+                <div key={i} className={`relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-gradient-to-br ${colors.bg} border ${colors.border} overflow-hidden hover:scale-[1.02] transition-all duration-500 reveal-on-scroll`} style={{ transitionDelay: `${(i + 3) * 100}ms` }}>
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-10 h-10 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center shrink-0">
                       <Icon className={`w-5 h-5 ${colors.color}`} />

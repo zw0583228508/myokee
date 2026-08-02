@@ -263,7 +263,7 @@ export function FileUpload() {
           className={`
             flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200
             ${tab === "file"
-              ? "bg-primary text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+              ? "bg-[#E8A020] text-black shadow-[0_0_20px_rgba(232,160,32,0.4)]"
               : "text-white/75 hover:text-white hover:bg-white/5"
             }
           `}
@@ -333,20 +333,20 @@ export function FileUpload() {
                     {...getRootProps()}
                     className={`
                       relative flex flex-col items-center justify-center w-full p-6 sm:p-12 text-center
-                      border-2 border-dashed rounded-2xl sm:rounded-3xl cursor-pointer transition-all duration-300
+                      border-2 border-dashed rounded-2xl sm:rounded-3xl cursor-pointer transition-all duration-300 group
                       ${isDragActive
-                        ? "border-primary bg-primary/5 shadow-[0_0_40px_rgba(139,92,246,0.15)]"
+                        ? "border-[#E8A020] bg-[#E8A020]/5 shadow-[0_0_40px_rgba(232,160,32,0.15)]"
                         : isDragReject
                         ? "border-destructive bg-destructive/5"
-                        : "border-white/20 bg-card/40 hover:bg-card/60 hover:border-primary/50"
+                        : "border-white/20 bg-card/40 hover:bg-card/60 hover:border-[#E8A020]/50"
                       }
                     `}
                   >
                     <input {...getInputProps()} />
-                    <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-3xl opacity-0 transition-opacity duration-300 pointer-events-none data-[active=true]:opacity-100" data-active={isDragActive} />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#E8A020]/5 to-transparent rounded-3xl opacity-0 transition-opacity duration-300 pointer-events-none group-hover:opacity-100 data-[active=true]:opacity-100" data-active={isDragActive} />
                     <div className="relative z-10 flex flex-col items-center">
-                      <div className={`p-4 rounded-2xl mb-6 transition-all duration-300 ${isDragActive ? "bg-primary/20 scale-110" : "bg-white/5"}`}>
-                        <UploadCloud className={`w-10 h-10 ${isDragActive ? "text-primary" : "text-muted-foreground"}`} />
+                      <div className={`p-4 rounded-2xl mb-6 transition-all duration-500 group-hover:scale-110 group-hover:bg-[#E8A020]/20 ${isDragActive ? "bg-[#E8A020]/20 scale-110" : "bg-white/5"}`}>
+                        <UploadCloud className={`w-10 h-10 transition-colors duration-500 group-hover:text-[#E8A020] ${isDragActive ? "text-[#E8A020]" : "text-muted-foreground"}`} />
                       </div>
                       <h3 className="text-xl sm:text-2xl font-display font-semibold mb-2">
                         {isDragActive ? t.upload.dropzoneActive : t.upload.dropzone}
@@ -409,19 +409,18 @@ export function FileUpload() {
                     onChange={handleAvatarChange}
                     t={t}
                   />
-                  <label className="flex items-start gap-3 cursor-pointer select-none w-full bg-white/5 rounded-xl p-3 border border-white/10 hover:border-primary/30 transition-colors">
+                  <label className="flex items-start gap-3 cursor-pointer select-none w-full bg-white/5 rounded-xl p-3 border border-white/10 hover:border-[#E8A020]/30 transition-colors">
                     <input
                       type="checkbox"
                       checked={copyrightChecked}
                       onChange={(e) => setCopyrightChecked(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded border-white/20 accent-primary shrink-0"
+                      className="mt-0.5 w-4 h-4 rounded border-white/20 accent-[#E8A020] shrink-0"
                     />
                     <span className="text-xs text-muted-foreground leading-relaxed">{t.upload.copyrightConfirm}</span>
                   </label>
                   <Button
                     size="lg"
-                    variant="gradient"
-                    className="w-full sm:w-auto min-w-[200px]"
+                    className="w-full sm:w-auto min-w-[200px] bg-gradient-to-r from-[#E8A020] to-[#F5C66C] text-black font-semibold hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(232,160,32,0.4)] active:scale-[0.98] transition-all border-0"
                     onClick={handleSubmit}
                     disabled={!canSubmit}
                   >
@@ -494,18 +493,18 @@ export function FileUpload() {
               t={t}
             />
 
-            <label className="flex items-start gap-3 cursor-pointer select-none w-full bg-white/5 rounded-xl p-3 border border-white/10 hover:border-primary/30 transition-colors">
+            <label className="flex items-start gap-3 cursor-pointer select-none w-full bg-white/5 rounded-xl p-3 border border-white/10 hover:border-[#E8A020]/30 transition-colors">
               <input
                 type="checkbox"
                 checked={copyrightChecked}
                 onChange={(e) => setCopyrightChecked(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded border-white/20 accent-primary shrink-0"
+                className="mt-0.5 w-4 h-4 rounded border-white/20 accent-[#E8A020] shrink-0"
               />
               <span className="text-xs text-white/75 leading-relaxed">{t.upload.copyrightConfirm}</span>
             </label>
             <Button
               size="lg"
-              className="w-full sm:w-auto min-w-[200px] bg-red-600 hover:bg-red-700 text-white border-0 shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+              className="w-full sm:w-auto min-w-[200px] bg-red-600 hover:bg-red-500 text-white border-0 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all hover:-translate-y-1 active:scale-[0.98]"
               onClick={handleSubmit}
               disabled={!canSubmit}
             >

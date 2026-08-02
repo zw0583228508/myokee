@@ -65,3 +65,6 @@ SMTP_USER = "a529e8001@smtp-brevo.com"
 SMTP_FROM_EMAIL = "noreply@myoukee.com"
 SMTP_FROM_NAME = "MYOUKEE"
 SMTP_PASS = "xsmtpsib-ac0a5196fc7de9310faca640cb0a6844a410078f6149419501be868be6282e6f-iKK0slZUn849A6eh"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-2965446b-fd5d-4a08-9d2e-effd95dae10c"

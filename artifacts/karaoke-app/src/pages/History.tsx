@@ -7,6 +7,7 @@ import { JobStatusBadge } from "@/components/karaoke/JobStatusBadge";
 import { useLang } from "@/contexts/LanguageContext";
 import { buildDemoJobs, type DemoJob, isDemo } from "@/lib/demoData";
 import type { Job } from "@workspace/api-client-react";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 type HistoryRow = Job | DemoJob;
 
@@ -17,6 +18,7 @@ export default function History() {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft;
   const { data: realJobs, isLoading } = useKaraokeJobs();
   const removeJob = useRemoveJob();
+  const scrollRef = useScrollReveal();
   // Show demo songs when there's no real history yet, so the page feels
   // populated for first-time visitors. Demo cards aren't deletable / clickable.
   const jobs: HistoryRow[] =
@@ -25,7 +27,7 @@ export default function History() {
       : (realJobs ?? []);
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-[var(--ds-bg-app)]" dir={t.dir}>
+    <div className="min-h-screen flex flex-col relative bg-[var(--ds-bg-app)] page-enter" dir={t.dir} ref={scrollRef}>
       {/* Cinematic header background */}
       <div className="absolute top-0 inset-x-0 h-[480px] overflow-hidden -z-10 pointer-events-none">
         <div className="absolute inset-0 ds-bg-galaxy" />
@@ -81,7 +83,7 @@ export default function History() {
               <div
                 key={job.id}
                 className="ds-card group relative p-5 sm:p-6 flex flex-col h-full ds-reveal overflow-hidden hover:border-white/15 transition-all duration-500"
-                style={{ animationDelay: `${i * 40}ms` }}
+                style={{ transitionDelay: `${i * 60}ms` }}
               >
                 <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#E8A020]/10 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative flex flex-col h-full">
